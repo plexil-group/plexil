@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,7 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
 
 public class OnMessageNode extends PlexilTreeNode
 {
@@ -50,7 +50,7 @@ public class OnMessageNode extends PlexilTreeNode
 	// Format is:
 	// ^(ON_MESSAGE_KYWD expression action)
 
-    public void checkSelf(NodeContext context, CompilerState state)
+    protected void checkSelf(NodeContext context, CompilerState state)
     {
 		// Ensure that the message is a string expression
 		ExpressionNode msgName = (ExpressionNode) this.getChild(0);
@@ -61,13 +61,13 @@ public class OnMessageNode extends PlexilTreeNode
 		}
     }
 
-    public void constructXML()
+    @Override
+    protected void constructXML()
     {
-        super.constructXML();
-        IXMLElement messageXML = new XMLElement();
-        messageXML.setName("Message");
-        m_xml.addChild(messageXML);
-        messageXML.addChild(this.getChild(0).getXML());
-        m_xml.addChild(this.getChild(1).getXML());
+        super.constructXMLBase();
+        Element messageXML = CompilerState.newElement("Message");
+        m_xml.appendChild(messageXML);
+        messageXML.appendChild(this.getChild(0).getXML());
+        m_xml.appendChild(this.getChild(1).getXML());
     }
 }

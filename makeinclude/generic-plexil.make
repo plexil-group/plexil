@@ -32,10 +32,10 @@
 RUN_AGENTS = $(PLEXIL_HOME)/scripts/run-agents
 
 # Find the .pli and .ple plans in ./ and lib/
-PLANS = $(wildcard *.pli *.ple lib/*.pli lib/*.ple)
+PLANS = $(wildcard *.epx *.ple *.plp *.pli lib/*.epx lib/*.ple lib/*.plp lib/*.pli)
 
 # Find all of the .plx targets implied by PLANS
-TARGETS = $(filter %.plx, $(PLANS:%.ple=%.plx) $(PLANS:%.pli=%.plx))
+TARGETS = $(filter %.plx, (PLANS:%.epx=%.plx) $(PLANS:%.ple=%.plx)(PLANS:%.plp=%.plx) $(PLANS:%.pli=%.plx))
 
 # The default target for this file (leave all for others)
 plx: $(TARGETS)
@@ -45,34 +45,42 @@ plx: $(TARGETS)
 DIRS = . lib test
 
 _dust:
-	for dir in $(DIRS) ; do $(RM) $${dir}/*.{epx,last} ; done
-dust: _dust
+	-@for dir in $(DIRS) ; do $(RM) $${dir}/*.{epx,last} ; done
+dust:: _dust
 
 _clean: dust
-	for dir in $(DIRS) ; do $(RM) $${dir}/*.plx ; $(RM) core.* ; done
-clean: _clean
+	-@for dir in $(DIRS) ; do $(RM) $${dir}/*.plx ; $(RM) core.* ; done
+clean:: _clean
 
 _cleaner: clean
-	for dir in $(DIRS) ; do $(RM) $${dir}/*~ ; done
+	-@for dir in $(DIRS) ; do $(RM) $${dir}/*~ ; done
 cleaner: _cleaner
 
 plexil-targets:
 	@echo "plans:   " $(PLANS)
 	@echo "targets: " $(TARGETS)
 
+##### PLEXIL Compiler defaults
+
+PLEXIL_COMPILER = $(PLEXIL_HOME)/scripts/plexilc
+PLEXILC_OPTS    = -p
+
 ##### Default pattern rules for generating Plexil XML
 
-%.plx: %.plp
-	$(PLEXIL_HOME)/scripts/plexilc $<
-
 %.plx: %.ple
-	$(PLEXIL_HOME)/scripts/plexilc $<
+	$(PLEXIL_COMPILER) $(PLEXILC_OPTS) $<
 
 %.plx: %.pli
-	$(PLEXIL_HOME)/scripts/plexilc $<
+	$(PLEXIL_COMPILER) $(PLEXILC_OPTS) $<
+
+%.plx: %.plp
+	$(PLEXIL_COMPILER) $(PLEXILC_OPTS) $<
 
 %.plx: %.epx
-	$(PLEXIL_HOME)/scripts/plexilc $<
+	$(PLEXIL_COMPILER) $(PLEXILC_OPTS) $<
+
+%.psx: %.pst
+	$(PLEXIL_COMPILER) $(PLEXILC_OPTS) $<
 
 .PHONY: _dust dust _clean clean _cleaner cleaner plexil-targets
 

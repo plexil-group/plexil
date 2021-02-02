@@ -1,4 +1,6 @@
-# Copyright (c) 2006-2009, Universities Space Research Association (USRA).
+# Makefile for the PLEXIL examples suite
+
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -23,36 +25,15 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Peforms batch translations of:
-#  - Standard Plexil into Core Plexil
-#  - Extended Plexil into Core Plexil
-#  - 
-
 SHELL = /bin/sh
 
-CORE       = SimpleAssignment SimpleDrive DriveToTarget SafeDrive
-CORE_PLE   = $(CORE:=.ple) 
-CORE_PLX   = $(CORE_PLE:.ple=.plx) 
-EXTENDED   = DriveToSchool
+SUBDIRS = basic checkpoint multi-exec/agents multi-exec/agents/test multi-exec/udp robosim sample-app
 
-ALL = $(EXTENDED) $(CORE)
+all:
 
-# Temporary file
-DIFF = /tmp/plexil-$$$$
+clean-all clean-examples: clean
+	for f in $(SUBDIRS); do $(MAKE) -C $$f clean ; done
 
-default: standard extended
+clean:
 
-# Compile all Standard Plexil (.ple) files.
-standard: $(CORE_PLX)
-
-extended:
-	@ echo Translating Extended Plexil examples...
-	@ for i in $(EXTENDED); do \
-	        eplexil $$i.epx $$i.plx ; \
-	  done
-	@ echo Finished.
-
-.SUFFIXES : .ple .plx
-
-.ple.plx:
-	../bin/plexil $<
+.PHONY: clean clean-all

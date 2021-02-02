@@ -82,7 +82,7 @@ dust:
 	@$(RM) -f *.rng
 
 clean: dust
-	@$(RM) -f *.rnc
+	@$(RM) -f $(SCHEMA_RNC) $(PLEXILSCRIPT_RNC)
 
 # Dependencies
 extended-plexil.rnc core-plexil.rnc : plexil-base.rng

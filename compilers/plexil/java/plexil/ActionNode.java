@@ -28,7 +28,9 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
+
+import plexil.xml.DOMUtils;
 
 public class ActionNode extends PlexilTreeNode
 {
@@ -73,11 +75,11 @@ public class ActionNode extends PlexilTreeNode
     // Format is
     // (ACTION NCName? baseAction)
 
-    public void earlyCheckSelf(NodeContext context, CompilerState state)
+    protected void earlyCheckSelf(NodeContext context, CompilerState state)
     {
         // If supplied, get the node ID
         PlexilTreeNode firstChild = this.getChild(0);
-        if (firstChild.getType() == PlexilLexer.NCNAME) {
+        if (hasNodeId()) {
             m_nodeId = firstChild.getText();
             // Check that node ID is locally unique
             if (context.isChildNodeId(m_nodeId)) {
@@ -94,7 +96,7 @@ public class ActionNode extends PlexilTreeNode
         }
         else {
             // Gensym a name but don't log it, since it never appeared in the source
-            m_nodeId = context.generateChildNodeName(firstChild.getToken().getText());
+            m_nodeId = context.generateChildNodeName(firstChild.getText());
         }
     }
 
@@ -106,10 +108,7 @@ public class ActionNode extends PlexilTreeNode
     @Override
     protected void addSourceLocatorAttributes()
     {
-        // If some inner form has set them, don't bother.
-        if (null == m_xml.getAttribute("LineNo", null))
-            return;
-
+        // Use location of first child
         Token t = getChild(0).getToken();
         m_xml.setAttribute("LineNo", String.valueOf(t.getLine()));
         m_xml.setAttribute("ColNo", String.valueOf(t.getCharPositionInLine()));
@@ -118,17 +117,19 @@ public class ActionNode extends PlexilTreeNode
     @Override
     protected void constructXML()
     {
-        // Get XML from last child
+        // Get XML body from last child
         PlexilTreeNode child = this.getChild(this.getChildCount() - 1);
         m_xml = child.getXML();
+
         addSourceLocatorAttributes();
 
-        // Insert Node ID element if not already present
-        IXMLElement nodeIdElt = m_xml.getFirstChildNamed("NodeId");
-        if (nodeIdElt == null) {
-            nodeIdElt = new XMLElement("NodeId");
-            nodeIdElt.setContent(m_nodeId);
-            m_xml.insertChild(nodeIdElt, 0);
+        // Insert Node ID element if was explicitly supplied
+        // or child didn't already have one
+        if (hasNodeId()
+            || DOMUtils.getFirstElementNamed(m_xml, "NodeId") == null) {
+            Element nodeIdElt = CompilerState.newElement("NodeId");
+            nodeIdElt.appendChild(CompilerState.newTextNode(m_nodeId));
+            m_xml.insertBefore(nodeIdElt, m_xml.getFirstChild());
         }
     }
 

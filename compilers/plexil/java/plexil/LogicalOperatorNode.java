@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -59,14 +59,6 @@ public class LogicalOperatorNode extends ExpressionNode
 
             // run semantic checks on operand even if it failed type check
             operand.check(context, myState);
-        }
-    }
-
-    public void constructXML()
-    {
-        super.constructXML();
-        for (int i = 0; i < this.getChildCount(); i++) {
-            m_xml.addChild(this.getChild(i).getXML());
         }
     }
 

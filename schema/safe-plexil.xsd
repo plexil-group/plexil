@@ -79,7 +79,7 @@
       <!-- Any number of Comment elements COULD be included
            if we could implement XML Schema 1.1.
       -->
-      <xs:element name="Comment" type="xs:string" minOccurs="0"/>
+      <xs:element ref="Comment" minOccurs="0"/>
 
       <!-- Currently only relevant for Assignment nodes -->
       <xs:element name="Priority" type="xs:nonNegativeInteger" minOccurs="0"/>

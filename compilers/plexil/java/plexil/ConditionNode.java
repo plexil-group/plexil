@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,8 +28,6 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
-
 public class ConditionNode extends PlexilTreeNode
 {
 
@@ -48,7 +46,7 @@ public class ConditionNode extends PlexilTreeNode
 		return new ConditionNode(this);
 	}
 
-    public void checkSelf(NodeContext context, CompilerState myState)
+    protected void checkSelf(NodeContext context, CompilerState myState)
     {
         ExpressionNode exp = (ExpressionNode) this.getChild(0);
         if (exp.getDataType() != PlexilDataType.BOOLEAN_TYPE) {
@@ -57,13 +55,6 @@ public class ConditionNode extends PlexilTreeNode
 								  + exp.getDataType().typeName() + ", not Boolean",
                                   Severity.ERROR);
         }
-    }
-
-    public void constructXML()
-    {
-        super.constructXML();
-        // Add expression
-        m_xml.addChild(this.getChild(0).getXML());
     }
 
     public String getXMLElementName()

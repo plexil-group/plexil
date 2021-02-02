@@ -30,7 +30,7 @@ import java.util.Vector;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
 
 public class CommandNode extends ExpressionNode
 {
@@ -64,7 +64,7 @@ public class CommandNode extends ExpressionNode
     // (COMMAND ((COMMAND_KYWD NCNAME) | expression) (ARGUMENT_LIST expression*)?)
 
     @Override
-    public void earlyCheckSelf(NodeContext context, CompilerState state)
+    protected void earlyCheckSelf(NodeContext context, CompilerState state)
     {
         PlexilTreeNode nameAST = this.getChild(0);
         if (this.getChildCount() > 1)
@@ -147,15 +147,14 @@ public class CommandNode extends ExpressionNode
     }
 
     @Override
-    public void check(NodeContext context, CompilerState state)
+    protected void checkSelf(NodeContext context, CompilerState state)
     {
         PlexilTreeNode nameAST = this.getChild(0);
-
-        // if name is not literal
         if (nameAST.getType() != PlexilLexer.COMMAND_KYWD) {
-            // Check that name expression returns a string
+            // if name is not literal, 
+            // check that name expression returns a string
             ExpressionNode nameExp = (ExpressionNode) nameAST;
-            if (nameExp.getDataType() != PlexilDataType.STRING_TYPE) {
+            if (!nameExp.assumeType(PlexilDataType.STRING_TYPE, state)) {
                 state.addDiagnostic(nameExp,
                                     "Command name expression is not a string expression",
                                     Severity.ERROR);
@@ -163,16 +162,12 @@ public class CommandNode extends ExpressionNode
         }
 
         if (m_commandDeclaration != null) {
-            // Check parameter list
+            // Check parameter list against declaration
             String cmdName = m_commandDeclaration.getName();
             Vector<VariableName> parmSpecs = m_commandDeclaration.getParameterVariables();
             if (parmSpecs != null && m_parameters != null)
                 m_parameters.checkArgumentList(context, state, "command", cmdName, parmSpecs);
         }
-        // Resource list is self-checking
-
-        // Perform recursive checks on subexprs
-        this.checkChildren(context, state);
     }
 
     /**
@@ -189,43 +184,44 @@ public class CommandNode extends ExpressionNode
         return true;
     }
 
-    public void constructXML()
+    @Override
+    protected void constructXML()
     {
         // construct Node XML
-        super.constructXML();
+        super.constructXMLBase();
         m_xml.setAttribute("NodeType", "Command");
 
         // construct node body
-        IXMLElement nodeBody = new XMLElement("NodeBody");
-        m_xml.addChild(nodeBody);
+        Element nodeBody = CompilerState.newElement("NodeBody");
+        m_xml.appendChild(nodeBody);
 
-        IXMLElement commandBody = new XMLElement("Command");
+        Element commandBody = CompilerState.newElement("Command");
         // set source location to the loc'n of the command name (expression)
         commandBody.setAttribute("LineNo", String.valueOf(this.getChild(0).getLine()));
         commandBody.setAttribute("ColNo", String.valueOf(this.getChild(0).getCharPositionInLine()));
 
-        nodeBody.addChild(commandBody);
+        nodeBody.appendChild(commandBody);
 
         // BlockNode handles resource list
 
         // Add name (expression)
         PlexilTreeNode commandName = this.getChild(0);
-        IXMLElement nameXML = new XMLElement("Name");
-        commandBody.addChild(nameXML);
+        Element nameXML = CompilerState.newElement("Name");
+        commandBody.appendChild(nameXML);
         if (commandName.getType() == PlexilLexer.COMMAND_KYWD) {
             // Literal command name
-            IXMLElement stringVal = new XMLElement("StringValue");
-            stringVal.setContent(commandName.getChild(0).getText());
-            nameXML.addChild(stringVal);
+            Element stringVal = CompilerState.newElement("StringValue");
+            stringVal.appendChild(CompilerState.newTextNode(commandName.getChild(0).getText()));
+            nameXML.appendChild(stringVal);
         }
         else {
             // Command name expression
-            nameXML.addChild(commandName.getXML());
+            nameXML.appendChild(commandName.getXML());
         }
 
         // Handle parameters
         if (m_parameters != null) {
-            commandBody.addChild(m_parameters.getXML());
+            commandBody.appendChild(m_parameters.getXML());
         }
     }
 

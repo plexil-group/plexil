@@ -31,7 +31,7 @@ import java.util.TreeSet;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
 
 public class DoNode extends PlexilTreeNode
 {
@@ -69,7 +69,7 @@ public class DoNode extends PlexilTreeNode
         this.getChild(1).earlyCheck(parentContext, state); // do-test expression
     }
 
-    public void earlyCheckSelf(NodeContext parentContext, CompilerState state)
+    protected void earlyCheckSelf(NodeContext parentContext, CompilerState state)
     {
         // See if we have a node ID
         String nodeId = null;
@@ -98,7 +98,7 @@ public class DoNode extends PlexilTreeNode
         this.getChild(1).check(parentContext, state); // do test
     }
 
-    public void checkSelf(NodeContext context, CompilerState state)
+    protected void checkSelf(NodeContext context, CompilerState state)
     {
         ExpressionNode doTest = (ExpressionNode) this.getChild(1);
         if (!doTest.assumeType(PlexilDataType.BOOLEAN_TYPE, state)) {
@@ -108,17 +108,18 @@ public class DoNode extends PlexilTreeNode
         }
     }
 
+    @Override
     protected void constructXML()
     {
-        super.constructXML();
+        super.constructXMLBase();
 
-        IXMLElement action = new XMLElement("Action");
-        m_xml.addChild(action);
-        action.addChild(this.getChild(0).getXML());
+        Element action = CompilerState.newElement("Action");
+        m_xml.appendChild(action);
+        action.appendChild(this.getChild(0).getXML());
 
-        IXMLElement condition = new XMLElement("Condition");
-        m_xml.addChild(condition);
-        condition.addChild(this.getChild(1).getXML());
+        Element condition = CompilerState.newElement("Condition");
+        m_xml.appendChild(condition);
+        condition.appendChild(this.getChild(1).getXML());
         condition.setAttribute("LineNo", String.valueOf(this.getChild(1).getLine()));
         condition.setAttribute("ColNo", String.valueOf(this.getChild(1).getCharPositionInLine()));
     }

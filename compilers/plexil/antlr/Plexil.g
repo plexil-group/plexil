@@ -488,6 +488,7 @@ ifAction
     (ELSEIF_KYWD! expression consequentAction)*
     (ELSE_KYWD! action)?
     ENDIF_KYWD!?
+    SEMICOLON!?
  ;
 
 consequentAction :
@@ -1190,16 +1191,22 @@ STRING: '"' (Escape|~('"'|'\\'))* '"'
       ;
 fragment Escape:
   '\\'
-  ('n' | 't' | 'b' | 'f' |'\n' | '\r' | '"' | '\'' | '\\' | UnicodeEscape | OctalEscape);
+  ('b' | 'f' | 'n' | 't' | '\n' | '\r' | '"' | '\'' | '\\'
+       | UnicodeEscape | UnicodeLongEscape | HexEscape | OctalEscape);
 
 fragment UnicodeEscape: 
   'u' HexDigit HexDigit HexDigit HexDigit;
 
-fragment OctalEscape: 
-  QuadDigit ( OctalDigit OctalDigit? )?
-  | OctalDigit OctalDigit? ;
+fragment UnicodeLongEscape: 
+  'U' HexDigit HexDigit HexDigit HexDigit HexDigit HexDigit HexDigit HexDigit;
 
-fragment QuadDigit: ('0'..'3') ;
+fragment HexEscape: 
+  'x' (HexDigit)+ ;
+
+fragment OctalEscape: 
+  ('0'..'3') ( OctalDigit OctalDigit? )?
+  | ('4'..'7') OctalDigit? ;
+
 fragment OctalDigit: ('0'..'7') ;
 fragment Digit: ('0'..'9') ;
 fragment HexDigit: (Digit|'A'..'F'|'a'..'f') ;

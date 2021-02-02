@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
 
 // 
 // A specialized AST node that does code generation for literals.
@@ -41,6 +41,7 @@ public class LiteralNode extends ExpressionNode
     public LiteralNode(Token t) 
     {
         super(t);
+        // Move this to earlyCheckSelf()?
         setInitialDataTypeFromTokenType();
     }
 
@@ -54,9 +55,9 @@ public class LiteralNode extends ExpressionNode
 		return new LiteralNode(this);
 	}
 
-    private void setInitialDataTypeFromTokenType()
+    protected void setInitialDataTypeFromTokenType()
     {
-        switch (this.getToken().getType()) {
+        switch (this.getType()) {
 
         case PlexilLexer.INT:
         case PlexilLexer.NEG_INT:
@@ -82,21 +83,7 @@ public class LiteralNode extends ExpressionNode
             m_dataType = PlexilDataType.UNKNOWN_ARRAY_TYPE;
             break;
 
-            // Handled by StringLiteralNode
-        case PlexilLexer.STRING:
-            m_dataType = PlexilDataType.STRING_TYPE;
-            break;
-
-        case PlexilLexer.DATE_LITERAL:
-            m_dataType = PlexilDataType.DATE_TYPE;
-            break;
-
-        case PlexilLexer.DURATION_LITERAL:
-            m_dataType = PlexilDataType.DURATION_TYPE;
-            break;
-
             // internal data types
-
         case PlexilLexer.EXECUTING_STATE_KYWD:
         case PlexilLexer.FAILING_STATE_KYWD:
         case PlexilLexer.FINISHED_STATE_KYWD:
@@ -145,11 +132,6 @@ public class LiteralNode extends ExpressionNode
         }
     }
 
-    public void earlyCheck(NodeContext context, CompilerState state)
-    {
-    }
-
-
     /**
      * @brief Persuade the expression to assume the specified data type
      * @return true if the expression can consistently assume the specified type, false otherwise.
@@ -178,11 +160,6 @@ public class LiteralNode extends ExpressionNode
                  && t == PlexilDataType.REAL_TYPE) {
             // Promote to real
             m_dataType = t;
-            return true;
-        }
-        else if (m_dataType == PlexilDataType.STRING_TYPE
-                 && t.isTemporal()) {
-            // do nothing: for now, all strings pass for dates and durations
             return true;
         }
         else if (t == PlexilDataType.BOOLEAN_TYPE
@@ -252,29 +229,29 @@ public class LiteralNode extends ExpressionNode
         return Integer.parseInt(txt, radix);
     }
 
-    public void constructXML()
+    // Specialized types (e.g. String, Date) have their own methods, so ignore them here.
+    @Override
+    protected void constructXML()
     {
-        super.constructXML();
+        super.constructXMLBase();
 
-        if (this.getType() == PlexilLexer.NEG_INT) {
-            String txt = this.getChild(0).getText();            
-            m_xml.setContent("-" + Integer.toString(parseIntegerValue(txt)));
-        }
+        String txt = this.getText();
+        String childTxt = (this.getChildCount() >= 1) ? this.getChild(0).getText() : null;
+        switch (this.getType()) {
+        case PlexilLexer.NEG_INT:
+            m_xml.appendChild(CompilerState.newTextNode("-" + Integer.toString(parseIntegerValue(childTxt))));
+            break;
 
-        else if (this.getType() == PlexilLexer.NEG_DOUBLE) {
-            String txt = this.getChild(0).getText();            
-            m_xml.setContent("-" + txt);
-        }
-        else if (this.getType() == PlexilLexer.DATE_LITERAL ||
-                 this.getType() == PlexilLexer.DURATION_LITERAL) {
-            String txt = this.getChild(0).getText();            
-            m_xml.setContent(stripQuotes(txt));
-        }
-        else {
-            String txt = this.getToken().getText();
-            if (this.getType() == PlexilLexer.INT) {
-                m_xml.setContent(Integer.toString(parseIntegerValue(txt)));
-            } else m_xml.setContent(txt);
+        case PlexilLexer.NEG_DOUBLE:
+            m_xml.appendChild(CompilerState.newTextNode("-" + childTxt));
+            break;
+
+        default:
+            if (this.getType() == PlexilLexer.INT)
+                m_xml.appendChild(CompilerState.newTextNode(Integer.toString(parseIntegerValue(txt))));
+            else
+                m_xml.appendChild(CompilerState.newTextNode(txt));
+            break;
         }
     }
 
@@ -286,66 +263,11 @@ public class LiteralNode extends ExpressionNode
     // Literal nodes do not support source locators.
     protected void addSourceLocatorAttributes() {}
 
-    // *** is this still necessary?? ***
-    public IXMLElement getXML(String elementType)
-    {
-        IXMLElement result = new XMLElement(elementType);
-        result.setContent(getText());
-        return result;
-    }
-
     // Helper methods to support parsing literals
-
-    static protected boolean isQuadDigit(char c)
-    {
-        return (c >= '0' && c <= '3');
-    }
-
-    static protected boolean isOctalDigit(char c)
-    {
-        return (c >= '0' && c <= '7');
-    }
 
     static protected boolean isDigit(char c)
     {
         return (c >= '0' && c <= '9');
     }
 
-    static protected boolean isHexDigit(char c)
-    {
-        return (c >= '0' && c <= '9')
-            || (c >= 'a' && c <= 'f')
-            || (c >= 'A' && c <= 'F');
-    }
-
-    static protected int digitToInt(char c)
-    {
-        if (c >= '0' && c <= '9') {
-            return c - '0';
-        }
-        System.err.println("Error: '" + c + "' is not a digit");
-        return -1;
-    }
-
-    static protected int hexDigitToInt(char c)
-    {
-        if (c >= '0' && c <= '9')
-            return c - '0';
-        else if (c >= 'a' && c <= 'f')
-            return c - 'a' + 10;
-        else if (c >= 'A' && c <= 'F')
-            return c - 'A' + 10;
-        System.err.println("Error: '" + c + "' is not a hex digit");
-        return -1;
-    }
-
-    static private String stripQuotes (String s)
-    {
-        // Hack alert!  I think we can safely assume the string begins
-        // and ends with a double quote, since it was parsed as a string
-        // literal.  Nevertheless, both this function, and its use,
-        // seem crufty at best.
-
-        return s.substring (1, s.length() - 1);
-    }
 }

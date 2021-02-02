@@ -1,6 +1,6 @@
 # Top level Makefile for Plexil
 
-# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,14 +25,21 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-MY_PLEXIL_HOME := $(shell pwd)
-ifneq ($(PLEXIL_HOME),)
-ifneq ($(PLEXIL_HOME),$(MY_PLEXIL_HOME))
-$(error Environment variable PLEXIL_HOME is in error. It must be set to $(MY_PLEXIL_HOME) before proceeding)
+SHELL = /bin/sh
+
+# Check environment
+# N.B.: dir leaves a trailing /
+MAKEFILE_DIR := $(realpath $(join $(dir $(firstword $(MAKEFILE_LIST))),.))
+
+ifeq ($(PLEXIL_HOME),)
+PLEXIL_HOME := $(MAKEFILE_DIR)
+else
+ifneq ($(PLEXIL_HOME),$(MAKEFILE_DIR))
+$(error Environment variable PLEXIL_HOME is in error. It must be set to $(MAKEFILE_DIR) before proceeding)
 endif
 endif
 
-export PLEXIL_HOME := $(MY_PLEXIL_HOME)
+export PLEXIL_HOME
 
 include makeinclude/standard-defs.make
 
@@ -41,16 +48,13 @@ include makeinclude/standard-defs.make
 #
 
 # TODO? test for existence
-AUTOCONF := autoconf
-AUTOMAKE := automake
 AUTORECONF := autoreconf
-LIBTOOLIZE := libtoolize
 
 # Primary target
 plexil-default: tools
 
 # The whole shooting match
-all: universalExec TestExec IpcAdapter UdpAdapter plexil-compiler plexilscript checker plexilsim pv robosim sample checkpoint
+everything: universalExec TestExec IpcAdapter UdpAdapter plexil-compiler plexilscript checker plexilsim pv robosim sample checkpoint
 
 # Just the tools without the examples
 tools: universalExec TestExec IpcAdapter UdpAdapter plexil-compiler plexilscript checker plexilsim pv
@@ -62,17 +66,28 @@ essentials: universalExec TestExec IpcAdapter UdpAdapter plexil-compiler plexils
 # Standalone targets
 #
 
-checker:
+checker: checker/global-decl-checker.jar
+
+checker/global-decl-checker.jar:
 	(cd checker && ant jar)
 
-pv:
+pv: viewers/pv/luv.jar
+
+viewers/pv/luv.jar:
 	(cd viewers/pv && ant jar)
 
-plexil-compiler:
-	$(MAKE) -C compilers/plexil
+plexil-compiler: jars/PlexilCompiler.jar
 
-plexilscript:
+jars/PlexilCompiler.jar:
+	(cd compilers/plexil && ant install)
+
+plexilscript: jars/plexilscript.jar
+
+jars/plexilscript.jar:
 	(cd compilers/plexilscript && ant install)
+
+.PHONY: checker/global-decl-checker.jar viewers/pv/luv.jar
+.PHONY: jars/PlexilCompiler.jar jars/plexilscript.jar
 
 #
 # Targets which depend on the Automake targets below
@@ -178,22 +193,24 @@ src/configure: src/configure.ac $(MAKEFILE_AMS)
 # End Automake targets
 #
 
-clean::
-	-@$(MAKE) -C compilers/plexil $@
-	-@$(MAKE) -C examples/robosim $@
-	-@$(MAKE) -C examples/checkpoint $@
-	-@$(MAKE) -C examples/sample-app $@
+clean:: clean-examples
 	-@$(MAKE) -C src $@ > /dev/null 2>&1
-	@(cd checker && ant $@)
+	@(cd compilers/plexil && ant $@)
 	@(cd compilers/plexilscript && ant $@)
-	@(cd jars && $(RM) plexilscript.jar)	
+	@(cd checker && ant $@)
+	@(cd jars && $(RM) plexilscript.jar)
 	@(cd viewers/pv && ant $@)
 	@$(RM) lib/lib* bin/* include/*
 	@$(RM) examples/checkpoint/saves/*.xml
 	@ echo Done.
 
+clean-examples:
+	-@$(MAKE) -C examples $@
+
 # Clean up after autotools
 distclean squeaky-clean: | clean
+	@(cd compilers/plexil && ant uninstall)
+	@(cd compilers/plexilscript && ant uninstall)
 	@(cd src && $(RM) */Makefile */Makefile.in)
 	@(cd src/apps && $(RM) */Makefile */Makefile.in)
 	@(cd src/interfaces && $(RM) */Makefile */Makefile.in)

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,10 +31,20 @@ import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.ANTLRFileStream;
 import org.antlr.runtime.RecognizerSharedState;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+
 import java.util.Vector;
 
-import net.n3.nanoxml.XMLWriter;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Text;
 
 public class CompilerState
 {
@@ -47,15 +57,20 @@ public class CompilerState
     // Processing-related flags
     public boolean debug = false;
     public boolean epxOnly = false;
-    public boolean keepEpx = false;
+    public boolean indentOutput = false;
     public boolean semanticsOnly = false;
     public boolean syntaxOnly = false;
+    public boolean writeEpx = false;
 
     protected CharStream m_instream; //* the stream to use initially
 
     public RecognizerSharedState sharedState; //* shared state to pass between parsers
 
     Vector<Diagnostic> m_diagnostics = new Vector<Diagnostic>();
+
+    private Document m_rootDocument = null;
+
+    private static DocumentBuilder s_documentBuilder = null;
 
     protected static CompilerState s_instance = null;
 
@@ -120,13 +135,16 @@ public class CompilerState
             }
             else if (m_args[i].equals("-e") || m_args[i].equals("--epx-only")) {
                 epxOnly = true;
-                keepEpx = true;
+                writeEpx = true;
             }
-            else if (m_args[i].equals("-k") || m_args[i].equals("--keep-epx")) {
-                keepEpx = true;
+            else if (m_args[i].equals("-w") || m_args[i].equals("--write-epx")) {
+                writeEpx = true;
             }
             else if (m_args[i].equals("-o")) {
                 m_outfile = new File(m_args[++i]);
+            }
+            else if (m_args[i].equals("-p") || m_args[i].equals("--pretty-print")) {
+                indentOutput = true;
             }
             else if (m_args[i].equals("-m") || m_args[i].equals("--semantics-only")) {
                 semanticsOnly = true;
@@ -135,7 +153,7 @@ public class CompilerState
                 syntaxOnly = true;
             }
             else {
-                // Not a recognized option, go on to process input file names
+                // Not a recognized option, go on to process input file name(s)
                 break;
             }
             ++i;
@@ -156,13 +174,16 @@ public class CompilerState
     public void usage()
     {
         System.out.println("Usage:  PlexilCompiler [options] [sourcefile]");
-        System.out.println("Options: ");
+        System.out.println(" Options for information (no sourcefile required): ");
         System.out.println("  -h, --help            Prints this message and exits");
-        System.out.println("  -o filename           Writes output to filename");
         System.out.println("  -v, --version         Prints version number and exits");
+        System.out.println(" Options for output control: ");
+        System.out.println("  -o <filename>         Writes output to filename");
+        System.out.println("  -p, --pretty-print    Format XML output for readability");
+        System.out.println(" Options primarily for compiler testing:");
         System.out.println("  -d, --debug           Enable debug output to standard-error stream");
-        System.out.println("  -e, --epx-only        Do not translate output to Core Plexil XML");
-        System.out.println("  -k, --keep-epx        Do not delete Extended Plexil XML intermediate file");
+        System.out.println("  -w, --write-epx       Write an Extended Plexil XML output file");
+        System.out.println("  -e, --epx-only        Write EPX and do not translate to Core Plexil");
         System.out.println("  -m, --semantics-only  Perform syntax and semantic checks, but do not generate code");
         System.out.println("  -s, --syntax-only     Perform surface syntax parsing only");
     }
@@ -185,20 +206,19 @@ public class CompilerState
         return m_instream; 
     }
 
-    public XMLWriter getEpxWriter()
+    public OutputStream getEpxStream()
     {
         File epxFile = getEpxFile();
         if (epxFile == null)
-            return new XMLWriter(System.out);
-        else {
-            try {
-                OutputStream os = new FileOutputStream(epxFile);
-                return new XMLWriter(os);
-            }
-            catch (IOException x) {
-                System.err.println("Unable to open Extended Plexil output file " + epxFile.toString() + ": " + x.toString());
-                return null;
-            }
+            return System.out;
+
+        try {
+            return new FileOutputStream(epxFile);
+        }
+        catch (IOException x) {
+            System.err.println("Unable to open Extended Plexil output file "
+                               + epxFile.toString() + ": " + x.toString());
+            return null;
         }
     }
 
@@ -270,6 +290,39 @@ public class CompilerState
                 result = d.severity();
         }
         return result;
+    }
+
+    public Document getRootDocument()
+    {
+        // Bootstrapping
+        if (s_documentBuilder == null) {
+            // Configuration??
+            try {
+            s_documentBuilder =
+                DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            } catch (ParserConfigurationException p) {
+                System.err.println("Fatal error: unable to boostrap XML construction:\n"
+                                   + p.toString());
+                return null;
+            };
+        }
+
+        // Construct a new Extended PLEXIL XML document
+        if (m_rootDocument == null) {
+            m_rootDocument = s_documentBuilder.newDocument();
+            m_rootDocument.setXmlVersion("1.0");
+        }
+        return m_rootDocument;
+    }
+
+    public static Element newElement(String tagName)
+    {
+        return getCompilerState().getRootDocument().createElement(tagName);
+    }
+
+    public static Text newTextNode(String contents)
+    {
+        return getCompilerState().getRootDocument().createTextNode(contents);
     }
 
 }

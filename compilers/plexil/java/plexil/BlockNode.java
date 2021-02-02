@@ -31,7 +31,10 @@ import java.util.TreeSet;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
+import plexil.xml.DOMUtils;
 
 public class BlockNode extends PlexilTreeNode
 {
@@ -90,7 +93,7 @@ public class BlockNode extends PlexilTreeNode
             this.getChild(i).earlyCheck(m_context, state);
     }
 
-    public void earlyCheckSelf(NodeContext parentContext, CompilerState state)
+    protected void earlyCheckSelf(NodeContext parentContext, CompilerState state)
     {
         // See if we have a node ID
         String nodeId = null;
@@ -124,7 +127,7 @@ public class BlockNode extends PlexilTreeNode
     }
 
     // N.B. Interface and variable decl's, and conditions, check themselves.
-    public void checkSelf(NodeContext context, CompilerState state)
+    protected void checkSelf(NodeContext context, CompilerState state)
     {
         // Check for duplicate conditions
         TreeSet<Integer> conditionsSeen = new TreeSet<Integer>();
@@ -227,89 +230,98 @@ public class BlockNode extends PlexilTreeNode
 
     protected void constructXML()
     {
-        // Place children in canonical order
-        int insertIdx = 0;
+        Node bodyStart = null;
 
         // Build basic node
         if (m_body.isEmpty()) {
             // Empty node
-            m_xml = new XMLElement("Node");
+            m_xml = CompilerState.newElement("Node");
             m_xml.setAttribute("NodeType", "Empty");
-            this.addSourceLocatorAttributes();
         }
         else if (isSimpleNode()) {
             // Get base XML from child
             PlexilTreeNode action = m_body.firstElement();
             if (firstChildHasNodeId()) {
                 m_xml = action.getXML();  // get it with NodeId
-                insertIdx++;              // insert everything after NodeId
+                // Skip over the node ID
+                bodyStart = m_xml.getFirstChild().getNextSibling();
             }
-            else
+            else {
                 m_xml = action.getChild(0).getXML(); // get bare node
+                bodyStart = m_xml.getFirstChild();
+            }
         }
         else {
             // 1 or more items in body
             if (this.getType() == PlexilLexer.LBRACE)
-                m_xml = new XMLElement("Sequence");
+                m_xml = CompilerState.newElement("Sequence");
             else
-                m_xml = new XMLElement(this.getToken().getText());
-            this.addSourceLocatorAttributes();
-            // Add children from body
+                m_xml = CompilerState.newElement(this.getToken().getText());
+
+            // Insert body as sequence of children
             for (PlexilTreeNode n : m_body)
-                m_xml.addChild(n.getXML());
+                m_xml.appendChild(n.getXML());
+            bodyStart = m_xml.getFirstChild();
         }
+
+        // Set source locators after (potentially) hoisting child up
+        this.addSourceLocatorAttributes();
 
         // Add comment
         if (m_comment != null) {
-            IXMLElement comment = m_comment.getChild(0).getXML();
-            comment.setName("Comment");
-            m_xml.insertChild(comment, insertIdx++);
+            Element comment = m_comment.getXML();
+
+            // Extract the string from the StringLiteralNode
+            // and substitute it for the StringValue element
+            Node stringText = comment.getFirstChild().getFirstChild();
+            comment.replaceChild(stringText, comment.getFirstChild());
+            m_xml.insertBefore(comment, bodyStart);
         }
 
         if (!m_inVars.isEmpty() || !m_inOutVars.isEmpty()) {
-            IXMLElement intfc = new XMLElement("Interface");
-            m_xml.insertChild(intfc, insertIdx++);
+            Element intfc = CompilerState.newElement("Interface");
+            m_xml.insertBefore(intfc, bodyStart);
             if (!m_inVars.isEmpty()) {
-                IXMLElement inXML = new XMLElement("In");
-                intfc.addChild(inXML);
+                Element inXML = CompilerState.newElement("In");
+                intfc.appendChild(inXML);
                 for (InterfaceVariableName iv : m_inVars)
-                    inXML.addChild(iv.makeDeclarationXML());
+                    inXML.appendChild(iv.makeDeclarationXML());
             }
             if (!m_inOutVars.isEmpty()) {
-                IXMLElement inOutXML = new XMLElement("InOut");
-                intfc.addChild(inOutXML);
+                Element inOutXML = CompilerState.newElement("InOut");
+                intfc.appendChild(inOutXML);
                 for (InterfaceVariableName iov : m_inOutVars)
-                    inOutXML.addChild(iov.makeDeclarationXML());
+                    inOutXML.appendChild(iov.makeDeclarationXML());
             }
         }
         if (!m_localVars.isEmpty()) {
-            IXMLElement decls = new XMLElement("VariableDeclarations");
-            m_xml.insertChild(decls, insertIdx++);
+            Element decls = CompilerState.newElement("VariableDeclarations");
+            m_xml.insertBefore(decls, bodyStart);
             for (VariableName v : m_localVars)
-                decls.addChild(v.makeDeclarationXML());
+                decls.appendChild(v.makeDeclarationXML());
         }
 
         // Add conditions
         for (PlexilTreeNode n : m_conditions)
-            m_xml.insertChild(n.getXML(), insertIdx++);
+            m_xml.insertBefore(n.getXML(), bodyStart);
 
         // Add priority
         if (m_priority != null)
-            m_xml.insertChild(m_priority.getXML(), insertIdx++);
+            m_xml.insertBefore(m_priority.getXML(), bodyStart);
 
         if (!m_resources.isEmpty()) {
             if (isCommandNode()) {
                 // Add command resources, if required
                 // Has to be done here because CommandNode represents the naked command
                 // and resources are in the surrounding braces
-                IXMLElement rlist = new XMLElement("ResourceList");
+                Element rlist = CompilerState.newElement("ResourceList");
                 for (PlexilTreeNode n : m_resources)
-                    rlist.addChild(n.getXML());
-                XMLElement commandXml =
-                    (XMLElement) m_xml.getFirstChildNamed("NodeBody").getFirstChildNamed("Command");
-                commandXml.insertChild(rlist, 0);
+                    rlist.appendChild(n.getXML());
+                Element nodeBody = DOMUtils.getFirstElementNamed(m_xml, "NodeBody");
+                Element commandXml = DOMUtils.getFirstElementNamed(nodeBody, "Command");
+                commandXml.insertBefore(rlist, commandXml.getFirstChild());
             } else {
-                // TODO: generate warning
+                // TODO?: generate warning
             }
         }
     }

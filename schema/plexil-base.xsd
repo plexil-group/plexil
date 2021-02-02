@@ -239,6 +239,16 @@ It is used as an included schema only.
     <xs:attributeGroup ref="SourceLocators"/>
   </xs:attributeGroup>
 
+  <xs:element name="Comment">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:string">
+	      <xs:attributeGroup ref="SourceLocators"/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+
   <xs:element name="NodeBody">
     <xs:complexType>
       <xs:choice>

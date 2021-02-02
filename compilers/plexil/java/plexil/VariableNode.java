@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,6 @@ package plexil;
 
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
-
-import net.n3.nanoxml.*;
 
 public class VariableNode extends ExpressionNode
 {
@@ -59,7 +57,7 @@ public class VariableNode extends ExpressionNode
      * @brief Prepare for the semantic check.
      */
     @Override
-    public void earlyCheckSelf(NodeContext context, CompilerState state)
+    protected void earlyCheckSelf(NodeContext context, CompilerState state)
     {
         // Get variable from context, if possible
         m_variable = context.findVariable(this.getText());
@@ -73,18 +71,20 @@ public class VariableNode extends ExpressionNode
         }
     }
 
+    @Override
     protected void constructXML()
     {
-        super.constructXML();
-        m_xml.setContent(this.getText());
+        super.constructXMLBase();
+        m_xml.appendChild(CompilerState.newTextNode(this.getText()));
     }
 
+    @Override
     protected String getXMLElementName()
     {
         return m_dataType.typeName() + "Variable";
     }
 
-    // Source locators are not allowed on variable elements.
+    // Source locators are not allowed on variable elements. (Yet.)
     protected void addSourceLocatorAttributes() {}
 
     public boolean isAssignable()

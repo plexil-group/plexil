@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,12 +26,15 @@
 
 package plexil;
 
+import plexil.xml.SimpleXmlWriter;
+
 import java.io.File;
 
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 public class Compiler
 {
@@ -46,7 +49,7 @@ public class Compiler
         if (plan1 == null) {
             state.displayDiagnostics();
             System.out.println("Syntax error(s) detected. Compilation aborted.");
-            System.exit(-1);
+            System.exit(1);
         }
         if (state.debug) {
             System.err.println("Pass 1 output:");
@@ -61,7 +64,7 @@ public class Compiler
         if (!pass2(plan1, state)) {
             state.displayDiagnostics();
             System.out.println("Semantic error(s) detected. Compilation aborted.");
-            System.exit(-1);
+            System.exit(1);
         }
         if (state.debug)
             System.err.println("Semantic checks succeeded"); 
@@ -78,18 +81,19 @@ public class Compiler
         }
 
         // Pass 4: generate Extended Plexil XML
-        if (!pass4(plan2, state)) {
+        Document planXML = pass4(plan2, state);
+        if (planXML == null) {
             state.displayDiagnostics();
             System.out.println("Internal error: XML generation failed. Compilation aborted.");
-            System.exit(-1);
+            System.exit(1);
         }
 
         // Pass 5: translate Extended Plexil to Core Plexil
         if (!state.epxOnly) {
-            if (!pass5(plan2, state)) {
+            if (!pass5(plan2, state, planXML)) {
                 state.displayDiagnostics();
-                System.out.println("Internal error: translation from Extended Plexil XML failed. Compilation aborted.");
-                System.exit(-1);
+                System.out.println("Translation from Extended Plexil failed. Compilation aborted.");
+                System.exit(1);
             }
         }
 
@@ -114,7 +118,11 @@ public class Compiler
             return (PlexilTreeNode) planReturn.getTree();
         }
         catch (RecognitionException x) {
-            System.out.println("First pass error: " + x);
+            System.out.println("Parser error: " + x);
+        }
+        catch (Throwable t) {
+            System.err.println("Internal error in parser:");
+            t.printStackTrace(System.err);
         }
         return null;
     }
@@ -122,10 +130,17 @@ public class Compiler
     // Perform checks on the plan
     public static boolean pass2(PlexilTreeNode plan, CompilerState state)
     {
-        GlobalContext gcontext = GlobalContext.getGlobalContext();
-        plan.earlyCheck(gcontext, state);
-        plan.check(gcontext, state);
-        return state.maxErrorSeverity() <= 0;
+        try {
+            GlobalContext gcontext = GlobalContext.getGlobalContext();
+            plan.earlyCheck(gcontext, state);
+            plan.check(gcontext, state);
+            return state.maxErrorSeverity() <= 0;
+        }
+        catch (Throwable t) {
+            System.err.println("Internal error in semantic check pass:");
+            t.printStackTrace(System.err);
+        }
+        return false;
     }
 
     // Transform the plan prior to output generation
@@ -141,67 +156,67 @@ public class Compiler
             if (state.maxErrorSeverity() > 0)
                 return null; // errors already reported
             PlexilTreeNode rewritePlan = (PlexilTreeNode) rewriteResult;
-            if (rewritePlan == null) {
-                return null; // TODO: error message
-            }
+            if (rewritePlan == null) 
+                System.err.println("Internal error: Plan transformation pass resulted in empty plan");
             return rewritePlan;
         }
-        catch (Throwable x) {
-            System.err.println("Second pass error: " + x);
+        catch (Throwable t) {
+            System.err.println("Internal error in plan transformation pass:");
+            t.printStackTrace(System.err);
         }
         return null;
     }
 
-    // Generate Extended Plexil output
-    public static boolean pass4(PlexilTreeNode plan, CompilerState state)
+    // Generate Extended Plexil output as DOM
+    public static Document pass4(PlexilTreeNode plan, CompilerState state)
     {
-        IXMLElement planXML = null;
+        Element rootElement = null;
         try {
-            planXML = plan.getXML();
-            XMLWriter writer = state.getEpxWriter();
-            if (writer == null) {
-                System.err.println("Unable to create Extended Plexil output stream");
-                return false;
+            rootElement = plan.getXML();
+        } catch (Throwable t) {
+            System.err.println("Internal error while generating XML:");
+            t.printStackTrace(System.err);
+            return null;
+        }
+
+        Document planDoc = state.getRootDocument();
+        planDoc.appendChild(rootElement);
+
+        // Only write .epx file if requested to
+        if (state.writeEpx) {
+            try {
+                SimpleXmlWriter writer = new SimpleXmlWriter(state.getEpxStream());
+                writer.setIndent(state.indentOutput);
+                if (state.debug)
+                    System.err.println("Writing Extended PLEXIL file " + state.getEpxFile());
+                writer.write(planDoc);
+            } catch (Throwable t) {
+                System.err.println("Internal error while writing Extended Plexil file:");
+                t.printStackTrace(System.err);
+                if (state.epxOnly)
+                    return null; // this output was the whole point of the exercise
             }
-            writer.write(planXML, false); // use true for human-readable
-            return true;
         }
-        catch (Exception e) {
-            System.err.println("XML generation error: " + e);
-            return false;
-        }
+
+        return planDoc;
     }
 
     // Expand the Extended Plexil into Core Plexil
-    public static boolean pass5(PlexilTreeNode plan, CompilerState state)
+    public static boolean pass5(PlexilTreeNode plan, CompilerState state, Document planDoc)
     {
-        File epxFile = state.getEpxFile();
-        if (epxFile == null) {
-            System.err.println("No Extended Plexil file specified");
-            return false;
-        }
         File outputFile = state.getOutputFile();
         try {
             // Invoke XSLT translator
             if (state.debug)
                 System.err.println("Translating to Core PLEXIL file " + outputFile);
 
-            String[] saxonArgs = new String[3];
-            saxonArgs[0] = "-o:" + outputFile.toString();
-            saxonArgs[1] = "-s:" + epxFile.toString();
-            saxonArgs[2] = "-xsl:" + System.getenv("PLEXIL_HOME") + "/schema/translate-plexil.xsl";
-            net.sf.saxon.Transform.main(saxonArgs);
+            plexil.xml.SaxonTransformer xformer = new plexil.xml.SaxonTransformer();
+            xformer.setIndent(state.indentOutput);
 
-            if (!state.keepEpx) {
-                try {
-                    if (!epxFile.delete())
-                        System.err.println("WARNING: Could not delete " + epxFile.toString());
-                }
-                catch (Exception e) {
-                    System.err.println("Error deleting " + epxFile.toString() + ": " + e);
-                }
-            }
-            return true;
+            File stylesheet =
+                new File(System.getenv("PLEXIL_HOME"), "schema/translate-plexil.xsl");
+
+            return xformer.translateDOM(stylesheet, planDoc, outputFile);
         }
         catch (Exception e) {
             System.err.println("Extended Plexil translation error: " + e);

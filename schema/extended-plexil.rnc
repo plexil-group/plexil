@@ -57,7 +57,7 @@ ActionBase =
    | SkipCondition?
    | # Any number of Comment elements COULD be included
      # if we could implement XML Schema 1.1.
-     element Comment { xsd:string }?
+     Comment?
    | # Currently only relevant for Assignment nodes
      element Priority { xsd:nonNegativeInteger }?)*,
   SourceLocators
@@ -80,7 +80,7 @@ NodeType =
    & EndCondition?
    & ExitCondition?
    & SkipCondition?
-   & element Comment { xsd:string }?
+   & Comment?
    & element Priority { xsd:nonNegativeInteger }?
    & NodeBody?),
   NodeAttributes
