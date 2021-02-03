@@ -6,29 +6,7 @@ This is significant because the current resource arbiter implementation
 can lead to high priority (CalculateLanding) commands to never execute
 in favor of low priority ones (TakePicture, etc.).
 
-
-To run the starvation demo first compile the plans:
-
-  plexilc Simulator.ple
-  plexilc Starvation.ple
-  plexilc StarvationFixedSequence.ple
-
-Then start the IPC publish/subscribe server used for inter-executive
-communication:
-
-  ipc
-
-Next, start the simulator executive (without stopping ipc):
-
-  plexilexec -p Simulator.plx -c simulator-config.xml 
-
-Finally, start the starvation demo executive:
-
-  plexilexec -p Starvation.plx -c command-config.xml 
-
-
-Note that the plans use different interface configuration files.
-
-To run the FixedSequence version of Starvation, instead run
-
-  plexilexec -p StarvationFixedSequence.plx -c command-config.xml 
+The convenience scripts run-starvation and
+run-starvation-fixed-sequence run the PLEXIL Exec as a simulator,
+using the Simulator.ple plan, and either Starvation.ple or
+StarvationFixedSequence.ple as the resource acquirer.
