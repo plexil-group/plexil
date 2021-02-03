@@ -1,0 +1,63 @@
+#! /bin/sh -e
+# Simple script to run the Launcher demonstration
+
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#     * Redistributions in binary form must reproduce the above copyright
+#       notice, this list of conditions and the following disclaimer in the
+#       documentation and/or other materials provided with the distribution.
+#     * Neither the name of the Universities Space Research Association nor the
+#       names of its contributors may be used to endorse or promote products
+#       derived from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+# WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+# TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+# USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+guess_plexil_home()
+{
+    # This script file is expected to be in $PLEXIL_HOME/script
+    cd "$(dirname "$(dirname "$(command -v "$0")")")" && pwd -P
+}
+
+if [ -z "$PLEXIL_HOME" ]
+then
+    PLEXIL_HOME="$(guess_plexil_home)"
+    export PLEXIL_HOME
+    echo "Defaulting PLEXIL_HOME to $PLEXIL_HOME"
+fi
+
+if [ ! -r "$PLEXIL_HOME/scripts/plexil-setup.sh" ]
+then
+    echo "$(basename "$0"): Environment variable PLEXIL_HOME is set incorrectly." >&2
+    echo 'Please set it to the full pathname of the PLEXIL source directory' >&2
+    exit 1
+fi
+
+export PLEXIL_HOME
+# shellcheck source=./plexil-setup.sh
+. "$PLEXIL_HOME"/scripts/plexil-setup.sh
+
+if [ ! -r LauncherDemo.plx ]
+then
+    plexilc LauncherDemo.ple
+fi
+
+if [ ! -r Launchee.plx ]
+then
+    plexilc Launchee.ple
+fi
+
+exec plexilexec -c interfaces.cfg -p LauncherDemo.plx
