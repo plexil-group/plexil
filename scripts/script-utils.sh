@@ -41,22 +41,22 @@ plexil_check_prog()
 # $1 is option, $2 is value
 validate_file()
 {
-    if [ -z "$1" ]
+    if [ -z "$2" ]
     then
-        echo "$(basename "$0"): missing filename for $2 option" >&2
+        echo "$(basename "$0"): Option $1: missing filename" >&2
         usage
         exit 2
-    elif [ ! -e "$1" ]
+    elif [ ! -e "$2" ]
     then
-        echo "$(basename "$0"): $1 does not exist" >&2
+        echo "$(basename "$0"): Option $1: $2 does not exist" >&2
         exit 1
-    elif [ -d "$1" ]
+    elif [ -d "$2" ]
     then
-        echo "$(basename "$0"): $1 is a directory" >&2
+        echo "$(basename "$0"): Option $1: $2 is a directory" >&2
         exit 1
-    elif [ ! -r "$1" ]
+    elif [ ! -r "$2" ]
     then
-        echo "$(basename "$0"): $1 cannot be read" >&2
+        echo "$(basename "$0"): Option $1: $2 cannot be read" >&2
         exit 1
     fi
 }
