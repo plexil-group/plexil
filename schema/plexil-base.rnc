@@ -45,9 +45,17 @@ default namespace = ""
 namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
 namespace rng = "http://relaxng.org/ns/structure/1.0"
 
-attr_FileName = attribute FileName { xsd:string }?
+# The epx attribute indicates an element which is a translation of an
+# Extended Plexil construct (i.e. macro).  Its value is the type
+# of this construct, a descriptive name identifying its role in
+# the expansion of an Extended Plexil construct, or 'aux'
+# indicating it is an auxiliary generated element.
+attr_epx = attribute epx { xsd:NCName }?
+# Attributes identifying the origin of an element in a source
+# file or Extended PLEXIL macro.
 SourceLocators =
-  attr_FileName,
+  attr_epx,
+  attribute FileName { xsd:string }?,
   attribute LineNo { xsd:integer }?,
   attribute ColNo { xsd:integer }?
 # This is the sole root element allowed!
@@ -139,11 +147,6 @@ NodeAttributes =
     | "Empty"
     | "LibraryNodeCall"
   },
-  # The epx attribute indicates a node that is a translation of an
-  # Extended Plexil construct (i.e. macro).  Its value is the type of
-  # this construct, or 'aux' indicating it is an auxilliary generated
-  # node.
-  attribute epx { xsd:NCName }?,
   SourceLocators
 Comment = element Comment { xsd:string, SourceLocators }
 NodeBody =
@@ -308,17 +311,17 @@ XOR = element XOR { NaryBooleanOperator }
 AND = element AND { NaryBooleanOperator }
 NOT = element NOT { GeneralizedBooleanExpression, SourceLocators }
 # Numeric comparisons
-NumericComparison =
+NumericComparisonType =
   GeneralizedNumericExpression,
   GeneralizedNumericExpression,
   SourceLocators
-GT = element GT { NumericComparison }
-GE = element GE { NumericComparison }
-LT = element LT { NumericComparison }
-LE = element LE { NumericComparison }
+GT = element GT { NumericComparisonType }
+GE = element GE { NumericComparisonType }
+LT = element LT { NumericComparisonType }
+LE = element LE { NumericComparisonType }
 # Generalized equality tests
-EQNumeric = element EQNumeric { NumericComparison }
-NENumeric = element NENumeric { NumericComparison }
+EQNumeric = element EQNumeric { NumericComparisonType }
+NENumeric = element NENumeric { NumericComparisonType }
 EQBoolean =
   element EQBoolean {
     GeneralizedBooleanExpression,
