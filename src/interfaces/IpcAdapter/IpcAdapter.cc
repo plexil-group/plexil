@@ -621,8 +621,6 @@ namespace PLEXIL
     // Command handler class for IpcAdapter commands
     //
 
-    // TODO Interface to IpcAdapter internals
-
     class IpcCommandHandler :
       public CommandHandler
     {
@@ -664,7 +662,7 @@ namespace PLEXIL
     void defaultExecuteCommand(Command *command, AdapterExecInterface *intf) 
     {
       std::string const &name = command->getName();
-      debugMsg("IpcAdapter:executeCommand", " for \"" << name << "\"");
+      debugMsg("IpcAdapter:executeCommand", " (default) for \"" << name << "\"");
       std::vector<Value> const &args = command->getArgValues();
       if (!args.empty())
         debugMsg("IpcAdapter:executeCommand", " first parameter is \""
@@ -825,7 +823,7 @@ namespace PLEXIL
       {
       }
 
-      virtual void executeCommand(Command *command, AdapterExecInterface *intf) 
+      virtual void executeCommand(Command *command, AdapterExecInterface *intf)
       {
         m_adapter.executeReceiveMessageCommand(command, intf);
       }
@@ -904,7 +902,8 @@ namespace PLEXIL
       m_messageQueues.addRecipient(msgName, command);
       intf->handleCommandAck(command, COMMAND_SENT_TO_SYSTEM);
       intf->notifyOfExternalEvent();
-      debugMsg("IpcAdapter:executeCommand", " message handler for \"" << msgName << "\" registered.");
+      debugMsg("IpcAdapter:executeCommand",
+               " command handler for \"" << msgName << "\" registered.");
     }
 
     /**
@@ -914,7 +913,7 @@ namespace PLEXIL
     class GetParameterCommandHandler :
       public IpcCommandHandler
     {
-    public:      
+    public:
 
       GetParameterCommandHandler(IpcAdapter &adapter)
         : IpcCommandHandler(adapter)
