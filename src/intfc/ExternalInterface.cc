@@ -147,6 +147,9 @@ namespace PLEXIL
           debugMsg("Test:testOutput", 
                    "Permission to execute " << cmd->getName()
                    << " has been denied by the resource arbiter.");
+          debugMsg("ResourceArbiterInterface:arbitrate", 
+                   "Permission to execute " << cmd->getName()
+                   << " has been denied by the resource arbiter.");
           reportCommandArbitrationFailure(cmd);
         }
       }
