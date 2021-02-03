@@ -23,7 +23,7 @@
           <StartCondition>
             <EQNumeric>
               <IntegerValue>2</IntegerValue>
-              <LookupNow>
+              <LookupNow epx="Lookup">
                 <Name>
                   <StringValue>X</StringValue>
                 </Name>
@@ -34,7 +34,7 @@
             <NOT>
               <EQNumeric>
                 <IntegerValue>2</IntegerValue>
-                <LookupNow>
+                <LookupNow epx="Lookup">
                   <Name>
                     <StringValue>X</StringValue>
                   </Name>
@@ -42,7 +42,7 @@
               </EQNumeric>
             </NOT>
           </SkipCondition>
-          <NodeId generated="1">ep2cp_Sequence_d1e50</NodeId>
+          <NodeId generated="1">ep2cp_Sequence_d13e50</NodeId>
           <InvariantCondition>
             <NoChildFailed>
               <NodeRef dir="self"/>

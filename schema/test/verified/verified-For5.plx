@@ -20,7 +20,7 @@
     </VariableDeclarations>
     <NodeBody>
       <NodeList>
-        <Node NodeType="NodeList" epx="aux">
+        <Node NodeType="NodeList" epx="For-body">
           <NodeId generated="1">ep2cp_ForLoop</NodeId>
           <SkipCondition>
             <NOT>
@@ -36,7 +36,7 @@
           <NodeBody>
             <NodeList>
               <Node NodeType="NodeList" epx="While">
-                <NodeId generated="1">ep2cp_While_d1e60</NodeId>
+                <NodeId generated="1">ep2cp_While_d13e60</NodeId>
                 <RepeatCondition>
                   <Succeeded>
                     <NodeRef dir="child">ep2cp_WhileTest</NodeRef>
@@ -87,7 +87,7 @@
                 <NodeId generated="1">ep2cp_ForLoopUpdater</NodeId>
                 <StartCondition>
                   <Finished>
-                    <NodeRef dir="sibling">ep2cp_While_d1e60</NodeRef>
+                    <NodeRef dir="sibling">ep2cp_While_d13e60</NodeRef>
                   </Finished>
                 </StartCondition>
                 <NodeBody>

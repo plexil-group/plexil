@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Node NodeType="NodeList" epx="Sequence">
-    <NodeId generated="1">ep2cp_Sequence_d2e1</NodeId>
+    <NodeId generated="1">ep2cp_OnMessage_d13e3</NodeId>
     <VariableDeclarations>
       <DeclareVariable>
         <Name>ep2cp_hdl</Name>
@@ -15,7 +15,7 @@
     </InvariantCondition>
     <NodeBody>
       <NodeList>
-        <Node NodeType="Command">
+        <Node NodeType="Command" epx="aux">
           <NodeId generated="1">ep2cp_CmdWait</NodeId>
           <EndCondition>
             <IsKnown>
@@ -34,7 +34,7 @@
             </Command>
           </NodeBody>
         </Node>
-        <Node NodeType="NodeList">
+        <Node NodeType="NodeList" epx="aux">
           <NodeId generated="1">ep2cp_MsgAction_</NodeId>
           <StartCondition>
             <Finished>

@@ -13,7 +13,7 @@
     </VariableDeclarations>
     <NodeBody>
       <NodeList>
-        <Node NodeType="NodeList" epx="aux">
+        <Node NodeType="NodeList" epx="While_wrapper">
           <NodeId generated="1">ep2cp_WhileBody</NodeId>
           <RepeatCondition>
             <Succeeded>

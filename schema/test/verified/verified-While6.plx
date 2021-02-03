@@ -23,7 +23,7 @@
           <PostCondition>
             <EQNumeric>
               <IntegerValue>2</IntegerValue>
-              <LookupNow>
+              <LookupNow epx="Lookup">
                 <Name>
                   <StringValue>X</StringValue>
                 </Name>

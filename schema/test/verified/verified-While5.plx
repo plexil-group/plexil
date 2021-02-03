@@ -21,7 +21,7 @@
         <Node NodeType="Empty" epx="Condition">
           <NodeId generated="1">ep2cp_WhileTest</NodeId>
           <PostCondition>
-            <LookupNow>
+            <LookupNow epx="Lookup">
               <Name>
                 <StringValue>flag</StringValue>
               </Name>
