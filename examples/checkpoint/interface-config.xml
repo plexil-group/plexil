@@ -1,5 +1,4 @@
 <Interfaces>
-  <!-- This configuration specifies that all commands and lookups are handled by SampleAdapter -->
   <Adapter AdapterType="CheckpointAdapter">
     <SaveConfiguration Directory="./saves"
 		       RemoveOldSaves="true"/>
@@ -10,6 +9,6 @@
 			  UseTime="true" />
   </Adapter>
   <Adapter AdapterType="StringAdapter"/>
-  <Adapter AdapterType="OSNativeTime"/>
+  <Adapter AdapterType="Time"/>
   <Adapter AdapterType="Utility"/>
 </Interfaces>

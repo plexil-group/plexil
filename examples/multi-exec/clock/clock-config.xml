@@ -2,7 +2,7 @@
 
 <Interfaces>
  <Adapter AdapterType="Utility"/>
- <Adapter AdapterType="OSNativeTime"/>
+ <Adapter AdapterType="Time"/>
  <Adapter AdapterType="IpcAdapter" Server="localhost" AllowDuplicateMessages="true">
   <CommandNames>
 	ReceiveMessage, UpdateLookup,  ReceiveCommand, SendReturnValue, GetParameter

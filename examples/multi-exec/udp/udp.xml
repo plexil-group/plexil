@@ -1,6 +1,6 @@
 <Interfaces>
   <Adapter AdapterType="Utility"/>
-  <Adapter AdapterType="OSNativeTime"/>
+  <Adapter AdapterType="Time"/>
   <!-- Use port numbers that are unassigned. See www.iana.org/assignments/service-names-port-numbers -->
   <Adapter AdapterType="UdpAdapter" debug="true" default_local_port="8389" default_peer_port="8389">
     <Message name="test_udp_msg" local_port="8385" peer_port="8385">

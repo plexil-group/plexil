@@ -1,5 +1,5 @@
 <Interfaces>
- <Adapter AdapterType="OSNativeTime" />
+ <Adapter AdapterType="Time" />
  <Adapter AdapterType="Utility" />
  <Adapter AdapterType="IpcAdapter" Server="localhost"
           AllowDuplicateMessages="true">

@@ -4,6 +4,6 @@
     <DefaultCommandAdapter/>
     <DefaultLookupAdapter/>
   </Adapter>
-  <Adapter AdapterType="OSNativeTime"/>
+  <Adapter AdapterType="Time"/>
   <Adapter AdapterType="Utility"/>
 </Interfaces>

@@ -1,5 +1,5 @@
 <Interfaces>
- <Adapter AdapterType="OSNativeTime">
+ <Adapter AdapterType="Time">
   <LookupNames>time</LookupNames>
  </Adapter>
  <Adapter AdapterType="IpcAdapter" TaskName="front_engine" Server="localhost" AllowDuplicateMessages="true">
