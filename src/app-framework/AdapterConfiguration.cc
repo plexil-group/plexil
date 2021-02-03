@@ -962,11 +962,13 @@ namespace PLEXIL {
                   CommandHandlerMap::iterator it = m_commandMap.find(stateName);
                   if (it != m_commandMap.end()) {
                     debugMsg("AdapterConfiguration:registerCommandHandler",
-                             " replacing former command handler for '" << stateName << "'");
+                             " replacing former command handler for '" << stateName
+                             << "' with " << handler);
                   }
                   else {
                     debugMsg("AdapterConfiguration:registerCommandHandler",
-                             " registering handler for command '" << stateName << "'");
+                             " registering handler " << handler
+                             << " for command '" << stateName << "'");
                   }
                 });
       m_commandMap[stateName] = handler;
@@ -1066,8 +1068,8 @@ namespace PLEXIL {
     virtual void setDefaultCommandHandler(CommandHandler *handler)
     {
       assertTrue_2(handler, "Default CommandHandler must not be NULL");
-      debugMsg("AdapterConfiguration:setDefaultCommandHanlder",
-               " replacing default command handler");
+      debugMsg("AdapterConfiguration:setDefaultCommandHandler",
+               " replacing default command handler with " << handler);
       m_defaultCommandHandler = handler;
       m_commandHandlers.insert(handler);
     }
