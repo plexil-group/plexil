@@ -3,7 +3,10 @@
   <LookupNames>time</LookupNames>
  </Adapter>
  <Adapter AdapterType="Utility" />
- <Adapter AdapterType="IpcAdapter" Server="localhost" AllowDuplicateMessages="true">
+ <Adapter AdapterType="IpcAdapter"
+          TaskName="Command"
+          Server="localhost"
+          AllowDuplicateMessages="true">
   <LookupNames>x</LookupNames>
   <DefaultCommandAdapter/>
  </Adapter>
