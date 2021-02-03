@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -84,10 +84,16 @@ dust:
 clean: dust
 	@$(RM) -f $(SCHEMA_RNC) $(PLEXILSCRIPT_RNC)
 
+# Schema validator cache must be invalidated if any PLEXIL schema changes
+invalidate-validator-cache:
+	@$(RM) -rf validator/schema_cache
+
+.PHONY: invalidate-validator-cache
+
 # Dependencies
 extended-plexil.rnc core-plexil.rnc : plexil-base.rng
 
-$(SCHEMA_XSD:.xsd=.rng): %.rng: %.xsd
+$(SCHEMA_XSD:.xsd=.rng): %.rng: %.xsd | invalidate-validator-cache
 	$(JAVA) -jar $(SAXON_JAR) -xsl:XSDtoRNG.xsl -s:$< -o:$@ start=PlexilPlan
 
 # Special rule for Plexilscript only
