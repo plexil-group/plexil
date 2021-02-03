@@ -1,6 +1,6 @@
-#! /bin/sh
+#! /bin/sh -e
 
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,134 +29,46 @@
 #  - Robustify more against pathnames with spaces:
 #   Issue is options with pathnames, e.g. -p, -L
 
+guess_plexil_home()
+{
+    # This script file is expected to be in $PLEXIL_HOME/script
+    cd "$(dirname "$(dirname "$(command -v "$0")")")" && pwd -P
+}
+
 if [ -z "$PLEXIL_HOME" ]
 then
-    echo 'Error: Please set environment variable PLEXIL_HOME' >&2
-    echo 'to the full pathname of your ''plexil'' directory.' >&2
-    echo 'Exiting.' >&2
+    PLEXIL_HOME="$(guess_plexil_home)"
+    export PLEXIL_HOME
+    echo "Defaulting PLEXIL_HOME to $PLEXIL_HOME"
+fi
+
+if [ ! -r "$PLEXIL_HOME/scripts/plexil-setup.sh" ]
+then
+    echo "$(basename "$0"): Environment variable PLEXIL_HOME is set incorrectly." >&2
+    echo 'Please set it to the full pathname of the PLEXIL source directory' >&2
     exit 1
 fi
 
+export PLEXIL_HOME
 # shellcheck source=./plexil-setup.sh
-. "$PLEXIL_HOME/scripts/plexil-setup.sh"
-
-plexil_check_prog()
-{
-    if [ ! -e "$1" ]
-    then
-        echo "Error: $1 does not exist." >&2
-        echo 'You probably need to build it.' >&2
-        exit 1
-    fi
-}
-
-validate_file()
-{
-    if [ -z "$1" ]
-    then
-        echo "Error: missing filename for $2 option" >&2
-        usage
-        exit 2
-    elif [ ! -e "$1" ]
-    then
-        echo "Error: $1 does not exist" >&2
-        exit 1
-    elif [ -d "$1" ]
-    then
-        echo "Error: $1 is a directory" >&2
-        exit 1
-    elif [ ! -r "$1" ]
-    then
-        echo "Error: $1 cannot be read" >&2
-        exit 1
-    fi
-}
-
-validate_host()
-{
-    if [ -z "$1" ]
-    then
-        echo "Error: missing host name for $2 option" >&2
-        usage
-        exit 2
-    fi
-}
-validNum()
-{
-    if [ -z "$1" ]
-    then
-        echo "Error: Missing parameter for $2 option" >&2
-        exit 2
-    elif [ "$1" -lt 0 ]
-    then        
-        echo "Error: $1 is not a legal parameter for $2" >&2
-        exit 2
-    fi
-}
-
-warn()
-{
-    if [ -z "$quiet" ]
-    then
-        echo "$1"
-    fi
-}
-
-checker()
-{
-    if [ ! -x "$PLEXIL_HOME/scripts/checkPlexil" ]
-    then 
-        echo "Error: $PLEXIL_HOME/scripts/checkPlexil not found." >&2
-        exit 1
-    fi
-    if [ ! -r "$plan_nm" ]
-    then
-        echo "Error: File $plan_nm does not exist, or is not readable." >&2
-        exit 1
-    fi
-    echo "Checking plan..."
-    if ! "$PLEXIL_HOME/scripts/checkPlexil" "$plan_nm"
-    then
-        echo "Error: $plan_nm contains type errors. See the checker output for details." >&2
-        exit 1
-    fi
-}
-
-summarize()
-{
-    echo "Running executive from $PLEXIL_HOME"
-    echo "  Plan:           $plan_nm"
-    echo "  Script:         $script_name"
-    if [ -n "$library_dirs" ]
-    then
-        echo "  Library path:   $library_dirs"
-    fi
-    if [ -n "$libraries" ]
-    then
-        echo "  Libraries:      $libraries"
-    fi
-    if [ -n "$host_in" ]
-    then
-        echo "  Viewer host:    $host_in"
-    fi
-    if [ -n "$port_in" ]
-    then
-        echo "  Viewer port:    $port_in"
-    fi
-    echo
-}
-
-usage_text="Usage:
-        plexiltest -p <plan> [-s <script file>] [-d <debug file>] [-L <library dir>]* [-l <library>]* [-v [-h <hostname>] [-n <portnumber>] [-b]] [-ch]
-"
+. "$PLEXIL_HOME"/scripts/plexil-setup.sh
 
 usage()
 {
-    printf "%s\n" "$usage_text"
-    echo "For more options enter 'plexiltest -help'"
+    cat <<EOF
+Usage:
+        plexiltest -p <plan> [-s <script file>] [-d <debug file>] [-L <library dir>]* [-l <library>]* [-v [-h <hostname>] [-n <portnumber>] [-b]] [-ch]
+For more options enter 'plexiltest -help'
+EOF
 }
 
-help_text="Options:
+help()
+{
+    cat <<EOF
+Usage:
+        plexiltest -p <plan> [-s <script file>] [-d <debug file>] [-L <library dir>]* [-l <library>]* [-v [-h <hostname>] [-n <portnumber>] [-b]] [-ch]
+
+Options:
 
  -help 
 	displays this message
@@ -188,19 +100,52 @@ help_text="Options:
 	Runs the specified plan immediately at Viewer startup 
  --for-viewer 
 	Runs the exec with the supplied options, without checking them, and without starting the Viewer. 
-	Intended for use by the Plexil Viewer or other scripts."
+	Intended for use by the Plexil Viewer or other scripts.
+EOF
+}
 
+# Source command parsing helper functions
+# shellcheck source=./script-utils.sh
+. "$PLEXIL_HOME"/scripts/script-utils.sh
+
+summarize()
+{
+    echo "Running executive from $PLEXIL_HOME"
+    echo "  Plan:           $plan_nm"
+    echo "  Script:         $script_name"
+    if [ -n "$library_dirs" ]
+    then
+        echo "  Library path:   $library_dirs"
+    fi
+    if [ -n "$libraries" ]
+    then
+        echo "  Libraries:      $libraries"
+    fi
+    if [ -n "$host_in" ]
+    then
+        echo "  Viewer host:    $host_in"
+    fi
+    if [ -n "$port_in" ]
+    then
+        echo "  Viewer port:    $port_in"
+    fi
+    echo
+}
+
+# If user has specified a program to run (e.g. plexilfive), use it.
 if [ -n "$PLEXIL_EXECUTABLE" ]
 then
     prog="$PLEXIL_EXECUTABLE"
 elif [ -f "$PLEXIL_HOME/bin/TestExec" ] &&  [ -x "$PLEXIL_HOME/bin/TestExec" ]
 then
+    # Use the installed TestExec
     prog="$PLEXIL_HOME/bin/TestExec"
 elif [ -f "$PLEXIL_HOME/src/apps/TestExec/TestExec" ] && [ -x "$PLEXIL_HOME/src/apps/TestExec/TestExec" ]
 then
+    # Use the built-but-not-yet-installed TestExec
     prog="$PLEXIL_HOME/src/apps/TestExec/TestExec"
 else
-    echo "Error: Test Executive executable not found, aborting"
+    echo "$(basename "$0"): TestExec executable not found, aborting" >&2
     exit 1
 fi
 
@@ -237,33 +182,47 @@ do
             check="$1";;
         
         -d | -debug )
+            validate_file "$1" "$2"
+            debug_cmd="-d $2"
             shift
-            validate_file "$1" "$save"
-            debug_cmd="-d $1";;
+            ;;
 
         --for-viewer)
             automate="$1";;
 
-        -h | -hostname )
+        -h )
+            # Is it a help request or a host name?
+            if [ -z "$2" ]
+            then
+                # Help request
+                help
+                exit 0
+            fi
+            validate_host "$1" "$2"
+            host_in="-h $2"       #viewer host name
             shift
-            validate_host "$1" "$save"
-            host_in="-h $1";;       #viewer host name
+            ;;
         
-        -help )
-            printf "%s\n" "$usage_text"
-            printf "%s\n" "$help_text"
+        -hostname )
+            validate_host "$1" "$2"
+            host_in="-h $2"       #viewer host name
+            shift
+            ;;
+        
+        -help | --help )
+            help
             exit 0;;
 
         -L | -libraryPath )
             shift
             if [ -z "$1" ]
             then
-                echo "Error: missing directory name for $save option" >&2
+                echo "$(basename "$0"): missing directory name for $save option" >&2
                 usage
                 exit 2
             elif [ ! -r "$1" ] || [ ! -d "$1" ]
             then
-                echo "Error: $1 is not a readable directory." >&2
+                echo "$(basename "$0"): $1 is not a readable directory." >&2
                 exit 1
             else
                 library_dirs="$library_dirs$1 "
@@ -271,36 +230,40 @@ do
             fi;;
         
         -l | -library )
+            validate_file "$1" "$2"
+            libraries="$libraries -l $2"
+            lib_cmd="$lib_cmd-l $2 "
             shift
-            validate_file "$1" "$save"
-            libraries="$libraries -l $1"
-            lib_cmd="$lib_cmd-l $1 ";;
+            ;;
 
         -n | -port )
+            validate_port "$1" "$2"
+            port_in="$2"
+            port_cmd="-n $2"      #viewer port
             shift
-            validNum "$1" "$save"
-            port_in="$1"
-            port_cmd="-n $1";;      #viewer port
+            ;;
         
         -p | -plan )
+            validate_file "$1" "$2"
+            plan_nm="$2"
+            plan_cmd="-p $2"
             shift
-            validate_file "$1" "$save"
-            plan_nm="$1"
-            plan_cmd="-p $1";;
+            ;;
 
         -q | -quiet )
             quiet="$1";;
         
         -s | -script )
+            validate_file "$1" "$2"
+            script_name="$2"
             shift
-            validate_file "$1" "$save"
-            script_name="$1";;
+            ;;
         
         -v | -viewer )
             viewer="$1";;       #viewer listener enabled
 
         -? )
-            echo "Error: unrecognized option $1"
+            echo "$(basename "$0"): unrecognized option $1" >&2
             usage
             exit 2;;
     esac
@@ -313,14 +276,14 @@ then
     # We do not expect a local Viewer to use the -h option.
     if [ -z "$plan_nm" ]
     then
-        echo 'Error: -p option is required.' >&2
+        echo "$(basename "$0"): -p option is required." >&2
         usage
         exit 2
     fi
     
     if [ -z "$script_name" ]
     then
-        echo 'Error: -s option is required.' >&2
+        echo "$(basename "$0"): -s option is required." >&2
         usage
         exit 2
     fi
@@ -354,22 +317,22 @@ then
         then
             if list_ports_in_use | grep -qv "\<${port_in}\>"
             then
-                echo "Error: No Viewer is listening on local port $port_in. Exiting." >&2
+                echo "$(basename "$0"): No Viewer is listening on local port $port_in. Exiting." >&2
                 exit 1
             fi
         fi
     elif [ -z "$port_in" ]
     then
-        echo "Error: Viewer host $host_in specified, but no port was supplied." >&2
+        echo "$(basename "$0"): Viewer host $host_in specified, but no port was supplied." >&2
         usage
-        exit 1
+        exit 2
     fi
     # TODO: Bounds check port number
 elif [ -n "$host_in" ]
 then
-    echo "Error: -h (remove Viewer host) and -v (local Viewer) may not be combined." >&2
+    echo "$(basename "$0"): -h (remote Viewer host) and -v (local Viewer) may not be combined." >&2
     usage
-    exit 1
+    exit 2
 else
     # Local Viewer requested
     if [ -z "$port_in" ]
@@ -384,7 +347,7 @@ else
         port_cmd="-n $port_in"
     elif list_ports_in_use | grep -q "\<${port_in}\>"
     then
-        echo "Error: Port $port_in is in use. Exiting." >&2
+        echo "$(basename "$0"): Port $port_in is in use. Exiting." >&2
         exit 1
     fi
 fi
@@ -416,11 +379,11 @@ if [ -n "$script_name" ]
 then
     if [ ! -f "$script_name" ]
     then
-        echo "Error: Script $script_name does not exist." >&2
+        echo "$(basename "$0"): Script $script_name does not exist." >&2
         exit 1
     elif [ ! -r "$script_name" ]
     then
-        echo "Error: Script file $script_name is not readable." >&2
+        echo "$(basename "$0"): Script file $script_name is not readable." >&2
         exit 1
     fi
 else
@@ -446,7 +409,7 @@ fi
 
 script_cmd="-s $script_name"
 
-#separate command-line from plexexec output
+# separate command-line from plexiltest output
 echo
 
 # Print summary if desired
@@ -457,9 +420,10 @@ fi
 
 if [ -n "$viewer" ]
 then
+    # *** FIXME ***
     # Launch the viewer, which will in turn invoke this script again with the automate flag
-    # shellcheck disable=SC2086
     # The unquoted expansions are deliberate
+    # shellcheck disable=SC2086
     exec plexil -plexiltest $plan_cmd $script_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $host_cmd $port_cmd $check $block $auto_run_cmd
 else
     # User doesn't want viewer
