@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -114,6 +114,7 @@ namespace PLEXIL
   char const TOLERANCE_TAG[] = "Tolerance";
   char const UPDATE_TAG[] = "Update";
 
+  char const ARRAYVAR_TAG[] = "ArrayVariable";
   char const ARRAYELEMENT_TAG[] = "ArrayElement";
   char const INDEX_TAG[] = "Index";
 
