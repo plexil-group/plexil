@@ -1,0 +1,5 @@
+The Clock example is expected to run as an agent in a larger system.
+It listens for StartClock and StopClock messages.  Upon receipt of a
+StartClock message, it updates the Time telemetry value, prints the
+new value, and publishes it to other agents once per second. It
+continues doing this until a StopClock message is received.
