@@ -28,8 +28,8 @@
 
 guess_plexil_home()
 {
-    # This script file is expected to be in $PLEXIL_HOME/script
-    cd "$(dirname "$(dirname "$(command -v "$0")")")" && pwd -P
+    # This script file is expected to be in $PLEXIL_HOME/examples/resources/starvation
+    cd "$(command -v "$0")/../../.." && pwd -P
 }
 
 if [ -z "$PLEXIL_HOME" ]
@@ -66,44 +66,46 @@ SIM_PID=
 # Trap handler
 cleanup()
 {
-    trap - INT QUIT HUP TERM
+    trap - EXIT INT QUIT HUP TERM
     echo 'Enter cleanup handler'
-    if [ -n $SIM_PID ]
+    if test -n "$SIM_PID" && ps $SIM_PID > /dev/null
     then
-        pkill $SIM_PID
+        kill -QUIT $SIM_PID
+        sleep 2
+        if test -n "$SIM_PID" && ps $SIM_PID > /dev/null
+        then
+            kill -KILL $SIM_PID
+        fi
     fi
-    sleep 1
-    if [ -n $IPC_PID ]
+    if test -n "$IPC_PID" && ps $IPC_PID > /dev/null
     then
-        pkill $IPC_PID
-    fi
-    sleep 1
-    if test -n $SIM_PID && pgrep $SIM_PID
-    then
-        pkill -SIGKILL $SIM_PID
-    fi
-    sleep 1
-    if test -n $IPC_PID && pgrep $IPC_PID
-    then
-        pkill -SIGKILL $IPC_PID
+        kill -QUIT $IPC_PID
+        sleep 1
+        if test -n "$IPC_PID" && ps $IPC_PID > /dev/null
+        then
+            kill -KILL $IPC_PID
+        fi
     fi
 }
 
-ipc -u -s &
+central -u -s &
 IPC_PID=$!
 
 # Give IPC a chance to start up
-sleep 2
+sleep 1
 
 # Handle interrupts and errors beyond this point
-trap cleanup INT QUIT HUP TERM
+trap cleanup EXIT INT QUIT HUP TERM
 
 # Start the simulator
 plexilexec -d Simulator.debug -p Simulator.plx -c simulator-config.xml &
 SIM_PID=$!
 
 # Give it a chance to start up too
-sleep 2
+sleep 1
 
 # Start the demo executive
 plexilexec -d Starvation.debug -p StarvationFixedSequence.plx -c command-config.xml
+
+# Clean up if we get this far
+cleanup
