@@ -115,6 +115,7 @@ namespace PLEXIL
   constexpr char const RESOURCE_UPPER_BOUND_TAG[] = "ResourceUpperBound";
   constexpr char const RESOURCE_RELEASE_AT_TERMINATION_TAG[] = "ResourceReleaseAtTermination";
 
+  constexpr char const ARRAYVAR_TAG[] = "ArrayVariable";
   constexpr char const ARRAYELEMENT_TAG[] = "ArrayElement";
   constexpr char const INDEX_TAG[] = "Index";
 
