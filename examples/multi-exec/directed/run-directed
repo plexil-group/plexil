@@ -29,7 +29,7 @@
 guess_plexil_home()
 {
     # This script file is expected to be in $PLEXIL_HOME/examples/multi-exec/directed
-    cd "$(command -v "$0")/../../.." && pwd -P
+    cd "$(dirname "$(command -v "$0")")/../../.." && pwd -P
 }
 
 if [ -z "$PLEXIL_HOME" ]

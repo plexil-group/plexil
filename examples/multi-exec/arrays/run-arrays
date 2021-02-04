@@ -36,7 +36,7 @@ EOF
 guess_plexil_home()
 {
     # This script file is expected to be in $PLEXIL_HOME/examples/multi-exec/arrays
-    cd "$(command -v "$0")/../../.." && pwd -P
+    cd "$(dirname "$(command -v "$0")")/../../.." && pwd -P
 }
 
 if [ -z "$PLEXIL_HOME" ]
@@ -129,7 +129,7 @@ sleep 1
 trap cleanup EXIT INT QUIT HUP TERM
 
 # Start the simulator
-plexilexec -d simulator.debug -p "simulator-$1-arrays-test.plx" -c simulator-arrays-config.xml &
+universalExec -d simulator.debug -p "simulator-$1-arrays-test.plx" -c simulator-arrays-config.xml &
 SIM_PID=$!
 
 # Give it a chance to start up too
