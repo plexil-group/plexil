@@ -4,9 +4,6 @@
  <Adapter AdapterType="Utility"/>
  <Adapter AdapterType="OSNativeTime"/>
  <Adapter AdapterType="IpcAdapter" Server="localhost" AllowDuplicateMessages="true">
-  <CommandNames>
-	ReceiveMessage, UpdateLookup,  ReceiveCommand, SendReturnValue, GetParameter
-  </CommandNames>
   <ExternalLookups>
     <Lookup name="Time" type="Integer" value="0"/>
   </ExternalLookups>
