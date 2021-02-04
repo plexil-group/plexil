@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExpressionConstants.hh"
+#include "findDeclarations.hh"
 #include "NodeConnector.hh"
 #include "ParserException.hh"
 #include "parser-utils.hh"
@@ -177,21 +178,37 @@ namespace PLEXIL
   {
     // Syntax checks
     checkHasChildElement(expr);
-    xml_node arrayXml = expr.first_child();
+    xml_node const arrayXml = expr.first_child();
     checkParserExceptionWithLocation(arrayXml && arrayXml.type() == pugi::node_element,
                                      expr,
                                      "Node \"" << nodeId
                                      << "\": Ill-formed ArrayElement expression");
-    // TODO: type check "array"
-    if (testTag(NAME_TAG, arrayXml)) {
-      // Array is named explicitly
+
+    ValueType result = UNKNOWN_TYPE;
+    if (testTag(ARRAYVAR_TAG, arrayXml) || testTag(NAME_TAG, arrayXml)) {
+      // The text child of either tag has the array name
       checkNotEmpty(arrayXml);
-      // TODO: get array type from declaration
+      // Check that array is declared
+      pugi::xml_node const decl = findArrayDeclaration(expr, arrayXml.child_value());
+      checkParserExceptionWithLocation(decl,
+                                       arrayXml,
+                                       "No array named \"" << arrayXml.child_value()
+                                       << '"');
+      const char *typeName = decl.child_value(TYPE_TAG);
+      // If this check fails, we missed something up the tree
+      checkParserExceptionWithLocation(typeName && *typeName,
+                                       decl,
+                                       "Internal error: Ill-formed array variable declaration");
+      result = parseValueType(typeName);
+      // If this check fails, we missed something up the tree
+      checkParserExceptionWithLocation(result != UNKNOWN_TYPE,
+                                       decl,
+                                       "Internal error: unrecognized array element type");
     }
     else {
       // Array-valued expression
-      // TODO: get type
       checkExpression(nodeId, arrayXml);
+      // TODO: get array type if possible
     }
 
     xml_node indexXml = arrayXml.next_sibling();
@@ -210,8 +227,7 @@ namespace PLEXIL
     checkExpression(nodeId, indexXml);
 
     // Return element type of array
-    // TODO
-    return UNKNOWN_TYPE;
+    return result;
   }
 
   // Common subroutine
@@ -315,20 +331,36 @@ namespace PLEXIL
                                      "Node \"" << nodeId
                                      << "\": Empty or malformed " << expr.name() << " element");
   
-    // TODO: check type against variable declaration
-
-    // Get type from XML tag
+    // Check type against variable declaration
+    ValueType expected = UNKNOWN_TYPE;
+    if (testTagPrefix(BOOLEAN_STR, expr))
+      expected = BOOLEAN_TYPE;
     if (testTagPrefix(INTEGER_STR, expr))
-      return INTEGER_TYPE;
+      expected = INTEGER_TYPE;
     if (testTagPrefix(STRING_STR, expr))
-      return STRING_TYPE;
+      expected = STRING_TYPE;
     if (testTagPrefix(REAL_STR, expr))
-      return REAL_TYPE;
-    if (testTagPrefix(DATE_STR, expr))
-      return DATE_TYPE;
-    if (testTagPrefix(DURATION_STR, expr))
-      return DURATION_TYPE;
-    return UNKNOWN_TYPE;
+      expected = REAL_TYPE;
+
+    checkParserExceptionWithLocation(expected != UNKNOWN_TYPE,
+                                     expr,
+                                     "Internal error: unrecognized variable tag \""
+                                     << expr.name() << '"');
+    pugi::xml_node const decl = findVariableDeclaration(expr, varName);
+    checkParserExceptionWithLocation(decl,
+                                     expr,
+                                     "No " << valueTypeName(expected)
+                                     << " variable named \"" << varName << "\" found");
+    char const *typeName = decl.child_value(TYPE_TAG);
+    checkParserExceptionWithLocation(typeName && *typeName,
+                                     decl,
+                                     "Internal error: Empty " << TYPE_TAG
+                                     << " in declararation of \"" << varName << '"');
+    checkParserExceptionWithLocation(expected == parseValueType(typeName),
+                                     expr,
+                                     "Variable " << varName << " is declared " << typeName
+                                     << ", but reference is for a(n) " << expr.name());
+    return expected;
   }
 
   Expression *
