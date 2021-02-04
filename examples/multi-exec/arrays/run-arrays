@@ -98,24 +98,24 @@ cleanup()
 {
     trap - EXIT INT QUIT HUP TERM
     echo 'Cleaning up'
-    if test -n $SIM_PID && ps $SIM_PID > /dev/null
+    if test -n "$SIM_PID" && ps $SIM_PID > /dev/null
     then
         kill -INT $SIM_PID
+        sleep 1
+        if test -n "$SIM_PID" && ps $SIM_PID > /dev/null
+        then
+            kill -KILL $SIM_PID
+            sleep 1
+        fi
     fi
-    sleep 1
-    if test -n $IPC_PID && ps $IPC_PID > /dev/null
+    if test -n "$IPC_PID" && ps $IPC_PID > /dev/null
     then
         kill -INT $IPC_PID
-    fi
-    sleep 1
-    if test -n $SIM_PID && ps $SIM_PID > /dev/null
-    then
-        kill -KILL $SIM_PID
-    fi
-    sleep 1
-    if test -n $IPC_PID && ps $IPC_PID > /dev/null
-    then
-        kill -KILL $IPC_PID
+        sleep 1
+        if test -n "$IPC_PID" && ps $IPC_PID > /dev/null
+        then
+            kill -KILL $IPC_PID
+        fi
     fi
 }
 
@@ -123,7 +123,7 @@ central -u -s &
 IPC_PID=$!
 
 # Give IPC a chance to start up
-sleep 2
+sleep 1
 
 # Handle interrupts and errors beyond this point
 trap cleanup EXIT INT QUIT HUP TERM
@@ -133,7 +133,7 @@ plexilexec -d simulator.debug -p "simulator-$1-arrays-test.plx" -c simulator-arr
 SIM_PID=$!
 
 # Give it a chance to start up too
-sleep 2
+sleep 1
 
 # Start the demo executive
 plexilexec -d command.debug -p "command-$1-arrays-test.plx" -c command-arrays-config.xml
