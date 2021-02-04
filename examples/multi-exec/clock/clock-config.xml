@@ -3,14 +3,13 @@
 <Interfaces>
  <Adapter AdapterType="Utility"/>
  <Adapter AdapterType="Time"/>
- <Adapter AdapterType="IpcAdapter" Server="localhost" AllowDuplicateMessages="true">
-  <CommandNames>
-	ReceiveMessage, UpdateLookup,  ReceiveCommand, SendReturnValue, GetParameter
-  </CommandNames>
+ <Adapter AdapterType="IpcAdapter"
+          TaskName="Clock"
+          Server="localhost"
+          AllowDuplicateMessages="true">
   <ExternalLookups>
     <Lookup name="Time" type="Integer" value="0"/>
   </ExternalLookups>
-  <DefaultCommandAdapter/>
  </Adapter>
  <Listener ListenerType="LuvListener"/>
  <Listener ListenerType="PlanDebugListener"/>
