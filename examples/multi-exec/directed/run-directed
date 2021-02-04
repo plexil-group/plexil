@@ -66,37 +66,37 @@ REAR_PID=
 # Trap handler
 cleanup()
 {
-    trap - INT QUIT HUP TERM
+    trap - EXIT INT QUIT HUP TERM
     echo 'Cleaning up'
-    if [ -n $FRONT_PID ]
+    if test -n "$FRONT_PID" && ps $FRONT_PID > /dev/null 
     then
         echo "Killing front_engine $FRONT_PID"
         kill -INT $FRONT_PID
     fi
-    if [ -n $REAR_PID ]
+    if test -n "$REAR_PID" && ps $REAR_PID > /dev/null
     then
         echo "Killing rear_engine $REAR_PID"
         kill -INT $REAR_PID
     fi
     sleep 1
-    if [ -n $IPC_PID ]
-    then
-        echo "Killing central $IPC_PID"
-        kill -INT $IPC_PID
-    fi
-    sleep 1
-    if test -n $FRONT_PID && ps $FRONT_PID > /dev/null
+    if test -n "$FRONT_PID" && ps $FRONT_PID > /dev/null
     then
         kill -KILL $FRONT_PID
     fi
-    if test -n $REAR_PID && ps $REAR_PID > /dev/null
+    if test -n "$REAR_PID" && ps $REAR_PID > /dev/null
     then
         kill -KILL $REAR_PID
     fi
     sleep 1
-    if test -n $IPC_PID && ps $IPC_PID > /dev/null
+    if test -n "$IPC_PID" && ps $IPC_PID > /dev/null
     then
-        kill -KILL $IPC_PID
+        echo "Killing central $IPC_PID"
+        kill -INT $IPC_PID
+        sleep 1
+        if ps $IPC_PID > /dev/null
+        then
+            kill -KILL $IPC_PID
+        fi
     fi
 }
 
@@ -107,7 +107,7 @@ IPC_PID=$!
 sleep 1
 
 # Handle interrupts and errors beyond this point
-trap cleanup INT QUIT HUP TERM
+trap cleanup EXIT INT QUIT HUP TERM
 
 # Start the simulators
 plexilexec -d front_engine-debug.cfg -p front_engine.plx -c front_engine-config.xml &
