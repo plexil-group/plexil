@@ -1,4 +1,4 @@
-<Interfaces ConfigurationType="default">
+<Interfaces>
   <Adapter AdapterType="Time" />
   <Adapter AdapterType="Utility" />
   <Adapter AdapterType="IpcAdapter" Server="localhost:1381">
