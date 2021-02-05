@@ -153,36 +153,36 @@ namespace PLEXIL
       debugMsg("IpcAdapter:initialize", " called");
 
       // Construct and register handlers for our own commands
-      config->registerCommandHandler(new SendMessageCommandHandler(this),
+      config->registerCommandHandler(std::make_shared<SendMessageCommandHandler>(this),
                                      SEND_MESSAGE_COMMAND);
-      config->registerCommandHandler(new ReceiveMessageCommandHandler(this),
+      config->registerCommandHandler(std::make_shared<ReceiveMessageCommandHandler>(this),
                                      RECEIVE_MESSAGE_COMMAND);
-      config->registerCommandHandler(new ReceiveCommandCommandHandler(this),
+      config->registerCommandHandler(std::make_shared<ReceiveCommandCommandHandler>(this),
                                      RECEIVE_COMMAND_COMMAND);
-      config->registerCommandHandler(new GetParameterCommandHandler(this),
+      config->registerCommandHandler(std::make_shared<GetParameterCommandHandler>(this),
                                      GET_PARAMETER_COMMAND);
-      config->registerCommandHandler(new SendReturnValueCommandHandler(this),
+      config->registerCommandHandler(std::make_shared<SendReturnValueCommandHandler>(this),
                                      SEND_RETURN_VALUE_COMMAND);
-      config->registerCommandHandler(new UpdateLookupCommandHandler(this),
+      config->registerCommandHandler(std::make_shared<UpdateLookupCommandHandler>(this),
                                      UPDATE_LOOKUP_COMMAND);
 
       // Register default command handler as necessary
       if (configuration().defaultCommandAdapter) {
-        config->setDefaultCommandHandler(new IpcCommandHandler(this));
+        config->setDefaultCommandHandler(std::make_shared<IpcCommandHandler>(this));
       }
       else if (!configuration().commandNames.empty()) {
-        config->registerCommandHandler(new IpcCommandHandler(this),
+        config->registerCommandHandler(std::make_shared<IpcCommandHandler>(this),
                                        configuration().commandNames);
       }
 
       // Register lookup handlers as required
       parseExternalLookups(getXml().child("ExternalLookups"));
       if (configuration().defaultLookupAdapter) {
-        config->setDefaultLookupHandler(new IpcLookupHandler(this));
+        config->setDefaultLookupHandler(std::make_shared<IpcLookupHandler>(this));
       }
       else if (!configuration().lookupNames.empty()
                || !m_externalLookupNames.empty()) {
-        LookupHandler *hndlr = new IpcLookupHandler(this);
+        LookupHandlerPtr hndlr = std::make_shared<IpcLookupHandler>(this);
         config->registerLookupHandler(hndlr,
                                       configuration().lookupNames);
         config->registerLookupHandler(hndlr, m_externalLookupNames);
@@ -695,9 +695,7 @@ namespace PLEXIL
       {
       }
 
-      virtual ~IpcLookupHandler()
-      {
-      }
+      virtual ~IpcLookupHandler() = default;
 
       virtual void lookupNow(const State &state, LookupReceiver *rcvr) override
       {
