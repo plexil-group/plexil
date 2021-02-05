@@ -39,11 +39,11 @@ namespace PLEXIL
   class AdapterConfiguration;
   class AdapterExecInterface;
 
-  //!
-  // @brief An abstract base class for constructing the handlers which 
-  //        interface the PLEXIL Universal Exec to external systems,
-  //        and maintaining their shared state as the application requires.
-  //
+  //! @class InterfaceAdapter
+  //! An abstract base class for constructing the handlers which
+  //! interface the PLEXIL Universal Exec to external systems, and
+  //! maintaining their shared state as the application requires.
+
   // InterfaceAdapter is an optional feature of the PLEXIL Application Framework.
   // It is intended to serve these purposes:
   //
@@ -55,74 +55,55 @@ namespace PLEXIL
   // @see CommandHandler
   // @see LookupHandler
   // @see PlannerUpdateHandler
-  //
-
-  // ISSUES:
-  // * 
 
   class InterfaceAdapter
   {
   public:
 
-    /**
-     * @brief Default constructor.
-     */
-
-    /**
-     * @brief Constructor from configuration XML.
-     * @param xml The const XML element (handle) describing this adapter
-     *
-     * @note The instance maintains a shared reference to the XML, though
-     *       perhaps this should be passed in via the initialize() method.
-     */
+    //1 Constructor.
+    //! @param intf Reference to the application's AdapterExecInterface.
+    //! @param conf Pointer to the AdapterConf object describing this
+    //!             adapter; may be null.
     InterfaceAdapter(AdapterExecInterface &intf, AdapterConf *conf)
       : m_conf(conf),
         m_interface(intf)
     {
     }
 
-    /**
-     * @brief Destructor.
-     */
+    //! Virtual destructor.
     virtual ~InterfaceAdapter() = default;
 
     //
     // API to ExecApplication
     //
 
-    /**
-     * @brief Construct the appropriate handler objects as specified in the
-     *        configuration XML, and register them with the AdapterConfiguration
-     *        instance.
-     * @param config Pointer to the AdapterConfiguration interface registry.
-     * @return true if successful, false otherwise.
-     * 
-     * @note The default method simply returns true.
-     */
+    //! Initialize the handler, construct the handler objects as
+    //! specified in the adapter's AdapterConf instance, and register
+    //! them with the AdapterConfiguration.
+    //! @param config Pointer to the AdapterConfiguration interface registry.
+    //! @return true if successful, false otherwise.
+    //! @note The default method simply returns true as a convenience.
     virtual bool initialize(AdapterConfiguration * /* config */)
     {
       return true;
     }
 
-    /**
-     * @brief Start the interface.
-     * @return true if successful, false otherwise.
-     * 
-     * @note The default method simply returns true.
-     */
+    //! Start the interface.
+    //! @return true if successful, false otherwise.
+    //! @note The default method simply returns true as a convenience.
     virtual bool start()
     {
       return true;
     }
 
-    /**
-     * @brief Stop the interface.
-     * @note The default method does nothing.
-     */
+    //! Stop the interface.
+    //! @note The default method does nothing.
     virtual void stop()
     {
     }
 
+    //! Get a reference to the AdapterExecInterface.
+    //! @return The AdapterExecInterface reference.
     AdapterExecInterface &getInterface()
     {
       return m_interface;
@@ -139,9 +120,8 @@ namespace PLEXIL
         return sl_empty_conf;
     }
 
-    /**
-     * @brief Get the configuration XML for this instance.
-     */
+    //! Get the configuration XML used to create this instance.
+    //! @return The XML.
     pugi::xml_node const getXml()
     {
       return configuration().xml;
@@ -158,7 +138,7 @@ namespace PLEXIL
     InterfaceAdapter &operator=(InterfaceAdapter &&) = delete;
 
     //
-    // Member variables
+    // Private member variables
     //
 
     std::unique_ptr<AdapterConf> m_conf;

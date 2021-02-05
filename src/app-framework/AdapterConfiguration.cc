@@ -104,21 +104,18 @@ namespace PLEXIL {
 
     // Internal typedefs
     using InterfaceAdapterPtr = std::unique_ptr<InterfaceAdapter>;
-
-    using CommandHandlerPtr = std::shared_ptr<CommandHandler>;
-    using CommandHandlerMap = std::map<std::string, CommandHandlerPtr>;
-
-    using LookupHandlerPtr = std::shared_ptr<LookupHandler>;
-    using LookupHandlerMap = std::map<std::string, LookupHandlerPtr>;
-
     // punt for now
     using InterfaceAdapterSet = std::vector<InterfaceAdapterPtr>;
+
+    using CommandHandlerMap = std::map<std::string, CommandHandlerPtr>;
+    using LookupHandlerMap = std::map<std::string, LookupHandlerPtr>;
+
 
   public:
 
     AdapterConfigurationImpl()
-      : m_defaultCommandHandler(new CommandHandler()),
-        m_defaultLookupHandler(new LookupHandler()),
+      : m_defaultCommandHandler(std::make_shared<CommandHandler>()),
+        m_defaultLookupHandler(std::make_shared<LookupHandler>()),
         m_plannerUpdateHandler()
     {
       // Every application has access to the time adapter
@@ -195,12 +192,12 @@ namespace PLEXIL {
       // Clear the handlers first, as they might point back to the adapters
       m_lookupMap.clear();
       m_commandMap.clear();
-      m_defaultCommandHandler.reset();
       m_defaultLookupHandler.reset();
+      m_defaultCommandHandler.reset();
 
       // *** what to do about planner update handler? ***
 
-      // Now the adapters
+      // Now the adapters (possibly redundant?)
       m_adapters.clear();
     }
 
@@ -368,43 +365,22 @@ namespace PLEXIL {
     // Command handler registration
     //
 
-    virtual void registerCommandHandler(CommandHandler *handler,
-                                        pugi::xml_node const configXml)
+    virtual void registerCommandHandler(CommandHandlerPtr handler,
+                                        std::vector<std::string> const &names)
     {
-      assertTrue_2(handler, "registerCommandHandler: Handler must not be null");
-      pugi::xml_node commandNamesElt =
-        configXml.child(InterfaceSchema::COMMAND_NAMES_TAG);
-      while (commandNamesElt) {
-        // Register individual commands
-        char const *commandNamesStr = commandNamesElt.child_value();
-        checkError(commandNamesStr && *commandNamesStr,
-                   "IpcAdapter: Invalid configuration XML: "
-                   << InterfaceSchema::COMMAND_NAMES_TAG
-                   << " requires one or more comma-separated command names");
-        std::vector<std::string> *cmdNames =
-          InterfaceSchema::parseCommaSeparatedArgs(commandNamesStr);
-        if (cmdNames) {
-          for (std::string &name : *cmdNames)
-            m_commandMap[name].reset(handler);
-          delete cmdNames;
-        }
-        commandNamesElt = commandNamesElt.next_sibling(InterfaceSchema::COMMAND_NAMES_TAG);
+      for (std::string const &name : names) {
+        debugMsg("AdapterConfiguration:registerCommandHandler",
+                 " (vector) " << name << " -> " << handler);
+        m_commandMap[name] = handler;
       }
     }
 
-    virtual void registerCommandHandler(CommandHandler *handler,
-                                        std::vector<std::string> const &names)
-    {
-      assertTrue_2(handler, "registerCommandHandler: Handler must not be null");
-      for (std::string const &name : names)
-        m_commandMap[name].reset(handler);
-    }
-
-    virtual void registerCommandHandler(CommandHandler *handler,
+    virtual void registerCommandHandler(CommandHandlerPtr handler,
                                         std::string const &cmdName)
     {
-      assertTrue_2(handler, "registerCommandHandler: Handler must not be null");
-      m_commandMap[cmdName].reset(handler);
+      debugMsg("AdapterConfiguration:registerCommandHandler",
+               " (string) " << cmdName << " -> " << handler);
+      m_commandMap[cmdName] = handler;
     }
 
     virtual void registerCommandHandlerFunction(std::string const &stateName,
@@ -412,67 +388,44 @@ namespace PLEXIL {
                                                 AbortCommandHandler abortCmd =
                                                 defaultAbortCommandHandler)
     {
-      assertTrue_2(execCmd, "registerCommandHandlerFunction: Handler function must not be null");
-      registerCommandHandler(new CommandHandlerWrapper(execCmd, abortCmd),
+      registerCommandHandler(std::make_shared<CommandHandlerWrapper>(execCmd, abortCmd),
                              stateName);
     }
 
-    virtual void setDefaultCommandHandler(CommandHandler *handler)
+    virtual void setDefaultCommandHandler(CommandHandlerPtr handler)
     {
-      assertTrue_2(handler, "setDefaultCommandHandler: Handler must not be null");
-      debugMsg("AdapterConfiguration:setDefaultCommandHanlder",
-               " replacing default command handler");
-      m_defaultCommandHandler.reset(handler);
+      debugMsg("AdapterConfiguration:setDefaultCommandHandler", ' ' << handler);
+      m_defaultCommandHandler = CommandHandlerPtr(handler);
     }
 
     virtual void setDefaultCommandHandlerFunction(ExecuteCommandHandler execCmd,
                                                   AbortCommandHandler abortCmd =
                                                   defaultAbortCommandHandler)
     {
-      assertTrue_2(execCmd, "setDefaultCommandHandlerFunction: Handler function must not be null");
-      setDefaultCommandHandler(new CommandHandlerWrapper(execCmd, abortCmd));
+      setDefaultCommandHandler(std::make_shared<CommandHandlerWrapper>(execCmd, abortCmd));
     }
 
     //
     // Lookup handler registration
     //
 
-    virtual void registerLookupHandler(LookupHandler *handler,
-                                       pugi::xml_node const configXml)
+    virtual void registerLookupHandler(LookupHandlerPtr handler,
+                                       std::vector<std::string> const &names)
     {
-      assertTrue_2(handler, "registerLookupHandler: Handler must not be null");
-
-      pugi::xml_node lookupNamesElt =
-        configXml.child(InterfaceSchema::LOOKUP_NAMES_TAG);
-      while (lookupNamesElt) {
-        // Register individual lookups
-        char const *lookupNamesStr = lookupNamesElt.child_value();
-        checkError(lookupNamesStr && *lookupNamesStr,
-                   "IpcAdapter: Invalid configuration XML: "
-                   << InterfaceSchema::LOOKUP_NAMES_TAG
-                   << " requires one or more comma-separated lookup names");
-        std::vector<std::string> *lkupNames =
-          InterfaceSchema::parseCommaSeparatedArgs(lookupNamesStr);
-        for (std::string const &name : *lkupNames)
-          m_lookupMap[name].reset(handler);
-        delete lkupNames;
-        lookupNamesElt = lookupNamesElt.next_sibling(InterfaceSchema::LOOKUP_NAMES_TAG);
+      LookupHandlerPtr ptr(handler);
+      for (std::string const &name : names) {
+        debugMsg("AdapterConfiguration:registerLookupHandler",
+                 " (vector) " << name << " -> " << handler);
+        m_lookupMap[name] = handler;
       }
     }
 
-    virtual void registerLookupHandler(LookupHandler *handler,
-                                       std::vector<std::string> const &names)
-    {
-      assertTrue_2(handler, "registerLookupHandler: Handler must not be null");
-      for (std::string const &name : names)
-        m_lookupMap[name].reset(handler);
-    }
-
-    virtual void registerLookupHandler(LookupHandler *handler,
+    virtual void registerLookupHandler(LookupHandlerPtr handler,
                                        std::string const &stateName)
     {
-      assertTrue_2(handler, "registerLookupHandler: Handler must not be null");
-      m_lookupMap[stateName].reset(handler);
+      debugMsg("AdapterConfiguration:registerLookupHandler",
+               " (string) for " << stateName << " -> " << handler);
+      m_lookupMap[stateName] = handler;
     }
 
     virtual void registerLookupHandlerFunction(std::string const &stateName,
@@ -484,18 +437,17 @@ namespace PLEXIL {
                                                ClearThresholdsHandler clrThresholds =
                                                ClearThresholdsHandler())
     {
-      assertTrue_2(lookupNow, "registerLookupHandlerFunction: LookupNow function must not be null");
-      registerLookupHandler(new LookupHandlerWrapper(lookupNow,
-                                                     setThresholdsReal,
-                                                     setThresholdsInt,
-                                                     clrThresholds),
+      registerLookupHandler(std::make_shared<LookupHandlerWrapper>(lookupNow,
+                                                                   setThresholdsReal,
+                                                                   setThresholdsInt,
+                                                                   clrThresholds),
                             stateName);
     }
 
-    virtual void setDefaultLookupHandler(LookupHandler *handler)
+    virtual void setDefaultLookupHandler(LookupHandlerPtr handler)
     {
-      assertTrue_2(handler, "setDefaultLookupHandler: Handler must not be null");
-      m_defaultLookupHandler.reset(handler);
+      debugMsg("AdapterConfiguration:registerLookupHandler", ' ' << handler);
+      m_defaultLookupHandler = handler;
     }
 
     virtual void setDefaultLookupHandler(LookupNowHandler lookupNow,
@@ -506,12 +458,10 @@ namespace PLEXIL {
                                          ClearThresholdsHandler clrThresholds =
                                          ClearThresholdsHandler())
     {
-      assertTrue_2(lookupNow,
-                   "setDefaultLookupHandler: LookupNow function must not be null");
-      setDefaultLookupHandler(new LookupHandlerWrapper(lookupNow,
-                                                       setThresholdsReal,
-                                                       setThresholdsInt,
-                                                       clrThresholds));
+      setDefaultLookupHandler(std::make_shared<LookupHandlerWrapper>(lookupNow,
+                                                                     setThresholdsReal,
+                                                                     setThresholdsInt,
+                                                                     clrThresholds));
     }
 
     //
@@ -520,7 +470,6 @@ namespace PLEXIL {
 
     virtual void registerPlannerUpdateHandler(PlannerUpdateHandler handler)
     {
-      assertTrue_2(handler, "registerPlannerUpdateHandler: Handler must not be null");
       m_plannerUpdateHandler = handler;
     }
 

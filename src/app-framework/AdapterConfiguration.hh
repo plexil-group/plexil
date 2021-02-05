@@ -104,48 +104,25 @@ namespace PLEXIL
 
     /**
      * @brief Register the given CommandHandler instance for all
-     *        CommandNames in the adapter's configuration XML.
-     * @param handler Pointer to the CommandHandler instance.
-     * @param configXml Configuration XML for the interface.
-     * @note The AdapterConfiguration instance takes ownership of the
-     *       handler, and is responsible for its deletion when the
-     *       application terminates. If there is no CommandNames
-     *       element in the configuration XML, the handler is deleted
-     *       immediately.
-     * @note To override the common handler for specific command names,
-     *       call registerCommandHandler() after calling this member function.
-     */
-    virtual void registerCommandHandler(CommandHandler *handler,
-                                        pugi::xml_node const configXml) = 0;
-
-    /**
-     * @brief Register the given CommandHandler instance for all
      *        command names in the given vector.
      * @param handler Pointer to the CommandHandler instance.
      * @param names Const reference to Vector of command name strings.
-     * @note The AdapterConfiguration instance takes ownership of the
-     *       handler, and is responsible for its deletion when the
-     *       application terminates. If there is no CommandNames
-     *       element in the configuration XML, the handler is deleted
-     *       immediately.
-     * @note To override the common handler for specific command names,
-     *       call registerCommandHandler() after calling this member function.
+     * @note The AdapterConfiguration instance takes shared ownership
+     *       of the handler.
      */
-    virtual void registerCommandHandler(CommandHandler *handler,
+    virtual void registerCommandHandler(CommandHandlerPtr handler,
                                         std::vector<std::string> const &names) = 0;
 
     /**
      * @brief Register the given CommandHandler for this command,
      *        overriding any previous handler or interface adapter
      *        registration.
+     * @param handler Shared pointer to the CommandHandler instance.
      * @param cmdName The name of the command to map to this handler.
-     * @param handler Pointer to the CommandHandler instance to
-     *        associate with this command name.
-     * @note The AdapterConfiguration instance takes ownership of the
-     *       handler, and is responsible for its deletion when the
-     *       application terminates.
+     * @note The AdapterConfiguration instance takes shared ownership
+     *       of the handler.
      */
-    virtual void registerCommandHandler(CommandHandler *handler,
+    virtual void registerCommandHandler(CommandHandlerPtr handler,
                                         std::string const &cmdName) = 0;
 
     /**
@@ -168,12 +145,11 @@ namespace PLEXIL
      * commands without a specific handler, overriding any previously
      * registered default handler or interface adapter, including the
      * default default handler.
-     * @param handler Pointer to the CommandHandler instance.
-     * @note The AdapterConfiguration instance takes ownership of the
-     *       handler, and is responsible for its deletion when the
-     *       application terminates.
+     * @param handler Shared pointer to the CommandHandler instance.
+     * @note The AdapterConfiguration instance takes shared ownership
+     *       of the handler.
      */
-    virtual void setDefaultCommandHandler(CommandHandler *handler) = 0;
+    virtual void setDefaultCommandHandler(CommandHandlerPtr handler) = 0;
     
     /**
      * @brief Register the given handler function(s) as the default
@@ -182,8 +158,7 @@ namespace PLEXIL
      * including the default default handler.
      * @param execCmd The execute command handler function.
      * @param abortCmd (Optional) The abort command handler function.
-     * Defaults to defaultAbortCommandHandler if not supplied.
-     *
+     *        Defaults to defaultAbortCommandHandler if not supplied.
      * @see defaultAbortCommandHandler
      */
     virtual void setDefaultCommandHandlerFunction(ExecuteCommandHandler execCmd,
@@ -192,32 +167,14 @@ namespace PLEXIL
     = 0;
 
     /**
-     * @brief Register the given LookupHandler instance for all LookupNames
-     *        in the handler's configuration XML.
-     * @param handler Pointer to the LookupHandler instance.
-     * @param configXml Configuration XML for the handler.
-     * @note The AdapterConfiguration instance takes ownership of the
-     *       handler, and is responsible for its deletion when the
-     *       application terminates. If there is no LookupNames
-     *       element in the configuration XML, the handler is deleted
-     *       immediately.
-     * @note To override the common handler for specific lookup names,
-     *       call registerLookupHandler() after calling this member function.
-     */
-    virtual void registerLookupHandler(LookupHandler *handler,
-                                       pugi::xml_node const configXml) = 0;
-
-    /**
      * @brief Register the given LookupHandler instance for all lookup
      *        names in the given vector.
-     * @param handler Pointer to the LookupHandler instance.
+     * @param handler Shared pointer to the LookupHandler instance.
      * @param names Const reference to a vector of name strings.
-     * @note The AdapterConfiguration instance takes ownership of the
-     *       handler, and is responsible for its deletion when the
-     *       application terminates. If the vector of names is empty,
-     *       the handler is deleted immediately.
+     * @note The AdapterConfiguration instance takes shared ownership
+     *       of the handler.
      */
-    virtual void registerLookupHandler(LookupHandler *handler,
+    virtual void registerLookupHandler(LookupHandlerPtr handler,
                                        std::vector<std::string> const &names) = 0;
 
     /**
@@ -226,11 +183,10 @@ namespace PLEXIL
      *        interface adapter registrations for the name.
      * @param stateName The name of the state to map to this handler.
      * @param handler Pointer to the LookupHandler.
-     * @note The AdapterConfiguration instance takes ownership of the
-     *       handler, and is responsible for its deletion when the
-     *       application terminates.
+     * @note The AdapterConfiguration instance takes shared ownership
+     *       of the handler.
      */
-    virtual void registerLookupHandler(LookupHandler *handler,
+    virtual void registerLookupHandler(LookupHandlerPtr handler,
                                        std::string const &stateName) = 0;
 
     /**
@@ -259,12 +215,11 @@ namespace PLEXIL
      * for lookups, overriding any previously registered default
      * handler or interface adapter, including the default default
      * handler.
-     * @param handler Pointer to the new default LookupHandler.
-     * @note The AdapterConfiguration instance takes ownership of the
-     *       handler, and is responsible for its deletion when the
-     *       application terminates.
+     * @param handler Shared pointer to the new default LookupHandler.
+     * @note The AdapterConfiguration instance takes shared ownership
+     *       of the handler.
      */
-    virtual void setDefaultLookupHandler(LookupHandler *handler) = 0;
+    virtual void setDefaultLookupHandler(LookupHandlerPtr handler) = 0;
     
     /**
      * @brief Register the given handler function(s) as the default

@@ -130,7 +130,7 @@ namespace PLEXIL
       // Construct Timebase
       pugi::xml_node const tb_xml = getXml().child(InterfaceSchema::TIMEBASE_TAG);
       m_timebase.reset(makeTimebase(tb_xml, &timeout, (void *) this));
-      config->registerLookupHandler(new TimeLookupHandler(m_timebase.get()),
+      config->registerLookupHandler(std::make_shared<TimeLookupHandler>(m_timebase.get()),
                                     "time");
       return true;
     }
