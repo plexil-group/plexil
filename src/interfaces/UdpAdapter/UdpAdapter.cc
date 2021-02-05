@@ -190,13 +190,13 @@ namespace PLEXIL
       debugMsg("UdpAdapter:initialize", " called");
 
       // Register the basic command handlers
-      config->registerCommandHandler(new SendMessageHandler(this),
+      config->registerCommandHandler(std::make_shared<SendMessageHandler>(this),
                                      std::string(SEND_MESSAGE_COMMAND));
-      config->registerCommandHandler(new ReceiveCommandHandler(this),
+      config->registerCommandHandler(std::make_shared<ReceiveCommandHandler>(this),
                                      std::string(RECEIVE_COMMAND_COMMAND));
-      config->registerCommandHandler(new GetParameterHandler(this),
+      config->registerCommandHandler(std::make_shared<GetParameterHandler>(this),
                                      std::string(GET_PARAMETER_COMMAND));
-      config->registerCommandHandler(new SendReturnValueHandler(this),
+      config->registerCommandHandler(std::make_shared<SendReturnValueHandler>(this),
                                      std::string(SEND_RETURN_VALUE_COMMAND));
 
       pugi::xml_node const xml = getXml();
@@ -711,13 +711,13 @@ namespace PLEXIL
       if (!getXml().child("Message"))
         return true;  // no messages, hence nothing to do
 
-      CommandHandler *handler = nullptr;
+      CommandHandlerPtr handler;
       for (pugi::xml_node const msgXml : getXml().children("Message")) {
         if (!parseMessageDefinition(msgXml))
           return false;
         // Only construct handler when we have parsed at least one valid message def'n
         if (!handler)
-          handler = new UdpCommandHandler(this);
+          handler = std::make_shared<UdpCommandHandler>(this);
         config->registerCommandHandler(handler,
                                        std::string(msgXml.attribute("name").value()));
       }
