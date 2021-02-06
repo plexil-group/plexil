@@ -1,5 +1,4 @@
 #! /bin/sh -e
-
 # Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 # All rights reserved.
 #
@@ -25,41 +24,41 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-if [ -z "$1" ]
+# Compare test output with output from a known good run,
+# ignoring pointer differences
+
+if [ $# -ne 2 ]
 then
-   echo "Usage: $(basename "$0") <test_name>"
-   exit 1
+    echo "Error: $(basename "$0") requires exactly two filenames" >&2
+    echo "Usage: $(basename "$0") <test.out> <test.valid>" >&2
+    exit 2
 fi
 
-TEST_DIR="$( cd "$(dirname "$(command -v "$0")")" && pwd -P )"
+SED_CMD='s/(0x[0-9a-fA-F]{2,16})//g'
 
-# shellcheck source=test-env.sh
-. "$TEST_DIR"/test-env.sh
+TEST_NAME="$(basename "$1" '.out')"
 
-cd "$TEST_DIR"
+TEST_OUT_TMP="$(mktemp 'test_out_XXXXXX')"
+VALID_TMP="$(mktemp 'valid_XXXXXX')"
 
-PLAN_FILE="plans/${1}.plx"
-if [ ! -r "$PLAN_FILE" ]
+cleanup()
+{
+    trap - INT QUIT EXIT HUP KILL
+    rm -f "$TEST_OUT_TMP" "$VALID_TMP"
+}
+
+trap cleanup INT QUIT EXIT HUP KILL
+
+sed -E -e "$SED_CMD" < "$1" > "$TEST_OUT_TMP"
+sed -E -e "$SED_CMD" < "$2" > "$VALID_TMP"
+STATUS=0
+if ! diff "$TEST_OUT_TMP" "$VALID_TMP" >> RegressionResults
 then
-   echo "$(basename "$0"): Plan file $PLAN_FILE not found"
-   exit 1
+    printf "\n\n**** TEST FAILED: %s ***\n  ------ .out file differs from .valid file\n\n" "$TEST_NAME" >> RegressionResults
+    printf "\nTEST FAILED:  %s\n  ------ .out file differs from .valid file\n" "$TEST_NAME" >&2
+    STATUS=1
 fi
 
-VALID_FILE="valid/RUN_${1}_empty-script.valid"
-if [ ! -r "$VALID_FILE" ]
-then
-   echo "$(basename "$0"): Valid file $VALID_FILE not found; exiting"
-   exit 1
-fi
+cleanup
 
-OUT_FILE="output/${1}.out"
-
-echo "$1" >> tempRegressionResults
-if ! "$EXEC_PROG" -L plans -d "$TEST_DEBUG_CFG" -p "$PLAN_FILE" -s "$EMPTY_SCRIPT" > "$OUT_FILE" 2>> tempRegressionResults
-then
-    echo "*** Test $1 exited due to error" >> RegressionResults
-    echo "*** Test $1 exited due to error"
-elif ./regression.sh "$OUT_FILE" "$VALID_FILE"
-then
-    echo "TEST PASSED: $1" >> RegressionResults
-fi
+exit $STATUS
