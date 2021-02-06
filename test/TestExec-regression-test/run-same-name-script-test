@@ -59,7 +59,7 @@ if ! "$EXEC_PROG" -L plans -d "$TEST_DEBUG_CFG" -p "$PLAN_FILE" -s "$SCRIPT_FILE
 then
     echo "*** Test $1 exited due to error" >> RegressionResults
     echo "*** Test $1 exited due to error"
-elif perl "$REGRESSION_PL" "$OUT_FILE"
+elif perl check_outcome.pl "$OUT_FILE"
 then
     echo "TEST PASSED: $1" >> RegressionResults
 fi
