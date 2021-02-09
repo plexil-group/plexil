@@ -141,7 +141,7 @@ plexil_checker="$PLEXIL_HOME"/scripts/checkPlexil
 # $1: the file name to be safed
 safe_name()
 {
-    if [ "$1" != "${1#-}" ]
+    if [ "$1" != "${1#-}" ]  # ${1#-} = $1 with '-' as a prefix removed
     then
         printf './%s' "$1"
     else
@@ -380,7 +380,7 @@ compile_one_file()
     local dest=
     if [ -n "$specified_output" ]
     then
-        dest="(safe_name "$specified_output")"
+        dest="$(safe_name "$specified_output")"
     else
         # TODO: destination directory
         dest_dir="${dest_dir:-$(dirname "$1")}"
