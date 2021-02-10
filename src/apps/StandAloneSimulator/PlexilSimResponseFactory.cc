@@ -34,6 +34,8 @@
 
 #include "Debug.hh"
 
+#include <iomanip>
+
 using PLEXIL::Value;
 using PLEXIL::ValueType;
 
