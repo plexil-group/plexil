@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,8 +31,15 @@
 #include <arpa/inet.h>        // htonl(), htons(), ntohl(), ntohs()
 #endif
 
-#ifdef STDC_HEADERS
+#if defined(HAVE_CERRNO)
 #include <cerrno>
+#elif defined(HAVE_ERRNO_H)
+#include <errno.h>
+#endif
+
+#if defined(HAVE_CSTRING)
+#include <cstring>            // memset()
+#elif defined(HAVE_STRING_H)
 #include <cstring>            // memset()
 #endif
 
@@ -272,6 +279,8 @@ namespace PLEXIL
     return status;
   }
 
+  // FIXME Rewrite using select() to wait for either
+  // incoming packet or stop request.
   int wait_for_input(int local_port, unsigned char* buffer, size_t size, int sock, bool debug)
   {
     if (debug)
