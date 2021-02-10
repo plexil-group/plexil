@@ -1,13 +1,13 @@
 <PLEXILScript>
   <InitialState>
     <State name="At" type="bool">
-      <Param>Rock</Param>
+      <Param type="string">Rock</Param>
       <Value>false</Value>
     </State>
   </InitialState>
   <Script>
     <State name="At" type="bool">
-      <Param>Rock</Param>
+      <Param type="string">Rock</Param>
       <Value>true</Value>
     </State>
     <CommandAck name="drive" type="string">

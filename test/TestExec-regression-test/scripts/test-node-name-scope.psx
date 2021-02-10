@@ -1,9 +1,8 @@
 <PLEXILScript>
-  <InitialState>
-  </InitialState>
+  <InitialState/>
   <Script>
-    <CommandAck name="Y" type="bool">
-      <Result>1</Result>
+    <CommandAck name="Y" type="string">
+      <Result>COMMAND_SUCCESS</Result>
     </CommandAck>
   </Script>
 </PLEXILScript>
