@@ -2,6 +2,6 @@
 // atomic-assignment
 
 script {
+  delay;
   command-ack check (1 : int, 0 : int) = "COMMAND_SUCCESS" : string;
 }
-
