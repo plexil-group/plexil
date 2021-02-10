@@ -849,7 +849,7 @@ namespace PLEXIL
       try {
         // must step exec once to initialize time and
         // give any preloaded plans a chance to start
-        bool needsStep = step();
+        step();
         debugMsg("ExecApplication:worker", " Initial step complete");
 
         while (waitForExternalEvent()) {
@@ -879,7 +879,6 @@ namespace PLEXIL
     bool waitForExternalEvent()
     {
       debugMsg("ExecApplication:wait", " waiting for external event");
-      int status;
       do {
         if (m_sem.wait())
           return false;
