@@ -900,8 +900,8 @@ namespace PLEXIL
       m_messageQueues.addMessage(formatMessageName(header->stringValue,
                                                    RECEIVE_COMMAND_COMMAND),
                                  uid_lbl);
-      for (int i = 1; i < msgs.size(); ++i) {
-        m_messageQueues.addMessage(formatMessageName(uid_lbl, GET_PARAMETER_COMMAND, i - 1),
+      for (unsigned int i = 1; i < msgs.size(); ++i) {
+        m_messageQueues.addMessage(formatMessageName(uid_lbl, GET_PARAMETER_COMMAND, (int) i - 1),
                                    getPlexilMsgValue(msgs.at(i)));
       }
     }
