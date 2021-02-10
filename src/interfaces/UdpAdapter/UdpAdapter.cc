@@ -38,12 +38,13 @@
 #include "InterfaceError.hh"
 #include "MessageQueueMap.hh"
 #include "StateCacheEntry.hh"
-#include "ThreadSpawn.hh"
 #include "udp-utils.hh"
 
 #include "pugixml.hpp"
 
+#include <memory> // std::unique_ptr, std::make_unique
 #include <mutex>
+#include <thread>
 
 #if defined(HAVE_CERRNO)
 #include <cerrno>
@@ -161,7 +162,7 @@ namespace PLEXIL
     // Local types
     //
     using MessageMap = std::map<std::string, UdpMessage>;
-    using ThreadMap = std::map<std::string, pthread_t>;
+    using ThreadMap = std::map<std::string, std::unique_ptr<std::thread> >;
     using SocketMap = std::map<std::string, int>;
 
   public:
@@ -659,23 +660,19 @@ namespace PLEXIL
         return;
       }
 
-      if ((status = pthread_cancel(thread->second))) {
-        warn("UdpAdapter::abortReceiveCommandCommand: pthread_cancel(" << thread->second
-             << ") returned " << status << ", errno " << errno);
-        abortCommand(cmd, false);
-        return;
-      }
+      // FIXME
+      // Find a new way to tell this thread to quit
+      // if ((status = pthread_cancel(thread->second))) {
+      //   warn("UdpAdapter::abortReceiveCommandCommand: pthread_cancel(" << thread->second
+      //        << ") returned " << status << ", errno " << errno);
+      //   abortCommand(cmd, false);
+      //   return;
+      // }
 
       // Wait for cancelled thread to finish
-      if ((status = pthread_join(thread->second, nullptr))) {
-        warn("UdpAdapter::abortReceiveCommandCommand: pthread_join(" << thread->second
-             << ") returned " << status << ", errno " << errno);
-        abortCommand(cmd, false);
-        return;
-      }
-
+      thread->second->join();
       debugMsg("UdpAdapter::abortReceiveCommandCommand", " " << msgName
-               << " listener thread (" << thread->second << ") cancelled");
+               << " listener thread cancelled");
       m_activeThreads.erase(thread); // erase the cancelled thread
       // Second, find the open socket for this message and close it
       SocketMap::iterator socket = m_activeSockets.find(msgName); // recorded by startUdpMessageReceiver
@@ -940,19 +937,19 @@ namespace PLEXIL
       debugMsg("UdpAdapter:startUdpMessageReceiver",
                " " << name << " socket (" << sock << ") opened");
       msg->second.sock = sock; // pass the socket descriptor to waitForUdpMessage, which will then reset it
-      pthread_t thread_handle;
       // Spawn the listener thread
-      threadSpawn((THREAD_FUNC_PTR) waitForUdpMessage, &msg->second, thread_handle);
+      std::unique_ptr<std::thread> thread_handle =
+        std::make_unique<std::thread>(waitForUdpMessage, &msg->second);
       // Check to see if the thread got started correctly
-      if (thread_handle == 0) {
-        warn("UdpAdapter:startUdpMessageReceiver: threadSpawn returned null");
+      if (!thread_handle->joinable()) {
+        warn("UdpAdapter:startUdpMessageReceiver: thread failed to start");
         return -1;
       }
 
       debugMsg("UdpAdapter:startUdpMessageReceiver",
-               " " << name << " listener thread (" << thread_handle << ") spawned");
+               " " << name << " listener thread spawned");
       // Record the thread and socket in case they have to be cancelled and closed later (in invokeAbort)
-      m_activeThreads[name] = thread_handle;
+      m_activeThreads[name].reset(thread_handle.release());
       m_activeSockets[name] = sock;
       return 0;
     }
