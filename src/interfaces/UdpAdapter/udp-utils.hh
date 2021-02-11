@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,16 +24,9 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "plexil-config.h"
+#include "plexil-stdint.h" // int32_t; includes plexil-config.h
 
-#include <cstdio>
-#include <iostream>           // cout
-#ifdef HAVE_STDINT_H
-#define __STDC_LIMIT_MACROS
-#include <stdint.h>
-#elif defined(HAVE_VXWORKS_H)
-#include <vxWorks.h>
-#endif
+#include <string>
 
 namespace PLEXIL
 {
