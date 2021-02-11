@@ -191,14 +191,20 @@ namespace PLEXIL
       debugMsg("UdpAdapter:initialize", " called");
 
       // Register the basic command handlers
-      config->registerCommandHandler(std::make_shared<SendMessageHandler>(this),
-                                     std::string(SEND_MESSAGE_COMMAND));
-      config->registerCommandHandler(std::make_shared<ReceiveCommandHandler>(this),
-                                     std::string(RECEIVE_COMMAND_COMMAND));
-      config->registerCommandHandler(std::make_shared<GetParameterHandler>(this),
-                                     std::string(GET_PARAMETER_COMMAND));
-      config->registerCommandHandler(std::make_shared<SendReturnValueHandler>(this),
-                                     std::string(SEND_RETURN_VALUE_COMMAND));
+      config->registerCommandHandlerFunction(SEND_MESSAGE_COMMAND,
+                                             [this](Command *cmd, AdapterExecInterface *intf) -> void
+                                             { this->executeSendMessageCommand(cmd, intf); });
+      config->registerCommandHandlerFunction(RECEIVE_COMMAND_COMMAND,
+                                             [this](Command *cmd, AdapterExecInterface *intf) -> void
+                                             { this->executeReceiveCommandCommand(cmd, intf); },
+                                             [this](Command *cmd, AdapterExecInterface *intf) -> void
+                                             { this->abortReceiveCommandCommand(cmd, intf); });
+      config->registerCommandHandlerFunction(GET_PARAMETER_COMMAND,
+                                             [this](Command *cmd, AdapterExecInterface *intf) -> void
+                                             { this->executeGetParameterCommand(cmd, intf); });
+      config->registerCommandHandlerFunction(SEND_RETURN_VALUE_COMMAND,
+                                             [this](Command *cmd, AdapterExecInterface *intf) -> void
+                                             { this->executeSendReturnValueCommand(cmd, intf); });
 
       pugi::xml_node const xml = getXml();
 
@@ -248,105 +254,21 @@ namespace PLEXIL
     // Command handlers
     //
 
-    // Base class, handles user commands
-    
-    struct UdpCommandHandler : public CommandHandler
-    {
-      UdpCommandHandler(UdpAdapter *adapter)
-        : CommandHandler(),
-          m_adapter(adapter)
-      {}
-      virtual ~UdpCommandHandler() = default;
-      virtual void executeCommand(Command *cmd, AdapterExecInterface * /* intf */) override
-      {
-        m_adapter->executeDefaultCommand(cmd);
-      }
-      virtual void abortCommand(Command *cmd, AdapterExecInterface * /* intf */) override
-      {
-        m_adapter->abortCommand(cmd, true);
-      }
-    protected:
-      UdpAdapter *m_adapter;
-    };
-
-    //
-    // Specialized command handlers
-    //
-
-    struct SendMessageHandler final : public UdpCommandHandler
-    {
-      SendMessageHandler(UdpAdapter *adapter)
-        : UdpCommandHandler(adapter)
-      {}
-      virtual ~SendMessageHandler() = default;
-      virtual void executeCommand(Command *cmd, AdapterExecInterface * /* intf */) override
-      {
-        m_adapter->executeSendMessageCommand(cmd);
-      }
-    };
-
-    struct GetParameterHandler final : public UdpCommandHandler
-    {
-      GetParameterHandler(UdpAdapter *adapter)
-        : UdpCommandHandler(adapter)
-      {}
-      virtual ~GetParameterHandler() = default;
-      virtual void executeCommand(Command *cmd, AdapterExecInterface * /* intf */) override
-      {
-        m_adapter->executeGetParameterCommand(cmd);
-      }
-    };
-
-    struct SendReturnValueHandler final : public UdpCommandHandler
-    {
-      SendReturnValueHandler(UdpAdapter *adapter)
-        : UdpCommandHandler(adapter)
-      {}
-      virtual ~SendReturnValueHandler() = default;
-      virtual void executeCommand(Command *cmd, AdapterExecInterface * /* intf */) override
-      {
-        m_adapter->executeSendReturnValueCommand(cmd);
-      }
-    };
-
-    struct ReceiveCommandHandler final : public UdpCommandHandler
-    {
-      ReceiveCommandHandler(UdpAdapter *adapter)
-        : UdpCommandHandler(adapter)
-      {}
-      virtual ~ReceiveCommandHandler() = default;
-      virtual void executeCommand(Command *cmd, AdapterExecInterface * /* intf */) override
-      {
-        m_adapter->executeReceiveCommandCommand(cmd);
-      }
-      virtual void abortCommand(Command *cmd, AdapterExecInterface * /* intf */) override
-      {
-        m_adapter->abortReceiveCommandCommand(cmd);
-      }
-    };
-
-  public: 
-
-    //
-    // Implementation methods for the command handlers
-    // Public so command handlers can see them
-    //
-
     // Generic command
-    void executeDefaultCommand(Command *cmd)
+    void executeDefaultCommand(Command *cmd, AdapterExecInterface *intf)
     {
       std::vector<Value> const &args = cmd->getArgValues();
       if (args.size() == 0) {
         warn("UdpAdapter:executeDefaultCommand: command requires at least one argument");
-        getInterface().handleCommandAck(cmd, COMMAND_FAILED);
-        getInterface().notifyOfExternalEvent();
+        intf->handleCommandAck(cmd, COMMAND_FAILED);
+        intf->notifyOfExternalEvent();
         return;
       }
       
       if (args[0].valueType() != STRING_TYPE) {
         warn("UdpAdapter:executeDefaultCommand: message name must be a string");
-        getInterface().handleCommandAck(cmd, COMMAND_FAILED);
-        getInterface().notifyOfExternalEvent();
+        intf->handleCommandAck(cmd, COMMAND_FAILED);
+        intf->notifyOfExternalEvent();
         return;
       }
       
@@ -358,8 +280,8 @@ namespace PLEXIL
       // Check for an obviously bogus port
       if (msg->second.peer_port == 0) {
         warn("executeDefaultCommand: bad peer port (0) given for " << msgName << " message");
-        getInterface().handleCommandAck(cmd, COMMAND_FAILED);
-        getInterface().notifyOfExternalEvent();
+        intf->handleCommandAck(cmd, COMMAND_FAILED);
+        intf->notifyOfExternalEvent();
         return;
       }
       
@@ -371,8 +293,8 @@ namespace PLEXIL
       if (0 > buildUdpBuffer(udp_buffer, msg->second, args, false, m_debug)) {
         warn("executeDefaultCommand: error formatting buffer");
         delete[] udp_buffer;
-        getInterface().handleCommandAck(cmd, COMMAND_FAILED);
-        getInterface().notifyOfExternalEvent();
+        intf->handleCommandAck(cmd, COMMAND_FAILED);
+        intf->notifyOfExternalEvent();
         return;
       }
       
@@ -383,35 +305,35 @@ namespace PLEXIL
       // Clean up some (one hopes)
       delete[] udp_buffer;
       // Do the internal Plexil Boiler Plate (as per example in IpcAdapter.cc)
-      getInterface().handleCommandAck(cmd, COMMAND_SUCCESS);
-      getInterface().notifyOfExternalEvent();
+      intf->handleCommandAck(cmd, COMMAND_SUCCESS);
+      intf->notifyOfExternalEvent();
     }
 
     // RECEIVE_COMMAND_COMMAND
-    void executeReceiveCommandCommand(Command *cmd)
+    void executeReceiveCommandCommand(Command *cmd, AdapterExecInterface *intf)
     {
       std::vector<Value> const &args = cmd->getArgValues();
       if (args.size() != 1) {
         warn("UdpAdapter: The " << RECEIVE_COMMAND_COMMAND
              << " command requires exactly one argument");
-        getInterface().handleCommandAck(cmd, COMMAND_FAILED);
-        getInterface().notifyOfExternalEvent();
+        intf->handleCommandAck(cmd, COMMAND_FAILED);
+        intf->notifyOfExternalEvent();
         return;
       }
 
       if (args.front().valueType() != STRING_TYPE) {
         warn("UdpAdapter: The argument to the " << RECEIVE_COMMAND_COMMAND
              << " command, " << args.front() << ", is not a string");
-        getInterface().handleCommandAck(cmd, COMMAND_FAILED);
-        getInterface().notifyOfExternalEvent();
+        intf->handleCommandAck(cmd, COMMAND_FAILED);
+        intf->notifyOfExternalEvent();
         return;
       }
 
       std::string msgName;
       if (!args.front().getValue(msgName)) {
         warn("UdpAdapter:executeDefaultCommand: message name is unknown");
-        getInterface().handleCommandAck(cmd, COMMAND_FAILED);
-        getInterface().notifyOfExternalEvent();
+        intf->handleCommandAck(cmd, COMMAND_FAILED);
+        intf->notifyOfExternalEvent();
         return;
       }
 
@@ -422,14 +344,14 @@ namespace PLEXIL
       int status = startUdpMessageReceiver(msgName, cmd);
       if (status) {
         warn("executeReceiveCommandCommand: startUdpMessageReceiver failed");
-        getInterface().handleCommandAck(cmd, COMMAND_FAILED);
+        intf->handleCommandAck(cmd, COMMAND_FAILED);
       }
       else {
         debugMsg("UdpAdapter:executeReceiveCommandCommand",
                  " message handler for \"" << command << "\" registered");
-        getInterface().handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+        intf->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
       }
-      getInterface().notifyOfExternalEvent();
+      intf->notifyOfExternalEvent();
     }
 
     //   // RECEIVE_UDP_MESSAGE_COMMAND
@@ -474,22 +396,22 @@ namespace PLEXIL
     //  }
 
     // GET_PARAMETER_COMMAND
-    void executeGetParameterCommand(Command *cmd)
+    void executeGetParameterCommand(Command *cmd, AdapterExecInterface *intf)
     {
       std::vector<Value> const &args = cmd->getArgValues();
       if (args.size() < 1 || args.size() > 2) {
         warn("UdpAdapter: The " << GET_PARAMETER_COMMAND
              << " command requires either one or two arguments");
-        getInterface().handleCommandAck(cmd, COMMAND_FAILED);
-        getInterface().notifyOfExternalEvent();
+        intf->handleCommandAck(cmd, COMMAND_FAILED);
+        intf->notifyOfExternalEvent();
         return;
       }
 
       if (args.front().valueType() != STRING_TYPE) {
         warn("UdpAdapter: The oparameter name argument to the " << GET_PARAMETER_COMMAND
              << " command, " << args.front() << ", is not a string");
-        getInterface().handleCommandAck(cmd, COMMAND_FAILED);
-        getInterface().notifyOfExternalEvent();
+        intf->handleCommandAck(cmd, COMMAND_FAILED);
+        intf->notifyOfExternalEvent();
         return;
       }
 
@@ -497,8 +419,8 @@ namespace PLEXIL
       std::string msgName;
       if (!args.front().getValue(msgName)) {
         warn("UdpAdapter:executeGetParameterCommand: message name is unknown");
-        getInterface().handleCommandAck(cmd, COMMAND_FAILED);
-        getInterface().notifyOfExternalEvent();
+        intf->handleCommandAck(cmd, COMMAND_FAILED);
+        intf->notifyOfExternalEvent();
         return;
       }
       
@@ -510,8 +432,8 @@ namespace PLEXIL
       if (msg == m_messages.end()) {
         warn("UdpAdapter:executeGetParameterCommand: no message definition found for "
              << baseName);
-        getInterface().handleCommandAck(cmd, COMMAND_FAILED);
-        getInterface().notifyOfExternalEvent();
+        intf->handleCommandAck(cmd, COMMAND_FAILED);
+        intf->notifyOfExternalEvent();
         return;
       }
       
@@ -524,16 +446,16 @@ namespace PLEXIL
         if (it->valueType() != INTEGER_TYPE) {
           warn("UdpAdapter: The second argument to the " << GET_PARAMETER_COMMAND
                << " command, " << *it << ", is not an integer");
-          getInterface().handleCommandAck(cmd, COMMAND_FAILED);
-          getInterface().notifyOfExternalEvent();
+          intf->handleCommandAck(cmd, COMMAND_FAILED);
+          intf->notifyOfExternalEvent();
           return;
         }
         
         if (!it->getValue(id)) {
           warn("UdpAdapter: The second argument to the " << GET_PARAMETER_COMMAND
                << " command is unknown");
-          getInterface().handleCommandAck(cmd, COMMAND_FAILED);
-          getInterface().notifyOfExternalEvent();
+          intf->handleCommandAck(cmd, COMMAND_FAILED);
+          intf->notifyOfExternalEvent();
           return;
         }
 
@@ -542,8 +464,8 @@ namespace PLEXIL
                << " command, " << *it << ", is not a valid index");
           warn("UdpAdapter: The second argument to the " << GET_PARAMETER_COMMAND
                << " command is unknown");
-          getInterface().handleCommandAck(cmd, COMMAND_FAILED);
-          getInterface().notifyOfExternalEvent();
+          intf->handleCommandAck(cmd, COMMAND_FAILED);
+          intf->notifyOfExternalEvent();
           return;
         }
 
@@ -553,58 +475,58 @@ namespace PLEXIL
           warn("UdpAdapter: the message \"" << msgName << "\" is defined to have " << params
                << " parameters in the XML configuration file, but is being used in the plan with "
                << id+1 << " arguments");
-          getInterface().handleCommandAck(cmd, COMMAND_FAILED);
-          getInterface().notifyOfExternalEvent();
+          intf->handleCommandAck(cmd, COMMAND_FAILED);
+          intf->notifyOfExternalEvent();
           return;
         }
       }
       std::string command = formatMessageName(msgName, GET_PARAMETER_COMMAND, id);
       m_messageQueues.addRecipient(command, cmd);
       debugMsg("UdpAdapter:executeGetParameterCommand", " message handler for \"" << cmd->getName() << "\" registered");
-      getInterface().handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
-      getInterface().notifyOfExternalEvent();
+      intf->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+      intf->notifyOfExternalEvent();
     }
 
     // SEND_RETURN_VALUE_COMMAND
     // Required by OnCommand XML macro. No-op for UDP.
-    void executeSendReturnValueCommand(Command * cmd)
+    void executeSendReturnValueCommand(Command *cmd, AdapterExecInterface *intf)
     {
-      getInterface().handleCommandAck(cmd, COMMAND_SUCCESS);
-      getInterface().notifyOfExternalEvent();
+      intf->handleCommandAck(cmd, COMMAND_SUCCESS);
+      intf->notifyOfExternalEvent();
     }
 
     // SEND_MESSAGE_COMMAND
-    void executeSendMessageCommand(Command *cmd)
+    void executeSendMessageCommand(Command *cmd, AdapterExecInterface *intf)
     {
       std::vector<Value> const &args = cmd->getArgValues();
       // Check for one argument, the message
       if (args.size() != 1) {
         warn("UdpAdapter: The SendMessage command requires exactly one argument");
-        getInterface().handleCommandAck(cmd, COMMAND_FAILED);
-        getInterface().notifyOfExternalEvent();
+        intf->handleCommandAck(cmd, COMMAND_FAILED);
+        intf->notifyOfExternalEvent();
         return;
       }
       if (args.front().valueType() != STRING_TYPE) {
         warn("UdpAdapter: The message name argument to the SendMessage command, "
              << args.front() << ", is not a string");
-        getInterface().handleCommandAck(cmd, COMMAND_FAILED);
-        getInterface().notifyOfExternalEvent();
+        intf->handleCommandAck(cmd, COMMAND_FAILED);
+        intf->notifyOfExternalEvent();
         return;
       }
 
       std::string theMessage;
       if (!args.front().getValue(theMessage)) {
         warn("UdpAdapter: The message name argument to the SendMessage command is unknown");
-        getInterface().handleCommandAck(cmd, COMMAND_FAILED);
-        getInterface().notifyOfExternalEvent();
+        intf->handleCommandAck(cmd, COMMAND_FAILED);
+        intf->notifyOfExternalEvent();
         return;
       }
       
       debugMsg("UdpAdapter:executeSendMessageCommand", " SendMessage(\"" << theMessage << "\")");
       debugMsg("UdpAdapter:executeSendMessageCommand", " message \"" << theMessage << "\" sent.");
       // store ack
-      getInterface().handleCommandAck(cmd, COMMAND_SUCCESS);
-      getInterface().notifyOfExternalEvent();
+      intf->handleCommandAck(cmd, COMMAND_SUCCESS);
+      intf->notifyOfExternalEvent();
     }
 
     //
@@ -613,24 +535,24 @@ namespace PLEXIL
 
     // Abort a Plexil Command
     // Also handy utility for the below
-    void abortCommand(Command *cmd, bool status = true)
+    void abortCommand(Command *cmd, AdapterExecInterface *intf, bool status = true)
     {
       debugMsg("UdpAdapter:abortCommand",
                " for " << cmd->getName() << ", status = "
                << (status ? "true" : "false"));
-      getInterface().handleCommandAbortAck(cmd, status);
-      getInterface().notifyOfExternalEvent();
+      intf->handleCommandAbortAck(cmd, status);
+      intf->notifyOfExternalEvent();
     }
 
     // Abort a ReceiveCommand command
-    void abortReceiveCommandCommand(Command *cmd) 
+    void abortReceiveCommandCommand(Command *cmd, AdapterExecInterface *intf)
     {
       std::vector<Value> const &cmdArgs = cmd->getArgValues();
       // Shouldn't be possible if the original command worked
       if (cmdArgs.size() < 1) {
         warn("UdpAdapter:abortCommand: Malformed ReceiveCommand command;\n"
              << " no command name supplied");
-        abortCommand(cmd, false);
+        abortCommand(cmd, intf, false);
         return;
       }
 
@@ -638,7 +560,7 @@ namespace PLEXIL
       if (cmdArgs.front().valueType() != STRING_TYPE) {
         warn("UdpAdapter:abortCommand: Malformed ReceiveCommand command;\n"
              << "\n command name parameter value " << cmdArgs.front() << ", is not a String");
-        abortCommand(cmd, false);
+        abortCommand(cmd, intf, false);
         return;
       }
 
@@ -646,7 +568,7 @@ namespace PLEXIL
       // Shouldn't be possible if the original command worked
       if (!cmdArgs.front().getValue(msgName)) { // The defined message name, needed for looking up the thread and socket
         warn("UdpAdapter:abortCommand: ReceiveCommand command name argument is unknown");
-        abortCommand(cmd, false);
+        abortCommand(cmd, intf, false);
         return;
       }
       
@@ -656,7 +578,7 @@ namespace PLEXIL
       ThreadMap::iterator thread = m_activeThreads.find(msgName); // recorded by startUdpMessageReceiver
       if (thread == m_activeThreads.end()) {
         warn("UdpAdapter::abortReceiveCommandCommand: no thread found for " << msgName);
-        abortCommand(cmd, false);
+        abortCommand(cmd, intf, false);
         return;
       }
 
@@ -665,7 +587,7 @@ namespace PLEXIL
       // if ((status = pthread_cancel(thread->second))) {
       //   warn("UdpAdapter::abortReceiveCommandCommand: pthread_cancel(" << thread->second
       //        << ") returned " << status << ", errno " << errno);
-      //   abortCommand(cmd, false);
+      //   abortCommand(cmd, intf, false);
       //   return;
       // }
 
@@ -678,7 +600,7 @@ namespace PLEXIL
       SocketMap::iterator socket = m_activeSockets.find(msgName); // recorded by startUdpMessageReceiver
       if (socket == m_activeSockets.end()) {
         warn("UdpAdapter::abortReceiveCommandCommand: no socket found for " << msgName);
-        abortCommand(cmd, false);
+        abortCommand(cmd, intf, false);
         return;
       }
       
@@ -687,7 +609,7 @@ namespace PLEXIL
              << ") returned " << status
              << ", errno " << errno);
         m_activeSockets.erase(socket); // erase the closed socket
-        abortCommand(cmd, false);
+        abortCommand(cmd, intf, false);
         return;
       }
 
@@ -695,7 +617,7 @@ namespace PLEXIL
                << " socket (" << socket->second << ") closed");
       m_activeSockets.erase(socket); // erase the closed socket
       // Let the exec know that we believe things are cleaned up
-      abortCommand(cmd, true);
+      abortCommand(cmd, intf, true);
     }
 
     //
@@ -712,11 +634,11 @@ namespace PLEXIL
       for (pugi::xml_node const msgXml : getXml().children("Message")) {
         if (!parseMessageDefinition(msgXml))
           return false;
-        // Only construct handler when we have parsed at least one valid message def'n
-        if (!handler)
-          handler = std::make_shared<UdpCommandHandler>(this);
-        config->registerCommandHandler(handler,
-                                       std::string(msgXml.attribute("name").value()));
+        config->registerCommandHandlerFunction(std::string(msgXml.attribute("name").value()),
+                                               [this](Command *cmd, AdapterExecInterface *intf) -> void
+                                               { this->executeDefaultCommand(cmd, intf); },
+                                               [this](Command *cmd, AdapterExecInterface *intf) -> void
+                                               { this->abortCommand(cmd, intf, true); });
       }
       return true;
     }
