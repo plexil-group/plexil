@@ -28,6 +28,10 @@
 
 #include <string>
 
+#ifdef HAVE_NETINET_IN_H
+#include <netinet/in.h> // in_addr_t, in_port_t
+#endif
+
 namespace PLEXIL
 {
 
@@ -66,9 +70,41 @@ namespace PLEXIL
 
   void print_buffer(const unsigned char* buffer, size_t bytes, bool fancy=false);
 
+  //! Get an IPv4 address for the given host name.
+  //! @param host Name of the host, in a format suitable for gethostbyname().
+  //! @param debug Print debug information if true.
+  //! @return An IPv4 address for the host, in network byte order;
+  //!         0 if not found.
+  in_addr_t parse_hostname(const char *host, bool debug = false);
+
+  //! Prepare an IPv4 sockaddr struct.
+  //! @param sockaddr Pointer to the struct to be initialized.
+  //! @param ip_addr The IPv4 address.
+  //! @param port The port number.
+  void init_sockaddr_in(struct sockaddr_in *sa, in_addr_t ip_addr, in_port_t port);
+
+  //! Send the message as a UDP datagram to the named peer host and port.
+  //! @param peer_host Host name, to be parsed by gethostbyname().
+  //! @param peer_port The destination port on the other host.
+  //! @param buffer The initial message to send to the other host.
+  //! @param size The size of the message to send.
+  //! @param debug If true, print debugging information; if false, don't.
+  //! @return The file descriptor opened with the other host; -1 in event of failure.
   int send_message_connect(const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug=false);
+
+  //! Send the message as a UDP datagram from the given local port
+  //! to the named peer host and port.
+  //! @param local_port The source port.
+  //! @param peer_host Destination host name.
+  //! @param peer_port The destination port on the other host.
+  //! @param buffer The initial message to send to the other host.
+  //! @param size The size of the message to send.
+  //! @param debug If true, print debugging information; if false, don't.
+  //! @return The number of bytes sent; -1 in event of failure.
   int send_message_bind(int local_port, const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug=false);
+
   int wait_for_input_on_thread(udp_thread_params* params);
+
   int wait_for_input(int local_port, unsigned char* buffer, size_t size, int sock, bool debug=false);
 }
 

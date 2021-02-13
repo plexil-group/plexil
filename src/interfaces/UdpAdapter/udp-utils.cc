@@ -26,6 +26,7 @@
 
 #include "udp-utils.hh"
 
+#include "Error.hh" // assertTrue_1()
 
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>        // htonl(), htons(), ntohl(), ntohs()
@@ -45,10 +46,6 @@
 
 #ifdef HAVE_NETDB_H
 #include <netdb.h>            // gethostbyname (OBSOLETE)
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
 #endif
 
 #ifdef HAVE_SYS_SOCKET_H
@@ -170,104 +167,115 @@ namespace PLEXIL
     printf(")\n");
   }
 
+  //! Get an IPv4 address for the given host name.
+  //! @param host Name of the host, in a format suitable for gethostbyname().
+  //! @param debug Print debug information if true.
+  //! @return An IPv4 address for the host, in network byte order;
+  //          0 if not found or error.
+  in_addr_t parse_hostname(const char *host, bool debug)
+  {
+    // Hostname cannot be null or empty
+    assertTrue_1(host && *host);
+
+    // handle either "localhost" or "127.0.0.1" addresses
+    hostent *host_ip = gethostbyname(host);
+    if (!host_ip) {
+      perror("parse_hostname: gethostbyname failed");
+      return 0;
+    }
+
+    if (host_ip->h_addrtype != AF_INET) {
+      printf("parse_hostname: No IPv4 address found for %s\n", host);
+      return 0;
+    }
+
+    struct in_addr *network_ip_address = (struct in_addr *) host_ip->h_addr;
+    if (debug) {
+      std::string ip_addr = inet_ntoa(*network_ip_address);
+      printf("  parse_hostname: peer_host==%s, ip_addr==%s\n", host, ip_addr.c_str());
+    }
+
+    return network_ip_address->s_addr;
+  }
+
+  //! Prepare an IPv4 sockaddr struct.
+  //! @param sockaddr Pointer to the struct to be initialized.
+  //! @param ip_addr The IPv4 address, in network byte order.
+  //! @param port The port number.
+  void init_sockaddr_in(struct sockaddr_in *sa, in_addr_t ip_addr, in_port_t port)
+  {
+    memset((char *) sa, 0, sizeof(struct sockaddr_in));
+    sa->sin_family = AF_INET;
+    sa->sin_addr.s_addr = ip_addr;
+    sa->sin_port = htons(port);
+  }
+
   int send_message_bind(int local_port, const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug)
   {
     if (debug)
       printf("  send_message_bind(%d, %s, %d, buffer, %zu) called\n",
-	     local_port, peer_host, peer_port, size);
-    // Set the local port
-    struct sockaddr_in local_addr = {};
-    memset((char *) &local_addr, 0, sizeof(local_addr));
-    local_addr.sin_family = AF_INET;
-    local_addr.sin_addr.s_addr = INADDR_ANY;
-    local_addr.sin_port = htons(local_port);
-    // Set the peer port
-    struct sockaddr_in peer_addr = {};
-    memset((char *) &peer_addr, 0, sizeof(peer_addr));
-    peer_addr.sin_port = htons(peer_port);
-    peer_addr.sin_family = AF_INET;
+             local_port, peer_host, peer_port, size);
 
-    // handle either "localhost" or "127.0.0.1" addresses
-    hostent *host_ip = gethostbyname(peer_host);
-    if (!host_ip) {
-      perror("send_message_bind: gethostbyname failed");
+    in_addr_t peer_ip = parse_hostname(peer_host, debug);
+    if (!peer_ip) {
+      perror("send_message_bind: parse_hostname failed");
       return -1;
     }
 
-    in_addr *network_ip_address = (in_addr*)host_ip->h_addr;
-    std::string ip_addr = inet_ntoa(*network_ip_address);
-    if (debug) printf("  send_message_bind: peer_host==%s, ip_addr==%s\n", peer_host, ip_addr.c_str());
+    // Set the local port
+    struct sockaddr_in local_addr = {};
+    init_sockaddr_in(&local_addr, INADDR_ANY, local_port);
 
-    if (!inet_aton(ip_addr.c_str(), (struct in_addr *)&peer_addr.sin_addr.s_addr))
-      {
-        perror("inet_aton() returned -1 (peer_host bad IP address format?)");
-        return -1;
-      }
+    // Set the peer port
+    struct sockaddr_in peer_addr = {};
+    init_sockaddr_in(&peer_addr, peer_ip, peer_port);
 
     int sock = socket(local_addr.sin_family, SOCK_DGRAM, 0);
-    if (sock == -1)
-      {
-        perror("socket() returned -1");
-        return -1;
-      }
+    if (sock == -1) {
+      perror("socket() returned -1");
+      return -1;
+    }
 
     int bind_err = bind(sock, (struct sockaddr *) &local_addr, sizeof(local_addr));
-    if (bind_err < 0)
-      {
-        //char buf[50];
-        //sprintf(buf, "send_message_bind: bind() returned -1 for %d", local_port);
-        //perror(buf);
-        perror("send_message_bind: bind() returned -1");
-        return -1;
-      }
+    if (bind_err < 0) {
+      perror("send_message_bind: bind() returned -1");
+      return -1;
+    }
 
-    ssize_t bytes_sent = 0;
-    bytes_sent = sendto(sock, buffer, size, 0, (struct sockaddr*) &peer_addr, sizeof(peer_addr));
-    if (debug) printf("  send_message_bind: sent %ld bytes to %s:%d\n", (long) bytes_sent, peer_host, peer_port);
+    ssize_t bytes_sent = sendto(sock, buffer, size, 0, (struct sockaddr*) &peer_addr, sizeof(peer_addr));
+    if (debug)
+      printf("  send_message_bind: sent %ld bytes to %s:%d\n", (long) bytes_sent, peer_host, peer_port);
     close(sock);
     return bytes_sent;
   }
 
   int send_message_connect(const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug)
   {
-    struct sockaddr_in peer_addr = {};
-    memset((char *) &peer_addr, 0, sizeof(peer_addr));
-    peer_addr.sin_port = htons(peer_port);
-    peer_addr.sin_family = AF_INET;
-
-    // handle either "localhost" or "127.0.0.1" addresses
-    hostent *host_ip = gethostbyname(peer_host);
-    if (!host_ip) {
-      perror("send_message_connect: gethostbyname failed");
+    in_addr_t peer_ip = parse_hostname(peer_host, debug);
+    if (!peer_ip) {
+      perror("send_message_connect: parse_hostname failed");
       return -1;
     }
 
-    in_addr *network_ip_address = (in_addr*)host_ip->h_addr;
-    std::string ip_addr = inet_ntoa(*network_ip_address);
-
-    if (!inet_aton(ip_addr.c_str(), (struct in_addr *)&peer_addr.sin_addr.s_addr))
-      {
-        perror("inet_aton() returned -1 (peer_host bad IP address format?)");
-        return -1;
-      }
+    struct sockaddr_in peer_addr = {};
+    init_sockaddr_in(&peer_addr, peer_ip, peer_port);
 
     int sock = socket(peer_addr.sin_family, SOCK_DGRAM, 0);
-    if (sock == -1)
-      {
-        perror("socket() returned -1");
-        return -1;
-      }
+    if (sock == -1) {
+      perror("socket() returned -1");
+      return -1;
+    }
 
     int connect_err = connect(sock, (struct sockaddr *)&peer_addr, sizeof(peer_addr));
-    if (connect_err < 0)
-      {
-        perror("connect() returned -1");
-        return -1;
-      }
+    if (connect_err < 0) {
+      perror("connect() returned -1");
+      return -1;
+    }
 
     ssize_t bytes_sent = 0;
     bytes_sent = send(sock, buffer, size, 0);
-    if (debug) printf("  send_message_connect: sent %ld bytes to %s:%d\n", (long)bytes_sent, peer_host, peer_port);
+    if (debug)
+      printf("  send_message_connect: sent %ld bytes to %s:%d\n", (long)bytes_sent, peer_host, peer_port);
     close(sock);
     return bytes_sent;
   }
