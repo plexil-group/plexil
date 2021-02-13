@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -26,8 +26,8 @@
 AUTOMAKE_OPTIONS = subdir-objects
 
 lib_LTLIBRARIES = libUdpUtils.la libUdpAdapter.la
-include_HEADERS = MessageQueueMap.hh UdpAdapter.h udp-utils.hh
-libUdpUtils_la_SOURCES = udp-utils.cc
+include_HEADERS = MessageQueueMap.hh UdpAdapter.h UdpEventLoop.hh udp-utils.hh
+libUdpUtils_la_SOURCES = UdpEventLoop.cc udp-utils.cc
 libUdpUtils_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/utils
 
 libUdpAdapter_la_SOURCES = MessageQueueMap.cc UdpAdapter.cc
