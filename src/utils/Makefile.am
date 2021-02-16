@@ -46,8 +46,8 @@ if JNI_OPT
 endif
 
 if THREADS_OPT
-  include_HEADERS += ThreadSemaphore.hh ThreadSpawn.hh
-  libPlexilUtils_la_SOURCES += ThreadSemaphore.cc ThreadSpawn.cc
+  include_HEADERS += ThreadSemaphore.hh
+  libPlexilUtils_la_SOURCES += ThreadSemaphore.cc
 endif
 
 if DEBUG_LOGGING_OPT
