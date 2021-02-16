@@ -750,7 +750,6 @@ namespace PLEXIL
                  << " parameter with zero or invalid 'elements' attribute");
             return false;
           }
-          msg.len += arg.len * arg.elements;
         }
         else if (param_elements) {
           warn("UdpAdapter: Message " << name << ": " << arg.type <<
@@ -767,6 +766,7 @@ namespace PLEXIL
           arg.desc = param_desc.value();
 
         // Success!
+        msg.len += arg.len * arg.elements;
         msg.parameters.push_back(arg);
       }
       m_messages[name] = msg; // record the message with the name as the key
