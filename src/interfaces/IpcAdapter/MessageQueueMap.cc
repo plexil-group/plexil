@@ -118,12 +118,12 @@ namespace PLEXIL
   }
 
   //! @brief Get the PairingQueue for this message, if it exists.
-  MessageQueueMap::PairingQueue * MessageQueueMap::getQueue(const std::string& message)
+  MessageQueueMap::PairingQueue* MessageQueueMap::getQueue(const std::string& message)
   {
     std::lock_guard<std::mutex> guard(m_mutex);
-    std::map<std::string, PairingQueue*>::iterator it = m_map.find(message);
+    QueueMap::iterator it = m_map.find(message);
     if (m_map.end() != it)
-      return it->second;
+      return it->second.get();
     return nullptr;
   }
 
@@ -133,11 +133,12 @@ namespace PLEXIL
     PairingQueue* result = nullptr;
     {
       std::lock_guard<std::mutex> guard(m_mutex);
-      std::map<std::string, PairingQueue*>::iterator it = m_map.find(message);
-      if (m_map.end() != it)
-        return it->second;
-      result = new PairingQueue(message);
-      m_map.insert(it, std::pair<std::string, PairingQueue*> (message, result));
+      QueueMap::iterator it = m_map.find(message);
+      if (m_map.end() == it) {
+        it = m_map.emplace(QueueMap::value_type(message,
+                                                std::make_unique<PairingQueue>(message))).first;
+      }
+      return it->second.get();
     }
     debugMsg("MessageQueueMap:ensureQueue", " created new queue with name \"" << message << '"');
     return result;
