@@ -167,7 +167,7 @@ AC_CHECK_HEADERS_ONCE([assert.h ctype.h errno.h float.h inttypes.h math.h signal
 # POSIX dependencies for core functionality
 AC_CHECK_HEADERS_ONCE([dlfcn.h fcntl.h pthread.h semaphore.h unistd.h sys/stat.h sys/time.h])
 # POSIX headers for network functionality
-AC_CHECK_HEADERS_ONCE([netdb.h arpa/inet.h netinet/in.h sys/socket.h])
+AC_CHECK_HEADERS_ONCE([netdb.h arpa/inet.h netinet/in.h sys/select.h sys/socket.h])
 
 # glibc backtrace functionality
 AC_CHECK_HEADERS_ONCE([execinfo.h])
