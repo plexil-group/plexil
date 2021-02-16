@@ -192,7 +192,7 @@ struct PlexilRealArrayMsg
 
   ~PlexilRealArrayMsg()
   {
-    delete doubleArray;
+    delete [] doubleArray;
   }
 };
 
@@ -211,7 +211,7 @@ struct PlexilIntegerArrayMsg
 
   ~PlexilIntegerArrayMsg()
   {
-    delete intArray;
+    delete [] intArray;
   }
 };
 
@@ -230,7 +230,7 @@ struct PlexilBooleanArrayMsg
 
   ~PlexilBooleanArrayMsg()
   {
-    delete boolArray;
+    delete [] boolArray;
   }
 };
 
