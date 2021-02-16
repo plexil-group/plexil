@@ -56,10 +56,6 @@
 #include <time.h>
 #endif
 
-#if defined(HAVE_PTHREAD_H)
-#include <pthread.h>
-#endif
-
 // Local constants
 #define NSEC_PER_SEC (1000000000)
 
