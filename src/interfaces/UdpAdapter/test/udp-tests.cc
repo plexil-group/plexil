@@ -32,6 +32,16 @@
 #include <iostream>
 #include <thread>
 
+#if defined(HAVE_CSTRING)
+#include <cstring>
+#elif defined(HAVE_STRING_H)
+#include <string.h>
+#endif
+
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
+#endif
+
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h> // IPPROTO_UDP
 #endif
@@ -89,10 +99,18 @@ static bool testHostnameParsing()
   return result;
 }
 
+// Constants used in testing
+constexpr const in_port_t local_port = 9876;
+constexpr const char remote_host[] = "localhost";
+constexpr const in_port_t remote_port = 8031;
+#define BUFFER_SIZE (32)
+
+// Global variables used throughout testing
+unsigned char bytes1[BUFFER_SIZE];
+unsigned char bytes2[BUFFER_SIZE];
+
 static bool testEncodeDecode()
 {
-  unsigned char bytes1[32];
-  unsigned char bytes2[32];
 
   bytes1[0] = 0x91;                   // 145
   bytes1[1] = 0x16;                   //  22
@@ -172,64 +190,6 @@ static bool testEncodeDecode()
   return true;
 }
 
-static int test_input_wait_thread(udp_thread_params *params)
-{
-  int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-  if (sock < 1) {
-    char buf[50];
-    sprintf(buf, "test_input_wait_thread: socket() returned -1");
-    perror(buf);
-    return sock;
-  }
-  params->sock = sock;
-  return wait_for_input(params->local_port, params->buffer, params->size, sock, params->debug);
-}
-
-static bool testSendReceive()
-{
-  unsigned char bytes1[32];
-  unsigned char bytes2[32];
-
-  printf("\nSend and receive some UDP buffers\n\n");
-
-  int32_t local_port = 9876;
-  char remote_host[] = "localhost";
-  int32_t remote_port = 8031;
-
-  encode_string("  This is yet another test  ", bytes1, 0);
-
-  // Socket for the thread waiting for input
-  // Parameters for the thread waiting for input
-  udp_thread_params the_params = { bytes2, 32, remote_port, 0, true };
-  std::thread thread_handle(test_input_wait_thread, &the_params);
-
-  // Wait for listener to establish socket
-  do {
-    usleep(1000);
-  } while (!the_params.sock);
-
-  if (0 > send_message_connect(remote_host, remote_port, (const char*)bytes1, 4*sizeof(bytes1), true)) {
-    printf("send_message_connect failed\n");
-    return 1;
-  }
-
-  usleep(100);
-  if (0 > send_message_bind(local_port, remote_host, remote_port+1, (const char*)bytes1, 4*sizeof(bytes1), true)) {
-    printf("send_message_bind failed\n");
-    return 1;
-  }
-
-  // Wait for wait_for_input to return
-  thread_handle.join();
-
-  printf("\n");
-  print_buffer(bytes1, 32, true);
-  print_buffer(bytes2, 32, true);
-
-  printf("\nDone.\n\n");
-  return true;
-}
-
 // Event loop listener function
 static void eventListener(in_port_t port,
                           const void *buffer,
@@ -237,16 +197,17 @@ static void eventListener(in_port_t port,
                           const struct sockaddr *address,
                           socklen_t address_len)
 {
-  std::cout << "Event listener: received " << length << " bytes on port " << port << std::endl;
+  std::cout << "Event listener(" << port << ", buffer, " << BUFFER_SIZE << ") received "
+            << length << " bytes";
+  const struct sockaddr_in *in_addr =
+    (const struct sockaddr_in *) address;
+  std::cout << " from " << inet_ntoa(in_addr->sin_addr) << ':'
+            << ntohs(in_addr->sin_port) << std::endl;
+  memcpy(bytes2, (const char *) buffer, length);
 }
 
 static bool testEventLoop()
 {
-  in_port_t local_port = 9876;
-  char remote_host[] = "localhost";
-  in_port_t remote_port = 8031;
-
-
   std::cout << "Test UdpEventLoop" << std::endl;
   std::unique_ptr<UdpEventLoop> loop = makeUdpEventLoop();
   std::cout << "Test start" << std::endl;
@@ -258,7 +219,7 @@ static bool testEventLoop()
     return false;
   }
   std::cout << "Test openListener" << std::endl;
-  if (loop->openListener(remote_port, 512, eventListener)) {
+  if (loop->openListener(remote_port, BUFFER_SIZE, eventListener)) {
     std::cout << "openListener succeeded" << std::endl;
   }
   else {
@@ -267,10 +228,24 @@ static bool testEventLoop()
   }
 
   // Test listener
-  // TODO
+  printf("\nSend and receive some UDP buffers\n\n");
 
-  std::cout << "Test closeListener" << std::endl;
+  encode_string("  This is yet another test  ", bytes1, 0);
+
+  if (0 > send_message_connect(remote_host, remote_port, (const char*) bytes1, sizeof(bytes1), true)) {
+    printf("send_message_connect failed\n");
+    return 1;
+  }
+
+  // Give listener a chance to react
+  usleep(100);
+
+  std::cout << "\nTest closeListener" << std::endl;
   loop->closeListener(remote_port);
+
+  printf("\n");
+  print_buffer(bytes1, BUFFER_SIZE, true);
+  print_buffer(bytes2, BUFFER_SIZE, true);
 
   std::cout << "Test stop" << std::endl;
   loop->stop();
@@ -286,8 +261,6 @@ int main()
     std::cerr << "Hostname parsing failed. Aborting test." << std::endl;
     return 1;
   }
-
-  testSendReceive();
 
   testEventLoop();
 

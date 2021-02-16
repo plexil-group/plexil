@@ -320,7 +320,7 @@ namespace PLEXIL
       debugMsg("UdpEventLoop:openSocketOnPort", "(" << port << ")");
 
       // Open a datagram socket
-      int sock = socket(AF_INET, SOCK_DGRAM, 0);
+      int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
       if (sock < 0) {
         warn("UdpEventLoop: socket() failed: " << strerror(errno));
         return sock;

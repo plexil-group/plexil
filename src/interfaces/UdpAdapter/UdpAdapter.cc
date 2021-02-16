@@ -39,6 +39,7 @@
 #include "MessageQueueMap.hh"
 #include "StateCacheEntry.hh"
 #include "udp-utils.hh"
+#include "UdpEventLoop.hh"
 
 #include "pugixml.hpp"
 
@@ -123,30 +124,24 @@ namespace PLEXIL
     std::string name;                // the Plexil Command name
     std::string peer;                // peer to which to send
     std::vector<Parameter> parameters; // message value parameters
-    void *self;                      // reference to the UdpAdapter for use in message decoding
     unsigned int len;                         // the length of the message in bytes
     unsigned int local_port;                  // local port on which to receive
     unsigned int peer_port;                   // port to which to send
-    int sock;                        // socket to use -- only meaningful in call to waitForUdpMessage
     UdpMessage()
       : name(),
         peer(),
         parameters(),
-        self(nullptr),
         len(0),
         local_port(0),
-        peer_port(0),
-        sock(0)
+        peer_port(0)
     {}
     UdpMessage(std::string nam)
       : name(nam),
         peer(),
         parameters(),
-        self(nullptr),
         len(0),
         local_port(0),
-        peer_port(0),
-        sock(0)
+        peer_port(0)
     {}
     UdpMessage(UdpMessage const &) = default;
     UdpMessage(UdpMessage &&) = default;
@@ -162,7 +157,6 @@ namespace PLEXIL
     // Local types
     //
     using MessageMap = std::map<std::string, UdpMessage>;
-    using ThreadMap = std::map<std::string, std::unique_ptr<std::thread> >;
     using SocketMap = std::map<std::string, int>;
 
   public:
@@ -170,6 +164,7 @@ namespace PLEXIL
     //! Constructor
     UdpAdapter(AdapterExecInterface &execInterface, AdapterConf *conf)
       : InterfaceAdapter(execInterface, conf),
+        m_eventLoop(makeUdpEventLoop()),
         m_default_peer("localhost"),
         m_messageQueues(execInterface),
         m_default_local_port(0),
@@ -238,6 +233,7 @@ namespace PLEXIL
     {
       debugMsg("UdpAdapter:start()", " called");
       // Start the UDP listener thread
+      m_eventLoop->start();
       return true;
     }
 
@@ -246,6 +242,7 @@ namespace PLEXIL
     {
       debugMsg("UdpAdapter:stop", " called");
       // Stop the UDP listener thread
+      m_eventLoop->stop();
     }
 
   private:
@@ -331,7 +328,8 @@ namespace PLEXIL
 
       std::string msgName;
       if (!args.front().getValue(msgName)) {
-        warn("UdpAdapter:executeDefaultCommand: message name is unknown");
+        warn("UdpAdapter: The command name parameter to the "
+             << RECEIVE_COMMAND_COMMAND << " is unknown");
         intf->handleCommandAck(cmd, COMMAND_FAILED);
         intf->notifyOfExternalEvent();
         return;
@@ -573,49 +571,19 @@ namespace PLEXIL
       }
       
       debugMsg("UdpAdapter:abortCommand", " ReceiveCommand(\"" << msgName << "\")");
-      int status;                        // The return status of the calls to pthread_cancel() and close()
-      // First, find the active thread for this message, cancel and erase it
-      ThreadMap::iterator thread = m_activeThreads.find(msgName); // recorded by startUdpMessageReceiver
-      if (thread == m_activeThreads.end()) {
-        warn("UdpAdapter::abortReceiveCommandCommand: no thread found for " << msgName);
+
+      // Tell event loop we're done with this port
+      UdpMessage &msg = m_messages[msgName];
+      if (!msg.local_port) {
+        warn("UdpAdapter:abortCommand: No local port found for ReceiveCommand(\\"
+             << msgName << "\")");
         abortCommand(cmd, intf, false);
         return;
       }
+      m_eventLoop->closeListener(msg.local_port);
 
-      // FIXME
-      // Find a new way to tell this thread to quit
-      // if ((status = pthread_cancel(thread->second))) {
-      //   warn("UdpAdapter::abortReceiveCommandCommand: pthread_cancel(" << thread->second
-      //        << ") returned " << status << ", errno " << errno);
-      //   abortCommand(cmd, intf, false);
-      //   return;
-      // }
+      debugMsg("UdpAdapter:abortCommand", " ReceiveCommand(\"" << msgName << "\") complete");
 
-      // Wait for cancelled thread to finish
-      thread->second->join();
-      debugMsg("UdpAdapter::abortReceiveCommandCommand", " " << msgName
-               << " listener thread cancelled");
-      m_activeThreads.erase(thread); // erase the cancelled thread
-      // Second, find the open socket for this message and close it
-      SocketMap::iterator socket = m_activeSockets.find(msgName); // recorded by startUdpMessageReceiver
-      if (socket == m_activeSockets.end()) {
-        warn("UdpAdapter::abortReceiveCommandCommand: no socket found for " << msgName);
-        abortCommand(cmd, intf, false);
-        return;
-      }
-      
-      if ((status = close(socket->second))) {
-        warn("UdpAdapter::abortReceiveCommandCommand: close(" << socket->second
-             << ") returned " << status
-             << ", errno " << errno);
-        m_activeSockets.erase(socket); // erase the closed socket
-        abortCommand(cmd, intf, false);
-        return;
-      }
-
-      debugMsg("UdpAdapter:abortReceiveCommandCommand", " " << msgName
-               << " socket (" << socket->second << ") closed");
-      m_activeSockets.erase(socket); // erase the closed socket
       // Let the exec know that we believe things are cleaned up
       abortCommand(cmd, intf, true);
     }
@@ -835,110 +803,71 @@ namespace PLEXIL
       debugMsg("UdpAdapter:startUdpMessageReceiver",
                " for " << name);
       // Find the message definition to get the message port and size
-      MessageMap::iterator msg = m_messages.find(name);
-      if (msg == m_messages.end()) {
+      MessageMap::iterator msgIt = m_messages.find(name);
+      if (msgIt == m_messages.end()) {
         warn("UdpAdapter:startUdpMessageReceiver: no message found for " << name);
         return -1;
       }
-    
+
+      UdpMessage &msg = msgIt->second;
+
       // Check for a bogus local port
-      if (msg->second.local_port == 0) {
+      if (msg.local_port == 0) {
         warn("startUdpMessageReceiver: bad local port (0) given for " << name << " message");
         return -1;
       }
 
-      msg->second.name = name;
-      msg->second.self = (void*) this; // pass a reference to "this" UdpAdapter for later use
-      // Try to set up the socket so that we can close it later if the thread is cancelled
-      int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-      if (sock < 0) {
-        warn("UdpAdapter:startUdpMessageReceiver: call to socket() failed");
+      // Hand off to the event loop
+      if (!m_eventLoop->openListener(msg.local_port,
+                                     msg.len,
+                                     [this, &msg](in_port_t port,
+                                                  const void *buffer,
+                                                  size_t length,
+                                                  const struct sockaddr *address,
+                                                  socklen_t address_len) -> void
+                                     { this->handleUdpMessage(msg,
+                                                              reinterpret_cast<const unsigned char *>(buffer),
+                                                              length); })) {
+        warn("UdpAdapter:startUdpMessageReceiver: openListener() failed for " << name);
         return -1;
       }
-    
       debugMsg("UdpAdapter:startUdpMessageReceiver",
-               " " << name << " socket (" << sock << ") opened");
-      msg->second.sock = sock; // pass the socket descriptor to waitForUdpMessage, which will then reset it
-      // Spawn the listener thread
-      std::unique_ptr<std::thread> thread_handle =
-        std::make_unique<std::thread>(waitForUdpMessage, &msg->second);
-      // Check to see if the thread got started correctly
-      if (!thread_handle->joinable()) {
-        warn("UdpAdapter:startUdpMessageReceiver: thread failed to start");
-        return -1;
-      }
-
-      debugMsg("UdpAdapter:startUdpMessageReceiver",
-               " " << name << " listener thread spawned");
-      // Record the thread and socket in case they have to be cancelled and closed later (in invokeAbort)
-      m_activeThreads[name].reset(thread_handle.release());
-      m_activeSockets[name] = sock;
+                 " " << name << " listener started");
       return 0;
     }
 
-    static void* waitForUdpMessage(UdpMessage* msg)
-    {
-      debugMsg("UdpAdapter:waitForUdpMessage", " called for " << msg->name);
-      // A pointer to the adapter
-      UdpAdapter* udpAdapter = reinterpret_cast<UdpAdapter*>(msg->self);
-      //int local_port = msg->local_port;
-      size_t size = msg->len;
-      udp_thread_params params;
-      params.local_port = msg->local_port;
-      params.buffer = new unsigned char[size];
-      params.size = size;
-      params.debug = udpAdapter->m_debug; // see if debugging is enabled
-      params.sock = msg->sock; // The socket opened in startUdpMessageReceiver
-      msg->sock = 0;           // Reset the temporary socket descriptor in the UdpMessage
-      int status = wait_for_input_on_thread(&params);
-      if (status) {
-        warn("waitForUdpMessage: call to wait_for_input_on_thread returned " << status);
-        delete[] params.buffer;     // release the input buffer
-        return (void *) 0;
-      }
-
-      // When the message has been received, tell the UdpAdapter about it and its contents
-      status = udpAdapter->handleUdpMessage(msg, params.buffer, params.debug);
-      delete[] params.buffer;     // release the input buffer
-      if (status) {
-        warn("waitForUdpMessage call to handleUdpMessage returned " << status);
-      }
-
-      return (void *) 0;
-    }
-
-    int handleUdpMessage(const UdpMessage* msgDef,
+    int handleUdpMessage(const UdpMessage &msgDef,
                          const unsigned char* buffer,
-                         bool debug)
+                         size_t length)
     {
       // Handle a UDP message once it has indeed arrived.
       // msgDef is passed in, therefore, we will assume it is good.
-      debugMsg("UdpAdapter:handleUdpMessage", " called for " << msgDef->name);
-      if (debug) {
+      debugMsg("UdpAdapter:handleUdpMessage", " called for " << msgDef.name);
+      if (m_debug) {
         std::cout << "  handleUdpMessage: buffer: ";
-        print_buffer(buffer, msgDef->len);
+        print_buffer(buffer, msgDef.len);
       }
       // (1) addMessage for expected message
       static int counter = 1;     // gensym counter
       std::ostringstream unique_id;
-      unique_id << msgDef->name << ":msg_parameter:" << counter++;
+      unique_id << msgDef.name << ":msg_parameter:" << counter++;
       std::string msg_label(unique_id.str());
-      debugMsg("UdpAdapter:handleUdpMessage", " adding \"" << msgDef->name << "\" to the command queue");
-      const std::string msg_name = formatMessageName(msgDef->name, RECEIVE_COMMAND_COMMAND);
+      debugMsg("UdpAdapter:handleUdpMessage", " adding \"" << msgDef.name << "\" to the command queue");
+      const std::string msg_name = formatMessageName(msgDef.name, RECEIVE_COMMAND_COMMAND);
       m_messageQueues.addMessage(msg_name, msg_label);
       // (2) walk the parameters, and for each, call addMessage(label, <value-or-key>), which
       //     (somehow) arranges for executeCommand(GetParameter) to be called, and which in turn
       //     calls addRecipient and updateQueue
       int i = 0;
       int offset = 0;
-      for (std::vector<Parameter>::const_iterator param = msgDef->parameters.begin();
-           param != msgDef->parameters.end();
+      for (std::vector<Parameter>::const_iterator param = msgDef.parameters.begin();
+           param != msgDef.parameters.end();
            param++, i++) {
         const std::string param_label = formatMessageName(msg_label, GET_PARAMETER_COMMAND, i);
         int len = param->len;   // number of bytes to read
         int size = param->elements; // size of the array, or 1 for scalars
         std::string type = param->type; // type to decode
-        if (debug) {
+        if (m_debug) {
           if (size == 1) {
             std::cout << "  handleUdpMessage: decoding " << len << " byte " << type
                       << " starting at buffer[" << offset << "]: ";
@@ -957,7 +886,7 @@ namespace PLEXIL
           }
           int num;
           num = (len == 2) ? decode_short_int(buffer, offset) : decode_int32_t(buffer, offset);
-          if (debug)
+          if (m_debug)
             std::cout << num << std::endl;
           debugMsg("UdpAdapter:handleUdpMessage", " queueing numeric (integer) parameter " << num);
           m_messageQueues.addMessage(param_label, Value(num));
@@ -973,7 +902,7 @@ namespace PLEXIL
             array.setElement(i, (int32_t) ((len == 2) ? decode_short_int(buffer, offset) : decode_int32_t(buffer, offset)));
             offset += len;
           }
-          if (debug)
+          if (m_debug)
             std::cout << array.toString() << std::endl;
           debugMsg("UdpAdapter:handleUdpMessage", " queueing numeric (integer) array " << array.toString());
           m_messageQueues.addMessage(param_label, array);
@@ -984,7 +913,7 @@ namespace PLEXIL
             return -1;
           }
           float num = decode_float(buffer, offset);
-          if (debug)
+          if (m_debug)
             std::cout << num << std::endl;
           debugMsg("UdpAdapter:handleUdpMessage", " queueing numeric (real) parameter " << num);
           m_messageQueues.addMessage(param_label, Value((double) num));
@@ -1000,7 +929,7 @@ namespace PLEXIL
             array.setElement(i, (double) decode_float(buffer, offset));
             offset += len;
           }
-          if (debug)
+          if (m_debug)
             std::cout << array.toString() << std::endl;
           debugMsg("UdpAdapter:handleUdpMessage", " queueing numeric (real) array " << array.toString());
           m_messageQueues.addMessage(param_label, Value(array));
@@ -1022,7 +951,7 @@ namespace PLEXIL
             warn("handleUdpMessage: Booleans must be 1, 2 or 4 bytes, not " << len);
             return -1;
           }
-          if (debug)
+          if (m_debug)
             std::cout << num << std::endl;
           debugMsg("UdpAdapter:handleUdpMessage", " queueing numeric (boolean) parameter " << num);
           m_messageQueues.addMessage(param_label, Value(num != 0));
@@ -1044,7 +973,7 @@ namespace PLEXIL
             }
             offset += len;
           }
-          if (debug)
+          if (m_debug)
             std::cout << array.toString() << std::endl;
           debugMsg("UdpAdapter:handleUdpMessage", " queueing boolean array " << array.toString());
           m_messageQueues.addMessage(param_label, Value(array));
@@ -1056,7 +985,7 @@ namespace PLEXIL
             array.setElement(i, decode_string(buffer, offset, len));
             offset += len;
           }
-          if (debug)
+          if (m_debug)
             std::cout << array.toString() << std::endl;
           debugMsg("UdpAdapter:handleUdpMessage", " queuing string array " << array.toString());
           m_messageQueues.addMessage(param_label, Value(array));
@@ -1067,14 +996,14 @@ namespace PLEXIL
             return -1;
           }
           std::string str = decode_string(buffer, offset, len);
-          if (debug)
+          if (m_debug)
             std::cout << str << std::endl;
           debugMsg("UdpAdapter:handleUdpMessage", " queuing string parameter \"" << str << "\"");
           m_messageQueues.addMessage(param_label, Value(str));
           offset += len;
         }
       }
-      debugMsg("UdpAdapter:handleUdpMessage", " for " << msgDef->name << " complete");
+      debugMsg("UdpAdapter:handleUdpMessage", " for " << msgDef.name << " complete");
       return 0;
     }
 
@@ -1425,13 +1354,12 @@ namespace PLEXIL
     //
 
     std::mutex m_cmdMutex;
-
+    std::unique_ptr<UdpEventLoop> m_eventLoop;
+    
     // Somewhere to hang the messages, default ports and peers, threads and sockets
     std::string m_default_peer;
     MessageMap m_messages;
     MessageQueueMap m_messageQueues;
-    ThreadMap m_activeThreads;
-    SocketMap m_activeSockets;
     unsigned int m_default_local_port;
     unsigned int m_default_peer_port;
     bool m_debug; // Show debugging output

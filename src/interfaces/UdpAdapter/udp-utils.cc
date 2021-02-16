@@ -210,45 +210,6 @@ namespace PLEXIL
     sa->sin_port = htons(port);
   }
 
-  int send_message_bind(int local_port, const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug)
-  {
-    if (debug)
-      printf("  send_message_bind(%d, %s, %d, buffer, %zu) called\n",
-             local_port, peer_host, peer_port, size);
-
-    in_addr_t peer_ip = parse_hostname(peer_host, debug);
-    if (!peer_ip) {
-      perror("send_message_bind: parse_hostname failed");
-      return -1;
-    }
-
-    // Set the local port
-    struct sockaddr_in local_addr = {};
-    init_sockaddr_in(&local_addr, INADDR_ANY, local_port);
-
-    // Set the peer port
-    struct sockaddr_in peer_addr = {};
-    init_sockaddr_in(&peer_addr, peer_ip, peer_port);
-
-    int sock = socket(local_addr.sin_family, SOCK_DGRAM, 0);
-    if (sock == -1) {
-      perror("socket() returned -1");
-      return -1;
-    }
-
-    int bind_err = bind(sock, (struct sockaddr *) &local_addr, sizeof(local_addr));
-    if (bind_err < 0) {
-      perror("send_message_bind: bind() returned -1");
-      return -1;
-    }
-
-    ssize_t bytes_sent = sendto(sock, buffer, size, 0, (struct sockaddr*) &peer_addr, sizeof(peer_addr));
-    if (debug)
-      printf("  send_message_bind: sent %ld bytes to %s:%d\n", (long) bytes_sent, peer_host, peer_port);
-    close(sock);
-    return bytes_sent;
-  }
-
   int send_message_connect(const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug)
   {
     in_addr_t peer_ip = parse_hostname(peer_host, debug);
@@ -280,64 +241,6 @@ namespace PLEXIL
     return bytes_sent;
   }
 
-  int wait_for_input_on_thread(udp_thread_params* params)
-  {
-    int status;
-    status = wait_for_input(params->local_port, params->buffer, params->size, params->sock, params->debug);
-    return status;
-  }
-
-  // FIXME Rewrite using select() to wait for either
-  // incoming packet or stop request.
-  int wait_for_input(int local_port, unsigned char* buffer, size_t size, int sock, bool debug)
-  {
-    if (debug)
-      printf("  wait_for_input(%d, buffer, %zu, %d) called\n", local_port, size, sock);
-    // Set up an appropriate local address (port)
-    struct sockaddr_in local_addr = {};
-    memset((char *) &local_addr, 0, sizeof(local_addr));
-    local_addr.sin_family = AF_INET;
-    local_addr.sin_addr.s_addr = INADDR_ANY;
-    local_addr.sin_port = htons(local_port);
-    // Set up the storage for the peer address
-    struct sockaddr_in peer_addr = {};
-    memset((char *) &peer_addr, 0, sizeof(peer_addr));
-    // Since the socket must be closed by the thread which spawned this thread, socket creating has
-    // moved up to UdpAdapter::startUdpMessageReceiver
-    // int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    // if (sock < 0) { perror("socket() returned -1"); return sock; }
-
-    // Bind to the socket
-    int bind_err = bind(sock, (struct sockaddr *) &local_addr, sizeof(local_addr));
-    if (bind_err < 0) {
-      char buf[50];
-      sprintf(buf, "wait_for_input: bind() returned -1 for %d", local_port);
-      perror(buf);
-      close(sock);
-      return bind_err;
-    }
-
-    // Wait for input to become available and then read from the socket
-    if (debug)
-       printf("  wait_for_input calling recvfrom %s:%d on file %d\n",
-	      inet_ntoa(peer_addr.sin_addr), ntohs(peer_addr.sin_port), sock);
-
-    socklen_t slen = sizeof(struct sockaddr_in);
-    ssize_t bytes_read = recvfrom(sock, buffer, size, 0, (struct sockaddr *) &peer_addr, &slen);
-    if (bytes_read < 0) {
-      char buf[80];
-      sprintf(buf, "wait_for_input: recvfrom(%d) returned -1, errno %d", sock, errno);
-      perror(buf);
-      close(sock);
-      return bytes_read;
-    }
-    if (debug)
-      printf("  wait_for_input(%d, buffer, %zu) received %zd bytes from %s:%d\n",
-	     local_port, size, bytes_read,
-	     inet_ntoa(peer_addr.sin_addr), ntohs(peer_addr.sin_port));
-    close(sock);
-    return 0;
-  }
 }
 
 // EOF

@@ -92,20 +92,6 @@ namespace PLEXIL
   //! @return The file descriptor opened with the other host; -1 in event of failure.
   int send_message_connect(const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug=false);
 
-  //! Send the message as a UDP datagram from the given local port
-  //! to the named peer host and port.
-  //! @param local_port The source port.
-  //! @param peer_host Destination host name.
-  //! @param peer_port The destination port on the other host.
-  //! @param buffer The initial message to send to the other host.
-  //! @param size The size of the message to send.
-  //! @param debug If true, print debugging information; if false, don't.
-  //! @return The number of bytes sent; -1 in event of failure.
-  int send_message_bind(int local_port, const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug=false);
-
-  int wait_for_input_on_thread(udp_thread_params* params);
-
-  int wait_for_input(int local_port, unsigned char* buffer, size_t size, int sock, bool debug=false);
 }
 
 // EOF
