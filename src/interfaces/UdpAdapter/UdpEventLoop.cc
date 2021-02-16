@@ -113,6 +113,54 @@ namespace PLEXIL
     in_port_t port;
   };
 
+  //! Open a datagram socket and bind it to the given port.
+  //! @param port The port to bind to.
+  //! @return The FD for the socket. If < 0, the operation failed.
+  static int openAndBindUdpSocket(in_port_t port)
+  {
+    debugMsg("UdpEventLoop:openAndBindUdpSocket", "(" << port << ")");
+
+    // Open a datagram socket
+    int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (sock < 0) {
+      warn("UdpEventLoop: socket() failed: " << strerror(errno));
+      return sock;
+    }
+    // Prevent hogging the port if the program dies
+    int on = 1;
+    if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on))) {
+      warn("UdpEventLoop: setsockopt() failed: " << strerror(errno));
+      close(sock);
+      return -1;
+    }
+
+    // Set up parameters for bind()
+    struct sockaddr_in local_addr = {};
+    memset((char *) &local_addr, 0, sizeof(local_addr));
+    local_addr.sin_family = AF_INET;
+    local_addr.sin_addr.s_addr = INADDR_ANY;
+    local_addr.sin_port = htons(port);
+
+    if (bind(sock, (struct sockaddr *) &local_addr, sizeof(local_addr))) {
+      if (errno == EADDRINUSE) {
+        warn("UpdEventLoop: port " << port << " is in use");
+      }
+      else {
+        warn("UdpEventLoop: bind() failed: " << strerror(errno));
+      }
+      if (close(sock)) {
+        warn("UdpEventLoop: close() failed while recovering from bind() failure:\n "
+             << strerror(errno));
+      }
+      return -1;
+    }
+
+    // Success! Return the socket's file descriptor.
+    debugMsg("UdpEventLoop:openAndBindUdpSocket",
+             " port " << port << " returning FD " << sock);
+    return sock;
+  }
+
   class UdpEventLoopImpl final : public UdpEventLoop
   {
   private:
@@ -169,7 +217,7 @@ namespace PLEXIL
       }
 
       // Create a socket and bind it to the port
-      int fd = openSocketOnPort(port);
+      int fd = openAndBindUdpSocket(port);
       if (fd < 0) {
         warn("UdpEventLoop::openListener: opening UDP socket on port " << port << " failed");
         return false;
@@ -311,47 +359,6 @@ namespace PLEXIL
     }
 
   private:
-
-    //! Open a datagram socket and bind it to the given port.
-    //! @param port The port to bind to.
-    //! @return The FD for the socket. If < 0, the operation failed.
-    int openSocketOnPort(in_port_t port)
-    {
-      debugMsg("UdpEventLoop:openSocketOnPort", "(" << port << ")");
-
-      // Open a datagram socket
-      int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-      if (sock < 0) {
-        warn("UdpEventLoop: socket() failed: " << strerror(errno));
-        return sock;
-      }
-
-      // Set up parameters for bind()
-      struct sockaddr_in local_addr = {};
-      memset((char *) &local_addr, 0, sizeof(local_addr));
-      local_addr.sin_family = AF_INET;
-      local_addr.sin_addr.s_addr = INADDR_ANY;
-      local_addr.sin_port = htons(port);
-
-      if (bind(sock, (struct sockaddr *) &local_addr, sizeof(local_addr))) {
-        if (errno == EADDRINUSE) {
-          warn("UpdEventLoop: port " << port << " is in use");
-        }
-        else {
-          warn("UdpEventLoop: bind() failed: " << strerror(errno));
-        }
-        if (close(sock)) {
-          warn("UdpEventLoop: close() failed while recovering from bind() failure:\n "
-               << strerror(errno));
-        }
-        return -1;
-      }
-
-      // Success! Return the socket's file descriptor.
-      debugMsg("UdpEventLoop:openSocketOnPort",
-               " port " << port << " returning FD " << sock);
-      return sock;
-    }
 
     //! Event loop top level.
     //! @param pipeFD File descriptor on which to listen for commands.
