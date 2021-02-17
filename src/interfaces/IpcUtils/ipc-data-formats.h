@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,13 +27,15 @@
 #ifndef IPC_DATA_FORMATS_H
 #define IPC_DATA_FORMATS_H
 
+#include "plexil-stdint.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "plexil-stdint.h"
-
-#ifdef HAVE_LIMITS_H
+#if defined(HAVE_CLIMITS)
+#include <climits>
+#elif defined(HAVE_LIMITS_H)
 #include <limits.h>
 #endif
 
@@ -190,7 +192,7 @@ struct PlexilRealArrayMsg
 
   ~PlexilRealArrayMsg()
   {
-    delete doubleArray;
+    delete [] doubleArray;
   }
 };
 
@@ -209,7 +211,7 @@ struct PlexilIntegerArrayMsg
 
   ~PlexilIntegerArrayMsg()
   {
-    delete intArray;
+    delete [] intArray;
   }
 };
 
@@ -228,7 +230,7 @@ struct PlexilBooleanArrayMsg
 
   ~PlexilBooleanArrayMsg()
   {
-    delete boolArray;
+    delete [] boolArray;
   }
 };
 
