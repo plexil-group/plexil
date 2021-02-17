@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -46,21 +46,26 @@ namespace PLEXIL
   }
 
   MessageQueueMap::~MessageQueueMap() {
+    // Clean up the map
+    while (!m_map.empty()) {
+      PairingQueue *pq = m_map.begin()->second;
+      m_map.erase(m_map.begin());
+      delete pq;
+    }
   }
 
   /**
    * @brief Adds the given recipient to the queue to receive the given message.
    * If a recipient already exists for this message, messages will be handed out in the order
    * of the adding of the recipients.
-   * @param message The message the recipient is waiting for
-   * @param dest The command destination
-   * @param ack The command acknowledgment
+   * @param message The message the command is waiting for.
+   * @param cmd The command awaiting the message.
    */
   void MessageQueueMap::addRecipient(const std::string& message, Command *cmd) {
     debugMsg("MessageQueueMap:addRecipient", " entered for \"" << message.c_str() << "\"");
     ThreadMutexGuard guard(m_mutex);
     PairingQueue* que = getQueue(message);
-    que->m_recipientQueue.push_back(Recipient(cmd));
+    que->m_recipientQueue.push_back(cmd);
     updateQueue(que);
     debugMsg("MessageQueueMap:addRecipient", " recipient for message \"" << que->m_name.c_str() << "\" added");
   }
@@ -71,8 +76,10 @@ namespace PLEXIL
   void MessageQueueMap::removeRecipient(const std::string& message, Command const *cmd) {
     ThreadMutexGuard guard(m_mutex);
     PairingQueue* pq = getQueue(message);
-    for (RecipientQueue::iterator it = pq->m_recipientQueue.begin(); it != pq->m_recipientQueue.end(); it++) {
-      if (it->m_cmd == cmd) {
+    for (RecipientQueue::iterator it = pq->m_recipientQueue.begin();
+         it != pq->m_recipientQueue.end();
+         it++) {
+      if (*it == cmd) {
         debugMsg("MessageQueueMap:removeRecipient", " Removing recipient for \"" << pq->m_name.c_str() << "\"");
         it = pq->m_recipientQueue.erase(it);
         //this increments the iterator, so check for the end immediately
@@ -171,9 +178,9 @@ namespace PLEXIL
     MessageQueue::iterator mqIter = mq.begin();
     RecipientQueue::iterator rqIter = rq.begin();
     bool valChanged = !mq.empty() && !rq.empty();
-    while (! (mqIter == mq.end()) && !(rqIter == rq.end())) {
+    while (!(mqIter == mq.end()) && !(rqIter == rq.end())) {
       debugMsg("MessageQueueMap:updateQueue", " returning value");
-      m_execInterface.handleCommandReturn(rqIter->m_cmd, (*mqIter));
+      m_execInterface.handleCommandReturn(*rqIter, *mqIter);
       rqIter = rq.erase(rqIter);
       mqIter = mq.erase(mqIter);
     }

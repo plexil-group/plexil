@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -57,16 +57,16 @@ namespace PLEXIL
      * @brief Adds the given recipient to the queue to receive the given message.
      * If a recipient already exists for this message, messages will be handed out in the order
      * of the adding of the recipients.
-     * @param message The message the recipient is waiting for
-     * @param cmd Pointer to the command requesting the message.
+     * @param message The message the command is waiting for
+     * @param cmd The command awaiting the message.
      */
     void addRecipient(const std::string &message, Command *cmd);
 
     /**
      * @brief Removes the given recipient waiting on the given message string associated with
      * the given acknowledgment.
-     * @param message The message the recipient is waiting for
-     * @param cmd Pointer to the command requesting the message.
+     * @param message The message the command is waiting for
+     * @param cmd The Command awaiting the message.
      */
     void removeRecipient(const std::string &message, Command const *cmd);
 
@@ -116,23 +116,7 @@ namespace PLEXIL
     //forward declarations
     typedef std::vector<Value> MessageQueue;
 
-    //* @brief Data structure containing an acknowledgment expression and a destination expression, for identifying and storing recipients
-    struct Recipient
-    {
-      Command *m_cmd;
-
-      Recipient(Command *cmd)
-      : m_cmd(cmd)
-      {}
-
-      Recipient(const Recipient& rec)
-      : m_cmd(rec.m_cmd)
-      {}
-
-      ~Recipient() {}
-    };
-
-    typedef std::vector<Recipient> RecipientQueue;
+    typedef std::vector<Command *> RecipientQueue;
 
     //* @brief Data queue structure associating a message string with a queue of recipients and a queue of messages. Only one queue should have items at a time. */
     struct PairingQueue
@@ -161,7 +145,8 @@ namespace PLEXIL
     void updateQueue(PairingQueue* queue);
 
     //* @brief Map holding all message queues
-    std::map<std::string, PairingQueue*> m_map;
+    typedef std::map<std::string, PairingQueue *> QueueMap;
+    QueueMap m_map;
 
     //* @brief Semaphore for return values from LookupNow
     ThreadMutex m_mutex;
