@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -112,9 +112,12 @@ public class LiteralNode extends ExpressionNode
             m_dataType = PlexilDataType.NODE_FAILURE_TYPE;
             break;
 
+        case PlexilLexer.COMMAND_ABORTED_KYWD:
+        case PlexilLexer.COMMAND_ABORT_FAILED_KYWD:
         case PlexilLexer.COMMAND_ACCEPTED_KYWD:
         case PlexilLexer.COMMAND_DENIED_KYWD:
         case PlexilLexer.COMMAND_FAILED_KYWD:
+        case PlexilLexer.COMMAND_INTERFACE_ERROR_KYWD:
         case PlexilLexer.COMMAND_RCVD_KYWD:
         case PlexilLexer.COMMAND_SENT_KYWD:
         case PlexilLexer.COMMAND_SUCCESS_KYWD:
