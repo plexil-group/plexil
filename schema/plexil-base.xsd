@@ -821,6 +821,7 @@ It is used as an included schema only.
         <xs:enumeration value="COMMAND_SUCCESS"/>
         <xs:enumeration value="COMMAND_ABORTED"/>
         <xs:enumeration value="COMMAND_ABORT_FAILED"/>
+        <xs:enumeration value="COMMAND_INTERFACE_ERROR"/>
       </xs:restriction>
     </xs:simpleType>
   </xs:element>

@@ -403,6 +403,7 @@ NodeCommandHandleValue =
     | "COMMAND_SUCCESS"
     | "COMMAND_ABORTED"
     | "COMMAND_ABORT_FAILED"
+    | "COMMAND_INTERFACE_ERROR"
   }
 NodeCommandHandle = NodeCommandHandleVariable | NodeCommandHandleValue
 NodeState = NodeStateVariable | NodeStateValue

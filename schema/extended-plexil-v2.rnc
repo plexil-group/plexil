@@ -1,0 +1,205 @@
+# * Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# *  All rights reserved.
+# *
+# * Redistribution and use in source and binary forms, with or without
+# * modification, are permitted provided that the following conditions are met:
+# *     * Redistributions of source code must retain the above copyright
+# *       notice, this list of conditions and the following disclaimer.
+# *     * Redistributions in binary form must reproduce the above copyright
+# *       notice, this list of conditions and the following disclaimer in the
+# *       documentation and/or other materials provided with the distribution.
+# *     * Neither the name of the Universities Space Research Association nor the
+# *       names of its contributors may be used to endorse or promote products
+# *       derived from this software without specific prior written permission.
+# *
+# * THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+# * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# * DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+# * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+# * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+# * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# This schema extends Core PLEXIL with syntactic sugar: convenient forms 
+# that are translated into Core PLEXIL for execution (see translate.xsl).
+
+default namespace = ""
+namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
+namespace rng = "http://relaxng.org/ns/structure/1.0"
+
+include "plexil-base-v2.rnc"
+include "plexil-base-v2.rnc" {
+  Action =
+    BasicNodes
+    | Sequence
+    | Concurrence
+    | CheckedSequence
+    | Try
+    | If
+    | While
+    | For
+    | OnCommand
+    | OnMessage
+    | Wait
+    | SynchronousCommand
+  BooleanExpression =
+    LogicalOperator
+    | Equality
+    | NumericComparison
+    | KnownTest
+    | BooleanVariable
+    | Boolean
+    | IterationSucceeded
+    | Interrupted
+    | IterationFailed
+    | InvariantFailed
+    | PreconditionFailed
+    | ParentFailed
+    | MessageReceived
+  DeclaredVariable =
+    IntegerVariable
+    | RealVariable
+    | BooleanVariable
+    | StringVariable
+    | DateVariable
+    | DurationVariable
+    | ArrayVariable
+    | ArrayElement
+  NumericExpression =
+    ArithmeticOperator
+    | IntegerVariable
+    | RealVariable
+    | Integer
+    | Real
+    | DateVariable
+    | Date
+    | DurationVariable
+    | Duration
+    | NodeTimepoint
+    | #  read operations for arrays
+      ArraySize
+    | ArrayMaxSize
+}
+Name = element Name { GeneralizedStringExpression, SourceLocators }
+AtomicTypeValues =
+  "Integer" | "Real" | "Boolean" | "String" | "Date" | "Duration"
+ParameterTypeValues =
+  "Integer"
+  | "Real"
+  | "Boolean"
+  | "String"
+  | "Date"
+  | "Duration"
+  | "Any"
+DurationVariable = element DurationVariable { variable-reference }
+DateVariable = element DateVariable { variable-reference }
+Date = element Date { xsd:string }
+Duration = element Duration { xsd:string }
+# Node clauses, which can occur in any action.
+NodeClauses =
+  element Comment { xsd:string }?
+  | StartCondition?
+  | RepeatCondition?
+  | PreCondition?
+  | PostCondition?
+  | InvariantCondition?
+  | EndCondition?
+  | SkipCondition?
+  | element Priority { xsd:nonNegativeInteger }?
+  | Interface?
+  | VariableDeclaration?
+  | UsingMutex?
+# Sequence variants
+
+# Actions are performed concurrently. This is just a List Node.
+Concurrence = element Concurrence { sequence-type }
+# Each action in the sequence is performed in the given order.
+Sequence = element Sequence { sequence-type }
+# Like Sequence, except the actions are checked for success.  If
+# one fails, the CheckedSequence form terminates with failure.
+CheckedSequence = element CheckedSequence { sequence-type }
+# Each action in the sequence is performed in turn, until one of
+# them succeeds; the rest are ignored.  The Try form fails if and
+# only if all its actions fail.
+Try = element Try { sequence-type }
+# Conditionals and loops
+
+# If statement with optional ElseIf and Else.
+If =
+  element If {
+    GeneralizedBooleanExpression,
+    element Then { Action },
+    element ElseIf {
+      GeneralizedBooleanExpression,
+      element Then { Action }
+    }*,
+    element Else { Action }?,
+    SourceLocators
+  }
+# A classic while loop
+While =
+  element While { NodeBase, GeneralizedBooleanExpression, Action+ }
+# A simple For loop.
+# (Optional) First a loop variable is declared.
+# Next is the while-test, a boolean expression.
+# (Optional) Next is a simplified assignment statement used to update the loop variable.
+# Finally, actions to execute.
+For =
+  element For {
+    NodeClauses*,
+    DeclareVariable?,
+    # while-test
+    GeneralizedBooleanExpression,
+    # update - simplified Assignment node
+    element Assignment {
+      element Priority { xsd:nonNegativeInteger }?,
+      DeclaredVariable,
+      Expression
+    }?,
+    element Do { Action* },
+    SourceLocators
+  }
+# Node Predicates
+IterationSucceeded = element IterationSucceeded { NodeReference }
+Interrupted = element Interrupted { NodeReference }
+IterationFailed = element IterationFailed { NodeReference }
+InvariantFailed = element InvariantFailed { NodeReference }
+PreconditionFailed = element PreconditionFailed { NodeReference }
+ParentFailed = element ParentFailed { NodeReference }
+# Support for message passing between executives
+
+# Deprecated
+MessageReceived =
+  element MessageReceived {
+    GeneralizedStringExpression, SourceLocators
+  }
+OnCommand =
+  element OnCommand { NodeClauses*, Name, Action?, SourceLocators }
+OnMessage =
+  element OnMessage {
+    NodeClauses*,
+    element Message { GeneralizedStringExpression },
+    Action?,
+    SourceLocators
+  }
+# Specialized actions
+
+# Wait a specified duration, with optional tolerance for the time reading
+Wait =
+  element Wait {
+    NodeBase,
+    element Units { GeneralizedNumericExpression },
+    Tolerance?
+  }
+# Command action that waits for its return value or status handle
+SynchronousCommand =
+  element SynchronousCommand {
+    NodeBase,
+    element Timeout { GeneralizedNumericExpression }?,
+    element Tolerance { GeneralizedNumericExpression }?,
+    Command,
+    SourceLocators
+  }
