@@ -370,6 +370,9 @@ namespace PLEXIL
     case COMMAND_FAILED:
     case COMMAND_DENIED:
     case COMMAND_SUCCESS:
+    case COMMAND_ABORTED:
+    case COMMAND_ABORT_FAILED:
+    case COMMAND_INTERFACE_ERROR:
       return COMMAND_HANDLE_TYPE; // is OK
 
     default:
@@ -404,6 +407,15 @@ namespace PLEXIL
 
     case COMMAND_SUCCESS:
       return COMMAND_SUCCESS_CONSTANT();
+
+    case COMMAND_ABORTED:
+      return COMMAND_ABORTED_CONSTANT();
+
+    case COMMAND_ABORT_FAILED:
+      return COMMAND_ABORT_FAILED_CONSTANT();
+
+    case COMMAND_INTERFACE_ERROR:
+      return COMMAND_INTERFACE_ERROR_CONSTANT();
 
     default:
       reportParserExceptionWithLocation(expr,

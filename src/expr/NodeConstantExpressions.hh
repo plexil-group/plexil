@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -121,6 +121,9 @@ namespace PLEXIL
   extern Expression *COMMAND_FAILED_CONSTANT();
   extern Expression *COMMAND_DENIED_CONSTANT();
   extern Expression *COMMAND_SUCCESS_CONSTANT();
+  extern Expression *COMMAND_ABORTED_CONSTANT();
+  extern Expression *COMMAND_ABORT_FAILED_CONSTANT();
+  extern Expression *COMMAND_INTERFACE_ERROR_CONSTANT();
 
 } // namespace PLEXIL
 

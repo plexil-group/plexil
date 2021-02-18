@@ -120,6 +120,8 @@ static bool testCommandHandleSerDes()
   CommandHandleValue const fal = COMMAND_FAILED;
   CommandHandleValue const den = COMMAND_DENIED;
   CommandHandleValue const suc = COMMAND_SUCCESS;
+  CommandHandleValue const abt = COMMAND_ABORTED;
+  CommandHandleValue const abf = COMMAND_ABORT_FAILED;
   CommandHandleValue const err = COMMAND_INTERFACE_ERROR;
 
   bufptr = serialize(sts, bufptr);
@@ -166,6 +168,22 @@ static bool testCommandHandleSerDes()
   assertTrueMsg(bufptr, "serialize returned NULL");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(suc);
+  assertTrueMsg(bufptr == offset + (char *) buffer,
+		"serialize didn't increment pointer by expected number");
+  assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
+
+  bufptr = serialize(abt, bufptr);
+  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
+  offset += serialSize(abt);
+  assertTrueMsg(bufptr == offset + (char *) buffer,
+		"serialize didn't increment pointer by expected number");
+  assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
+
+  bufptr = serialize(abf, bufptr);
+  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
+  offset += serialSize(abf);
   assertTrueMsg(bufptr == offset + (char *) buffer,
 		"serialize didn't increment pointer by expected number");
   assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
@@ -228,6 +246,22 @@ static bool testCommandHandleSerDes()
   assertTrueMsg(chRead == suc, "deserialize didn't set result equal to source");
   assertTrueMsg(cbufptr > oldcbufptr, "deserialize didn't increment buffer pointer");
   offset += serialSize(suc);
+  assertTrueMsg(cbufptr == offset + (char *) buffer, "deserialize didn't increment buffer pointer by expected number");
+
+  oldcbufptr = cbufptr;
+  cbufptr = deserialize(chRead, cbufptr);
+  assertTrueMsg(cbufptr, "deserialize returned null buffer pointer");
+  assertTrueMsg(chRead == abt, "deserialize didn't set result equal to source");
+  assertTrueMsg(cbufptr > oldcbufptr, "deserialize didn't increment buffer pointer");
+  offset += serialSize(abt);
+  assertTrueMsg(cbufptr == offset + (char *) buffer, "deserialize didn't increment buffer pointer by expected number");
+
+  oldcbufptr = cbufptr;
+  cbufptr = deserialize(chRead, cbufptr);
+  assertTrueMsg(cbufptr, "deserialize returned null buffer pointer");
+  assertTrueMsg(chRead == abf, "deserialize didn't set result equal to source");
+  assertTrueMsg(cbufptr > oldcbufptr, "deserialize didn't increment buffer pointer");
+  offset += serialSize(abf);
   assertTrueMsg(cbufptr == offset + (char *) buffer, "deserialize didn't increment buffer pointer by expected number");
 
   oldcbufptr = cbufptr;
@@ -989,12 +1023,18 @@ static bool testCommandHandleValueSerDes()
   CommandHandleValue const fal = COMMAND_FAILED;
   CommandHandleValue const den = COMMAND_DENIED;
   CommandHandleValue const suc = COMMAND_SUCCESS;
+  CommandHandleValue const abt = COMMAND_ABORTED;
+  CommandHandleValue const abf = COMMAND_ABORT_FAILED;
+  CommandHandleValue const err = COMMAND_INTERFACE_ERROR;
   Value const vsts(sts, COMMAND_HANDLE_TYPE);
   Value const vacc(acc, COMMAND_HANDLE_TYPE);
   Value const vrcv(rcv, COMMAND_HANDLE_TYPE);
   Value const vfal(fal, COMMAND_HANDLE_TYPE);
   Value const vden(den, COMMAND_HANDLE_TYPE);
   Value const vsuc(suc, COMMAND_HANDLE_TYPE);
+  Value const vabt(abt, COMMAND_HANDLE_TYPE);
+  Value const vabf(abf, COMMAND_HANDLE_TYPE);
+  Value const verr(err, COMMAND_HANDLE_TYPE);
 
   assertTrueMsg(serialSize(sts) == serialSize(vsts),
 		"serialSize differs between Value " << serialSize(vsts)
@@ -1048,6 +1088,33 @@ static bool testCommandHandleValueSerDes()
   assertTrueMsg(bufptr, "serialize returned NULL");
   assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
   offset += serialSize(vsuc);
+  assertTrueMsg(bufptr == offset + (char *) buffer,
+		"serialize didn't increment pointer by expected number");
+  assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
+
+  assertTrueMsg(serialSize(abt) == serialSize(vabt), "serialSize differs between Value & CommandHandleValue");
+  bufptr = serialize(vabt, bufptr);
+  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
+  offset += serialSize(vabt);
+  assertTrueMsg(bufptr == offset + (char *) buffer,
+		"serialize didn't increment pointer by expected number");
+  assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
+
+  assertTrueMsg(serialSize(abf) == serialSize(vabf), "serialSize differs between Value & CommandHandleValue");
+  bufptr = serialize(vabf, bufptr);
+  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
+  offset += serialSize(vabf);
+  assertTrueMsg(bufptr == offset + (char *) buffer,
+		"serialize didn't increment pointer by expected number");
+  assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
+
+  assertTrueMsg(serialSize(err) == serialSize(verr), "serialSize differs between Value & CommandHandleValue");
+  bufptr = serialize(verr, bufptr);
+  assertTrueMsg(bufptr, "serialize returned NULL");
+  assertTrueMsg(bufptr > (char *) buffer, "serialize didn't return incremented pointer");
+  offset += serialSize(verr);
   assertTrueMsg(bufptr == offset + (char *) buffer,
 		"serialize didn't increment pointer by expected number");
   assertTrueMsg(0xFF == (unsigned char) buffer[offset], "serialize wrote more than it should have");
@@ -1160,6 +1227,33 @@ static bool testCommandHandleValueSerDes()
   assertTrueMsg(vRead == vsuc, "deserialize didn't set result equal to source");
   assertTrueMsg(cbufptr > oldcbufptr, "deserialize didn't increment buffer pointer");
   offset += serialSize(vsuc);
+  assertTrueMsg(cbufptr == offset + (char *) buffer, "deserialize didn't increment buffer pointer by expected number");
+
+  oldcbufptr = cbufptr;
+  cbufptr = deserialize(vRead, cbufptr);
+  assertTrueMsg(cbufptr, "deserialize returned null buffer pointer");
+  assertTrueMsg(vRead.valueType() == COMMAND_HANDLE_TYPE, "deserialize got wrong type");
+  assertTrueMsg(vRead == vabt, "deserialize didn't set result equal to source");
+  assertTrueMsg(cbufptr > oldcbufptr, "deserialize didn't increment buffer pointer");
+  offset += serialSize(vabt);
+  assertTrueMsg(cbufptr == offset + (char *) buffer, "deserialize didn't increment buffer pointer by expected number");
+
+  oldcbufptr = cbufptr;
+  cbufptr = deserialize(vRead, cbufptr);
+  assertTrueMsg(cbufptr, "deserialize returned null buffer pointer");
+  assertTrueMsg(vRead.valueType() == COMMAND_HANDLE_TYPE, "deserialize got wrong type");
+  assertTrueMsg(vRead == vabf, "deserialize didn't set result equal to source");
+  assertTrueMsg(cbufptr > oldcbufptr, "deserialize didn't increment buffer pointer");
+  offset += serialSize(vabf);
+  assertTrueMsg(cbufptr == offset + (char *) buffer, "deserialize didn't increment buffer pointer by expected number");
+
+  oldcbufptr = cbufptr;
+  cbufptr = deserialize(vRead, cbufptr);
+  assertTrueMsg(cbufptr, "deserialize returned null buffer pointer");
+  assertTrueMsg(vRead.valueType() == COMMAND_HANDLE_TYPE, "deserialize got wrong type");
+  assertTrueMsg(vRead == verr, "deserialize didn't set result equal to source");
+  assertTrueMsg(cbufptr > oldcbufptr, "deserialize didn't increment buffer pointer");
+  offset += serialSize(verr);
   assertTrueMsg(cbufptr == offset + (char *) buffer, "deserialize didn't increment buffer pointer by expected number");
   
   // test reading past end
