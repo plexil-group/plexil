@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -125,7 +125,7 @@ namespace PLEXIL
   // Type literal tags
   constexpr char const BOOLEAN_VAL_TAG[] = "BooleanValue";
   constexpr char const INTEGER_VAL_TAG[] = "IntegerValue";
-  constexpr char const REAL_VAL_TAG[] = "IntegerValue";
+  constexpr char const REAL_VAL_TAG[] = "RealValue";
   constexpr char const DATE_VAL_TAG[] = "DateValue";
   constexpr char const DURATION_VAL_TAG[] = "DurationValue";
   constexpr char const NODE_STATE_VAL_TAG[] = "NodeStateValue";
