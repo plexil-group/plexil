@@ -13,7 +13,7 @@
       </Interface>
       <VariableDeclarations>
         <DeclareMutex>
-          <Name>states</Name>
+          <Name>statesMutex</Name>
         </DeclareMutex>
       </VariableDeclarations>
       <NodeBody>
@@ -22,7 +22,7 @@
 			 <NodeId>set_array_0</NodeId>
 			 <Priority>0</Priority>
              <UsingMutex>
-               <Name>states</Name>
+               <Name>statesMutex</Name>
              </UsingMutex>
 			 <NodeBody>
 			   <Assignment>
@@ -42,7 +42,7 @@
 			 <NodeId>set_array_1</NodeId>
 			 <Priority>1</Priority>
              <UsingMutex>
-               <Name>states</Name>
+               <Name>statesMutex</Name>
              </UsingMutex>
 			 <NodeBody>
 			   <Assignment>
@@ -62,7 +62,7 @@
 			 <NodeId>set_array_2</NodeId>
 			 <Priority>2</Priority>
              <UsingMutex>
-               <Name>states</Name>
+               <Name>statesMutex</Name>
              </UsingMutex>
 			 <NodeBody>
 			   <Assignment>
@@ -82,7 +82,7 @@
 			 <NodeId>set_array_3</NodeId>
 			 <Priority>3</Priority>
              <UsingMutex>
-               <Name>states</Name>
+               <Name>statesMutex</Name>
              </UsingMutex>
 			 <NodeBody>
 			   <Assignment>
