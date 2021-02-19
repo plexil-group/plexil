@@ -83,7 +83,7 @@ namespace PLEXIL
 
       // Check initializer type if possible
       ValueType v = checkExpression(nodeId, temp);
-      checkParserExceptionWithLocation(v == typ || v == UNKNOWN_TYPE,
+      checkParserExceptionWithLocation(areTypesCompatible(typ, v), // || v == UNKNOWN_TYPE
                                        temp,
                                        "Node \"" << nodeId
                                        << "\": " << valueTypeName(typ)
