@@ -226,6 +226,8 @@ DeclareArray =
       ArrayValue
       | # variable reference
         ArrayVariable
+      | # atomic value - populates all elements with same value
+        Value
     }?,
     SourceLocators
   }

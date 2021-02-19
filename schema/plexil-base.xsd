@@ -458,6 +458,8 @@ It is used as an included schema only.
               <xs:element ref="ArrayValue"/>
               <!-- variable reference -->
               <xs:element ref="ArrayVariable"/>
+              <!-- atomic value - populates all elements with same value -->
+              <xs:group ref="Value"/>
             </xs:choice>
           </xs:complexType>
         </xs:element>
