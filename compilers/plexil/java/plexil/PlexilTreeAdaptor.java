@@ -233,9 +233,12 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
         case PlexilLexer.DOUBLE:
         case PlexilLexer.NEG_DOUBLE:
             // Command handle
+        case PlexilLexer.COMMAND_ABORTED_KYWD:
+        case PlexilLexer.COMMAND_ABORT_FAILED_KYWD:
         case PlexilLexer.COMMAND_ACCEPTED_KYWD:
         case PlexilLexer.COMMAND_DENIED_KYWD:
         case PlexilLexer.COMMAND_FAILED_KYWD:
+        case PlexilLexer.COMMAND_INTERFACE_ERROR_KYWD:
         case PlexilLexer.COMMAND_RCVD_KYWD:
         case PlexilLexer.COMMAND_SENT_KYWD:
         case PlexilLexer.COMMAND_SUCCESS_KYWD:
