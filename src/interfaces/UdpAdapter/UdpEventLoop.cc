@@ -29,9 +29,11 @@
 #include "Error.hh" // warn(), assertTrue_1()
 #include "ThreadSemaphore.hh"
 
+#include <algorithm>
 #include <map>
 #include <mutex>
 #include <thread>
+#include <vector>
 
 #if defined(HAVE_CERRNO)
 #include <cerrno>
@@ -55,8 +57,8 @@
 #include <arpa/inet.h>
 #endif
 
-#ifdef HAVE_SYS_SELECT_H
-#include <sys/select.h>
+#ifdef HAVE_POLL_H
+#include <poll.h>
 #endif
 
 #ifdef HAVE_UNISTD_H
@@ -365,39 +367,44 @@ namespace PLEXIL
     void eventLoop(int pipeFD)
     {
       debugMsg("UdpEventLoop:eventLoop", "(" << pipeFD << ")");
-      
-      // Set of all FDs watched by the event loop
-      fd_set readSet;
-      // FD set passed to select()
-      fd_set readySet;
 
-      // Startup
-      FD_ZERO(&readSet);
-      FD_SET(pipeFD, &readSet);
-      FD_ZERO(&readySet);
+      // Allocate a reasonable initial vector.
+      std::vector<struct pollfd> pollfds;
+      pollfds.reserve(4);
+
+      // Set up the control pipe.
+      struct pollfd pfd = {pipeFD, POLLIN, 0};
+      pollfds.push_back(pfd);
 
       bool stopped = false;
+      bool error = false;
       do {
-        FD_COPY(&readSet, &readySet);
-        int nReady = select(getMaxFD() + 1, &readySet, nullptr, nullptr, nullptr);
+        int nReady = poll(pollfds.data(), pollfds.size(), -1);
         if (nReady < 0) {
-          warn("UdpEventLoop: select() failed: " << strerror(errno));
+          warn("UdpEventLoop: poll() failed: " << strerror(errno));
           break;
         }
         else if (nReady == 0) {
           // This would be the timeout case, if we had a timeout
-          debugMsg("UdpEventLoop:eventLoop", " select() returned 0");
+          debugMsg("UdpEventLoop:eventLoop", " poll() returned 0");
           continue;
         }
 
-        // We know we have at least 1 FD ready
-        if (FD_ISSET(pipeFD, &readySet)) {
+        // At least 1 FD is ready
+        // pollfds[0] should always represent the control pipe
+        if (pollfds[0].revents) {
+          if (pollfds[0].revents & (POLLERR | POLLNVAL)) {
+            warn("UdpEventLoop: error on control pipe");
+            break;
+          }
+
           debugMsg("UdpEventLoop:eventLoop", " control event");
           // Handle control message or stop request
           ControlMsg request;
           ssize_t nbytes = read(pipeFD, &request, sizeof(ControlMsg));
           if (nbytes < 0) {
             warn("UdpEventLoop: read() from control pipe failed: " << strerror(errno));
+            error = true;
             break;
           }
           else if (!nbytes) {
@@ -409,16 +416,17 @@ namespace PLEXIL
           else if (nbytes != sizeof(ControlMsg)) {
             // OOPS
             warn("UdpEventLoop: control message was wrong size!");
+            error = true;
             break;
           }
           else {
             switch(request.op) {
             case OP_ADD:
-              addListener(request.port, &readSet);
+              addListener(request.port, pollfds);
               break;
 
             case OP_REMOVE:
-              removeListener(request.port, &readSet);
+              removeListener(request.port, pollfds);
               break;
 
             default:
@@ -433,21 +441,33 @@ namespace PLEXIL
         if (nReady) {
           // Identify FD(s) which became ready
           // and dispatch the incoming datagrams
-          for (DescriptorMap::value_type const &pr : m_descriptors) {
-            if (FD_ISSET(pr.first, &readySet)) {
-              handleFDReady(pr.first, pr.second);
+          for (size_t i = 1; i < pollfds.size(); ++i) {
+            if (pollfds[i].revents) {
               --nReady;
-              if (!nReady)
-                break; // from inner for loop
+              int fd = pollfds[i].fd;
+              if (!m_descriptors[fd]) {
+                warn("UdpEventLoop: internal error: no listener for FD " << fd);
+                error = true;
+                break;
+              }
+              if (pollfds[i].revents & (POLLERR | POLLNVAL)) {
+                warn("UdpEventLoop: error on FD " << pollfds[i].fd
+                     << " (port " << m_descriptors[fd]->port << ')');
+                error = true;
+                break;
+              }
+              handleFDReady(fd, m_descriptors[fd]);
             }
+            if (!nReady)
+              break; // from inner for loop
           }
         }
 
         // Shouldn't be any left over
-        if (nReady)
+        if (nReady) {
           warn("UdpEventLoop: internal error: failed to handle all ready FDs");
-
-      } while (!stopped);
+        }
+      } while (!stopped && !error);
 
       if (!stopped) {
         warn("UdpEventLoop: shutting down on error");
@@ -464,18 +484,10 @@ namespace PLEXIL
       debugMsg("UdpEventLoop:eventLoop", " exited");
     }
 
-    // Return the highest FD number monitored by select()
-    int getMaxFD()
-    {
-      if (!m_descriptors.empty() && m_descriptors.rbegin()->first > m_pipeFDs[0])
-        return m_descriptors.rbegin()->first;
-      return m_pipeFDs[0];
-    }
-
     //! Add the listener registered for the given port.
     //! @param port The port.
     //! @note Must only be called synchronously from the event loop.
-    void addListener(in_port_t port, fd_set *readSetPtr)
+    void addListener(in_port_t port, std::vector<struct pollfd> &pollfds)
     {
       debugMsg("UdpEventLoop:addListener", "(" << port << ")");
 
@@ -495,8 +507,9 @@ namespace PLEXIL
       // Map the file descriptor to the listener
       int fd = l->socketFD;
       m_descriptors[fd] = l;
-      // and add it to the wait set.
-      FD_SET(fd, readSetPtr);
+      // and add it to the vector.
+      struct pollfd pfd = {fd, POLLIN, 0};
+      pollfds.push_back(pfd);
       // Mark it active
       l->active = true;
       // Notify foreground
@@ -507,11 +520,9 @@ namespace PLEXIL
     //! Remove the listener on the given port.
     //! @param port The port.
     //! @note Must only be called synchronously from the event loop.
-    void removeListener(in_port_t port, fd_set *readSetPtr)
+    void removeListener(in_port_t port, std::vector<struct pollfd> &pollfds)
     {
       debugMsg("UdpEventLoop:removeListener", "(" << port << ")");
-
-      // Look up the listener
       Listener *l;
       {
         std::lock_guard<std::mutex> guard(m_listenerMutex);
@@ -522,18 +533,28 @@ namespace PLEXIL
         m_sem.post(); // complete, though not successful
         return;
       }
-      
-      // Remove the file descriptor from the wait set
-      FD_CLR(l->socketFD, readSetPtr);
 
+      int fd = l->socketFD;
+      std::vector<struct pollfd>::iterator it =
+        std::find_if(pollfds.begin(), pollfds.end(),
+                     [fd](struct pollfd &pfd) -> bool
+                     { return pfd.fd == fd; });
+
+      // See if there is a pending error event on the FD before removing it
+      if (it->revents & (POLLERR | POLLNVAL)) {
+        warn("UdpEventLoop::removeListener: ignoring error on FD " << fd);
+      }
+
+      // Remove the file descriptor from the pollfd vector
+      pollfds.erase(it);
       // Remove the listener from the descriptor map
       m_descriptors.erase(l->socketFD);
-
       // Mark the listener inactive
       l->active = false;
+      debugMsg("UdpEventLoop:removeListener",
+               " port " << port << " FD " << fd << " succeeded");
       // Notify foreground
       m_sem.post();
-      debugMsg("UdpEventLoop:removeListener", " port " << port << " succeeded");
     }
 
     //! Read from the given file descriptor and dispatch the datagram
@@ -544,7 +565,6 @@ namespace PLEXIL
     void handleFDReady(int fd, Listener *listener)
     {
       debugMsg("UdpEventLoop:handleFDReady", " FD " << fd << ", port " << listener->port);
-
       assertTrue_1(listener);
       ssize_t nbytes = recvfrom(fd, listener->buffer.get(), listener->maxSize,
                                 0, // flags
