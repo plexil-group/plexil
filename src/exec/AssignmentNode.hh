@@ -85,6 +85,18 @@ namespace PLEXIL
      * @note Intended for use by the plan parser and unit tests only.
      */
     void setAssignment(Assignment *assn);
+
+    //! Does this node need to acquire resources before it can execute?
+    //! @return true if resources must be acquired, false otherwise.
+    virtual bool acquiresResources() const override
+    {
+      return true; // a variable is a resource which must be acquired
+    }
+
+    //! Remove the node from the pending queues of any resources
+    //! it was trying to acquire.
+    //! @note This is a wrapper around the NodeImpl method.
+    virtual void releaseResourceReservations() override;
     
   protected:
 

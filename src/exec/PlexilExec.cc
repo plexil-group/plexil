@@ -40,6 +40,7 @@
 #include "ResourceArbiterInterface.hh"
 #include "StateCache.hh"
 #include "Update.hh"
+#include "Variable.hh"
 
 #include <algorithm> // std::remove_if()
 
@@ -277,7 +278,6 @@ namespace PLEXIL
               addPendingNode(candidate);
             }
           }
-          // else false alarm, wait for next notification
         }
 
         // See if any on the pending queue are eligible
@@ -445,11 +445,7 @@ namespace PLEXIL
     {
       if (node->getNextState() != EXECUTING_STATE)
         return false;
-      if (node->getType() == NodeType_Assignment)
-        return true;
-      if (node->getUsingMutexes())
-        return true;
-      return false;
+      return node->acquiresResources();
     }
 
     //! @brief Check whether a node on the pending queue should attempt to acquire resources.
@@ -459,6 +455,7 @@ namespace PLEXIL
     bool resourceCheckEligible(Node *node)
     {
       switch (node->getQueueStatus()) {
+
       case QUEUE_PENDING_CHECK:
         // Resource(s) not released, so not eligible,
         // and node may not be eligible to execute any more
@@ -472,7 +469,8 @@ namespace PLEXIL
           removePendingNode(node);
           addStateChangeNode(node);
         }
-        // else still transitioning to EXECUTING, but resources not available
+        // else still eligible to transition to EXECUTING,
+        // but resources not available
         node->setQueueStatus(QUEUE_PENDING);
         return false;
 
@@ -512,49 +510,6 @@ namespace PLEXIL
       }
     }      
 
-    // Reserve the resource(s)
-    // If resource(s) busy, leave node on pending queue
-    void tryResourceAcquisition(Node *node)
-    {
-      // Mutexes first
-      std::vector<Mutex *> const *uses = node->getUsingMutexes();
-      bool success = true;
-      if (uses) {
-        for (Mutex *m : *uses)
-          if (success)
-            success = m->acquire(node) && success;
-      }
-
-      // Variables next
-      if (success && node->getType() == NodeType_Assignment) {
-        // Try to reserve the variable
-        // Calls addWaitingNode() on failure
-        success = node->getAssignmentVariable()->getBaseVariable()->reserve(node);
-      }
-
-      debugMsg("PlexilExec:tryResourceAcquisition",
-               ' ' << (success ? "succeeded" : "failed")
-               << " for " << node->getNodeId() << ' ' << node);
-
-      if (success) {
-        // Node can transition now
-        removePendingNode(node);
-        addStateChangeNode(node);
-      }
-      else {
-        // If we couldn't get all the resources, release the mutexes we got
-        // and set pending status
-        if (uses) {
-          for (Mutex *m : *uses) {
-            if (node == m->getHolder())
-              m->release();
-            m->addWaitingNode(node);
-          }
-        }
-        node->setQueueStatus(QUEUE_PENDING);
-      }
-    }
-
     // Only called if pending queue not empty
     void resolveResourceConflicts()
     {
@@ -564,8 +519,8 @@ namespace PLEXIL
         // Gather nodes at same priority 
         int32_t thisPriority = priorityHead->getPriority();
 
-        debugMsg("PlexilExec:resolveResourceConflicts",
-                 " processing nodes at priority " << thisPriority);
+        debugMsg("PlexilExec:step",
+                 " processing resource reservations at priority " << thisPriority);
 
         Node *temp = priorityHead;
         do {
@@ -579,20 +534,24 @@ namespace PLEXIL
         // or pointing to node with higher (numerical) priority
         priorityHead = temp; // for next iteration
 
-        debugMsg("PlexilExec:resolveResourceConflicts",
+        debugMsg("PlexilExec:step",
                  ' ' << priorityNodes.size() << " nodes eligible to acquire resources");
 
-        // Check assignment variable conflicts at same priority here - 
-        // or just let them happen in order they were enqueued,
-        // as the variable becomes available.
-
-        // if (priorityNodes.size() > 1) {
-        // }
-
-        // Try to acquire the resources.
-        // If successful, transition the nodes.
-        for (Node *n : priorityNodes)
-          tryResourceAcquisition(n);
+        // Let each node try to acquire its resources.
+        // Transition the ones that succeed.
+        for (Node *n : priorityNodes) {
+          if (n->tryResourceAcquisition()) {
+            // Node can transition now
+            debugMsg("PlexilExec:resolveResourceConflicts",
+                     ' ' << n->getNodeId() << " succeeded");
+            removePendingNode(n);
+            addStateChangeNode(n);
+          }
+          else {
+            // Can't get resources, so mark that node has been checked
+            n->setQueueStatus(QUEUE_PENDING);
+          }
+        }
 
         // Done with this batch
         priorityNodes.clear();
@@ -748,12 +707,7 @@ namespace PLEXIL
     {
       m_pendingQueue.remove(node);
       node->setQueueStatus(QUEUE_NONE);
-      std::vector<Mutex *> const *uses = node->getUsingMutexes();
-      if (uses)
-        for (Mutex *m : *uses)
-          m->removeWaitingNode(node);
-      if (node->getType() == NodeType_Assignment)
-        node->getAssignmentVariable()->removeWaitingNode(node);
+      node->releaseResourceReservations();
     }
 
     Node *getFinishedRootNode() {

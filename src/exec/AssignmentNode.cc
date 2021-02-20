@@ -116,6 +116,13 @@ namespace PLEXIL
     return m_assignment->getDest();
   }
 
+  // Wrapper around NodeImpl method
+  void AssignmentNode::releaseResourceReservations()
+  {
+    getAssignmentVariable()->getBaseVariable()->removeWaitingNode(this);
+    NodeImpl::releaseResourceReservations();
+  }
+
   //
   // Transition handlers
   //
@@ -370,11 +377,8 @@ namespace PLEXIL
   void AssignmentNode::transitionToIterationEnded() 
   {
     if (m_state != WAITING_STATE) { 
-      // Notify any nodes waiting on the assignment variable
-      Assignable *var = getAssignmentVariable()->getBaseVariable();
-      var->release();
-      for (Node *n : *var->getWaitingNodes())
-        n->notifyResourceAvailable();
+      // Release the assignment variable for other users.
+      getAssignmentVariable()->getBaseVariable()->release(this);
     }
     NodeImpl::transitionToIterationEnded();
   }
@@ -388,15 +392,15 @@ namespace PLEXIL
   // Conditions active:
   // Legal successor states: INACTIVE
 
+  // This is a wrapper method.
+
   void AssignmentNode::transitionToFinished()
   {
     if (m_state == FAILING_STATE) {
-      // Notify any nodes waiting on the assignment variable
-      Assignable *var = getAssignmentVariable()->getBaseVariable();
-      var->release();
-      for (Node *n : *var->getWaitingNodes())
-        n->notifyResourceAvailable();
+      // Release the assignment variable for other users.
+      getAssignmentVariable()->getBaseVariable()->release(this);
     }
+    NodeImpl::transitionToFinished();
   }
 
   void AssignmentNode::specializedDeactivateExecutable(PlexilExec * /* exec */) 

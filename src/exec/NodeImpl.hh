@@ -265,10 +265,22 @@ namespace PLEXIL
       return dynamic_cast<Node const *>(m_parent);
     }
 
-    virtual std::vector<Mutex *> const *getUsingMutexes() const override
-    {
-      return m_usingMutexes.get();
-    }
+    //
+    // Resource conflict API
+    //
+
+    //! Does this node need to acquire resources before it can execute?
+    //! @return true if resources must be acquired, false otherwise.
+    virtual bool acquiresResources() const override;
+
+    //! Reserve the resources needed by the node.
+    //! On failure, add self to the resources' wait lists.
+    //! @return true if successful, false if not.
+    virtual bool tryResourceAcquisition() override;
+
+    //! Remove the node from the pending queues of any resources
+    //! it was trying to acquire.
+    virtual void releaseResourceReservations() override;
 
     /**
      * @brief Notify that a resource on which we're pending is now available.

@@ -32,6 +32,7 @@
 #include "NodeConstants.hh"
 #include "NodeTimepointValue.hh"
 #include "NodeVariableMap.hh"
+#include "PlanError.hh"
 #include "PlexilExec.hh"
 #include "StateCache.hh" // currentTime()
 #include "UserVariable.hh"
@@ -640,6 +641,80 @@ namespace PLEXIL
     }
   }
 
+  
+  //! Does this node need to acquire resources before it can execute?
+  //! @return true if resources must be acquired, false otherwise.
+  //! @note AssignmentNode overrides this method.
+  bool NodeImpl::acquiresResources() const
+  {
+    return (m_usingMutexes && !m_usingMutexes->empty());
+  }
+
+  //! Reserve the resource(s)
+  //! If resource(s) busy, place node on resource(s)'s pending queues.
+  bool NodeImpl::tryResourceAcquisition()
+  {
+    bool success = true;
+    if (m_usingMutexes) {
+      for (Mutex *m : *m_usingMutexes) {
+        success = m->acquire(this);
+        if (!success) {
+          // Check for recursive acquisition on failure
+          Node const *holder = dynamic_cast<Node const *>(m->getHolder());
+          Node const *ancestor = this->getParent();
+          while (ancestor) {
+            checkPlanError(holder != ancestor,
+                           "Node " << m_nodeId
+                           << ": Attempt to acquire mutex " << m->getName()
+                           << " already held by ancestor " << ancestor->getNodeId());
+            ancestor = ancestor->getParent();
+          }
+          break; // on failure
+        }
+      }
+    }
+
+    // Assignment variable next
+    if (this->getType() == NodeType_Assignment) {
+      Variable *var = this->getAssignmentVariable()->getBaseVariable();
+      if (success) {
+        // Try to acquire the variable
+        success = var->acquire(this);
+      }
+      else {
+        // Acquiring other resources failed, so just queue up
+        var->addWaitingNode(this);
+      }
+    }
+      
+    debugMsg("Node:tryResourceAcquisition",
+             ' ' << m_nodeId << ' ' << this
+             << (success ? " succeeded" : " failed"));
+
+    if (!success) {
+      // If we couldn't get all the resources, release the resources we got
+      if (m_usingMutexes) {
+        for (Mutex *m : *m_usingMutexes) {
+          if (this == dynamic_cast<Node const *>(m->getHolder()))
+            m->release(this);
+          m->addWaitingNode(this); // no harm if already there
+        }
+      }
+    }
+    return success;
+  }
+
+  //! Remove the node from the pending queues of any resources
+  //! it was trying to acquire.
+  //! @note AssignmentNode wraps this method.
+  void NodeImpl::releaseResourceReservations()
+  {
+    if (m_usingMutexes) {
+      for (Mutex *m : *m_usingMutexes)
+        m->removeWaitingNode(this);
+    }
+  }
+
   void NodeImpl::notifyResourceAvailable()
   {
     switch (m_queueStatus) {
@@ -1240,7 +1315,7 @@ namespace PLEXIL
     // Release any mutexes held by this node
     if (m_usingMutexes && m_state != WAITING_STATE) {
       for (Mutex *m : *m_usingMutexes)
-        m->release();
+        m->release(this);
     }
     activateRepeatCondition();
   }
@@ -1353,9 +1428,14 @@ namespace PLEXIL
   // Legal successor states: INACTIVE
 
   // Default method
-  // Overridden by AssignmentNode
+  // Wrapped by AssignmentNode
   void NodeImpl::transitionToFinished()
   {
+    // If transitioning from FAILING,, Release any mutexes held by this node
+    if (m_usingMutexes && m_state == WAITING_STATE) {
+      for (Mutex *m : *m_usingMutexes)
+        m->release(this);
+    }
   }
 
   // Common method
