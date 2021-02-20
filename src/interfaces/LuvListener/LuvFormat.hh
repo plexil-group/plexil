@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,6 @@
 #ifndef Luv_Format_hh
 #define Luv_Format_hh
 
-#include "ConstantMacros.hh"
 #include "NodeConstants.hh"
 #include "Value.hh"
 #include "pugixml.hpp"
@@ -49,34 +48,34 @@ namespace PLEXIL {
     //
 
     // XML formatting options
-    DECLARE_STATIC_CLASS_CONST(unsigned int, PUGI_FORMAT_OPTIONS, pugi::format_raw | pugi::format_no_declaration);
+    static constexpr const unsigned int PUGI_FORMAT_OPTIONS = pugi::format_raw | pugi::format_no_declaration;
 
     // Literal strings
-    DECLARE_STATIC_CLASS_CONST(char*, TRUE_STR, "true");
-    DECLARE_STATIC_CLASS_CONST(char*, FALSE_STR, "false");
+    static constexpr const char TRUE_STR[] = "true";
+    static constexpr const char FALSE_STR[] = "false";
 
     // XML tags
-    DECLARE_STATIC_CLASS_CONST(char*, PLAN_INFO_TAG, "PlanInfo");
-    DECLARE_STATIC_CLASS_CONST(char*, PLEXIL_PLAN_TAG, "PlexilPlan");
-    DECLARE_STATIC_CLASS_CONST(char*, PLEXIL_LIBRARY_TAG, "PlexilLibrary");
-    DECLARE_STATIC_CLASS_CONST(char*, VIEWER_BLOCKS_TAG, "ViewerBlocks");
+    static constexpr const char PLAN_INFO_TAG[] = "PlanInfo";
+    static constexpr const char PLEXIL_PLAN_TAG[] = "PlexilPlan";
+    static constexpr const char PLEXIL_LIBRARY_TAG[] = "PlexilLibrary";
+    static constexpr const char VIEWER_BLOCKS_TAG[] = "ViewerBlocks";
 
-    DECLARE_STATIC_CLASS_CONST(char*, NODE_ID_TAG, "NodeId");
-    DECLARE_STATIC_CLASS_CONST(char*, NODE_PATH_TAG, "NodePath");
+    static constexpr const char NODE_ID_TAG[] = "NodeId";
+    static constexpr const char NODE_PATH_TAG[] = "NodePath";
 
-    DECLARE_STATIC_CLASS_CONST(char*, NODE_STATE_UPDATE_TAG, "NodeStateUpdate");
-    DECLARE_STATIC_CLASS_CONST(char*, NODE_STATE_TAG, "NodeState");
-    DECLARE_STATIC_CLASS_CONST(char*, NODE_OUTCOME_TAG, "NodeOutcome");
-    DECLARE_STATIC_CLASS_CONST(char*, NODE_FAILURE_TYPE_TAG, "NodeFailureType");
-    DECLARE_STATIC_CLASS_CONST(char*, CONDITIONS_TAG, "Conditions");
+    static constexpr const char NODE_STATE_UPDATE_TAG[] = "NodeStateUpdate";
+    static constexpr const char NODE_STATE_TAG[] = "NodeState";
+    static constexpr const char NODE_OUTCOME_TAG[] = "NodeOutcome";
+    static constexpr const char NODE_FAILURE_TYPE_TAG[] = "NodeFailureType";
+    static constexpr const char CONDITIONS_TAG[] = "Conditions";
 
-    DECLARE_STATIC_CLASS_CONST(char*, ASSIGNMENT_TAG, "Assignment");
-    DECLARE_STATIC_CLASS_CONST(char*, VARIABLE_TAG, "Variable");
-    DECLARE_STATIC_CLASS_CONST(char*, VARIABLE_NAME_TAG, "VariableName");
-    DECLARE_STATIC_CLASS_CONST(char*, VARIABLE_VALUE_TAG, "Value");
+    static constexpr const char ASSIGNMENT_TAG[] = "Assignment";
+    static constexpr const char VARIABLE_TAG[] = "Variable";
+    static constexpr const char VARIABLE_NAME_TAG[] = "VariableName";
+    static constexpr const char VARIABLE_VALUE_TAG[] = "Value";
 
     // End-of-message marker
-    DECLARE_STATIC_CLASS_CONST(char, LUV_END_OF_MESSAGE, (char)4);
+    static constexpr const char LUV_END_OF_MESSAGE = (char)4;
 
     /**
      * @brief Construct the PlanInfo header XML.
