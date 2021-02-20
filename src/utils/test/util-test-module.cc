@@ -46,7 +46,6 @@
 */
 
 #include "util-test-module.hh"
-#include "ConstantMacros.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "lifecycle-utils.h"
@@ -127,7 +126,7 @@ using namespace PLEXIL;
 
 class TestError {
 public:
-  DECLARE_STATIC_CLASS_CONST(char*, TEST_CONST, "TestData");
+  static constexpr const char TEST_CONST[] = "TestData";
   DECLARE_ERROR(BadThing);
 };
 
@@ -139,7 +138,7 @@ public:
   }
 private:
   static bool testExceptions() {
-    assertTrue_1(strcmp(TestError::TEST_CONST(), "TestData") == 0);
+    assertTrue_1(strcmp(TestError::TEST_CONST, "TestData") == 0);
     bool success = true;
     Error::doThrowExceptions();
     int var = 1;
