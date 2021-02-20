@@ -30,7 +30,6 @@
 #include "ipc.h"
 #include "ipc-data-formats.h"
 
-#include "ConstantMacros.hh"
 #include "Value.hh"
 
 #include <limits>
