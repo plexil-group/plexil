@@ -26,7 +26,7 @@
 AUTOMAKE_OPTIONS = subdir-objects
 
 lib_LTLIBRARIES = libPlexilUtils.la
-,
+
 libPlexilUtils_la_CPPFLAGS = $(AM_CPPFLAGS)
 
 include_HEADERS = Debug.hh DynamicLoader.h Error.hh \
