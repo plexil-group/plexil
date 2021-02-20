@@ -679,7 +679,7 @@ namespace PLEXIL
 
   IPC_RETURN_TYPE IpcFacade::subscribeToMsgs()
   {
-    IPC_RETURN_TYPE status;
+    IPC_RETURN_TYPE status = IPC_OK;
     for (const char * const *name = &ALL_MSG_TYPE_NAMES[0] ; *name ; ++name) {
       status = subscribeDataCentral(*name, ipcMessageHandler);
       assertTrueMsg(status == IPC_OK,
@@ -704,7 +704,7 @@ namespace PLEXIL
 
   IPC_RETURN_TYPE IpcFacade::unsubscribeFromMsgs()
   {
-    IPC_RETURN_TYPE status;
+    IPC_RETURN_TYPE status = IPC_OK;
     for (const char * const *name = &ALL_MSG_TYPE_NAMES[0] ; *name ; ++name) {
       status = IPC_unsubscribe(*name, ipcMessageHandler);
       assertTrueMsg(status == IPC_OK,
