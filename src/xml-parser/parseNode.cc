@@ -46,6 +46,7 @@
 #include "PlexilSchema.hh"
 #include "UpdateNode.hh"
 #include "updateXmlParser.hh"
+#include "Variable.hh"
 
 #include "pugixml.hpp"
 
@@ -1088,7 +1089,7 @@ namespace PLEXIL
                       << " not found in node " << node->getNodeId());
         bool garbage = false;
         Expression *init = parseVariableInitializer(garbage, node, decl, false);
-        var->asAssignable()->setInitializer(init, garbage);
+        var->asAssignable()->getBaseVariable()->setInitializer(init, garbage);
       }
     }
   }
@@ -1218,7 +1219,7 @@ namespace PLEXIL
                  << ":\n InOut interface variable " << name
                  << " shadows local variable of same name");
       }
-      var->asAssignable()->setInitializer(initExp, initGarbage);
+      var->asAssignable()->getBaseVariable()->setInitializer(initExp, initGarbage);
     }
   }
 

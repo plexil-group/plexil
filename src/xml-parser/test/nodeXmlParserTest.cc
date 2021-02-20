@@ -37,6 +37,7 @@
 #include "TestSupport.hh"
 #include "Update.hh"
 #include "UpdateNode.hh"
+#include "Variable.hh"
 #include "test/FactoryTestNodeConnector.hh"
 
 #include "pugixml.hpp"

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,7 @@
 #include "ParserException.hh"
 #include "test/FactoryTestNodeConnector.hh"
 #include "TestSupport.hh"
+#include "Variable.hh"
 
 #include "pugixml.hpp"
 
@@ -80,7 +81,7 @@ static bool booleanVariableXmlParserTest()
   assertTrue_1(fExp->valueType() == BOOLEAN_TYPE);
   Expression *fInit = createExpression(fXml.child("InitialValue").first_child(), nc, wasCreated);
   assertTrue_1(fInit);
-  fExp->asAssignable()->setInitializer(fInit, wasCreated);
+  fExp->asAssignable()->getBaseVariable()->setInitializer(fInit, wasCreated);
   fExp->activate();
   assertTrue_1(fExp->isKnown());
   assertTrue_1(fExp->getValue(temp));
@@ -99,7 +100,7 @@ static bool booleanVariableXmlParserTest()
   assertTrue_1(tExp->valueType() == BOOLEAN_TYPE);
   Expression *tInit = createExpression(tXml.child("InitialValue").first_child(), nc, wasCreated);
   assertTrue_1(tInit);
-  tExp->asAssignable()->setInitializer(tInit, wasCreated);
+  tExp->asAssignable()->getBaseVariable()->setInitializer(tInit, wasCreated);
   tExp->activate();
   assertTrue_1(tExp->isKnown());
   assertTrue_1(tExp->getValue(temp));
@@ -119,7 +120,7 @@ static bool booleanVariableXmlParserTest()
     assertTrue_1(uExp->valueType() == BOOLEAN_TYPE);
     Expression *uInit = createExpression(uXml.child("InitialValue").first_child(), nc, wasCreated);
     assertTrue_1(uInit);
-    uExp->asAssignable()->setInitializer(uInit, wasCreated);
+    uExp->asAssignable()->getBaseVariable()->setInitializer(uInit, wasCreated);
     uExp->activate();
     assertTrue_1(!uExp->isKnown());
     assertTrue_1(!uExp->getValue(temp));
@@ -139,7 +140,7 @@ static bool booleanVariableXmlParserTest()
     Expression *bogusTypeInit = createExpression(bogusTypeXml.child("InitialValue").first_child(), nc, wasCreated);
     assertTrue_1(bogusTypeInit);
     try {
-      bogusTypeExp->asAssignable()->setInitializer(bogusTypeInit, wasCreated);
+      bogusTypeExp->asAssignable()->getBaseVariable()->setInitializer(bogusTypeInit, wasCreated);
       assertTrue_2(false, "Failed to detect initial value of wrong type");
     }
     catch (Error const & /*exc*/) {
@@ -222,7 +223,7 @@ static bool integerVariableXmlParserTest()
   assertTrue_1(zeroExp->valueType() == INTEGER_TYPE);
   Expression *zeroInit = createExpression(zeroXml.child("InitialValue").first_child(), nc, wasCreated);
   assertTrue_1(zeroInit);
-  zeroExp->asAssignable()->setInitializer(zeroInit, wasCreated);
+  zeroExp->asAssignable()->getBaseVariable()->setInitializer(zeroInit, wasCreated);
   zeroExp->activate();
   assertTrue_1(zeroExp->isKnown());
   assertTrue_1(zeroExp->getValue(temp));
@@ -241,7 +242,7 @@ static bool integerVariableXmlParserTest()
   assertTrue_1(tExp->valueType() == INTEGER_TYPE);
   Expression *tInit = createExpression(tXml.child("InitialValue").first_child(), nc, wasCreated);
   assertTrue_1(tInit);
-  tExp->asAssignable()->setInitializer(tInit, wasCreated);
+  tExp->asAssignable()->getBaseVariable()->setInitializer(tInit, wasCreated);
   tExp->activate();
   assertTrue_1(tExp->isKnown());
   assertTrue_1(tExp->getValue(temp));
@@ -260,7 +261,7 @@ static bool integerVariableXmlParserTest()
   assertTrue_1(hExp->valueType() == INTEGER_TYPE);
   Expression *hInit = createExpression(hXml.child("InitialValue").first_child(), nc, wasCreated);
   assertTrue_1(hInit);
-  hExp->asAssignable()->setInitializer(hInit, wasCreated);
+  hExp->asAssignable()->getBaseVariable()->setInitializer(hInit, wasCreated);
   hExp->activate();
   assertTrue_1(hExp->isKnown());
   assertTrue_1(hExp->getValue(temp));
@@ -280,7 +281,7 @@ static bool integerVariableXmlParserTest()
     assertTrue_1(uExp->valueType() == INTEGER_TYPE);
     Expression *uInit = createExpression(uXml.child("InitialValue").first_child(), nc, wasCreated);
     assertTrue_1(uInit);
-    uExp->asAssignable()->setInitializer(uInit, wasCreated);
+    uExp->asAssignable()->getBaseVariable()->setInitializer(uInit, wasCreated);
     uExp->activate();
     assertTrue_1(!uExp->isKnown());
     assertTrue_1(!uExp->getValue(temp));
@@ -298,7 +299,7 @@ static bool integerVariableXmlParserTest()
     Expression *bogusTypeInit = createExpression(bogusTypeXml.child("InitialValue").first_child(), nc, wasCreated);
     assertTrue_1(bogusTypeInit);
     try {
-      bogusTypeExp->asAssignable()->setInitializer(bogusTypeInit, wasCreated);
+      bogusTypeExp->asAssignable()->getBaseVariable()->setInitializer(bogusTypeInit, wasCreated);
       assertTrue_2(false, "Failed to detect initial value of wrong type");
     }
     catch (Error const & /*exc*/) {
@@ -379,7 +380,7 @@ static bool realVariableXmlParserTest()
   assertTrue_1(zeroExp->valueType() == REAL_TYPE);
   Expression *zeroInit = createExpression(zeroXml.child("InitialValue").first_child(), nc, wasCreated);
   assertTrue_1(zeroInit);
-  zeroExp->asAssignable()->setInitializer(zeroInit, wasCreated);
+  zeroExp->asAssignable()->getBaseVariable()->setInitializer(zeroInit, wasCreated);
   zeroExp->activate();
   assertTrue_1(zeroExp->isKnown());
   assertTrue_1(zeroExp->getValue(temp));
@@ -398,7 +399,7 @@ static bool realVariableXmlParserTest()
   assertTrue_1(tExp->valueType() == REAL_TYPE);
   Expression *tInit = createExpression(tXml.child("InitialValue").first_child(), nc, wasCreated);
   assertTrue_1(tInit);
-  tExp->asAssignable()->setInitializer(tInit, wasCreated);
+  tExp->asAssignable()->getBaseVariable()->setInitializer(tInit, wasCreated);
   tExp->activate();
   assertTrue_1(tExp->isKnown());
   assertTrue_1(tExp->getValue(temp));
@@ -417,7 +418,7 @@ static bool realVariableXmlParserTest()
   assertTrue_1(piExp->valueType() == REAL_TYPE);
   Expression *piInit = createExpression(piXml.child("InitialValue").first_child(), nc, wasCreated);
   assertTrue_1(piInit);
-  piExp->asAssignable()->setInitializer(piInit, wasCreated);
+  piExp->asAssignable()->getBaseVariable()->setInitializer(piInit, wasCreated);
   piExp->activate();
   assertTrue_1(piExp->isKnown());
   assertTrue_1(piExp->getValue(temp));
@@ -437,7 +438,7 @@ static bool realVariableXmlParserTest()
     assertTrue_1(uExp->valueType() == REAL_TYPE);
     Expression *uInit = createExpression(uXml.child("InitialValue").first_child(), nc, wasCreated);
     assertTrue_1(uInit);
-    uExp->asAssignable()->setInitializer(uInit, wasCreated);
+    uExp->asAssignable()->getBaseVariable()->setInitializer(uInit, wasCreated);
     uExp->activate();
     assertTrue_1(!uExp->isKnown());
     assertTrue_1(!uExp->getValue(temp));
@@ -457,7 +458,7 @@ static bool realVariableXmlParserTest()
     Expression *bogusTypeInit = createExpression(bogusTypeXml.child("InitialValue").first_child(), nc, wasCreated);
     assertTrue_1(bogusTypeInit);
     try {
-      bogusTypeExp->asAssignable()->setInitializer(bogusTypeInit, wasCreated);
+      bogusTypeExp->asAssignable()->getBaseVariable()->setInitializer(bogusTypeInit, wasCreated);
       assertTrue_2(false, "Failed to detect initial value of wrong type");
     }
     catch (Error const & /*exc*/) {
@@ -539,7 +540,7 @@ static bool stringVariableXmlParserTest()
   assertTrue_1(mtExp->valueType() == STRING_TYPE);
   Expression *mtInit = createExpression(mtXml.child("InitialValue").first_child(), nc, wasCreated);
   assertTrue_1(mtInit);
-  mtExp->asAssignable()->setInitializer(mtInit, wasCreated);
+  mtExp->asAssignable()->getBaseVariable()->setInitializer(mtInit, wasCreated);
   mtExp->activate();
   assertTrue_1(mtExp->isKnown());
   assertTrue_1(mtExp->getValuePointer(temp));
@@ -560,7 +561,7 @@ static bool stringVariableXmlParserTest()
   assertTrue_1(fooExp->valueType() == STRING_TYPE);
   Expression *fooInit = createExpression(fooXml.child("InitialValue").first_child(), nc, wasCreated);
   assertTrue_1(fooInit);
-  fooExp->asAssignable()->setInitializer(fooInit, wasCreated);
+  fooExp->asAssignable()->getBaseVariable()->setInitializer(fooInit, wasCreated);
   fooExp->activate();
   assertTrue_1(fooExp->isKnown());
   assertTrue_1(fooExp->getValuePointer(temp));
@@ -581,7 +582,7 @@ static bool stringVariableXmlParserTest()
   assertTrue_1(barExp->valueType() == STRING_TYPE);
   Expression *barInit = createExpression(barXml.child("InitialValue").first_child(), nc, wasCreated);
   assertTrue_1(barInit);
-  barExp->asAssignable()->setInitializer(barInit, wasCreated);
+  barExp->asAssignable()->getBaseVariable()->setInitializer(barInit, wasCreated);
   barExp->activate();
   assertTrue_1(barExp->isKnown());
   assertTrue_1(barExp->getValuePointer(temp));
@@ -602,7 +603,7 @@ static bool stringVariableXmlParserTest()
     Expression *bogusTypeInit = createExpression(bogusTypeXml.child("InitialValue").first_child(), nc, wasCreated);
     assertTrue_1(bogusTypeInit);
     try {
-      bogusTypeExp->asAssignable()->setInitializer(bogusTypeInit, wasCreated);
+      bogusTypeExp->asAssignable()->getBaseVariable()->setInitializer(bogusTypeInit, wasCreated);
       assertTrue_2(false, "Failed to detect invalid initial value");
     }
     catch (Error const & /*exc*/) {
@@ -696,7 +697,7 @@ static bool booleanArrayVariableXmlParserTest()
   Expression *ba2Init = createExpression(initvals, nc, wasCreated);
   assertTrue_1(ba2Init);
   assertTrue_1(ba2Init->isKnown());
-  ba2Exp->asAssignable()->setInitializer(ba2Init, wasCreated);
+  ba2Exp->asAssignable()->getBaseVariable()->setInitializer(ba2Init, wasCreated);
   ba2Exp->activate();
   assertTrue_1(ba2Exp->isKnown());
   assertTrue_1(ba2Exp->getValuePointer(aryTemp));
@@ -778,7 +779,7 @@ static bool integerArrayVariableXmlParserTest()
   assertTrue_1(emptyExp->valueType() == INTEGER_ARRAY_TYPE);
   Expression *emptyInit = createExpression(emptyInitXml, nc, wasCreated);
   assertTrue_1(emptyInit);
-  emptyExp->asAssignable()->setInitializer(emptyInit, wasCreated);
+  emptyExp->asAssignable()->getBaseVariable()->setInitializer(emptyInit, wasCreated);
   emptyExp->activate();
   assertTrue_1(emptyExp->isKnown());
   assertTrue_1(emptyExp->getValuePointer(aryTemp));
@@ -807,7 +808,7 @@ static bool integerArrayVariableXmlParserTest()
   assertTrue_1(validValExp->valueType() == INTEGER_ARRAY_TYPE);
   Expression *validValInit = createExpression(validContents, nc, wasCreated);
   assertTrue_1(validValInit);
-  validValExp->asAssignable()->setInitializer(validValInit, wasCreated);
+  validValExp->asAssignable()->getBaseVariable()->setInitializer(validValInit, wasCreated);
   validValExp->activate();
   assertTrue_1(validValExp->isKnown());
   assertTrue_1(validValExp->getValuePointer(aryTemp));
@@ -844,7 +845,7 @@ static bool integerArrayVariableXmlParserTest()
     Expression *tooLongValueInit = createExpression(tooLongValueXml.child("InitialValue").first_child(), nc, wasCreated);
     assertTrue_1(tooLongValueInit);
     try {
-      tooLongValueExp->asAssignable()->setInitializer(tooLongValueInit, wasCreated);
+      tooLongValueExp->asAssignable()->getBaseVariable()->setInitializer(tooLongValueInit, wasCreated);
       assertTrue_2(ALWAYS_FAIL, "Failed to detect oversized initial value");
     }
     catch (Error const & /* exc */) {
@@ -914,7 +915,7 @@ static bool realArrayVariableXmlParserTest()
   assertTrue_1(emptyExp->valueType() == REAL_ARRAY_TYPE);
   Expression *emptyInit = createExpression(emptyInitXml, nc, wasCreated);
   assertTrue_1(emptyInit);
-  emptyExp->asAssignable()->setInitializer(emptyInit, wasCreated);
+  emptyExp->asAssignable()->getBaseVariable()->setInitializer(emptyInit, wasCreated);
   emptyExp->activate();
   assertTrue_1(emptyExp->isKnown());
   assertTrue_1(emptyExp->getValuePointer(aryTemp));
@@ -941,7 +942,7 @@ static bool realArrayVariableXmlParserTest()
   assertTrue_1(validVarExp->valueType() == REAL_ARRAY_TYPE);
   Expression *validVarInit = createExpression(validXml.child("InitialValue").first_child(), nc, wasCreated);
   assertTrue_1(validVarInit);
-  validVarExp->asAssignable()->setInitializer(validVarInit, wasCreated);
+  validVarExp->asAssignable()->getBaseVariable()->setInitializer(validVarInit, wasCreated);
   validVarExp->activate();
   assertTrue_1(validVarExp->isKnown());
   assertTrue_1(validVarExp->getValuePointer(aryTemp));
@@ -1019,7 +1020,7 @@ static bool stringArrayVariableXmlParserTest()
   assertTrue_1(emptyExp->valueType() == STRING_ARRAY_TYPE);
   Expression *emptyInit = createExpression(emptyInitXml, nc, wasCreated);
   assertTrue_1(emptyInit);
-  emptyExp->asAssignable()->setInitializer(emptyInit, wasCreated);
+  emptyExp->asAssignable()->getBaseVariable()->setInitializer(emptyInit, wasCreated);
   emptyExp->activate();
   assertTrue_1(emptyExp->isKnown());
   assertTrue_1(emptyExp->getValuePointer(aryTemp));
@@ -1046,7 +1047,7 @@ static bool stringArrayVariableXmlParserTest()
   assertTrue_1(validValExp->valueType() == STRING_ARRAY_TYPE);
   Expression *validValInit = createExpression(contentsElt, nc, wasCreated);
   assertTrue_1(validValInit);
-  validValExp->asAssignable()->setInitializer(validValInit, wasCreated);
+  validValExp->asAssignable()->getBaseVariable()->setInitializer(validValInit, wasCreated);
   validValExp->activate();
   assertTrue_1(validValExp->isKnown());
   assertTrue_1(validValExp->getValuePointer(aryTemp));
