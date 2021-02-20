@@ -6,117 +6,117 @@ AssignToParentInvariant{
   }
 }
 
-[Node:notifyChanged] adding AssignToParentInvariant 0x7fbe05c04a90 to check queue
+[Node:notifyChanged] adding AssignToParentInvariant 0x7f9b35504f20 to check queue
 [PlexilExec:step] ==>Start cycle 1
 [PlexilExec:step][1:0] Check queue: AssignToParentInvariant 
-[PlexilExec:step] Node AssignToParentInvariant 0x7fbe05c04a90 can transition from INACTIVE to WAITING
-[PlexilExec:step] adding AssignToParentInvariant 0x7fbe05c04a90 to state change queue
+[PlexilExec:step] Node AssignToParentInvariant 0x7f9b35504f20 can transition from INACTIVE to WAITING
+[PlexilExec:step] adding AssignToParentInvariant 0x7f9b35504f20 to state change queue
 [PlexilExec:step][1:0] State change queue: AssignToParentInvariant 
-[PlexilExec:step][1:0:0] Transitioning NodeList node AssignToParentInvariant 0x7fbe05c04a90 from INACTIVE to WAITING
-[Node:notifyChanged] adding AssignToParentInvariant 0x7fbe05c04a90 to check queue
+[PlexilExec:step][1:0:0] Transitioning NodeList node AssignToParentInvariant 0x7f9b35504f20 from INACTIVE to WAITING
+[Node:notifyChanged] adding AssignToParentInvariant 0x7f9b35504f20 to check queue
 [PlexilExec:step][1:1] Check queue: AssignToParentInvariant 
-[PlexilExec:step] Node AssignToParentInvariant 0x7fbe05c04a90 can transition from WAITING to EXECUTING
-[PlexilExec:step] adding AssignToParentInvariant 0x7fbe05c04a90 to state change queue
+[PlexilExec:step] Node AssignToParentInvariant 0x7f9b35504f20 can transition from WAITING to EXECUTING
+[PlexilExec:step] adding AssignToParentInvariant 0x7f9b35504f20 to state change queue
 [PlexilExec:step][1:1] State change queue: AssignToParentInvariant 
-[PlexilExec:step][1:1:0] Transitioning NodeList node AssignToParentInvariant 0x7fbe05c04a90 from WAITING to EXECUTING
-[Node:notifyChanged] adding AssignToParentInvariant 0x7fbe05c04a90 to check queue
-[Node:notifyChanged] adding Child 0x7fbe05c04de0 to check queue
+[PlexilExec:step][1:1:0] Transitioning NodeList node AssignToParentInvariant 0x7f9b35504f20 from WAITING to EXECUTING
+[Node:notifyChanged] adding AssignToParentInvariant 0x7f9b35504f20 to check queue
+[Node:notifyChanged] adding Child 0x7f9b35505330 to check queue
 [PlexilExec:step][1:2] Check queue: AssignToParentInvariant Child 
-[PlexilExec:step] Node Child 0x7fbe05c04de0 can transition from INACTIVE to WAITING
-[PlexilExec:step] adding Child 0x7fbe05c04de0 to state change queue
+[PlexilExec:step] Node Child 0x7f9b35505330 can transition from INACTIVE to WAITING
+[PlexilExec:step] adding Child 0x7f9b35505330 to state change queue
 [PlexilExec:step][1:2] State change queue: Child 
-[PlexilExec:step][1:2:0] Transitioning Assignment node Child 0x7fbe05c04de0 from INACTIVE to WAITING
-[Node:notifyChanged] adding Child 0x7fbe05c04de0 to check queue
-[Node:notifyChanged] adding AssignToParentInvariant 0x7fbe05c04a90 to check queue
+[PlexilExec:step][1:2:0] Transitioning Assignment node Child 0x7f9b35505330 from INACTIVE to WAITING
+[Node:notifyChanged] adding Child 0x7f9b35505330 to check queue
+[Node:notifyChanged] adding AssignToParentInvariant 0x7f9b35504f20 to check queue
 [PlexilExec:step][1:3] Check queue: Child AssignToParentInvariant 
-[PlexilExec:step] Node Child 0x7fbe05c04de0 can transition from WAITING to EXECUTING
-[PlexilExec:step] adding Child 0x7fbe05c04de0 to pending queue
+[PlexilExec:step] Node Child 0x7f9b35505330 can transition from WAITING to EXECUTING
+[PlexilExec:step] adding Child 0x7f9b35505330 to pending queue
 [PlexilExec:step][1:3] Pending queue: Child 
-[PlexilExec:resolveResourceConflicts] processing nodes at priority 100000
-[PlexilExec:resolveResourceConflicts] 1 nodes eligible to acquire resources
-[PlexilExec:tryResourceAcquisition] succeeded for Child 0x7fbe05c04de0
-[PlexilExec:step] adding Child 0x7fbe05c04de0 to state change queue
+[PlexilExec:step] processing resource reservations at priority 100000
+[PlexilExec:step] 1 nodes eligible to acquire resources
+[PlexilExec:resolveResourceConflicts] Child succeeded
+[PlexilExec:step] adding Child 0x7f9b35505330 to state change queue
 [PlexilExec:step][1:3] State change queue: Child 
-[PlexilExec:step][1:3:0] Transitioning Assignment node Child 0x7fbe05c04de0 from WAITING to EXECUTING
-[Node:notifyChanged] adding Child 0x7fbe05c04de0 to check queue
-[Node:notifyChanged] adding AssignToParentInvariant 0x7fbe05c04a90 to check queue
+[PlexilExec:step][1:3:0] Transitioning Assignment node Child 0x7f9b35505330 from WAITING to EXECUTING
+[Node:notifyChanged] adding Child 0x7f9b35505330 to check queue
+[Node:notifyChanged] adding AssignToParentInvariant 0x7f9b35504f20 to check queue
 [PlexilExec:performAssignments] performing 1 assignments and 0 retractions
-[Test:testOutput] Assigning true to (Variable Boolean step_failed 0x7fbe05c04d30 [a](false))
+[Test:testOutput] Assigning true to (Variable Boolean step_failed 0x7f9b35505280 [a](false))
 [PlexilExec:step] ==>End cycle 1
 [PlexilExec:printPlan]
 AssignToParentInvariant{
  State: EXECUTING (0)
- InvariantCondition: (EQ Boolean 0x7fbe05c05050 [a](false) (Variable Boolean step_failed 0x7fbe05c04d30 [a](true)) (Constant Boolean 0x10bc35d10 [a](false)))
- EndCondition: (EQ Boolean 0x7fbe05c050b0 [a](false) (StateVariable NodeState Child 0x7fbe05c04eb0 [a](EXECUTING)) (NodeStateValue NodeState 0x10bc35e00 [a](FINISHED)))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean AssignToParentInvariant 0x7fbe05c04bd8 [i](false))
- step_failed: (Variable Boolean step_failed 0x7fbe05c04d30 [a](true))
+ InvariantCondition: (EQ Boolean 0x7f9b355055a0 [a](false) (Variable Boolean step_failed 0x7f9b35505280 [a](true)) (Constant Boolean 0x108674b10 [a](false)))
+ EndCondition: (EQ Boolean 0x7f9b35505600 [a](false) (StateVariable NodeState Child 0x7f9b35505400 [a](EXECUTING)) (NodeStateValue NodeState 0x108674c00 [a](FINISHED)))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean AssignToParentInvariant 0x7f9b35505068 [i](false))
+ step_failed: (Variable Boolean step_failed 0x7f9b35505280 [a](true))
   Child{
    State: EXECUTING (0)
-   AncestorInvariantCondition: (EQ Boolean 0x7fbe05c05050 [a](false) (Variable Boolean step_failed 0x7fbe05c04d30 [a](true)) (Constant Boolean 0x10bc35d10 [a](false)))
-   AncestorEndCondition: (EQ Boolean 0x7fbe05c050b0 [a](false) (StateVariable NodeState Child 0x7fbe05c04eb0 [a](EXECUTING)) (NodeStateValue NodeState 0x10bc35e00 [a](FINISHED)))
-   ActionCompleteCondition: (InternalVariable Boolean ack 0x7fbe05c04fa0 [a](true))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fbe05c04fe0 [i](false))
+   AncestorInvariantCondition: (EQ Boolean 0x7f9b355055a0 [a](false) (Variable Boolean step_failed 0x7f9b35505280 [a](true)) (Constant Boolean 0x108674b10 [a](false)))
+   AncestorEndCondition: (EQ Boolean 0x7f9b35505600 [a](false) (StateVariable NodeState Child 0x7f9b35505400 [a](EXECUTING)) (NodeStateValue NodeState 0x108674c00 [a](FINISHED)))
+   ActionCompleteCondition: (InternalVariable Boolean ack 0x7f9b355054f0 [a](true))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9b35505530 [i](false))
   }
 }
 
 [PlexilExec:step] ==>Start cycle 2
 [PlexilExec:step][2:0] Check queue: Child AssignToParentInvariant 
-[PlexilExec:step] Node Child 0x7fbe05c04de0 can transition from EXECUTING to FAILING
-[PlexilExec:step] adding Child 0x7fbe05c04de0 to state change queue
-[PlexilExec:step] Node AssignToParentInvariant 0x7fbe05c04a90 can transition from EXECUTING to FAILING
-[PlexilExec:step] adding AssignToParentInvariant 0x7fbe05c04a90 to state change queue
+[PlexilExec:step] Node Child 0x7f9b35505330 can transition from EXECUTING to FAILING
+[PlexilExec:step] adding Child 0x7f9b35505330 to state change queue
+[PlexilExec:step] Node AssignToParentInvariant 0x7f9b35504f20 can transition from EXECUTING to FAILING
+[PlexilExec:step] adding AssignToParentInvariant 0x7f9b35504f20 to state change queue
 [PlexilExec:step][2:0] State change queue: Child AssignToParentInvariant 
-[PlexilExec:step][2:0:0] Transitioning Assignment node Child 0x7fbe05c04de0 from EXECUTING to FAILING
-[Node:notifyChanged] adding Child 0x7fbe05c04de0 to check queue
-[Node:notifyChanged] transitioning node AssignToParentInvariant 0x7fbe05c04a90 will be rechecked
-[Node:notifyChanged] adding AssignToParentInvariant 0x7fbe05c04a90 to check queue
-[PlexilExec:step][2:0:1] Transitioning NodeList node AssignToParentInvariant 0x7fbe05c04a90 from EXECUTING to FAILING
+[PlexilExec:step][2:0:0] Transitioning Assignment node Child 0x7f9b35505330 from EXECUTING to FAILING
+[Node:notifyChanged] adding Child 0x7f9b35505330 to check queue
+[Node:notifyChanged] transitioning node AssignToParentInvariant 0x7f9b35504f20 will be rechecked
+[Node:notifyChanged] adding AssignToParentInvariant 0x7f9b35504f20 to check queue
+[PlexilExec:step][2:0:1] Transitioning NodeList node AssignToParentInvariant 0x7f9b35504f20 from EXECUTING to FAILING
 [PlexilExec:performAssignments] performing 0 assignments and 1 retractions
-[Test:testOutput] Restoring previous value of (Variable Boolean step_failed 0x7fbe05c04d30 [a](true))
+[Test:testOutput] Restoring previous value of (Variable Boolean step_failed 0x7f9b35505280 [a](true))
 [PlexilExec:step] ==>End cycle 2
 [PlexilExec:printPlan]
 AssignToParentInvariant{
  State: FAILING (0)
- InvariantCondition: (EQ Boolean 0x7fbe05c05050 [a](true) (Variable Boolean step_failed 0x7fbe05c04d30 [a](false)) (Constant Boolean 0x10bc35d10 [a](false)))
- EndCondition: (EQ Boolean 0x7fbe05c050b0 [a](false) (StateVariable NodeState Child 0x7fbe05c04eb0 [a](FAILING)) (NodeStateValue NodeState 0x10bc35e00 [a](FINISHED)))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean AssignToParentInvariant 0x7fbe05c04bd8 [a](false))
- step_failed: (Variable Boolean step_failed 0x7fbe05c04d30 [a](false))
+ InvariantCondition: (EQ Boolean 0x7f9b355055a0 [a](true) (Variable Boolean step_failed 0x7f9b35505280 [a](false)) (Constant Boolean 0x108674b10 [a](false)))
+ EndCondition: (EQ Boolean 0x7f9b35505600 [a](false) (StateVariable NodeState Child 0x7f9b35505400 [a](FAILING)) (NodeStateValue NodeState 0x108674c00 [a](FINISHED)))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean AssignToParentInvariant 0x7f9b35505068 [a](false))
+ step_failed: (Variable Boolean step_failed 0x7f9b35505280 [a](false))
   Child{
    State: FAILING (0)
-   AncestorInvariantCondition: (EQ Boolean 0x7fbe05c05050 [a](true) (Variable Boolean step_failed 0x7fbe05c04d30 [a](false)) (Constant Boolean 0x10bc35d10 [a](false)))
-   AncestorEndCondition: (EQ Boolean 0x7fbe05c050b0 [a](false) (StateVariable NodeState Child 0x7fbe05c04eb0 [a](FAILING)) (NodeStateValue NodeState 0x10bc35e00 [a](FINISHED)))
-   ActionCompleteCondition: (InternalVariable Boolean ack 0x7fbe05c04fa0 [i](true))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fbe05c04fe0 [a](true))
+   AncestorInvariantCondition: (EQ Boolean 0x7f9b355055a0 [a](true) (Variable Boolean step_failed 0x7f9b35505280 [a](false)) (Constant Boolean 0x108674b10 [a](false)))
+   AncestorEndCondition: (EQ Boolean 0x7f9b35505600 [a](false) (StateVariable NodeState Child 0x7f9b35505400 [a](FAILING)) (NodeStateValue NodeState 0x108674c00 [a](FINISHED)))
+   ActionCompleteCondition: (InternalVariable Boolean ack 0x7f9b355054f0 [i](true))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9b35505530 [a](true))
   }
 }
 
 [PlexilExec:step] ==>Start cycle 3
 [PlexilExec:step][3:0] Check queue: Child AssignToParentInvariant 
-[PlexilExec:step] Node Child 0x7fbe05c04de0 can transition from FAILING to FINISHED
-[PlexilExec:step] adding Child 0x7fbe05c04de0 to state change queue
+[PlexilExec:step] Node Child 0x7f9b35505330 can transition from FAILING to FINISHED
+[PlexilExec:step] adding Child 0x7f9b35505330 to state change queue
 [PlexilExec:step][3:0] State change queue: Child 
-[PlexilExec:step][3:0:0] Transitioning Assignment node Child 0x7fbe05c04de0 from FAILING to FINISHED
-[Node:notifyChanged] adding Child 0x7fbe05c04de0 to check queue
-[Node:notifyChanged] adding AssignToParentInvariant 0x7fbe05c04a90 to check queue
+[PlexilExec:step][3:0:0] Transitioning Assignment node Child 0x7f9b35505330 from FAILING to FINISHED
+[Node:notifyChanged] adding Child 0x7f9b35505330 to check queue
+[Node:notifyChanged] adding AssignToParentInvariant 0x7f9b35504f20 to check queue
 [PlexilExec:step][3:1] Check queue: Child AssignToParentInvariant 
-[PlexilExec:step] Node AssignToParentInvariant 0x7fbe05c04a90 can transition from FAILING to ITERATION_ENDED
-[PlexilExec:step] adding AssignToParentInvariant 0x7fbe05c04a90 to state change queue
+[PlexilExec:step] Node AssignToParentInvariant 0x7f9b35504f20 can transition from FAILING to ITERATION_ENDED
+[PlexilExec:step] adding AssignToParentInvariant 0x7f9b35504f20 to state change queue
 [PlexilExec:step][3:1] State change queue: AssignToParentInvariant 
-[PlexilExec:step][3:1:0] Transitioning NodeList node AssignToParentInvariant 0x7fbe05c04a90 from FAILING to ITERATION_ENDED
-[Node:notifyChanged] adding AssignToParentInvariant 0x7fbe05c04a90 to check queue
+[PlexilExec:step][3:1:0] Transitioning NodeList node AssignToParentInvariant 0x7f9b35504f20 from FAILING to ITERATION_ENDED
+[Node:notifyChanged] adding AssignToParentInvariant 0x7f9b35504f20 to check queue
 [PlexilExec:step][3:2] Check queue: AssignToParentInvariant 
-[PlexilExec:step] Node AssignToParentInvariant 0x7fbe05c04a90 can transition from ITERATION_ENDED to FINISHED
-[PlexilExec:step] adding AssignToParentInvariant 0x7fbe05c04a90 to state change queue
+[PlexilExec:step] Node AssignToParentInvariant 0x7f9b35504f20 can transition from ITERATION_ENDED to FINISHED
+[PlexilExec:step] adding AssignToParentInvariant 0x7f9b35504f20 to state change queue
 [PlexilExec:step][3:2] State change queue: AssignToParentInvariant 
-[PlexilExec:step][3:2:0] Transitioning NodeList node AssignToParentInvariant 0x7fbe05c04a90 from ITERATION_ENDED to FINISHED
-[PlexilExec:step] Marking AssignToParentInvariant 0x7fbe05c04a90 as a finished root node
+[PlexilExec:step][3:2:0] Transitioning NodeList node AssignToParentInvariant 0x7f9b35504f20 from ITERATION_ENDED to FINISHED
+[PlexilExec:step] Marking AssignToParentInvariant 0x7f9b35504f20 as a finished root node
 [PlexilExec:step] ==>End cycle 3
 [PlexilExec:printPlan]
 AssignToParentInvariant{
  State: FINISHED (0)
  Outcome: FAILURE
  Failure type: INVARIANT_CONDITION_FAILED
- step_failed: (Variable Boolean step_failed 0x7fbe05c04d30 [i]([unknown_value]))
+ step_failed: (Variable Boolean step_failed 0x7f9b35505280 [i]([unknown_value]))
   Child{
    State: FINISHED (0)
    Outcome: FAILURE
