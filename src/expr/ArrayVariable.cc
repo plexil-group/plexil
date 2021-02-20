@@ -57,7 +57,6 @@ namespace PLEXIL
       m_initializer(nullptr),
       m_name(nullptr),
       m_maxSize(0),
-      m_user(nullptr),
       m_known(false),
       m_savedKnown(false),
       m_sizeIsGarbage(false),
@@ -77,7 +76,6 @@ namespace PLEXIL
       m_initializer(nullptr),
       m_name(strdup(name)),
       m_maxSize(0),
-      m_user(nullptr),
       m_known(false),
       m_savedKnown(false),
       m_sizeIsGarbage(sizeIsGarbage),
@@ -248,52 +246,6 @@ namespace PLEXIL
     if (m_savedValue)
       return Value(*m_savedValue);
     return Value();
-  }
-
-  Assignable *ArrayVariable::getBaseVariable()
-  {
-    return this;
-  }
-
-  Assignable const *ArrayVariable::getBaseVariable() const
-  {
-    return this;
-  }
-
-  bool ArrayVariable::isInUse() const
-  {
-    return m_user != nullptr;
-  }
-
-  bool ArrayVariable::reserve(Node *node)
-  {
-    if (m_user) {
-      addWaitingNode(node);
-      return false;
-    }
-    m_user = node;
-    return true;
-  }
-
-  void ArrayVariable::release()
-  {
-    m_user = nullptr;
-  }
-
-  void ArrayVariable::addWaitingNode(Node *node)
-  {
-    if (std::find(m_waiters.begin(), m_waiters.end(), node) == m_waiters.end())
-      m_waiters.push_back(node);
-  }
-
-  void ArrayVariable::removeWaitingNode(Node *node)
-  {
-    std::remove(m_waiters.begin(), m_waiters.end(), node);
-  }
-
-  std::vector<Node *> const *ArrayVariable::getWaitingNodes() const
-  {
-    return &m_waiters;
   }
 
   void ArrayVariable::setInitializer(Expression *expr, bool garbage)

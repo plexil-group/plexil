@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -167,8 +167,8 @@ namespace PLEXIL {
     virtual void restoreSavedValue() override;
     virtual Value getSavedValue() const override;
 
-    virtual Assignable *getBaseVariable() override;
-    virtual Assignable const *getBaseVariable() const override;
+    virtual Variable *getBaseVariable() override;
+    virtual Variable const *getBaseVariable() const override;
 
   private:
     // Default, copy, assignment disallowed

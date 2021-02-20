@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,16 +33,17 @@ libPlexilExpr_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/value \
 include_HEADERS = Alias.hh ArrayReference.hh ArrayVariable.hh \
  Assignable.hh CachedFunction.hh Constant.hh ConversionOperators.hh \
  Expression.hh ExpressionConstants.hh ExpressionListener.hh Function.hh \
- GetValueImpl.hh Listenable.hh NodeConstantExpressions.hh Notifier.hh \
- Operator.hh Propagator.hh SimpleBooleanVariable.hh UserVariable.hh
+ GetValueImpl.hh Listenable.hh NodeConnector.hh NodeConstantExpressions.hh \
+ Notifier.hh Operator.hh Propagator.hh Reservable.hh SimpleBooleanVariable.hh \
+ UserVariable.hh
 
 libPlexilExpr_la_SOURCES = Alias.cc \
  ArithmeticOperators.cc ArrayReference.cc ArrayVariable.cc ArrayOperators.cc \
- Assignable.cc BooleanOperators.cc CachedFunction.cc Comparisons.cc \
+ BooleanOperators.cc CachedFunction.cc Comparisons.cc \
  Constant.cc ConversionOperators.cc Expression.cc ExpressionConstants.cc \
  Function.cc GetValueImpl.cc NodeConstantExpressions.cc Notifier.cc \
- Operator.cc OperatorImpl.cc Propagator.cc SimpleBooleanVariable.cc \
- StringOperators.cc UserVariable.cc
+ Operator.cc OperatorImpl.cc Propagator.cc Reservable.cc \
+ SimpleBooleanVariable.cc StringOperators.cc UserVariable.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/expr-module-tests

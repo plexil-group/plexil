@@ -34,18 +34,20 @@
 namespace PLEXIL {
   
   // Forward declarations
-  class Node;
+  class Variable;
 
-  /**
-   * @class Assignable
-   * @brief Pure virtual mixin class for all expressions which can be assigned to by a plan.
-   * @note Examples include variables, array references, aliases for InOut variables, etc.
-   * @note This class has no state of its own.
-   */
+  //! @class Assignable
+  //! Pure virtual mixin class defining the API for all expressions
+  //! which can be assigned to by a plan.
+  //! @note In addition to ordinary variables, other expressions such
+  //!       as array references, aliases for InOut variables, etc. also
+  //!       implement the Assignable API.
+  //! @note This class has no state of its own.
   class Assignable : virtual public Expression
   {
   public:
-    Assignable() = default;
+
+    //! Virtual destructor.
     virtual ~Assignable() = default;
 
     //
@@ -53,109 +55,46 @@ namespace PLEXIL {
     // Every Assignable must implement these behaviors
     //
 
-    /**
-     * @brief Temporarily stores the previous value of this variable.
-     * @note Used to implement recovery from failed Assignment nodes.
-     */
+    //! Temporarily stores the previous value of this variable.
+    //! @note Used to implement recovery from failed Assignment nodes.
     virtual void saveCurrentValue() = 0;
 
-    /**
-     * @brief Restore the value set aside by saveCurrentValue().
-     * @note Used to implement recovery from failed Assignment nodes.
-     */
+    //! Restore the value set aside by saveCurrentValue().
+    //! @note Used to implement recovery from failed Assignment nodes.
     virtual void restoreSavedValue() = 0;
 
-    /**
-     * @brief Read the saved value of this variable.
-     * @return The saved value.
-     */
+    //! Read the saved value of this variable.
+    //! @return The saved value.
+    //! @note Only used by Assignment::retract().
     virtual Value getSavedValue() const = 0;
-
-    /**
-     * @brief Set the expression from which this object gets its initial value.
-     * @param expr Pointer to an Expression.
-     * @param garbage True if the expression should be deleted with this object, false otherwise.
-     * @note Default method throws an exception.
-     */
-    virtual void setInitializer(Expression *expr, bool garbage);
 
     //
     // SetValue API subset actually used in Exec and test suites
     //
 
-    /**
-     * @brief Set the value of this expression to unknown.
-     */
+    //1 Set this expression's value unknown.
     virtual void setUnknown() = 0;
 
-    /**
-     * @brief Set the value for this object.
-     * @param val The new value for this object.
-     */
+    //! Set the value of this expression.
+    //! @param val The new value for this object.
     virtual void setValue(Value const &val) = 0;
 
     //
     // Interface to PlexilExec conflict resolution logic
     //
 
-    //! @brief Get the real variable for which this may be a proxy.
-    //! @return Pointer to the base variable, as an Assignable.
+    //! @brief Get the real variable for which this expression may be a proxy.
+    //! @return Pointer to the base variable.
+    virtual Variable *getBaseVariable() = 0;
+    virtual Variable const *getBaseVariable() const = 0;
 
-    virtual Assignable *getBaseVariable() = 0;
-    virtual Assignable const *getBaseVariable() const = 0;
+  protected:
 
-    //! @brief Determine whether this object is currently in use by a Node.
-    //! @return true if in use, false if not.
-    //! @note The default method returns false.
-
-    virtual bool isInUse() const
-    {
-      return false;
-    }
-
-    //! @brief Tell this object it is being reserved by a Node.
-    //! @param The Node wishing to reserve this object.
-    //! @return true if the object was successfully reserved.
-    //! @note The default method does nothing and returns false.
-
-    virtual bool reserve(Node *node)
-    {
-      return false;
-    }
-      
-    //! @brief Release the object from its reservation by a Node.
-    //! @note The default method does nothing.
-
-    virtual void release()
-    {
-    }
-
-    //! @brief Add a node to the list of nodes waiting on the mutex.
-    //! @param node Pointer to the node.
-    //! @note The default method does nothing.
-
-    virtual void addWaitingNode(Node *node)
-    {
-    }
-
-    //! @brief Remove a node from the list of nodes waiting on the mutex.
-    //! @param node Pointer to the node.
-    //! @note The default method does nothing.
-
-    virtual void removeWaitingNode(Node *node)
-    {
-    }
-
-    //! @brief Get a pointer to the vector of nodes waiting on the mutex.
-    //! @return Pointer to the vector.
-    //! @note The default method returns nullptr.
-
-    virtual std::vector<Node *> const *getWaitingNodes() const
-    {
-      return nullptr;
-    }
+    //! Default constructor, only accessible to derived classes.
+    Assignable() = default;
 
   private:
+
     // Not implemented
     Assignable(Assignable const &) = delete;
     Assignable(Assignable &&) = delete;

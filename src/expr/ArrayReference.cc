@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -331,14 +331,14 @@ namespace PLEXIL
     return Value(m_savedValue);
   }
 
-  Assignable *MutableArrayReference::getBaseVariable() 
+  Variable *MutableArrayReference::getBaseVariable() 
   {
     checkPlanError(m_mutableArray,
                    "Assignable ArrayElement doesn't resolve to an ArrayVariable");
     return m_mutableArray->getBaseVariable();
   }
 
-  Assignable const *MutableArrayReference::getBaseVariable() const
+  Variable const *MutableArrayReference::getBaseVariable() const
   {
     checkPlanError(m_mutableArray,
                    "Assignable ArrayElement doesn't resolve to an ArrayVariable");
