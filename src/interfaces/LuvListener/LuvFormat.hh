@@ -40,42 +40,15 @@ namespace PLEXIL {
   class Node;
   struct NodeTransition;
 
+  //
+  // Format constants
+  //
+
+  // End-of-message marker
+  static constexpr const char LUV_END_OF_MESSAGE = (char) 4;
+
   class LuvFormat {
   public:
-
-    //
-    // Class constants
-    //
-
-    // XML formatting options
-    static constexpr const unsigned int PUGI_FORMAT_OPTIONS = pugi::format_raw | pugi::format_no_declaration;
-
-    // Literal strings
-    static constexpr const char TRUE_STR[] = "true";
-    static constexpr const char FALSE_STR[] = "false";
-
-    // XML tags
-    static constexpr const char PLAN_INFO_TAG[] = "PlanInfo";
-    static constexpr const char PLEXIL_PLAN_TAG[] = "PlexilPlan";
-    static constexpr const char PLEXIL_LIBRARY_TAG[] = "PlexilLibrary";
-    static constexpr const char VIEWER_BLOCKS_TAG[] = "ViewerBlocks";
-
-    static constexpr const char NODE_ID_TAG[] = "NodeId";
-    static constexpr const char NODE_PATH_TAG[] = "NodePath";
-
-    static constexpr const char NODE_STATE_UPDATE_TAG[] = "NodeStateUpdate";
-    static constexpr const char NODE_STATE_TAG[] = "NodeState";
-    static constexpr const char NODE_OUTCOME_TAG[] = "NodeOutcome";
-    static constexpr const char NODE_FAILURE_TYPE_TAG[] = "NodeFailureType";
-    static constexpr const char CONDITIONS_TAG[] = "Conditions";
-
-    static constexpr const char ASSIGNMENT_TAG[] = "Assignment";
-    static constexpr const char VARIABLE_TAG[] = "Variable";
-    static constexpr const char VARIABLE_NAME_TAG[] = "VariableName";
-    static constexpr const char VARIABLE_VALUE_TAG[] = "Value";
-
-    // End-of-message marker
-    static constexpr const char LUV_END_OF_MESSAGE = (char)4;
 
     /**
      * @brief Construct the PlanInfo header XML.

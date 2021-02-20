@@ -63,9 +63,6 @@ namespace PLEXIL
   static constexpr char const LUV_PORT_ATTR[] = "Port";
   static constexpr char const LUV_BLOCKING_ATTR[] = "Blocking";
 
-  // End-of-message marker
-  static constexpr char const LUV_END_OF_MESSAGE = (char) 4;
-  // Configuration constant
   static constexpr char const IGNORE_CONNECT_FAILURE_ATTR[] = "IgnoreConnectFailure";
 
   //! @class LuvListenerImpl
@@ -73,10 +70,6 @@ namespace PLEXIL
   class LuvListenerImpl final : public LuvListener
   {
   public:
-
-    //
-    // Public class constants
-    //
 
     /**
      * @brief Constructor from configuration XML.

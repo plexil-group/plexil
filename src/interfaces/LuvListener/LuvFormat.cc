@@ -38,6 +38,37 @@
 namespace PLEXIL {
 
   //
+  // Local constants
+  //
+  
+  // XML formatting options
+  static constexpr const unsigned int PUGI_FORMAT_OPTIONS = pugi::format_raw | pugi::format_no_declaration;
+
+  // Literal strings
+  static constexpr const char TRUE_STR[] = "true";
+  static constexpr const char FALSE_STR[] = "false";
+
+  // XML tags
+  static constexpr const char PLAN_INFO_TAG[] = "PlanInfo";
+  static constexpr const char PLEXIL_PLAN_TAG[] = "PlexilPlan";
+  static constexpr const char PLEXIL_LIBRARY_TAG[] = "PlexilLibrary";
+  static constexpr const char VIEWER_BLOCKS_TAG[] = "ViewerBlocks";
+
+  static constexpr const char NODE_ID_TAG[] = "NodeId";
+  static constexpr const char NODE_PATH_TAG[] = "NodePath";
+
+  static constexpr const char NODE_STATE_UPDATE_TAG[] = "NodeStateUpdate";
+  static constexpr const char NODE_STATE_TAG[] = "NodeState";
+  static constexpr const char NODE_OUTCOME_TAG[] = "NodeOutcome";
+  static constexpr const char NODE_FAILURE_TYPE_TAG[] = "NodeFailureType";
+  static constexpr const char CONDITIONS_TAG[] = "Conditions";
+
+  static constexpr const char ASSIGNMENT_TAG[] = "Assignment";
+  static constexpr const char VARIABLE_TAG[] = "Variable";
+  static constexpr const char VARIABLE_NAME_TAG[] = "VariableName";
+  static constexpr const char VARIABLE_VALUE_TAG[] = "Value";
+
+  //
   // Local utilities
   //
 
@@ -70,7 +101,7 @@ namespace PLEXIL {
     if (node->getParent())
       formatNodePathInternal(s, node->getParent());
     // Put ours at the end
-    simpleTextElement(s, LuvFormat::NODE_ID_TAG, node->getNodeId().c_str());
+    simpleTextElement(s, NODE_ID_TAG, node->getNodeId().c_str());
   }
 
   /**
@@ -80,9 +111,9 @@ namespace PLEXIL {
    */
   void formatNodePath(std::ostream& s, 
                       Node const *node) {
-    simpleStartTag(s, LuvFormat::NODE_PATH_TAG);
+    simpleStartTag(s, NODE_PATH_TAG);
     formatNodePathInternal(s, node);
-    endTag(s, LuvFormat::NODE_PATH_TAG);
+    endTag(s, NODE_PATH_TAG);
   }
 
   /**
@@ -97,7 +128,7 @@ namespace PLEXIL {
     assertTrueMsg(node,
                   "LuvFormat::formatConditions: not a node");
 
-    simpleStartTag(s, LuvFormat::CONDITIONS_TAG);
+    simpleStartTag(s, CONDITIONS_TAG);
 
     for (size_t i = 0; i < NodeImpl::conditionIndexMax; ++i) {
       Expression const *cond = node->getCondition(i);
@@ -109,7 +140,7 @@ namespace PLEXIL {
       }
     }
 
-    endTag(s, LuvFormat::CONDITIONS_TAG);
+    endTag(s, CONDITIONS_TAG);
   }
 
   /**
