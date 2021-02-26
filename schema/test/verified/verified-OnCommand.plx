@@ -30,6 +30,14 @@
               <StringVariable>ep2cp_hdl</StringVariable>
             </IsKnown>
           </EndCondition>
+          <PostCondition>
+            <EQInternal>
+              <NodeCommandHandleVariable>
+                <NodeRef dir="self"/>
+              </NodeCommandHandleVariable>
+              <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+            </EQInternal>
+          </PostCondition>
           <NodeBody>
             <Command>
               <StringVariable>ep2cp_hdl</StringVariable>
@@ -54,6 +62,14 @@
               <IntegerVariable>distance</IntegerVariable>
             </IsKnown>
           </EndCondition>
+          <PostCondition>
+            <EQInternal>
+              <NodeCommandHandleVariable>
+                <NodeRef dir="self"/>
+              </NodeCommandHandleVariable>
+              <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+            </EQInternal>
+          </PostCondition>
           <NodeBody>
             <Command>
               <IntegerVariable>distance</IntegerVariable>
@@ -79,6 +95,14 @@
               <RealVariable>direction</RealVariable>
             </IsKnown>
           </EndCondition>
+          <PostCondition>
+            <EQInternal>
+              <NodeCommandHandleVariable>
+                <NodeRef dir="self"/>
+              </NodeCommandHandleVariable>
+              <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+            </EQInternal>
+          </PostCondition>
           <NodeBody>
             <Command>
               <RealVariable>direction</RealVariable>

@@ -42,6 +42,14 @@
                     <StringVariable>ep2cp_hdl</StringVariable>
                   </IsKnown>
                 </EndCondition>
+                <PostCondition>
+                  <EQInternal>
+                    <NodeCommandHandleVariable>
+                      <NodeRef dir="self"/>
+                    </NodeCommandHandleVariable>
+                    <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+                  </EQInternal>
+                </PostCondition>
                 <NodeBody>
                   <Command>
                     <StringVariable>ep2cp_hdl</StringVariable>
@@ -66,6 +74,14 @@
                     <StringVariable>arg1</StringVariable>
                   </IsKnown>
                 </EndCondition>
+                <PostCondition>
+                  <EQInternal>
+                    <NodeCommandHandleVariable>
+                      <NodeRef dir="self"/>
+                    </NodeCommandHandleVariable>
+                    <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+                  </EQInternal>
+                </PostCondition>
                 <NodeBody>
                   <Command>
                     <StringVariable>arg1</StringVariable>
@@ -91,6 +107,14 @@
                     <BooleanVariable>arg2</BooleanVariable>
                   </IsKnown>
                 </EndCondition>
+                <PostCondition>
+                  <EQInternal>
+                    <NodeCommandHandleVariable>
+                      <NodeRef dir="self"/>
+                    </NodeCommandHandleVariable>
+                    <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+                  </EQInternal>
+                </PostCondition>
                 <NodeBody>
                   <Command>
                     <BooleanVariable>arg2</BooleanVariable>
@@ -116,6 +140,14 @@
                     <IntegerVariable>arg3</IntegerVariable>
                   </IsKnown>
                 </EndCondition>
+                <PostCondition>
+                  <EQInternal>
+                    <NodeCommandHandleVariable>
+                      <NodeRef dir="self"/>
+                    </NodeCommandHandleVariable>
+                    <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+                  </EQInternal>
+                </PostCondition>
                 <NodeBody>
                   <Command>
                     <IntegerVariable>arg3</IntegerVariable>
@@ -141,6 +173,14 @@
                     <RealVariable>arg4</RealVariable>
                   </IsKnown>
                 </EndCondition>
+                <PostCondition>
+                  <EQInternal>
+                    <NodeCommandHandleVariable>
+                      <NodeRef dir="self"/>
+                    </NodeCommandHandleVariable>
+                    <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+                  </EQInternal>
+                </PostCondition>
                 <NodeBody>
                   <Command>
                     <RealVariable>arg4</RealVariable>
@@ -255,6 +295,14 @@
                     <StringVariable>ep2cp_hdl</StringVariable>
                   </IsKnown>
                 </EndCondition>
+                <PostCondition>
+                  <EQInternal>
+                    <NodeCommandHandleVariable>
+                      <NodeRef dir="self"/>
+                    </NodeCommandHandleVariable>
+                    <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+                  </EQInternal>
+                </PostCondition>
                 <NodeBody>
                   <Command>
                     <StringVariable>ep2cp_hdl</StringVariable>
@@ -279,6 +327,14 @@
                     <StringVariable>arg1</StringVariable>
                   </IsKnown>
                 </EndCondition>
+                <PostCondition>
+                  <EQInternal>
+                    <NodeCommandHandleVariable>
+                      <NodeRef dir="self"/>
+                    </NodeCommandHandleVariable>
+                    <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+                  </EQInternal>
+                </PostCondition>
                 <NodeBody>
                   <Command>
                     <StringVariable>arg1</StringVariable>
@@ -304,6 +360,14 @@
                     <BooleanVariable>arg2</BooleanVariable>
                   </IsKnown>
                 </EndCondition>
+                <PostCondition>
+                  <EQInternal>
+                    <NodeCommandHandleVariable>
+                      <NodeRef dir="self"/>
+                    </NodeCommandHandleVariable>
+                    <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+                  </EQInternal>
+                </PostCondition>
                 <NodeBody>
                   <Command>
                     <BooleanVariable>arg2</BooleanVariable>
@@ -329,6 +393,14 @@
                     <IntegerVariable>arg3</IntegerVariable>
                   </IsKnown>
                 </EndCondition>
+                <PostCondition>
+                  <EQInternal>
+                    <NodeCommandHandleVariable>
+                      <NodeRef dir="self"/>
+                    </NodeCommandHandleVariable>
+                    <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+                  </EQInternal>
+                </PostCondition>
                 <NodeBody>
                   <Command>
                     <IntegerVariable>arg3</IntegerVariable>
@@ -354,6 +426,14 @@
                     <RealVariable>arg4</RealVariable>
                   </IsKnown>
                 </EndCondition>
+                <PostCondition>
+                  <EQInternal>
+                    <NodeCommandHandleVariable>
+                      <NodeRef dir="self"/>
+                    </NodeCommandHandleVariable>
+                    <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+                  </EQInternal>
+                </PostCondition>
                 <NodeBody>
                   <Command>
                     <RealVariable>arg4</RealVariable>
