@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -45,8 +45,9 @@ REST = UncheckedSequence1 UncheckedSequence2 \
     For1 For2 For3 For4 For5 \
 	Do0 Do1 Do2 Do3 \
 	Try1 Try2 Try3 Try4 \
-	NodeCheck1 MessageReceived1 Sequence-Concurrence OnMessage OnCommand \
-	OnCommandSequence OnCommandStartCondition OnCommandSkipCondition \
+	NodeCheck1 MessageReceived1 Sequence-Concurrence \
+    OnMessage OnMessageEmpty OnMessageBodyWithoutNodeId \
+	OnCommand OnCommandSequence OnCommandStartCondition OnCommandSkipCondition \
 	Lookup1 Lookup2 Wait1 Wait2 Wait3 Interface
 
 TESTS = $(SYNCH) $(REST)
