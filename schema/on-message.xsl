@@ -27,8 +27,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 -->
 
-<!-- This stylesheet requires XSLT 2.0 for xsl:function, xsl:sequence -->
-<!-- This stylesheet requires XPath 2.0 for 'except' -->
+<!-- This stylesheet requires XSLT 2.0 for xsl:sequence -->
 
 <xsl:transform version="2.0"
                xmlns:tr="extended-plexil-translator"
@@ -47,7 +46,28 @@
   </xsl:template>
 
   <xsl:template name="OnMessage-staging">
-    <Sequence>
+    <xsl:variable name="maybe-anonymous-body" as="element()?" >
+      <xsl:sequence select="fn:zero-or-one(tr:actions(.))" />
+    </xsl:variable>
+    <!-- Ensure body, if it exists, has a NodeId; gensym one if not -->
+    <xsl:variable name="maybe-body">
+      <xsl:choose>
+        <xsl:when test="$maybe-anonymous-body/NodeId">
+          <xsl:sequence select="$maybe-anonymous-body" />
+        </xsl:when>
+        <xsl:when test="$maybe-anonymous-body">
+          <!-- Add a generated NodeId -->
+          <Node>
+            <xsl:copy-of select="$maybe-anonymous-body/@*" />
+            <NodeId generated="1">
+              <xsl:copy-of select="tr:prefix('OnMessage_body')" />
+            </NodeId>
+            <xsl:copy-of select="$maybe-anonymous-body/*" />
+          </Node>
+        </xsl:when>
+      </xsl:choose>
+    </xsl:variable>
+    <CheckedSequence>
       <xsl:call-template name="copy-source-locator-attributes" />
       <xsl:call-template name="ensure-unique-node-id" />
       <xsl:call-template name="handle-common-clauses" />
@@ -85,20 +105,10 @@
         <xsl:with-param name="dest" select="$hdl_dec" />
         <xsl:with-param name="args" select="Message/*" />
       </xsl:call-template>
-      <!-- Action for this message -->
-      <!-- FIXME: An OnMessage with no action is legal -->
-      <Node NodeType="NodeList" epx="aux">
-        <NodeId generated="1">
-          <xsl:value-of
-            select="concat(tr:prefix('MsgAction'), '_', Name/StringValue/text())" />
-        </NodeId>
-        <NodeBody>
-          <NodeList>
-            <xsl:apply-templates select="fn:exactly-one(tr:actions(.))" />
-          </NodeList>
-        </NodeBody>
-      </Node>
-    </Sequence>
+
+      <!-- Expand body (may be empty) -->
+      <xsl:apply-templates select="$maybe-body" />
+    </CheckedSequence>
   </xsl:template>
 
   <!-- Construct the receive wait Command node for OnMessage -->
@@ -108,13 +118,21 @@
     <xsl:param name="args" />
     <Node NodeType="Command" epx="aux">
       <NodeId generated="1">
-        <xsl:copy-of select="tr:prefix('CmdWait')" />
+        <xsl:copy-of select="tr:prefix('OnMessage_MsgWait')" />
       </NodeId>
       <EndCondition>
         <IsKnown>
           <xsl:sequence select="$dest" />
         </IsKnown>
       </EndCondition>
+      <!-- If the command fails (e.g. due to interface error), it can terminate early
+           with node outcome SUCCEEDED. -->
+      <PostCondition>
+        <EQInternal>
+          <NodeCommandHandleVariable><NodeRef dir="self"/></NodeCommandHandleVariable>
+          <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+        </EQInternal>
+      </PostCondition>
       <NodeBody>
         <Command>
           <xsl:sequence select="$dest" />
