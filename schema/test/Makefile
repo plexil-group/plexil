@@ -45,8 +45,9 @@ REST = UncheckedSequence1 UncheckedSequence2 \
     For1 For2 For3 For4 For5 \
 	Do0 Do1 Do2 Do3 \
 	Try1 Try2 Try3 Try4 \
-	NodeCheck1 MessageReceived1 Sequence-Concurrence OnMessage OnCommand \
-	OnCommandSequence OnCommandStartCondition OnCommandSkipCondition \
+	NodeCheck1 MessageReceived1 Sequence-Concurrence \
+	OnMessage OnMessageEmpty OnMessageBodyWithoutNodeId \
+	OnCommand OnCommandSequence OnCommandStartCondition OnCommandSkipCondition \
 	Lookup1 Lookup2 Wait1 Wait2 Wait3 Interface
 
 MUTEX = Concurrence1m Concurrence2m For1m For3m If1m If3m If6m \

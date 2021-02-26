@@ -42,14 +42,6 @@
             </Command>
           </NodeBody>
         </Node>
-        <Node NodeType="Empty">
-          <NodeId>foo</NodeId>
-          <StartCondition>
-            <Finished>
-              <NodeRef dir="sibling">ep2cp_OnMessage_MsgWait</NodeRef>
-            </Finished>
-          </StartCondition>
-        </Node>
       </NodeList>
     </NodeBody>
   </Node>

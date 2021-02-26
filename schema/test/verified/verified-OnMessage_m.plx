@@ -5,7 +5,7 @@
       <Name>m</Name>
     </DeclareMutex>
   </GlobalDeclarations>
-  <Node NodeType="NodeList" epx="Sequence">
+  <Node NodeType="NodeList" epx="CheckedSequence">
     <NodeId generated="1">ep2cp_OnMessage_d13e11</NodeId>
     <VariableDeclarations>
       <DeclareVariable>
@@ -24,12 +24,20 @@
     <NodeBody>
       <NodeList>
         <Node NodeType="Command" epx="aux">
-          <NodeId generated="1">ep2cp_CmdWait</NodeId>
+          <NodeId generated="1">ep2cp_OnMessage_MsgWait</NodeId>
           <EndCondition>
             <IsKnown>
               <StringVariable>ep2cp_hdl</StringVariable>
             </IsKnown>
           </EndCondition>
+          <PostCondition>
+            <EQInternal>
+              <NodeCommandHandleVariable>
+                <NodeRef dir="self"/>
+              </NodeCommandHandleVariable>
+              <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+            </EQInternal>
+          </PostCondition>
           <NodeBody>
             <Command>
               <StringVariable>ep2cp_hdl</StringVariable>
@@ -42,20 +50,13 @@
             </Command>
           </NodeBody>
         </Node>
-        <Node NodeType="NodeList" epx="aux">
-          <NodeId generated="1">ep2cp_MsgAction_</NodeId>
+        <Node NodeType="Empty">
+          <NodeId>foo</NodeId>
           <StartCondition>
             <Finished>
-              <NodeRef dir="sibling">ep2cp_CmdWait</NodeRef>
+              <NodeRef dir="sibling">ep2cp_OnMessage_MsgWait</NodeRef>
             </Finished>
           </StartCondition>
-          <NodeBody>
-            <NodeList>
-              <Node NodeType="Empty">
-                <NodeId>foo</NodeId>
-              </Node>
-            </NodeList>
-          </NodeBody>
         </Node>
       </NodeList>
     </NodeBody>

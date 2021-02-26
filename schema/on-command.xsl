@@ -192,6 +192,14 @@ action
       <EndCondition>
         <IsKnown> <xsl:sequence select="$dest" /> </IsKnown>
       </EndCondition>
+      <!-- If the command fails (e.g. due to interface error), it can terminate early
+           with node outcome SUCCEEDED. So we must check the command handle. -->
+      <PostCondition>
+        <EQInternal>
+          <NodeCommandHandleVariable><NodeRef dir="self"/></NodeCommandHandleVariable>
+          <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+        </EQInternal>
+      </PostCondition>
       <NodeBody>
         <Command>
           <xsl:sequence select="$dest" />
@@ -240,6 +248,14 @@ action
           </xsl:choose>
         </IsKnown>
       </EndCondition>
+      <!-- If the command fails (e.g. due to interface error), it can terminate early
+           with node outcome SUCCEEDED. So we must check the command handle. -->
+      <PostCondition>
+        <EQInternal>
+          <NodeCommandHandleVariable><NodeRef dir="self"/></NodeCommandHandleVariable>
+          <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+        </EQInternal>
+      </PostCondition>
       <NodeBody>
         <Command>
           <xsl:choose>

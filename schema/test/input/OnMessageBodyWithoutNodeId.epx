@@ -1,0 +1,21 @@
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <GlobalDeclarations>
+    <CommandDeclaration>
+      <Name>pprint</Name>
+      <AnyParameters/>
+    </CommandDeclaration>
+  </GlobalDeclarations>
+  <OnMessage>
+    <Message><StringValue>moveRover</StringValue></Message>
+    <Node NodeType="Command">
+      <NodeBody>
+        <Command>
+          <Name><StringValue>pprint</StringValue></Name>
+          <Arguments>
+            <StringValue>We gave at the office</StringValue>
+          </Arguments>
+        </Command>
+      </NodeBody>
+    </Node>
+  </OnMessage>
+</PlexilPlan>

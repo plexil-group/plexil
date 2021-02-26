@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <GlobalDeclarations>
+    <CommandDeclaration>
+      <Name>pprint</Name>
+      <AnyParameters/>
+    </CommandDeclaration>
+  </GlobalDeclarations>
   <Node NodeType="NodeList" epx="CheckedSequence">
-    <NodeId generated="1">ep2cp_OnMessage_d13e3</NodeId>
+    <NodeId generated="1">ep2cp_OnMessage_d13e13</NodeId>
     <VariableDeclarations>
       <DeclareVariable>
         <Name>ep2cp_hdl</Name>
@@ -42,13 +48,23 @@
             </Command>
           </NodeBody>
         </Node>
-        <Node NodeType="Empty">
-          <NodeId>foo</NodeId>
+        <Node NodeType="Command">
+          <NodeId generated="1">ep2cp_OnMessage_body</NodeId>
           <StartCondition>
             <Finished>
               <NodeRef dir="sibling">ep2cp_OnMessage_MsgWait</NodeRef>
             </Finished>
           </StartCondition>
+          <NodeBody>
+            <Command>
+              <Name>
+                <StringValue>pprint</StringValue>
+              </Name>
+              <Arguments>
+                <StringValue>We gave at the office</StringValue>
+              </Arguments>
+            </Command>
+          </NodeBody>
         </Node>
       </NodeList>
     </NodeBody>
