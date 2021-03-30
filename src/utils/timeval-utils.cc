@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,9 @@
 #include <sys/time.h>
 #elif defined(__VXWORKS__)
 #include <time.h>
+#ifdef HAVE_SYS_TIMES_H
 #include <sys/times.h>
+#endif
 #endif
 
 const long ONE_MILLION = 1000000;
