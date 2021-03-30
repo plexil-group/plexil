@@ -1,4 +1,4 @@
-## Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+## Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 ##  All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -35,11 +35,11 @@ install(TARGETS PlexilUtils
 
 # Public includes
 install(FILES
-  ConstantMacros.hh Debug.hh DebugMessage.hh DynamicLoader.h Error.hh
+  Debug.hh DebugMessage.hh DynamicLoader.h Error.hh
   LinkedQueue.hh Logging.hh ParserException.hh PlanError.hh
   SimpleMap.hh SimpleSet.hh TestSupport.hh 
-  bitsetUtils.hh lifecycle-utils.h map-utils.hh stricmp.h
-  timespec-utils.hh timeval-utils.hh
+  bitsetUtils.hh lifecycle-utils.h map-utils.hh plexil-inttypes.h
+  plexil-stdint.h stricmp.h timespec-utils.hh timeval-utils.hh
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 # Presume every platform has dlopen and dlclose
@@ -50,10 +50,10 @@ endif()
 if(${PLEXIL_WITH_THREADS})
   # Additional support for multithreading
   target_sources(PlexilUtils PRIVATE
-    RecursiveThreadMutex.cc ThreadMutex.cc ThreadSemaphore.cc ThreadSpawn.cc)
+    ThreadSemaphore.cc)
   target_link_libraries(PlexilUtils PUBLIC pthread)
   install(FILES
-    RecursiveThreadMutex.hh ThreadMutex.hh ThreadSemaphore.hh ThreadSpawn.hh
+    ThreadSemaphore.hh
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 endif()
 
@@ -72,8 +72,8 @@ endif()
 
 if(MODULE_TESTS)
   add_executable(utils-module-tests
-    test/LinkedQueueTest.cc test/SimpleMapTest.cc test/SimpleSetTest.cc
-    test/TestData.cc test/bitsetUtilsTest.cc test/module-tests.cc
+    test/bitsetUtilsTest.cc test/LinkedQueueTest.cc test/SimpleMapTest.cc
+    test/SimpleSetTest.cc test/TestData.cc test/module-tests.cc
     test/util-test-module.cc)
 
   install(TARGETS utils-module-tests
