@@ -143,12 +143,10 @@ AS_IF([test "x$enable_udp" = "xyes"],[
 
 # Checks for libraries.
 
-# implied by header check for dlfcn.h
-AC_SEARCH_LIBS([dlopen], [dl dld])
-AC_SEARCH_LIBS([pthread_create], [pthread])
+# Math
 AC_SEARCH_LIBS([cos], [m])
-# Used by UdpAdapter (and IPC)
-AC_SEARCH_LIBS([inet_ntoa], [nsl])
+# pthread support
+AC_SEARCH_LIBS([pthread_sigmask], [pthread])
 # POSIX timer - not present on macOS
 AC_SEARCH_LIBS([timer_create], [rt])
 # Dispatch queues - macOS
@@ -163,23 +161,6 @@ AC_CHECK_HEADERS_ONCE([cassert ctype cerrno cfloat cinttypes climits cmath csign
 # Some platforms (e.g. vxWorks) may lack some of these
 # NOTE: checks only apply to PLEXIL source code, not imported third party code
 AC_CHECK_HEADERS_ONCE([assert.h ctype.h errno.h float.h inttypes.h math.h signal.h stddef.h stdint.h stdio.h stdlib.h string.h time.h])
-
-# POSIX dependencies for core functionality
-AC_CHECK_HEADERS_ONCE([dlfcn.h fcntl.h pthread.h semaphore.h unistd.h sys/stat.h sys/time.h])
-# POSIX headers for network functionality
-AC_CHECK_HEADERS_ONCE([netdb.h poll.h arpa/inet.h netinet/in.h sys/socket.h])
-
-# glibc backtrace functionality
-AC_CHECK_HEADERS_ONCE([execinfo.h])
-
-# Grand Central Dispatch (macOS)
-AC_CHECK_HEADERS_ONCE([dispatch/dispatch.h])
-
-# Mach semaphores (macOS)
-AC_CHECK_HEADERS_ONCE([mach/semaphore.h])
-
-# Non-Unix-like platforms
-AC_CHECK_HEADERS_ONCE([sockLib.h vxWorks.h sys/times.h])
 
 # Check whether cstdint (stdint.h) and cinttypes (inttypes.h) behave correctly
 # This is required because of a misfeature in the C99 spec
@@ -197,6 +178,25 @@ AC_COMPILE_IFELSE(
                      return 0;]])],
   [AC_DEFINE([HAVE_GOOD_INTTYPES_H], 1,
   [Define to 1 if inttypes.h defines format macros correctly under C++])])
+
+# POSIX dependencies for core functionality
+AC_CHECK_HEADERS_ONCE([dlfcn.h fcntl.h pthread.h semaphore.h unistd.h sys/stat.h sys/time.h])
+# POSIX headers for network functionality
+AC_CHECK_HEADERS_ONCE([netdb.h poll.h arpa/inet.h netinet/in.h sys/socket.h])
+
+# glibc backtrace functionality
+AC_CHECK_HEADERS_ONCE([execinfo.h])
+
+# Grand Central Dispatch (macOS & BSDs)
+# *** FIXME: FreeBSD doc says this is in /usr/local/include,
+# how do we tell Autoconf to look there?
+AC_CHECK_HEADERS_ONCE([dispatch/dispatch.h])
+
+# Mach semaphores (macOS)
+AC_CHECK_HEADERS_ONCE([mach/semaphore.h])
+
+# vxWorks
+AC_CHECK_HEADERS_ONCE([sockLib.h sysLib.h vxWorks.h sys/times.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -227,13 +227,6 @@ AS_IF([test "x$with_jni" != "x"],[
 AC_STRUCT_TM
 AC_CHECK_FUNCS([localtime_r])
 ])
-
-# Only needed by threads (and IPC)
-AS_IF([test "x$with_threads" != "xno"],[
-AC_CHECK_FUNCS([pthread_mutexattr_settype])
-])
-
-# FIXME: define PLEXIL_POSIX_TIME_FUNCS macro if appropriate functions found
 
 # Used only in GanttListener
 AS_IF([test "x$enable_gantt" = "xyes"], [
