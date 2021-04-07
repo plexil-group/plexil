@@ -5,24 +5,27 @@ All schemas are provided in two formats: XSD and RNG (Compact
 Relax NG).  We use two third-party tools to create the RNG
 schemas, which are provided with PLEXIL in the 'plexil/third-party' directory.
 
-extended-plexil.xsd define the full PLEXIL language, as currently supported.
-(This name is vestigial, and will be changed to 'plexil.xsd' in a future
-release).
+Schemas:
 
-core-plexil.xsd defines the Core PLEXIL language as currently implemented by the
-Plexil Executive.
+* extended-plexil.xsd defines the full PLEXIL language, as currently
+  supported.
 
-core-plexil-draft.xsd is a schema for planned extensions to Core PLEXIL.
+* core-plexil.xsd defines the Core PLEXIL language as currently
+  implemented by the Plexil Executive.
 
-safe-plexil.xsd defines a restricted version of Core PLEXIL that is
-easier to verify.
+* core-plexil-draft.xsd is a schema for (what were once) planned
+  extensions to Core PLEXIL.
 
-plexil-script.xsd is the schema for the Test Executive simulation script.
+* safe-plexil.xsd defines a restricted version of Core PLEXIL that is
+  easier to verify.
 
-translate-plexil.xsl is an XSLT program that translates full Plexil into Core
-Plexil.  It can be run conveniently with the 'eplexil' script found in
-plexil/bin (see that directory for more information), though in normal usage is
-run automatically when Plexil or Plexilisp files are processed.
+* plexil-script.xsd is the schema for the Test Executive simulation script.
+
+* schema-for-xslt30.rnc is a schema for XSLT stylesheets.  It provides
+  editing support for XSLT.
+
+* schemas.xml is used by GNU Emacs's nxml-mode, to locate schemas
+  for the various XML document types found here.
 
 Makefile and 'rncfix' are used to generate .rnc schemas from .xsd.  This
 process is described within Makefile.
@@ -30,3 +33,16 @@ process is described within Makefile.
 For more information, see the following chapter of the PLEXIL manual:
 
   https://sourceforge.net/apps/mediawiki/plexil/index.php?title=PLEXIL,_XML,_and_Emacs
+
+The epx-translator directory contains an XSLT stylesheet that
+translates Extended Plexil into Core Plexil.  It can be run
+conveniently with the 'eplexil' script found in plexil/bin (see that
+directory for more information), though in normal usage is run
+automatically when Plexil or Plexilisp files are processed.
+
+The test directory contains a regression test suite for the Extended
+Plexil translator.
+
+The validator directory contains schema validation tools for PLEXIL,
+used by the test directory and by the Standard PLEXIL compiler
+regression test suite.
