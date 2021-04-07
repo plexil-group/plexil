@@ -65,11 +65,6 @@
 #include <unistd.h> // pipe()
 #endif
 
-// Linux lacks FD_COPY, so emulate it here.
-#ifndef FD_COPY
-#define FD_COPY(from_ptr, to_ptr) memcpy(to_ptr, from_ptr, sizeof(fd_set))
-#endif
-
 namespace PLEXIL
 {
 
