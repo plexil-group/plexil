@@ -215,8 +215,8 @@ public class Compiler
             xformer.setIndent(state.indentOutput);
 
             File stylesheet =
-                new File(System.getenv("PLEXIL_HOME"), "schema/translate-plexil.xsl");
-
+                new File(System.getenv("PLEXIL_HOME"),
+                         "schema/epx-translator/translate-plexil.xsl");
             return xformer.translateDOM(stylesheet, planDoc, outputFile);
         }
         catch (Exception e) {

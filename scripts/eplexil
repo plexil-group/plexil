@@ -84,4 +84,4 @@ else
     output_file="$(echo "$1" | sed -e 's|.epx$||').plx"
 fi
 
-exec "$JAVA" -jar "$PLEXIL_HOME/jars/saxon9he.jar" -xsl:"$PLEXIL_HOME/schema/translate-plexil.xsl" -s:"$input_file" -o:"$output_file" $SAXON_OPTS
+exec "$JAVA" -jar "$PLEXIL_HOME/jars/saxon9he.jar" -xsl:"$PLEXIL_HOME/schema/epx-translator/translate-plexil.xsl" -s:"$input_file" -o:"$output_file" $SAXON_OPTS
