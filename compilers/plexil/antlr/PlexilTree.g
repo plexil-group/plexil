@@ -83,7 +83,7 @@ returnsSpec : ^(RETURNS_KYWD paramSpec+ ) ;
 paramSpec : ^(typeName NCNAME?) ;
 
 libraryActionDeclaration :
-    ^(LIBRARY_ACTION_KYWD NCNAME libraryParamsSpec?)
+    ^( (LIBRARY_ACTION_KYWD | LIBRARY_NODE_KYWD) NCNAME libraryParamsSpec?)
  ;
 
 libraryParamsSpec : ^(PARAMETERS ( (IN_KYWD | IN_OUT_KYWD) typeName NCNAME INT? )* ) ;

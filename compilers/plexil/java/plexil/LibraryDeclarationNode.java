@@ -50,7 +50,7 @@ public class LibraryDeclarationNode extends PlexilTreeNode
 	}
 
     // structure is:
-    // ^(LIBRARY_ACTION_KYWD NCNAME interfaceSpec?)
+    // ^( (LIBRARY_ACTION_KYWD | LIBRARY_NODE_KYWD) NCNAME interfaceSpec?)
 
     public void earlyCheck(NodeContext context, CompilerState state)
     {

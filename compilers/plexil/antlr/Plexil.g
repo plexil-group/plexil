@@ -79,7 +79,10 @@ DURATION_KYWD = 'Duration';
 UPDATE_KYWD = 'Update';
 REQUEST_KYWD = 'Request';
 LIBRARY_CALL_KYWD = 'LibraryCall';
+// LibraryAction is a synonym for LibraryNode
+// and will be phased out
 LIBRARY_ACTION_KYWD = 'LibraryAction';
+LIBRARY_NODE_KYWD = 'LibraryNode';
 
 // node variables
 STATE_KYWD = 'state';
@@ -328,7 +331,7 @@ options { k=5; } // handles initial ambiguity for array typed decls
  :
     commandDeclaration
   | lookupDeclaration
-  | libraryActionDeclaration
+  | libraryNodeDeclaration
   | mutexDeclaration
  ;
 
@@ -413,15 +416,15 @@ baseTypeName :
   | DURATION_KYWD
   ;
 
-libraryActionDeclaration
-@init { m_paraphrases.push("in library action declaration"); }
+libraryNodeDeclaration
+@init { m_paraphrases.push("in library node declaration"); }
 @after { m_paraphrases.pop(); }
  :
-    LIBRARY_ACTION_KYWD^ NCNAME libraryInterfaceSpec? SEMICOLON!
+    (LIBRARY_ACTION_KYWD | LIBRARY_NODE_KYWD)^ NCNAME libraryInterfaceSpec? SEMICOLON!
 ;
 
 libraryInterfaceSpec
-@init { m_paraphrases.push("in library action interface declaration"); }
+@init { m_paraphrases.push("in library node interface declaration"); }
 @after { m_paraphrases.pop(); }
  :
     LPAREN ( libraryParamSpec ( COMMA libraryParamSpec )* )? RPAREN
@@ -819,7 +822,7 @@ pair : NCNAME EQUALS! expression ;
 //
 
 libraryCall
-@init { m_paraphrases.push("in library action call"); }
+@init { m_paraphrases.push("in library node call"); }
 @after { m_paraphrases.pop(); }
  :
   LIBRARY_CALL_KYWD^ libraryNodeIdRef ( aliasSpecs )? SEMICOLON! ;
