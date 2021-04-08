@@ -1,4 +1,4 @@
-## Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+## Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 ##  All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@ add_library(PlexilXmlParser ${PlexilExec_SHARED_OR_STATIC}
   ArithmeticFunctionFactory.cc ArrayLiteralFactory.cc ArrayVariableFactory.cc
   ArrayVariableReferenceFactory.cc ComparisonFactory.cc 
   ConcreteExpressionFactory.cc ConversionFunctionFactory.cc commandXmlParser.cc
-  createExpression.cc ExpressionFactory.cc FunctionFactory.cc
+  createExpression.cc ExpressionFactory.cc findDeclarations.cc FunctionFactory.cc
   InternalExpressionFactories.cc LookupFactory.cc NodeFunctionFactory.cc
   parseAssignment.cc parseGlobalDeclarations.cc parseLibraryCall.cc
   parseNode.cc parseNodeReference.cc parsePlan.cc parser-utils.cc

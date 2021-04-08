@@ -1,4 +1,4 @@
-## Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+## Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 ##  All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -64,7 +64,7 @@ if(HAVE_LIBRT)
 endif()
 
 install(FILES
-  commandHandlerDefs.hh lookupHandlerDefs.hh AbstractPlannerUpdateHandler.hh
+  commandHandlerDefs.hh lookupHandlerDefs.hh plannerUpdateHandlerDefs.hh
   AdapterConfiguration.hh AdapterExecInterface.hh AdapterFactory.hh
   ExecApplication.hh ExecListener.hh ExecListenerFactory.hh
   ExecListenerFilter.hh ExecListenerFilterFactory.hh ExecListenerHub.hh

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -214,8 +214,8 @@ public class Compiler
             xformer.setIndent(state.indentOutput);
 
             File stylesheet =
-                new File(System.getenv("PLEXIL_HOME"), "schema/translate-plexil.xsl");
-
+                new File(System.getenv("PLEXIL_HOME"),
+                         "schema/epx-translator/translate-plexil.xsl");
             return xformer.translateDOM(stylesheet, planDoc, outputFile);
         }
         catch (Exception e) {

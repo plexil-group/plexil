@@ -1,4 +1,4 @@
-## Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+## Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 ##  All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -52,8 +52,3 @@ add_dependencies(IpcAdapter ipc-build)
 
 install(TARGETS IpcAdapter
   DESTINATION ${CMAKE_INSTALL_LIBDIR})
-
-# Public includes
-install(FILES
-  IpcAdapter.hh
-  DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
