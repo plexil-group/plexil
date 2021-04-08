@@ -45,7 +45,7 @@ SMALL_TESTS = AddArray AnyArgs_empty_test ArglistArithmeticType ArrayEquality \
  ArrayLookup array-add array-complex array-copy array_size_test \
  assignment0 assignment1 assignment2 \
  basic-wait-test boolean1 boolean2 boolean3 boolean4 boolean5 \
- CallWithPostCondition \
+ CallWithPostCondition CallNodeWithPostCondition \
  command0 command1 command2 command3 command4 command5 command-handle1 \
  comment1 ComputedCommandName concat1 concurrence0 concurrence1 concurrence2 \
  concurrence3 CopyReals CruiseControl \
@@ -53,7 +53,7 @@ SMALL_TESTS = AddArray AnyArgs_empty_test ArglistArithmeticType ArrayEquality \
  DriveToSchool DriveToTarget duplicate-node-name \
  empty0 empty1 empty2 empty3 empty4 empty5 empty6 empty7 empty8 \
  Exchange executing1 executing2 expr1 expr3 expr4 \
- failed1 Fibs Fib PrintFib FibTest finished1 for1 for2 \
+ failed1 Fibs FibsNode Fib PrintFib PrintFibNode FibTest FibNodeTest finished1 for1 for2 \
  if2 if3 if4 ifWithClauseIds inactive1 Increment interface-test interface-test1 \
  invariantFail1 isKnown1 \
  iterationEnded1 iterationFailed1 iterationSucceeded1 \
@@ -79,12 +79,12 @@ SMALL_TESTS = AddArray AnyArgs_empty_test ArglistArithmeticType ArrayEquality \
  UnaryMinus update1 update2 update3 \
  wait1 waiting1 While0 while1
 
-SYNTAX_ERROR_TESTS   = array-library-call
+SYNTAX_ERROR_TESTS   = array-library-call array-library-node-call
 
 SEMANTIC_ERROR_TESTS = BadArrayAdd BadArrayLookup badNodeNameTest BadResource0 \
  duplicateLookupDecl1 expr5 expr2 \
  lookup1 LibraryCall5 LibraryCall6 \
- on-message3 SeekGoalAndEnergy
+ on-message3 SeekGoalAndEnergy SeekGoalAndEnergyNode
 
 TESTS	         := $(SMALL_TESTS)
 
