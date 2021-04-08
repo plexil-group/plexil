@@ -1,0 +1,7 @@
+LibraryNode Foo;
+
+CallNodeWithPostCondition:
+{
+  PostCondition Foo.outcome == SUCCESS;
+  LibraryCall Foo;
+}

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -120,17 +120,16 @@ public class LookupNode extends ExpressionNode
                 else {
                     // No parameters given
                     if (m_arguments == null) {
-                        // No parameters required, do nothing
-                        if(argSpecs.size() == 1 &&
-                           argSpecs.elementAt(0) instanceof WildcardVariableName){
-
+                        if (argSpecs.size() == 1 &&
+                            argSpecs.elementAt(0) instanceof WildcardVariableName) {
+                            // No parameters required, do nothing
                         }
-                        else{                       
-                          state.addDiagnostic(invocation,
-                                              "State \"" + stateName + "\" requires "
-                                              + Integer.toString(argSpecs.size())
-                                              + " parameters, but none were supplied",
-                                              Severity.ERROR);
+                        else {
+                            state.addDiagnostic(invocation,
+                                                "State \"" + stateName + "\" requires "
+                                                + Integer.toString(argSpecs.size())
+                                                + " parameters, but none were supplied",
+                                                Severity.ERROR);
                         }
                     }
                     // Check arg count

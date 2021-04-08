@@ -1,0 +1,20 @@
+// Compute and print Fibonacci(n) for various values.
+
+LibraryNode PrintFibNode(In Integer n);
+
+FibsNode: {
+  Integer n = 0;
+  LibraryCall PrintFibNode (n = n);
+
+  n = 1;
+  LibraryCall PrintFibNode (n = n);
+
+  n = 2;
+  LibraryCall PrintFibNode (n = n);
+
+  n = 2;
+  LibraryCall PrintFibNode (n = n);
+
+  n = 5;
+  LibraryCall PrintFibNode (n = n);
+}

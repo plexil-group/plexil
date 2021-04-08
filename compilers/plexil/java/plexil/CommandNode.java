@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -113,17 +113,18 @@ public class CommandNode extends ExpressionNode
                 else {
                     // No parameters given
                     if (m_parameters == null) {
-
-                        // No parameters required, do nothing
-                        if(parmSpecs.size() == 1 &&
+                        if (parmSpecs.size() == 1 &&
                            parmSpecs.elementAt(0) instanceof WildcardVariableName){
+                            // No parameters required, do nothing
 
                         }
 
-                         else{
+                        else {
+                            // Node supplied
                             state.addDiagnostic(nameNode,
                                                 "Command \"" + name + "\" expects "
-                                                + String.valueOf(parmSpecs.size()) + " parameters, but none were supplied",
+                                                + String.valueOf(parmSpecs.size())
+                                                + " parameters, but none were supplied",
                                                 Severity.ERROR);
                         }
                     }
