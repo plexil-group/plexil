@@ -79,6 +79,7 @@ public class VariableDeclNode extends PlexilTreeNode
     }
 
     // Various places expect the variable to be defined early
+    @Override
     public void earlyCheck(NodeContext context, CompilerState state)
     {
         earlyCheckCommon(context, state);	

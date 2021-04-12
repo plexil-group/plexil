@@ -25,16 +25,19 @@
 
 package plexil;
 
-import java.util.Vector;
-
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
+import java.util.List;
+
 import org.w3c.dom.Element;
 
-public class CommandNode extends ExpressionNode
+public class CommandNode
+    extends ExpressionNode
+    implements PlexilNode
 {
     private GlobalDeclaration m_commandDeclaration = null;
+    private NodeContext m_context = null;
     private ArgumentListNode m_parameters = null;
 
     public CommandNode(int ttype)
@@ -47,12 +50,62 @@ public class CommandNode extends ExpressionNode
         super(n);
 		m_commandDeclaration = n.m_commandDeclaration;
 		m_parameters = n.m_parameters;
+        m_context = n.m_context;
     }
 
 	public Tree dupNode()
 	{
 		return new CommandNode(this);
 	}
+
+    //
+    // PlexilNode API
+    //
+
+    public NodeContext getContext()
+    {
+        return m_context;
+    }
+
+    public boolean hasNodeId()
+    {
+        PlexilTreeNode parent = this.getParent();
+        return parent != null && parent instanceof ActionNode
+            && ((ActionNode) parent).hasNodeId();
+    }
+
+    public boolean inheritsParentContext()
+    {
+        PlexilTreeNode parent = this.getParent();
+        if (parent == null)
+            return false; // no parent - shouldn't happen
+        if (parent instanceof AssignmentNode)
+            return true;  // command w/ assignment
+        if (!(parent instanceof ActionNode))
+            return false; // shouldn't happen
+        if (((ActionNode) parent).hasNodeId())
+            return false;
+        PlexilTreeNode grandparent = parent.getParent();
+        if (grandparent == null)
+            return false;
+        if (grandparent instanceof BlockNode)
+            return ((BlockNode) grandparent).isSimpleNode();
+        return false;
+    }
+
+    public void initializeContext(NodeContext parentContext)
+    {
+        if (inheritsParentContext()) {
+            m_context = parentContext;
+        }
+        else {
+            String nodeId = null;
+            if (hasNodeId()) {
+                nodeId = ((ActionNode) this.getParent()).getNodeId();
+            }
+            m_context = new NodeContext(parentContext, nodeId);
+        }
+    }
 
     // N.B. Only valid after earlyCheckSelf()
     public GlobalDeclaration getCommand()
@@ -64,8 +117,10 @@ public class CommandNode extends ExpressionNode
     // (COMMAND ((COMMAND_KYWD NCNAME) | expression) (ARGUMENT_LIST expression*)?)
 
     @Override
-    protected void earlyCheckSelf(NodeContext context, CompilerState state)
+    protected void earlyCheckSelf(NodeContext parentContext, CompilerState state)
     {
+        initializeContext(parentContext);
+
         PlexilTreeNode nameAST = this.getChild(0);
         if (this.getChildCount() > 1)
             m_parameters = (ArgumentListNode) this.getChild(1);
@@ -100,7 +155,7 @@ public class CommandNode extends ExpressionNode
 
                 // We have a valid command declaration
                 // Check parameter list
-                Vector<VariableName> parmSpecs = m_commandDeclaration.getParameterVariables();
+                List<VariableName> parmSpecs = m_commandDeclaration.getParameterVariables();
                 if (parmSpecs == null) {
                     // No parameters expected
                     if (m_parameters != null) {
@@ -114,7 +169,7 @@ public class CommandNode extends ExpressionNode
                     // No parameters given
                     if (m_parameters == null) {
                         if (parmSpecs.size() == 1 &&
-                           parmSpecs.elementAt(0) instanceof WildcardVariableName){
+                           parmSpecs.get(0) instanceof WildcardVariableName){
                             // No parameters required, do nothing
 
                         }
@@ -129,7 +184,7 @@ public class CommandNode extends ExpressionNode
                         }
                     }
                     else {
-                        m_parameters.earlyCheckArgumentList(context,
+                        m_parameters.earlyCheckArgumentList(m_context,
                                                             state,
                                                             "Command",
                                                             name,
@@ -148,8 +203,18 @@ public class CommandNode extends ExpressionNode
     }
 
     @Override
-    protected void checkSelf(NodeContext context, CompilerState state)
+    protected void earlyCheckChildren(NodeContext parentContext, CompilerState state)
     {
+        for (PlexilTreeNode child: this.getChildren())
+            child.earlyCheck(m_context, state);
+    }
+    
+    @Override
+    protected void checkChildren(NodeContext context, CompilerState state)
+    {
+        for (PlexilTreeNode child: this.getChildren())
+            child.check(m_context, state);
+
         PlexilTreeNode nameAST = this.getChild(0);
         if (nameAST.getType() != PlexilLexer.COMMAND_KYWD) {
             // if name is not literal, 
@@ -165,11 +230,11 @@ public class CommandNode extends ExpressionNode
         if (m_commandDeclaration != null) {
             // Check parameter list against declaration
             String cmdName = m_commandDeclaration.getName();
-            Vector<VariableName> parmSpecs = m_commandDeclaration.getParameterVariables();
+            List<VariableName> parmSpecs = m_commandDeclaration.getParameterVariables();
             if (parmSpecs != null && m_parameters != null)
-                m_parameters.checkArgumentList(context, state, "command", cmdName, parmSpecs);
+                m_parameters.checkArgumentList(m_context, state, "command", cmdName, parmSpecs);
         }
-    }
+    }        
 
     /**
      * @brief Persuade the expression to assume the specified data type

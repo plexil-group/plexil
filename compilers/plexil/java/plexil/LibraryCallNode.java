@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,17 +25,20 @@
 
 package plexil;
 
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.Vector;
-
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
 import org.w3c.dom.Element;
 
-public class LibraryCallNode extends PlexilTreeNode
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
+public class LibraryCallNode extends NodeTreeNode
 {
+    private GlobalDeclaration m_libDecl = null;
+    
     public LibraryCallNode(Token t)
     {
         super(t);
@@ -44,8 +47,10 @@ public class LibraryCallNode extends PlexilTreeNode
     public LibraryCallNode(LibraryCallNode n)
     {
         super(n);
+        m_libDecl = n.m_libDecl;
     }
 
+    @Override
     public Tree dupNode()
     {
         return new LibraryCallNode(this);
@@ -56,34 +61,61 @@ public class LibraryCallNode extends PlexilTreeNode
     // ^(LIBRARY_CALL_KYWD NCNAME aliasSpecs?)
     //
 
-    public void earlyCheck(NodeContext context, CompilerState state)
+    @Override
+    protected void earlyCheckSelf(NodeContext parentContext, CompilerState state)
     {
-        // Add library node as child so conditions can reference it
-        String libName = this.getChild(0).getText();
-        context.addChildNodeId(this.getChild(0)); // for effect
-        
-        // Be sure variables ref'd in aliases are set up
-        earlyCheckChildren(context, state);
+        super.earlyCheckSelf(parentContext, state); // NodeTreeNode method
+
+        // Add library node as child so conditions in containing BlockNode
+        // can reference it
+        m_context.addChildNodeId(this.getChild(0));
 
         // Check that library node is declared
-        GlobalDeclaration libDecl =
-            GlobalContext.getGlobalContext().getLibraryNodeDeclaration(libName);
-        if (libDecl == null) {
+        String libName = this.getChild(0).getText();
+        m_libDecl = GlobalContext.getGlobalContext().getLibraryNodeDeclaration(libName);
+        if (m_libDecl == null) {
             state.addDiagnostic(this.getChild(0),
-                                "Library action \"" + libName + "\" is not declared",
+                                "Library node \"" + libName + "\" is not declared",
                                 Severity.ERROR);
         }
-        else {
-            // Check number and in/out status of aliases
-            Vector<VariableName> paramSpecs = libDecl.getParameterVariables();
+    }
 
+    @Override
+    protected void earlyCheckChildren(NodeContext context, CompilerState state)
+    {
+        // Check aliases
+        if (this.getChildCount() > 1) {
+            List<String> aliasNames = new ArrayList<String>();
+            for (PlexilTreeNode child : this.getChild(1).getChildren()) {
+                // (ALIAS NCNAME expression)
+                // Check for duplicate names
+                String aliasName = child.getChild(0).getText();
+                if (aliasNames.contains(aliasName)) {
+                    state.addDiagnostic(child.getChild(0),
+                                        "Alias name \"" + aliasName +
+                                        "\" occurs multiple times in LibraryCall",
+                                        Severity.ERROR);
+                }
+                else {
+                    aliasNames.add(aliasName);
+                }
+                // Early checks on expressions
+                child.getChild(1).earlyCheck(m_context, state);
+            }
+        }
+
+        // Check that library node is declared
+        if (m_libDecl != null) {
+            // Check number and in/out status of aliases
+            String libName = this.getChild(0).getText();
+            List<VariableName> paramSpecs = m_libDecl.getParameterVariables();
             PlexilTreeNode aliases = this.getChild(1);
             int argument_count = 
                 aliases == null ? 0 : aliases.getChildCount();
             if (paramSpecs == null) {
                 if (argument_count > 0) {
                     state.addDiagnostic(aliases,
-                                        "Library action \"" + libName
+                                        "Library node \"" + libName
                                         + "\" expects 0 arguments, but "
                                         + Integer.toString(argument_count)
                                         + " were supplied",
@@ -98,7 +130,7 @@ public class LibraryCallNode extends PlexilTreeNode
                         minArgs++;
                 if (minArgs > 0) {
                     state.addDiagnostic(this,
-                                        "Library action \"" + libName
+                                        "Library node \"" + libName
                                         + "\" expects at least "
                                         + Integer.toString(minArgs) 
                                         + " arguments, but 0 were supplied",
@@ -109,15 +141,13 @@ public class LibraryCallNode extends PlexilTreeNode
                 // Match up aliases with parameters
                 // Do type and writable variable checking in check() below
                 Set<String> used = new TreeSet<String>();
-                for (int i = 0; i < aliases.getChildCount(); i++) {
-                    PlexilTreeNode alias = aliases.getChild(i);
+                for (PlexilTreeNode alias : aliases.getChildren()) {
                     String paramName = alias.getChild(0).getText();
-                    VariableName param = libDecl.getParameterByName(paramName);
-                    ExpressionNode valueExp = (ExpressionNode) alias.getChild(1);
+                    VariableName param = m_libDecl.getParameterByName(paramName);
 
                     if (param == null) {
                         state.addDiagnostic(alias.getChild(0),
-                                            "Library action \"" + libName
+                                            "Library node \"" + libName
                                             + "\" has no parameter named \""
                                             + paramName + "\"",
                                             Severity.ERROR);
@@ -125,9 +155,9 @@ public class LibraryCallNode extends PlexilTreeNode
                     }
                     used.add(paramName);
                     if (param.isAssignable()) {
-                        if (!valueExp.isAssignable()) {
+                        if (!((ExpressionNode) alias.getChild(1)).isAssignable()) {
                             state.addDiagnostic(alias,
-                                                "Library action parameter \"" + paramName
+                                                "Library node parameter \"" + paramName
                                                 + "\" is declared InOut, but is aliased to a read-only expression",
                                                 Severity.ERROR);
                         }
@@ -146,7 +176,7 @@ public class LibraryCallNode extends PlexilTreeNode
                         else
                             missingNames = missingNames + ", " + s;
                     state.addDiagnostic(this,
-                                        "Library action \"" + libName
+                                        "Library node \"" + libName
                                         + "\" required paramater(s) "
                                         + missingNames + " were not supplied",
                                         Severity.ERROR);
@@ -155,28 +185,30 @@ public class LibraryCallNode extends PlexilTreeNode
         }
     }
 
-    public void check(NodeContext context, CompilerState state)
+    @Override
+    protected void checkChildren(NodeContext parentContext, CompilerState state)
     {
-        // Check that library node is declared
-        String libName = this.getChild(0).getText();
-        GlobalDeclaration libDecl =
-            GlobalContext.getGlobalContext().getLibraryNodeDeclaration(libName);
-        if (libDecl != null) {
-            Vector<VariableName> paramSpecs = libDecl.getParameterVariables();
-            PlexilTreeNode aliases = this.getChild(1);
+        PlexilTreeNode aliases = null;
+        if (this.getChildCount() > 1) {
+            aliases = this.getChild(1);
+            for (PlexilTreeNode child : aliases.getChildren()) {
+                // Check alias expressions
+                child.getChild(1).check(m_context, state);
+            }
+        }
+    
+        if (m_libDecl != null) {
+            List<VariableName> paramSpecs = m_libDecl.getParameterVariables();
             if (paramSpecs != null && aliases != null) {
                 // Check types of supplied aliases
-                for (int i = 0; i < aliases.getChildCount(); i++) {
-                    PlexilTreeNode alias = aliases.getChild(i);
-                    VariableName param = libDecl.getParameterByName(alias.getChild(0).getText());
+                for (PlexilTreeNode alias : aliases.getChildren()) {
+                    VariableName param = m_libDecl.getParameterByName(alias.getChild(0).getText());
                     ExpressionNode valueExp = (ExpressionNode) alias.getChild(1);
                     if (param != null) // error already reported in earlyCheck
                         valueExp.assumeType(param.getVariableType(), state); // for effect
                 }
             }
         }
-        // Finish up type checking on aliases
-        checkChildren(context, state);
     }
 
     @Override

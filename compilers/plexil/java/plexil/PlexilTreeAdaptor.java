@@ -133,6 +133,13 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
 		case PlexilLexer.SIBLING_KYWD:
 			return new NodeRefNode(payload);
 
+            // Node variables
+        case PlexilLexer.COMMAND_HANDLE_KYWD:
+        case PlexilLexer.FAILURE_KYWD:
+        case PlexilLexer.OUTCOME_KYWD:
+        case PlexilLexer.STATE_KYWD:
+			return new NodeVariableNode(payload);
+
 			// Node state predicates
 		case PlexilLexer.NODE_EXECUTING_KYWD:
 		case PlexilLexer.NODE_FAILED_KYWD:
@@ -168,6 +175,9 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
         case PlexilLexer.IN_OUT_KYWD:
             return new InterfaceDeclNode(payload);
 
+        case PlexilLexer.IS_KNOWN_KYWD:
+            return new IsKnownNode(payload);
+
         case PlexilLexer.LIBRARY_ACTION_KYWD:
         case PlexilLexer.LIBRARY_NODE_KYWD:
             return new LibraryDeclarationNode(payload);
@@ -175,11 +185,20 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
         case PlexilLexer.LIBRARY_CALL_KYWD:
             return new LibraryCallNode(payload);
 
+        case PlexilLexer.LIBRARY_INTERFACE:
+            return new LibraryInterfaceSpecNode(payload);
+
         case PlexilLexer.ON_COMMAND_KYWD:
             return new OnCommandNode(payload);
 
+        case PlexilLexer.ON_MESSAGE_KYWD:
+            return new OnMessageNode(payload);
+
         case PlexilLexer.PARAMETERS:
             return new ParameterSpecNode(payload);
+
+        case PlexilLexer.PRIORITY_KYWD:
+            return new PriorityNode(payload);
 
 		case PlexilLexer.RESOURCE_KYWD:
 			return new ResourceNode(payload);

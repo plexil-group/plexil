@@ -25,53 +25,23 @@
 
 package plexil;
 
-import org.antlr.runtime.*;
-import org.antlr.runtime.tree.*;
+//* @interface PlexilNode
+//* PlexilNode is an interface representing any parse subtree
+//* which could represent a PLEXIL Node.  It describes common behavior
+//* required by all Node types.
 
-import org.w3c.dom.Element;
-
-public class OnMessageNode extends NodeTreeNode
+public interface PlexilNode
 {
-    public OnMessageNode(Token t)
-    {
-        super(t);
-    }
+    // Return the NodeContext applicable to this Node subtree.
+    NodeContext getContext();
 
-    public OnMessageNode(OnMessageNode n)
-    {
-        super(n);
-    }
+    // Does the Node represented by this subtree have its own NodeId?
+    boolean hasNodeId();
 
-    @Override
-	public Tree dupNode()
-	{
-		return new OnMessageNode(this);
-	}
+    // Does the Node represented by this subtree inherit the NodeContext
+    // passed by its enclosing subtree?
+    boolean inheritsParentContext();
 
-	// Format is:
-	// ^(ON_MESSAGE_KYWD expression action)
-
-    @Override
-    protected void checkChildren(NodeContext parentContext, CompilerState state)
-    {
-        super.checkChildren(parentContext, state); // NodeTreeNode method
-
-		// Ensure that the message name is a string expression
-		ExpressionNode msgName = (ExpressionNode) this.getChild(0);
-		if (!msgName.assumeType(PlexilDataType.STRING_TYPE, state)) {
-			state.addDiagnostic(msgName,
-								"The OnCommand message expression is not a String expression",
-								Severity.ERROR);
-		}
-    }
-
-    @Override
-    protected void constructXML()
-    {
-        super.constructXMLBase();
-        Element messageXML = CompilerState.newElement("Message");
-        m_xml.appendChild(messageXML);
-        messageXML.appendChild(this.getChild(0).getXML());
-        m_xml.appendChild(this.getChild(1).getXML());
-    }
+    // Initialize this instance's NodeContext.
+    void initializeContext(NodeContext parentContext);
 }

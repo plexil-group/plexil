@@ -30,7 +30,10 @@ import org.antlr.runtime.tree.*;
 
 import org.w3c.dom.Element;
 
-public class UpdateNode extends PlexilTreeNode
+import java.util.ArrayList;
+import java.util.List;
+
+public class UpdateNode extends NodeTreeNode
 {
 
     //
@@ -53,12 +56,22 @@ public class UpdateNode extends PlexilTreeNode
 	}
 
     @Override
-	public void check(NodeContext context, CompilerState state)
+	protected void earlyCheckChildren(NodeContext parentContext, CompilerState state)
 	{
-		// ? TODO: check that tags are unique?
-		// Check expressions (every other child)
-		for (int i = 1; i < this.getChildCount(); i += 2) {
-			this.getChild(i).check(context, state);
+        super.earlyCheckChildren(parentContext, state); // NodeTreeNode method
+
+        List<String> tags = new ArrayList<String>();
+		for (int i = 0; i < this.getChildCount(); i += 2) {
+            // Check that tags are unique
+            String tag = this.getChild(i).getText();
+            if (tags.contains(tag)) {
+                state.addDiagnostic(this.getChild(i),
+                                    "Duplicate tag \"" + tag + "\" in Update node",
+                                    Severity.ERROR);
+            }
+            else {
+                tags.add(tag);
+            }
 		}
 	}
 

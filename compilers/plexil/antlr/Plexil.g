@@ -75,7 +75,6 @@ DURATION_KYWD = 'Duration';
 
 // node types
 UPDATE_KYWD = 'Update';
-REQUEST_KYWD = 'Request';
 LIBRARY_CALL_KYWD = 'LibraryCall';
 // LibraryAction is a synonym for LibraryNode
 // and will be phased out
@@ -252,6 +251,7 @@ CONCAT;
 DATE_LITERAL;
 DURATION_LITERAL;
 GLOBAL_DECLARATIONS;
+LIBRARY_INTERFACE;
 NODE_ID;
 NODE_TIMEPOINT_VALUE;
 PARAMETERS;
@@ -321,7 +321,7 @@ plexilPlan
 
 
 declarations : 
-    declaration+
+    ( declaration SEMICOLON )+
     -> ^(GLOBAL_DECLARATIONS<GlobalDeclarationsNode> declaration+) ;
 
 declaration
@@ -342,12 +342,12 @@ commandDeclaration
  :
     ( 
       // no-return-value variant
-      ( COMMAND_KYWD NCNAME paramsSpec? SEMICOLON
+      ( COMMAND_KYWD NCNAME paramsSpec?
         -> ^(COMMAND_KYWD<CommandDeclarationNode> NCNAME paramsSpec?)
 	  )
     |
       // return value variant
-      ( returnType COMMAND_KYWD NCNAME paramsSpec? SEMICOLON
+      ( returnType COMMAND_KYWD NCNAME paramsSpec?
          -> ^(COMMAND_KYWD<CommandDeclarationNode> NCNAME paramsSpec? returnType)
       )
     )
@@ -360,7 +360,7 @@ lookupDeclaration
 @after { m_paraphrases.pop(); }
  : 
     // old style single return syntax
-    returnType LOOKUP_KYWD NCNAME paramsSpec? SEMICOLON
+    returnType LOOKUP_KYWD NCNAME paramsSpec?
     -> ^(LOOKUP_KYWD<LookupDeclarationNode> NCNAME returnType paramsSpec?)
   ;
 
@@ -417,7 +417,7 @@ libraryNodeDeclaration
 @init { m_paraphrases.push("in library node declaration"); }
 @after { m_paraphrases.pop(); }
  :
-    (LIBRARY_ACTION_KYWD | LIBRARY_NODE_KYWD)^ NCNAME libraryInterfaceSpec? SEMICOLON!
+    (LIBRARY_ACTION_KYWD | LIBRARY_NODE_KYWD)^ NCNAME libraryInterfaceSpec?
 ;
 
 libraryInterfaceSpec
@@ -425,7 +425,7 @@ libraryInterfaceSpec
 @after { m_paraphrases.pop(); }
  :
     LPAREN ( libraryParamSpec ( COMMA libraryParamSpec )* )? RPAREN
-    -> ^(PARAMETERS libraryParamSpec*)
+    -> ^(LIBRARY_INTERFACE libraryParamSpec*)
  ;
 
 libraryParamSpec :
@@ -450,23 +450,31 @@ action
  ;
 
 baseAction :
+     block
+     | compoundAction
+     | simpleStatement
+     ;
+
+// These actions can end in a simple statement or a block
+compoundAction :
      ifAction
      | forAction
      | onCommandAction
      | onMessageAction
-     | doAction
      | whileAction
-     | block
-     | simpleAction
  ;
 
-// One-liner actions
+// One-liner actions always end in a semicolon
+simpleStatement:
+    simpleAction SEMICOLON!
+    ;
+
 simpleAction :
     (NCNAME (LBRACKET | EQUALS)) => assignment
-  | ((NCNAME LPAREN) | LPAREN) => commandInvocation SEMICOLON!
+  | ((NCNAME LPAREN) | LPAREN) => commandInvocation
   | libraryCall
-  | request
   | update
+  | doAction
   | synchCmd
   | waitBuiltin
  ;
@@ -486,6 +494,7 @@ forAction
 
 // Eliminate requirement for 'endif'
 // Retain 'endif' as optional noise word for compatibility
+// semicolon is optional noise word only if it follows endif
 ifAction
 @init { m_paraphrases.push("in \"if\" statement"); }
 @after { m_paraphrases.pop(); }
@@ -493,10 +502,11 @@ ifAction
     IF_KYWD^ expression consequentAction
     (ELSEIF_KYWD! expression consequentAction)*
     (ELSE_KYWD! action)?
-    ENDIF_KYWD!?
-    SEMICOLON!?
+    (ENDIF_KYWD! SEMICOLON!?)?
  ;
 
+// This prevents ambiguous constructs like
+// if <expr1> if <expr2> then <action2> else <action3> ;
 consequentAction :
     (actionId=NCNAME COLON)?
 	rest=consequent
@@ -504,27 +514,40 @@ consequentAction :
  ;
 
 consequent :
- forAction
- | onCommandAction
- | onMessageAction
- | doAction
- | whileAction
- | block
- | simpleAction
- ;
+    block
+    | compoundConsequent
+    | simpleStatement
+    ;
+
+compoundConsequent :
+   forAction
+   | onCommandAction
+   | onMessageAction
+   | whileAction
+   ;
 
 onCommandAction
 @init { m_paraphrases.push("in \"OnCommand\" statement"); }
 @after { m_paraphrases.pop(); }
  : 
-    ON_COMMAND_KYWD^ expression paramsSpec? action
+    ON_COMMAND_KYWD^ expression (LPAREN! parameterDeclaration (COMMA! parameterDeclaration)* RPAREN!)? action
  ;
+
+parameterDeclaration
+@init { m_paraphrases.push("in OnCommand parameter declaration"); }
+@after { m_paraphrases.pop(); }
+ :
+    tn=baseTypeName
+    ( (NCNAME LBRACKET) => arrayVariableDecl[$tn.start]
+    | scalarVariableDecl[$tn.start]
+    )
+  ;
 
 onMessageAction
 @init { m_paraphrases.push("in \"OnMessage\" statement"); }
 @after { m_paraphrases.pop(); }
  :
-    ON_MESSAGE_KYWD<OnMessageNode>^ expression action
+    ON_MESSAGE_KYWD^ expression action
  ;
 
 whileAction
@@ -539,7 +562,7 @@ doAction
 @init { m_paraphrases.push("in \"do\" statement"); }
 @after { m_paraphrases.pop(); }
  :
-    DO_KYWD^ action WHILE_KYWD! expression SEMICOLON!
+    DO_KYWD^ action WHILE_KYWD! expression
  ;
 
 synchCmd
@@ -549,14 +572,13 @@ synchCmd
     SYNCHRONOUS_COMMAND_KYWD^
     ( commandWithAssignment | commandInvocation )
 	( TIMEOUT_KYWD! expression ( COMMA! expression )? )?
-	SEMICOLON!
  ;
 
 waitBuiltin
 @init { m_paraphrases.push("in \"Wait\" statement"); }
 @after { m_paraphrases.pop(); }
  :
-	WAIT_KYWD^ expression (COMMA! (variable|INT|DOUBLE))? SEMICOLON!
+	WAIT_KYWD^ expression (COMMA! (variable|INT|DOUBLE))?
  ;
 
 // *** N.B. The supported schema does not require the strict sequencing of
@@ -569,10 +591,11 @@ block
     (variant=sequenceVariantKywd LBRACE -> $variant
      | lb=LBRACE -> BLOCK[$lb])
     comment?
-    nodeDeclaration*
-    nodeAttribute*
+    (nodeDeclaration SEMICOLON)*
+    (nodeAttribute SEMICOLON)*
     action*
     RBRACE
+    SEMICOLON?
 	-> ^($block comment? nodeDeclaration* nodeAttribute* action*)
 ;
 
@@ -601,7 +624,7 @@ nodeCondition
 @init { m_paraphrases.push("in condition"); }
 @after { m_paraphrases.pop(); }
  :
-    conditionKywd^ expression SEMICOLON! ;
+    conditionKywd^ expression ;
 
 conditionKywd :
     END_CONDITION_KYWD
@@ -623,16 +646,15 @@ resource
           ( LOWER_BOUND_KYWD EQUALS! expression
           | UPPER_BOUND_KYWD EQUALS! expression
   		  | RELEASE_AT_TERM_KYWD EQUALS! expression
- 		  | PRIORITY_KYWD EQUALS! pe=expression
+ 		  | PRIORITY_KYWD EQUALS! expression
           )
         )*
-        SEMICOLON!
  ;
 
 priority
 @init { m_paraphrases.push("in priority"); }
 @after { m_paraphrases.pop(); }
- : PRIORITY_KYWD<PriorityNode>^ INT SEMICOLON! ;
+ : PRIORITY_KYWD^ INT ;
 
 interfaceDeclaration : in | inOut ;
 
@@ -648,7 +670,6 @@ in
       ( (NCNAME (COMMA! NCNAME)*)
 	  | interfaceDeclarations
       ) 
-    SEMICOLON!
   ;
 
 inOut
@@ -659,7 +680,6 @@ inOut
       ( (NCNAME (COMMA! NCNAME)*)
 	  | interfaceDeclarations
       ) 
-    SEMICOLON!
   ;
 
 interfaceDeclarations :
@@ -689,7 +709,6 @@ variableDeclaration
 	  | scalarVariableDecl[$tn.start]
 	  )
 	)*
-    SEMICOLON
     -> ^(VARIABLE_DECLARATIONS scalarVariableDecl* arrayVariableDecl*)
   ;
 
@@ -703,20 +722,30 @@ arrayVariableDecl[Token typeName] :
 	-> ^(ARRAY_VARIABLE_DECLARATION {new PlexilTreeNode($typeName)} NCNAME INT literalValue?)
   ;
 
+literalValue : literalScalarValue | literalArrayValue ;
+
 literalScalarValue : 
-    booleanLiteral | INT | DOUBLE | STRING | unaryMinus |
-    dateLiteral | durationLiteral ;
+    booleanLiteral
+    | numericLiteral
+    | STRING
+    ;
+
+// *** Note redundancy with unaryMinus rule ***
+numericLiteral :
+   INT
+   | DOUBLE
+   | dateLiteral
+   | durationLiteral
+   | (MINUS i=INT) -> ^(NEG_INT $i)
+   | (MINUS d=DOUBLE) -> ^(NEG_DOUBLE $d)
+   ;
 
 literalArrayValue :
     HASHPAREN literalScalarValue* RPAREN
     -> ^(ARRAY_LITERAL literalScalarValue*)
   ;
 
-literalValue : literalScalarValue | literalArrayValue ;
-
 booleanLiteral : TRUE_KYWD | FALSE_KYWD ;
-
-realValue : DOUBLE | INT ;
 
 // TODO: extend to other expressions
 
@@ -761,7 +790,7 @@ assignment
 @init { m_paraphrases.push("in assignment statement"); }
 @after { m_paraphrases.pop(); }
  :
-    assignmentLHS EQUALS assignmentRHS SEMICOLON
+    assignmentLHS EQUALS assignmentRHS
     -> ^(ASSIGNMENT assignmentLHS assignmentRHS)
  ;
 
@@ -789,20 +818,7 @@ update
 @init { m_paraphrases.push("in \"Update\" statement"); }
 @after { m_paraphrases.pop(); }
  :
-    UPDATE_KYWD^ ( pair ( COMMA! pair )* )? SEMICOLON! ;
-
-//
-// Request nodes
-//
-// Note that the node name need not be known
-//
-
-request
-@init { m_paraphrases.push("in \"Request\" statement"); }
-@after { m_paraphrases.pop(); }
- : REQUEST_KYWD^ NCNAME ( pair ( COMMA! pair )* )? SEMICOLON! ;
-
-// common to both update and request nodes
+    UPDATE_KYWD^ ( pair ( COMMA! pair )* )?  ;
 
 pair : NCNAME EQUALS! expression ;
 
@@ -814,7 +830,7 @@ libraryCall
 @init { m_paraphrases.push("in library node call"); }
 @after { m_paraphrases.pop(); }
  :
-  LIBRARY_CALL_KYWD^ libraryNodeIdRef ( aliasSpecs )? SEMICOLON! ;
+  LIBRARY_CALL_KYWD^ libraryNodeIdRef ( aliasSpecs )? ;
 
 libraryNodeIdRef : NCNAME ;
 
@@ -949,16 +965,22 @@ multOp :
 // 15 prefix unary - arithmetic negation, plus, logical not
 
 unary : unaryMinus
-      | unaryOp^ quantity
+      | unaryOp^ logicalQuantity
       | quantity
       ;
 
 unaryOp : NOT_KYWD ;
 
-unaryMinus : (MINUS i=INT) -> ^(NEG_INT $i)
-           | (MINUS d=DOUBLE) -> ^(NEG_DOUBLE $d)
-           | MINUS^ quantity
-           ;
+// This rule is a hack to deal with the ambiguity of a minus sign
+// followed by a number. Tokenizing it as a numeric literal prematurely
+// breaks parsing of expressions such as "3-2". Parsing it in the
+// numericLiteral nonterminal means "a = -2" gets parsed as
+// (ASSIGNMENT variable (- INT)).
+
+unaryMinus :
+   (MINUS i=INT) -> ^(NEG_INT $i)
+   | (MINUS d=DOUBLE) -> ^(NEG_DOUBLE $d)
+   | MINUS^ numericQuantity ;
 
 dateLiteral : (DATE_KYWD LPAREN s=STRING RPAREN) -> ^(DATE_LITERAL $s) ;
 
@@ -966,42 +988,68 @@ durationLiteral : (DURATION_KYWD LPAREN s=STRING RPAREN) -> ^(DURATION_LITERAL $
 
 
 // 17 postincrement/decrement (x++, x--), indirect selection (->), function call
-// 	  - not in the Plexil language
+// 	  - not in the Plexil language (yet)
 
 // 17 Subscripting, direct selection, simple tokens
+
+// Breaking out numeric and Boolean quantities reduces parser ambiguity.
+numericQuantity:
+    LPAREN! expression RPAREN!
+    | BAR expression BAR -> ^(ABS_KYWD expression)
+    | oneArgNumericFn^ LPAREN! expression RPAREN!
+    | twoArgNumericFn^ LPAREN! expression COMMA! expression RPAREN!
+    | (lookupExpr LBRACKET) => lookupArrayReference
+    | lookupExpr
+    | ( NCNAME PERIOD nodeStateLiteral) => nodeTimepointValue
+    | variable
+    | ( nodeRef PERIOD nodeStateLiteral ) => nodeTimepointValue
+    | numericLiteral
+    ;
+
+logicalQuantity:
+    LPAREN! expression RPAREN!
+    | isKnownExp
+    | (lookupExpr LBRACKET) => lookupArrayReference
+    | lookupExpr
+    | messageReceivedExp
+    | nodeStatePredicateExp
+    | (NCNAME LBRACKET) => simpleArrayReference
+    | variable
+    | booleanLiteral
+    ;
 
 quantity :
     LPAREN! expression RPAREN!
   | BAR expression BAR -> ^(ABS_KYWD expression)
-  | oneArgFn^ LPAREN! expression RPAREN!
-  | twoArgFn^ LPAREN! expression COMMA! expression RPAREN!
+  | oneArgNumericFn^ LPAREN! expression RPAREN!
+  | twoArgNumericFn^ LPAREN! expression COMMA! expression RPAREN!
   | isKnownExp
   | (lookupExpr LBRACKET) => lookupArrayReference
   | lookupExpr
   | messageReceivedExp
   | nodeStatePredicateExp
-  | ( (NCNAME | SELF_KYWD | PARENT_KYWD) PERIOD COMMAND_HANDLE_KYWD) => nodeCommandHandleVariable
-  | ( (NCNAME | SELF_KYWD | PARENT_KYWD) PERIOD FAILURE_KYWD) => nodeFailureVariable
-  | ( (NCNAME | SELF_KYWD | PARENT_KYWD) PERIOD OUTCOME_KYWD) => nodeOutcomeVariable
-  | ( (NCNAME | SELF_KYWD | PARENT_KYWD) PERIOD STATE_KYWD) => nodeStateVariable
-  | ( (NCNAME | SELF_KYWD | PARENT_KYWD) PERIOD nodeStateKywd) => nodeTimepointValue
   | (NCNAME LBRACKET) => simpleArrayReference
+  | ( NCNAME PERIOD COMMAND_HANDLE_KYWD) => nodeCommandHandleVariable
+  | ( NCNAME PERIOD FAILURE_KYWD) => nodeFailureVariable
+  | ( NCNAME PERIOD OUTCOME_KYWD) => nodeOutcomeVariable
+  | ( NCNAME PERIOD STATE_KYWD) => nodeStateVariable
+  | ( NCNAME PERIOD nodeStateLiteral) => nodeTimepointValue
   | variable
 // These are for the nodeRef variants
-  | ( (CHILD_KYWD | SIBLING_KYWD) LPAREN NCNAME RPAREN PERIOD COMMAND_HANDLE_KYWD) => nodeCommandHandleVariable
-  | ( (CHILD_KYWD | SIBLING_KYWD) LPAREN NCNAME RPAREN PERIOD FAILURE_KYWD) => nodeFailureVariable
-  | ( (CHILD_KYWD | SIBLING_KYWD) LPAREN NCNAME RPAREN PERIOD OUTCOME_KYWD) => nodeOutcomeVariable
-  | ( (CHILD_KYWD | SIBLING_KYWD) LPAREN NCNAME RPAREN PERIOD STATE_KYWD) => nodeStateVariable
-  | ( (CHILD_KYWD | SIBLING_KYWD) LPAREN NCNAME RPAREN PERIOD nodeStateKywd) => nodeTimepointValue
+  | ( nodeRef PERIOD COMMAND_HANDLE_KYWD) => nodeCommandHandleVariable
+  | ( nodeRef PERIOD FAILURE_KYWD) => nodeFailureVariable
+  | ( nodeRef PERIOD OUTCOME_KYWD) => nodeOutcomeVariable
+  | ( nodeRef PERIOD STATE_KYWD) => nodeStateVariable
+  | ( nodeRef PERIOD nodeStateLiteral) => nodeTimepointValue
   | literalValue
-  | nodeCommandHandleKywd
-  | nodeFailureKywd
-  | nodeStateKywd
-  | nodeOutcomeKywd
+  | nodeCommandHandleLiteral
+  | nodeFailureLiteral
+  | nodeStateLiteral
+  | nodeOutcomeLiteral
  ;
 
 // can add more later
-oneArgFn : 
+oneArgNumericFn :
     SQRT_KYWD
   | ABS_KYWD
   | CEIL_KYWD
@@ -1014,12 +1062,12 @@ oneArgFn :
   | ARRAY_MAX_SIZE_KYWD
  ;
 
-twoArgFn :
+twoArgNumericFn :
     MAX_KYWD
   | MIN_KYWD;
 
 isKnownExp :
-   IS_KNOWN_KYWD<IsKnownNode>^ LPAREN! quantity RPAREN! ;
+   IS_KNOWN_KYWD^ LPAREN! quantity RPAREN! ;
 
 nodeStatePredicate :
     NODE_EXECUTING_KYWD
@@ -1041,7 +1089,7 @@ nodeStatePredicate :
 
 nodeStatePredicateExp : nodeStatePredicate^ LPAREN! nodeReference RPAREN! ;
 
-nodeStateKywd : 
+nodeStateLiteral :
      EXECUTING_STATE_KYWD
    | FAILING_STATE_KYWD
    | FINISHED_STATE_KYWD
@@ -1055,26 +1103,26 @@ messageReceivedExp :
   MESSAGE_RECEIVED_KYWD^ LPAREN! STRING RPAREN!
  ;
 
-nodeState : nodeStateVariable | nodeStateKywd ;
+nodeState : nodeStateVariable | nodeStateLiteral ;
 
-nodeStateVariable : nodeReference PERIOD! STATE_KYWD<NodeVariableNode>^ ;
+nodeStateVariable : nodeReference PERIOD! STATE_KYWD^ ;
 
-nodeOutcome : nodeOutcomeVariable | nodeOutcomeKywd ;
+nodeOutcome : nodeOutcomeVariable | nodeOutcomeLiteral ;
 
-nodeOutcomeVariable : nodeReference PERIOD! OUTCOME_KYWD<NodeVariableNode>^ ;
+nodeOutcomeVariable : nodeReference PERIOD! OUTCOME_KYWD^ ;
 
-nodeOutcomeKywd :
+nodeOutcomeLiteral :
     SUCCESS_OUTCOME_KYWD
   | FAILURE_OUTCOME_KYWD
   | SKIPPED_OUTCOME_KYWD
   | INTERRUPTED_OUTCOME_KYWD
 ;
 
-nodeCommandHandle : nodeCommandHandleVariable | nodeCommandHandleKywd ;
+nodeCommandHandle : nodeCommandHandleVariable | nodeCommandHandleLiteral ;
 
-nodeCommandHandleVariable : nodeReference PERIOD! COMMAND_HANDLE_KYWD<NodeVariableNode>^ ;
+nodeCommandHandleVariable : nodeReference PERIOD! COMMAND_HANDLE_KYWD^ ;
 
-nodeCommandHandleKywd :
+nodeCommandHandleLiteral :
     COMMAND_ABORTED_KYWD
   | COMMAND_ABORT_FAILED_KYWD
   | COMMAND_ACCEPTED_KYWD
@@ -1086,11 +1134,11 @@ nodeCommandHandleKywd :
   | COMMAND_SUCCESS_KYWD
  ;
 
-nodeFailure : nodeFailureVariable | nodeFailureKywd ;
+nodeFailure : nodeFailureVariable | nodeFailureLiteral ;
 
-nodeFailureVariable : nodeReference PERIOD! FAILURE_KYWD<NodeVariableNode>^ ;
+nodeFailureVariable : nodeReference PERIOD! FAILURE_KYWD^ ;
 
-nodeFailureKywd :
+nodeFailureLiteral :
     PRE_CONDITION_FAILED_KYWD
   | POST_CONDITION_FAILED_KYWD
   | INVARIANT_CONDITION_FAILED_KYWD
@@ -1100,23 +1148,21 @@ nodeFailureKywd :
  ;
 
 nodeTimepointValue :
-   nodeReference PERIOD nodeStateKywd PERIOD timepoint
-   -> ^(NODE_TIMEPOINT_VALUE nodeReference nodeStateKywd timepoint)
+   nodeReference PERIOD nodeStateLiteral PERIOD timepoint
+   -> ^(NODE_TIMEPOINT_VALUE nodeReference nodeStateLiteral timepoint)
  ;
 
 timepoint : START_KYWD | END_KYWD ;
 
-nodeReference : 
-    nodeId
-  | CHILD_KYWD^ LPAREN! NCNAME RPAREN!
-  | SIBLING_KYWD^ LPAREN! NCNAME RPAREN!
- ;
+nodeReference :
+    NCNAME | nodeRef ;
 
-nodeId : 
+nodeRef : 
     SELF_KYWD
   | PARENT_KYWD
-  | NCNAME 
- ;
+  | CHILD_KYWD^ LPAREN! NCNAME RPAREN!
+  | SIBLING_KYWD^ LPAREN! NCNAME RPAREN!
+  ;
 
 //
 // Lookups
@@ -1232,48 +1278,44 @@ PERIOD : '.';
 
 // *** Chuck's notes:
 // prefixes - 
-//  +/- is always decimal, can be either int or double
 //  0x is always hexadecimal (must not be signed, no decimal point)
 //  0o is always octal (must not be signed, no decimal point)
 //  0b is always binary (must not be signed, no decimal point)
 //  . is always double (decimal)
 
-// *** TODO: set base for non-decimal INTs ***
+// We don't check for sign here because that would break parsing
+// expressions like "3-2". This would get tokenized as INT INT
+// when it needs to be INT MINUS INT.
+// See also the comments on the unaryMinus nonterminal.
 
 INT_OR_DOUBLE
 @init { int base = 10; } :
-   (
+  (
     ( '0' { $type = INT; } // special case for just '0'
-     ( ( ('x'|'X') { base = 16; } // hex
-         (HexDigit)+
-         )
-       |
-       ( ('o'|'O') { base = 8; } // octal
-         (OctalDigit)+
-       )
-       |
-       ( ('b'|'B') { base = 2; } // binary
-         ('0'|'1')+   
-       )
-       |
-       ( PERIOD { $type = DOUBLE; }
-         Digit* Exponent?
-       )
-       |
-       ( Exponent { $type = DOUBLE; } )
-     )?
+      ( ( ('x'|'X') HexDigit+ { base = 16; } ) // hex
+        |
+        ( ('o'|'O') OctalDigit+ { base = 8; } ) // octal
+        |
+        ( ('b'|'B') ('0'|'1')+ { base = 2; } )  // binary
+        |
+        ( Digit+                                // leading zeroes OK
+          (PERIOD (Digit)* { $type = DOUBLE; } )?
+          (Exponent { $type = DOUBLE; } )?
+        )
+        |
+        ( PERIOD Digit* Exponent? { $type = DOUBLE; } )
+        |
+        ( Exponent { $type = DOUBLE; } )
+      )?
    )
    | 
-   ( PERIOD ) =>
-   ( PERIOD { $type = DOUBLE; }
-     Digit+ Exponent? 
-   )
+   ( PERIOD Digit+ Exponent? { $type = DOUBLE; } )
    |
-   ( Digit+ { $type = INT; } 
+   ( '1'..'9' Digit* { $type = INT; } 
      (PERIOD (Digit)* { $type = DOUBLE; } )?
      (Exponent { $type = DOUBLE; } )?
    )
-   )
+ )
  ;
 
 // XML spec says:
