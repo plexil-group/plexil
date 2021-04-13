@@ -45,9 +45,9 @@ public class PriorityNode extends PlexilTreeNode
 		return new PriorityNode(this);
 	}
 
-    public void check(NodeContext context, CompilerState state)
+    public void earlyCheck(NodeContext context, CompilerState state)
     {
-        super.check (context, state);
+        super.earlyCheck(context, state);
         int p = Integer.parseInt (this.getChild(0).getText());
         if (p < 0) {
             state.addDiagnostic(this,

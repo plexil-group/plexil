@@ -54,8 +54,6 @@ public class BlockNode
     private NodeContext m_context = null;
 
     // Components of the block
-    private PlexilTreeNode m_comment = null;
-    private PlexilTreeNode m_priority = null;
     private List<PlexilTreeNode> m_conditions = null;
     private List<PlexilTreeNode> m_resources = null;
     private List<PlexilTreeNode> m_body = null;
@@ -63,6 +61,7 @@ public class BlockNode
     public BlockNode(Token t)
     {
         super(t);
+        m_context = null;
         m_conditions = new ArrayList<PlexilTreeNode>();
         m_resources = new ArrayList<PlexilTreeNode>();
         m_body = new ArrayList<PlexilTreeNode>();
@@ -72,8 +71,6 @@ public class BlockNode
     {
         super(n);
         m_context = n.m_context;
-		m_comment = n.m_comment;
-		m_priority = n.m_priority;
 		m_conditions = n.m_conditions;
 		m_resources = n.m_resources;
 		m_body = n.m_body;
@@ -127,11 +124,13 @@ public class BlockNode
         if (this.getChildCount() == 0)
             return; // nothing to do here
 
+        boolean prioritySeen = false;
+
         // Partition the children by type
         for (PlexilTreeNode child : this.getChildren()) {
             switch (child.getType()) {
             case PlexilLexer.COMMENT_KYWD:
-                m_comment = child;
+                // ignore until code generation time
                 break;
             
             case PlexilLexer.IN_KYWD:
@@ -157,13 +156,13 @@ public class BlockNode
                 break;
 
             case PlexilLexer.PRIORITY_KYWD:
-                if (m_priority != null) {
+                if (prioritySeen) {
                     state.addDiagnostic(child, 
                                         "In node " + m_context.getNodeName()
                                         + " Multiple Priority attributes",
                                         Severity.ERROR);
                 } else {
-                    m_priority = child;
+                    prioritySeen = true;
                 }
                 break;
 
@@ -266,9 +265,11 @@ public class BlockNode
         // Set source locators after (potentially) hoisting child up
         this.addSourceLocatorAttributes();
 
-        // Add comment
-        if (m_comment != null) {
-            Element comment = m_comment.getXML();
+        // Add comment, if supplied
+        PlexilTreeNode commentTree =
+            (PlexilTreeNode) this.getFirstChildWithType(PlexilLexer.COMMENT_KYWD);
+        if (commentTree != null) {
+            Element comment = commentTree.getXML();
 
             // Extract the string from the StringLiteralNode
             // and substitute it for the StringValue element
@@ -310,9 +311,11 @@ public class BlockNode
         for (PlexilTreeNode n : m_conditions)
             m_xml.insertBefore(n.getXML(), bodyStart);
 
-        // Add priority
-        if (m_priority != null)
-            m_xml.insertBefore(m_priority.getXML(), bodyStart);
+        // Add priority, if supplied
+        PlexilTreeNode priority =
+            (PlexilTreeNode) this.getFirstChildWithType(PlexilLexer.PRIORITY_KYWD);
+        if (priority != null)
+            m_xml.insertBefore(priority.getXML(), bodyStart);
 
         if (!m_resources.isEmpty()) {
             if (isCommandNode()) {
