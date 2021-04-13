@@ -259,7 +259,6 @@ SEQUENCE; // used in tree parser
 STATE_NAME;
 STRING_COMPARISON;
 VARIABLE_DECLARATION;
-VARIABLE_DECLARATIONS;
 NEG_INT;
 NEG_DOUBLE;
 }
@@ -534,10 +533,10 @@ onCommandAction
  ;
 
 parameterDeclaration
-@init { m_paraphrases.push("in OnCommand parameter declaration"); }
+@init { m_paraphrases.push("in \"OnCommand\" parameter declaration"); }
 @after { m_paraphrases.pop(); }
  :
-    tn=baseTypeName
+    tn=baseTypeName!
     ( (NCNAME LBRACKET) => arrayVariableDecl[$tn.start]
     | scalarVariableDecl[$tn.start]
     )
@@ -700,16 +699,15 @@ variableDeclaration
 @init { m_paraphrases.push("in variable declaration"); }
 @after { m_paraphrases.pop(); }
  : 
-    tn=baseTypeName
+    tn=baseTypeName!
     ( (NCNAME LBRACKET) => arrayVariableDecl[$tn.start] 
     | scalarVariableDecl[$tn.start]
     )
-    ( COMMA 
+    ( COMMA!
 	  ( (NCNAME LBRACKET) => arrayVariableDecl[$tn.start] 
 	  | scalarVariableDecl[$tn.start]
 	  )
 	)*
-    -> ^(VARIABLE_DECLARATIONS scalarVariableDecl* arrayVariableDecl*)
   ;
 
 scalarVariableDecl[Token typeName] :

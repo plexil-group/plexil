@@ -136,7 +136,8 @@ public class BlockNode
             
             case PlexilLexer.IN_KYWD:
             case PlexilLexer.IN_OUT_KYWD:
-            case PlexilLexer.VARIABLE_DECLARATIONS:
+            case PlexilLexer.ARRAY_VARIABLE_DECLARATION:
+            case PlexilLexer.VARIABLE_DECLARATION:
                 // declarations add selves to context
                 break;
 
