@@ -238,7 +238,6 @@ PLEXIL; // top node of parse tree
 
 ACTION;
 ALIAS;
-ALIASES;
 ARGUMENT_LIST;
 ARRAY_TYPE;
 ARRAY_LITERAL;
@@ -247,9 +246,8 @@ ARRAY_VARIABLE_DECLARATION;
 ASSIGNMENT;
 BLOCK;
 COMMAND;
+COMMAND_NAME;
 CONCAT;
-DATE_LITERAL;
-DURATION_LITERAL;
 GLOBAL_DECLARATIONS;
 LIBRARY_INTERFACE;
 NODE_ID;
@@ -257,7 +255,6 @@ NODE_TIMEPOINT_VALUE;
 PARAMETERS;
 SEQUENCE; // used in tree parser
 STATE_NAME;
-STRING_COMPARISON;
 VARIABLE_DECLARATION;
 NEG_INT;
 NEG_DOUBLE;
@@ -315,17 +312,16 @@ plexilPlan
 @after { m_paraphrases.pop(); }
  :
     declarations? action EOF
-    -> ^(PLEXIL<PlexilPlanNode> declarations? action)
+    -> ^(PLEXIL declarations? action)
  ;
 
 
 declarations : 
     ( declaration SEMICOLON )+
-    -> ^(GLOBAL_DECLARATIONS<GlobalDeclarationsNode> declaration+) ;
+    -> ^(GLOBAL_DECLARATIONS declaration+) ;
 
 declaration
-options { k=5; } // handles initial ambiguity for array typed decls
- :
+options { k = 5; } :
     commandDeclaration
   | lookupDeclaration
   | libraryNodeDeclaration
@@ -342,12 +338,12 @@ commandDeclaration
     ( 
       // no-return-value variant
       ( COMMAND_KYWD NCNAME paramsSpec?
-        -> ^(COMMAND_KYWD<CommandDeclarationNode> NCNAME paramsSpec?)
+        -> ^(COMMAND_KYWD NCNAME paramsSpec?)
 	  )
     |
       // return value variant
       ( returnType COMMAND_KYWD NCNAME paramsSpec?
-         -> ^(COMMAND_KYWD<CommandDeclarationNode> NCNAME paramsSpec? returnType)
+         -> ^(COMMAND_KYWD NCNAME paramsSpec? returnType)
       )
     )
   ;
@@ -374,7 +370,7 @@ paramsSpecGuts :
  ;
 
 paramSpec
-options { k = 2; }
+options { k = 3; } // eliminates backtracking
  : 
     (baseTypeName LBRACKET) =>
       baseTypeName LBRACKET INT RBRACKET -> ^(ARRAY_TYPE baseTypeName INT)
@@ -385,12 +381,7 @@ options { k = 2; }
 
 paramTypeName
     : ANY_KYWD
-    | BOOLEAN_KYWD
-    | INTEGER_KYWD
-    | REAL_KYWD
-    | STRING_KYWD
-    | DATE_KYWD
-    | DURATION_KYWD
+    | baseTypeName
     ;
 
 returnType :
@@ -761,11 +752,11 @@ commandInvocation
 @init { m_paraphrases.push("in command"); }
 @after { m_paraphrases.pop(); }
  :
-    ( NCNAME -> ^(COMMAND_KYWD NCNAME)
+    ( NCNAME -> ^(COMMAND_NAME NCNAME)
     | LPAREN expression RPAREN -> expression
     )
     LPAREN argumentList? RPAREN
-    -> ^(COMMAND<CommandNode> $commandInvocation argumentList?)
+    -> ^(COMMAND $commandInvocation argumentList?)
  ;
 
 // Used only in synchCmd
@@ -800,7 +791,8 @@ assignmentLHS :
 ;
 
 // *** Note ambiguity in RHS ***
-assignmentRHS :
+assignmentRHS
+options { k = 2; memoize = true; } :
    (NCNAME LPAREN) => commandInvocation
  |
    (LPAREN expression RPAREN LPAREN) => commandInvocation
@@ -828,14 +820,7 @@ libraryCall
 @init { m_paraphrases.push("in library node call"); }
 @after { m_paraphrases.pop(); }
  :
-  LIBRARY_CALL_KYWD^ libraryNodeIdRef ( aliasSpecs )? ;
-
-libraryNodeIdRef : NCNAME ;
-
-aliasSpecs :
-  LPAREN ( aliasSpec ( COMMA aliasSpec )* )? RPAREN
-  -> ^(ALIASES aliasSpec*)
-  ;
+  LIBRARY_CALL_KYWD^ NCNAME ( LPAREN! ( aliasSpec ( COMMA! aliasSpec )* ) ? RPAREN! )? ;
 
 aliasSpec :
   NCNAME EQUALS expression
@@ -980,9 +965,10 @@ unaryMinus :
    | (MINUS d=DOUBLE) -> ^(NEG_DOUBLE $d)
    | MINUS^ numericQuantity ;
 
-dateLiteral : (DATE_KYWD LPAREN s=STRING RPAREN) -> ^(DATE_LITERAL $s) ;
 
-durationLiteral : (DURATION_KYWD LPAREN s=STRING RPAREN) -> ^(DURATION_LITERAL $s) ;
+dateLiteral : DATE_KYWD<TemporalLiteralNode>^ LPAREN! STRING RPAREN! ;
+
+durationLiteral : DURATION_KYWD<TemporalLiteralNode>^ LPAREN! STRING RPAREN! ;
 
 
 // 17 postincrement/decrement (x++, x--), indirect selection (->), function call

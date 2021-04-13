@@ -74,17 +74,6 @@ public class LookupDeclarationNode extends PlexilTreeNode
         if (parmAST != null) {
             parmAST.earlyCheck(context, state); // for effect
             parmSpecs = parmAST.getParameterList();
-            if (parmSpecs != null) {
-                for (VariableName vn : parmSpecs) {
-                    if (vn instanceof InterfaceVariableName) {
-                        state.addDiagnostic(vn.getDeclaration(),
-                                            (vn.isAssignable() ? "InOut" : "In")
-                                            + " declaration is illegal in " +
-                                            "lookup parameter declarations",
-                                            Severity.ERROR);
-                    }
-                }
-            }
         }
 
         // Define in global environment

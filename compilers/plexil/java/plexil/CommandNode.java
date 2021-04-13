@@ -40,9 +40,9 @@ public class CommandNode
     private NodeContext m_context = null;
     private ArgumentListNode m_parameters = null;
 
-    public CommandNode(int ttype)
+    public CommandNode(Token t)
     {
-        super(new CommonToken(ttype, "COMMAND"));
+        super(t);
     }
 
     public CommandNode(CommandNode n)
@@ -114,7 +114,7 @@ public class CommandNode
     }
 
     // AST is:
-    // (COMMAND ((COMMAND_KYWD NCNAME) | expression) (ARGUMENT_LIST expression*)?)
+    // (COMMAND ((COMMAND_NAME NCNAME) | expression) (ARGUMENT_LIST expression*)?)
 
     @Override
     protected void earlyCheckSelf(NodeContext parentContext, CompilerState state)
@@ -125,7 +125,7 @@ public class CommandNode
         if (this.getChildCount() > 1)
             m_parameters = (ArgumentListNode) this.getChild(1);
 
-        if (nameAST.getType() == PlexilLexer.COMMAND_KYWD) {
+        if (nameAST.getType() == PlexilLexer.COMMAND_NAME) {
             // Literal command name - 
             // Check that name is defined as a command
             PlexilTreeNode nameNode = nameAST.getChild(0);
@@ -216,7 +216,7 @@ public class CommandNode
             child.check(m_context, state);
 
         PlexilTreeNode nameAST = this.getChild(0);
-        if (nameAST.getType() != PlexilLexer.COMMAND_KYWD) {
+        if (nameAST.getType() != PlexilLexer.COMMAND_NAME) {
             // if name is not literal, 
             // check that name expression returns a string
             ExpressionNode nameExp = (ExpressionNode) nameAST;
@@ -274,7 +274,7 @@ public class CommandNode
         PlexilTreeNode commandName = this.getChild(0);
         Element nameXML = CompilerState.newElement("Name");
         commandBody.appendChild(nameXML);
-        if (commandName.getType() == PlexilLexer.COMMAND_KYWD) {
+        if (commandName.getType() == PlexilLexer.COMMAND_NAME) {
             // Literal command name
             Element stringVal = CompilerState.newElement("StringValue");
             stringVal.appendChild(CompilerState.newTextNode(commandName.getChild(0).getText()));
@@ -296,7 +296,7 @@ public class CommandNode
     // TODO: extend to return true for constant string expressions
     private boolean isCommandNameLiteral()
     {
-        return this.getChild(0).getType() == PlexilLexer.COMMAND_KYWD;
+        return this.getChild(0).getType() == PlexilLexer.COMMAND_NAME;
     }
 
 }

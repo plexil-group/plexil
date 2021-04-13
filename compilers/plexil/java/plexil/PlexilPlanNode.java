@@ -30,9 +30,9 @@ import org.antlr.runtime.tree.*;
 
 public class PlexilPlanNode extends PlexilTreeNode
 {
-    public PlexilPlanNode(int ttype)
+    public PlexilPlanNode(Token t)
     {
-        super(new CommonToken(ttype, "PLEXIL"));
+        super(t);
         this.getToken().setLine(0);
         this.getToken().setCharPositionInLine(0);
     }
