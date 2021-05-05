@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -66,7 +66,6 @@ namespace PLEXIL
     // Argument accessors
 
     virtual size_t size() const = 0;
-    virtual bool allSameTypeOrUnknown(ValueType vt) const = 0;
     virtual void printSubexpressions(std::ostream &s) const = 0;
     virtual void setArgument(size_t i, Expression *expr, bool garbage) = 0;
     virtual Expression const *operator[](size_t n) const = 0;

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -68,11 +68,19 @@ namespace PLEXIL
                                      << oper->getName());
 
     // Check arguments
-    // TODO: check types
+    std::vector<ValueType> argTypes;
     for (pugi::xml_node subexp = expr.first_child();
          subexp;
          subexp = subexp.next_sibling())
-      checkExpression(nodeId, subexp);
+      argTypes.push_back(checkExpression(nodeId, subexp));
+
+    // It would be nice to get more detailed info than this. Maybe later,
+    checkParserExceptionWithLocation(oper->checkArgTypes(argTypes),
+                                     expr,
+                                     "Node \"" << nodeId
+                                     << "\": Some argument to operator "
+                                     << oper->getName()
+                                     << " has an invalid or unimplemented type");
 
     return oper->valueType();
   }
@@ -91,20 +99,13 @@ namespace PLEXIL
            subexp && i < n;
            subexp = subexp.next_sibling(), ++i) {
         bool created;
-        Expression *arg = createExpression(subexp, node, created, returnType);
+        Expression *arg = createExpression(subexp, node, created);
         result->setArgument(i, arg, created);
       }
     }
     catch (ParserException & /* e */) {
       delete result;
       throw;
-    }
-
-    if (!oper->checkArgTypes(result)) {
-      delete result;
-      reportParserExceptionWithLocation(expr,
-                                        "Operand type mismatch or unimplemented type for "
-                                        << oper->getName());
     }
 
     wasCreated = true;
