@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(Function const *ev) const;
+    bool checkArgTypes(std::vector<ValueType> const &typeVec) const;
 
     bool operator()(String &result) const;
 
@@ -68,7 +68,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(Function const *ev) const;
+    bool checkArgTypes(std::vector<ValueType> const &typeVec) const;
 
     bool operator()(Integer &result, Expression const *arg) const;
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -63,6 +63,7 @@ namespace PLEXIL
     case DATE_TYPE:
     case DURATION_TYPE:
       arg1Type = REAL_TYPE;
+      break;
 
       // Legal comparison types
     case REAL_TYPE:
@@ -122,7 +123,8 @@ namespace PLEXIL
     types[1] = checkExpression(nodeId, expr.first_child().next_sibling());
 
     // Check comparability
-    checkParserExceptionWithLocation(comparisonCommonType(types) != UNKNOWN_TYPE,
+    ValueType commonType = comparisonCommonType(types);
+    checkParserExceptionWithLocation(commonType != UNKNOWN_TYPE,
                                      expr,
                                      "Inconsistent or unimplemented operand types for comparison "
                                      << expr.name());
