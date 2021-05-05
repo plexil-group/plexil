@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,8 @@
 
 #include "ExpressionListener.hh"
 
+#include <functional>
+
 namespace PLEXIL
 {
 
@@ -36,15 +38,11 @@ namespace PLEXIL
   class Listenable;
 
   /**
-   * @class ListenableUnaryOperator
-   * @brief An abstract base class for a helper function used by Propagator.
+   * @typedef ListenableUnaryOperator
+   * @brief An abstraction for a helper function used by Propagator.
    */
 
-  class ListenableUnaryOperator
-  {
-  public:
-    virtual void operator()(Listenable *) const = 0;
-  };
+  using ListenableUnaryOperator = std::function<void(Listenable *)>;
 
   /**
    * @class Listenable

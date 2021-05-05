@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,8 @@
 
 #include "plexil-config.h"
 
-#include <functional>
+#include "Listenable.hh" // ExpressionListener, Listenable, ListenableUnaryOperator
+
 #include <iosfwd> // std::ostream
 #include <vector>
 
@@ -42,8 +43,6 @@
 namespace PLEXIL
 {
   class Expression;
-  class ExpressionListener;
-  class ListenableUnaryOperator;
 
   /**
    * @class ExprVec

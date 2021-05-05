@@ -27,12 +27,12 @@
 #ifndef PLEXIL_COMMAND_OPERATOR_HH
 #define PLEXIL_COMMAND_OPERATOR_HH
 
+#include "Listenable.hh" // ListenableUnaryOperator
 #include "ValueType.hh"
 
 namespace PLEXIL
 {
   // Forward references
-  class ListenableUnaryOperator;
   class CommandImpl;
   class Value;
 
