@@ -25,52 +25,23 @@
 
 package plexil;
 
-import org.antlr.runtime.*;
-import org.antlr.runtime.tree.*;
+//* @interface PlexilNode
+//* PlexilNode is an interface representing any parse subtree
+//* which could represent a PLEXIL Node.  It describes common behavior
+//* required by all Node types.
 
-public class PriorityNode extends PlexilTreeNode
+public interface PlexilNode
 {
-    public PriorityNode(Token t)
-    {
-        super(t);
-    }
+    // Return the NodeContext applicable to this Node subtree.
+    NodeContext getContext();
 
-    public PriorityNode(PriorityNode n)
-    {
-        super(n);
-    }
+    // Does the Node represented by this subtree have its own NodeId?
+    boolean hasNodeId();
 
-	public Tree dupNode()
-	{
-		return new PriorityNode(this);
-	}
+    // Does the Node represented by this subtree inherit the NodeContext
+    // passed by its enclosing subtree?
+    boolean inheritsParentContext();
 
-    public void earlyCheck(NodeContext context, CompilerState state)
-    {
-        super.earlyCheck(context, state);
-        int p = Integer.parseInt (this.getChild(0).getText());
-        if (p < 0) {
-            state.addDiagnostic(this,
-                                "Priority value is negative; must be non-negative",
-                                Severity.ERROR);
-        }
-    }
-
-    protected void addSourceLocatorAttributes()
-    {
-        // Don't.
-    }
-
-    @Override
-    protected void constructXML()
-    {
-        super.constructXMLBase();
-        m_xml.appendChild(CompilerState.newTextNode(this.getChild(0).getText()));
-    }
-
-    public String getXMLElementName()
-    {
-        return "Priority";
-    }
-
+    // Initialize this instance's NodeContext.
+    void initializeContext(NodeContext parentContext);
 }

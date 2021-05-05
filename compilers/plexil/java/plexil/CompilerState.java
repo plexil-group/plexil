@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,7 +36,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -66,7 +67,7 @@ public class CompilerState
 
     public RecognizerSharedState sharedState; //* shared state to pass between parsers
 
-    Vector<Diagnostic> m_diagnostics = new Vector<Diagnostic>();
+    List<Diagnostic> m_diagnostics = new ArrayList<Diagnostic>();
 
     private Document m_rootDocument = null;
 
@@ -273,8 +274,6 @@ public class CompilerState
     {
         m_diagnostics.add(new Diagnostic(location, message, severity));
     }
-
-    public Vector<Diagnostic> getDiagnostics() { return m_diagnostics; }
 
     public void displayDiagnostics()
     {

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,12 +25,12 @@
 
 package plexil;
 
-import java.util.Vector;
-
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
 import org.w3c.dom.Element;
+
+import java.util.List;
 
 public class LookupDeclarationNode extends PlexilTreeNode
 {
@@ -66,29 +66,18 @@ public class LookupDeclarationNode extends PlexilTreeNode
         // Parse return spec
         ReturnSpecNode returnAST = (ReturnSpecNode) this.getChild(1);
         returnAST.earlyCheck(context, state); // for effect
-        Vector<VariableName> returnSpecs = returnAST.getReturnVector();
+        VariableName returnSpec = returnAST.getReturnSpec();
 
         // Parse parameter list, if supplied
-        Vector<VariableName> parmSpecs = null;
+        List<VariableName> parmSpecs = null;
         ParameterSpecNode parmAST = (ParameterSpecNode) this.getChild(2);
         if (parmAST != null) {
             parmAST.earlyCheck(context, state); // for effect
-            parmSpecs = parmAST.getParameterVector();
-            if (parmSpecs != null) {
-                for (VariableName vn : parmSpecs) {
-                    if (vn instanceof InterfaceVariableName) {
-                        state.addDiagnostic(vn.getDeclaration(),
-                                            (vn.isAssignable() ? "InOut" : "In")
-                                            + " declaration is illegal in " +
-                                            "lookup parameter declarations",
-                                            Severity.ERROR);
-                    }
-                }
-            }
+            parmSpecs = parmAST.getParameterList();
         }
 
         // Define in global environment
-        GlobalContext.getGlobalContext().addLookupName(this, lookupName, parmSpecs, returnSpecs);
+        GlobalContext.getGlobalContext().addLookupName(this, lookupName, parmSpecs, returnSpec);
     }
 
     @Override

@@ -25,12 +25,12 @@
 
 package plexil;
 
-import java.util.Vector;
-
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
 import org.w3c.dom.Element;
+
+import java.util.List;
 
 public class LibraryDeclarationNode extends PlexilTreeNode
 {
@@ -54,30 +54,21 @@ public class LibraryDeclarationNode extends PlexilTreeNode
 
     public void earlyCheck(NodeContext context, CompilerState state)
     {
-        // check that name is not already defined
+        // check that name is not already declared
         String libraryName = this.getChild(0).getText();
         if (GlobalContext.getGlobalContext().isCommandName(libraryName)) {
             // Report duplicate definition
             state.addDiagnostic(this.getChild(0),
-                                "Library action \"" + libraryName + "\" is already defined",
+                                "Library node \"" + libraryName + "\" is already declared",
                                 Severity.ERROR);
         }
 
         // Parse parameter list, if supplied
-        Vector<VariableName> ifSpecs = null;
-        ParameterSpecNode ifVarAST = (ParameterSpecNode) this.getChild(1);
+        List<VariableName> ifSpecs = null;
+        LibraryInterfaceSpecNode ifVarAST = (LibraryInterfaceSpecNode) this.getChild(1);
         if (ifVarAST != null) {
             ifVarAST.earlyCheck(context, state); // for effect
-            ifSpecs = ifVarAST.getParameterVector();
-            if (ifSpecs != null) {
-                for (VariableName vn : ifSpecs) {
-                    if (vn.getVariableType() == PlexilDataType.ANY_TYPE) {
-                        state.addDiagnostic(vn.getDeclaration(),
-                                            "Illegal type for library action interface variable",
-                                            Severity.ERROR);
-                    }
-                }
-            }
+            ifSpecs = ifVarAST.getParameterList();
         }
 
         // Define in global environment

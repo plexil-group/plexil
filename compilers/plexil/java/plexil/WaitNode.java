@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@ import org.antlr.runtime.tree.*;
 
 import org.w3c.dom.Element;
 
-class WaitNode extends PlexilTreeNode
+class WaitNode extends NodeTreeNode
 {
     public WaitNode(Token t)
     {
@@ -42,23 +42,25 @@ class WaitNode extends PlexilTreeNode
         super(n);
     }
 
+    @Override
     public Tree dupNode()
     {
         return new WaitNode(this);
     }
-
-//  N.B. Refactor the following with SynchronousCommandNode.java!
-
-    public void check (NodeContext context, CompilerState state)
+    
+    //  N.B. Refactor the following with SynchronousCommandNode.java!
+    @Override
+    protected void checkChildren(NodeContext parentContext, CompilerState state)
     {
+        super.checkChildren(parentContext, state); // NodeTreeNode method
+
         ExpressionNode delayExp = (ExpressionNode) this.getChild(0);
-        delayExp.check (context, state);
         if (delayExp.assumeType(PlexilDataType.DURATION_TYPE, state)) {
-            checkForDuration (context, state);
+            checkForDuration(state);
         }
         else if (delayExp.assumeType (PlexilDataType.REAL_TYPE, state) ||
                  delayExp.assumeType (PlexilDataType.INTEGER_TYPE, state)) {
-            checkForReal (context, state);
+            checkForReal(state);
         }
         else state.addDiagnostic(delayExp,
                                  "The delay argument to the Wait builtin, \""
@@ -67,8 +69,7 @@ class WaitNode extends PlexilTreeNode
                                  Severity.ERROR);
     }
     
-
-    private void checkForDuration (NodeContext context, CompilerState state)
+    private void checkForDuration(CompilerState state)
     {
         if (this.getChildCount() > 1) {
             ExpressionNode toleranceExp = (ExpressionNode) this.getChild(1);
@@ -89,13 +90,10 @@ class WaitNode extends PlexilTreeNode
                                     + "\", is not a Duration value or variable.",
                                     Severity.ERROR);
             }
-            // check the delay expression for other faults
-            toleranceExp.check(context, state);
         }
     }
 
-
-    private void checkForReal (NodeContext context, CompilerState state)
+    private void checkForReal(CompilerState state)
     {
         if (this.getChildCount() > 1) {
             ExpressionNode toleranceExp = (ExpressionNode) this.getChild(1);
@@ -116,8 +114,6 @@ class WaitNode extends PlexilTreeNode
                                     + "\", is not a Real value or variable.",
                                     Severity.ERROR);
             }
-            // check the delay expression for other faults
-            toleranceExp.check(context, state);
         }
     }
 

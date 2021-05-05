@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,8 @@
 
 package plexil;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -36,10 +37,9 @@ import java.util.TreeMap;
 
 public class NodeContext
 {
-
     protected NodeContext m_parentContext;
-    protected Vector<VariableName> m_variables = new Vector<VariableName>();
-    protected Vector<NodeContext> m_children = new Vector<NodeContext>();
+    protected List<VariableName> m_variables = new ArrayList<VariableName>();
+    protected List<NodeContext> m_children = new ArrayList<NodeContext>();
     protected Map<String, PlexilTreeNode> m_childIds =
         new TreeMap<String, PlexilTreeNode>();
     protected String m_nodeName = null;
@@ -99,16 +99,14 @@ public class NodeContext
     {
         if (name == null)
             return false;
-        if (m_childIds.containsKey(name))
-            return true;
-        return false;
+        return m_childIds.containsKey(name);
     }
 
     public boolean isLocalNodeId(String name)
     {
         if (name == null)
             return false;
-        if (m_nodeName.equals(name))
+        if (name.equals(m_nodeName))
             return true;
         return m_childIds.containsKey(name);
     }
@@ -268,14 +266,25 @@ public class NodeContext
         return var;
     }
 
-    // Caller is responsible for creating the 3 vectors
-    public void getNodeVariables(Vector<VariableName> localVarsResult,
-                                 Vector<InterfaceVariableName> inVarsResult,
-                                 Vector<InterfaceVariableName> inOutVarsResult)
+    public List<VariableName> getLocalVariables()
     {
-        localVarsResult.removeAllElements();
-        inVarsResult.removeAllElements();
-        inOutVarsResult.removeAllElements();
+        List<VariableName> result = new ArrayList<VariableName>();
+        for (VariableName var : m_variables) {
+            if (var.isLocal())
+                result.add(var);
+        }
+        return result;
+    }
+
+    // Utility used in XML generation
+    // Caller is responsible for creating the 3 lists
+    public void getNodeVariables(List<VariableName> localVarsResult,
+                                 List<InterfaceVariableName> inVarsResult,
+                                 List<InterfaceVariableName> inOutVarsResult)
+    {
+        localVarsResult.clear();
+        inVarsResult.clear();
+        inOutVarsResult.clear();
         for (VariableName var : m_variables) {
             if (var.isLocal())
                 localVarsResult.add(var);

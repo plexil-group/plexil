@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,9 +32,9 @@ import org.w3c.dom.Element;
 
 public class GlobalDeclarationsNode extends PlexilTreeNode
 {
-    public GlobalDeclarationsNode(int ttype)
+    public GlobalDeclarationsNode(Token t)
     {
-        super(new CommonToken(ttype, "GLOBAL_DECLARATIONS"));
+        super(t);
     }
 
 	public GlobalDeclarationsNode(GlobalDeclarationsNode n)

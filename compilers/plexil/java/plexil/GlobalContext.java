@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,10 +27,12 @@
 package plexil;
 
 import org.antlr.runtime.CommonToken;
+
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.Vector;
 
 //
 // A singleton class to represent the global plan environment in the translator.
@@ -96,8 +98,8 @@ public class GlobalContext
     // TODO: handle resource list
     public void addCommandName(PlexilTreeNode declaration,
                                String name, 
-                               Vector<VariableName> parm_spec,
-                               Vector<VariableName> return_spec)
+                               List<VariableName> parm_spec,
+                               VariableName return_spec)
     {
         commands.put(name, 
                      new GlobalDeclaration(declaration,
@@ -126,8 +128,8 @@ public class GlobalContext
 
     public void addLookupName(PlexilTreeNode declaration, 
                               String name, 
-                              Vector<VariableName> parm_spec,
-                              Vector<VariableName> return_spec)
+                              List<VariableName> parm_spec,
+                              VariableName return_spec)
     {
         lookups.put(name, 
                     new GlobalDeclaration(declaration,
@@ -155,8 +157,9 @@ public class GlobalContext
             new LookupDeclarationNode(new CommonToken(PlexilLexer.LOOKUP_KYWD, "Lookup"));
         fakeDeclNode.addChild(new PlexilTreeNode(new CommonToken(PlexilLexer.NCNAME, s_timeLookupName)));
         fakeDeclNode.addChild(fakeReturnsNode);
-        Vector<VariableName> returns = new Vector<VariableName>();
-        returns.add(new VariableName(fakeReturnTypeNode, "_return_0", s_defaultTimeType));
+        VariableName returns = new VariableName(fakeReturnTypeNode,
+                                                "_return_0",
+                                                s_defaultTimeType);
         return new GlobalDeclaration(fakeDeclNode,
                                      s_timeLookupName,
                                      NameType.STATE_NAME,
@@ -178,7 +181,7 @@ public class GlobalContext
 
     public void addLibraryNode(PlexilTreeNode declaration,
                                String name,
-                               Vector<VariableName> parm_spec)
+                               List<VariableName> parm_spec)
     {
         libraryNodes.put(name, 
                          new GlobalDeclaration(declaration,

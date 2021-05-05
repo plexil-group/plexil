@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,9 @@ import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
 import org.w3c.dom.Element;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
 {
@@ -62,20 +65,36 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
     //
     // Overrides
     //
+
+    @Override
 	public Tree dupNode()
 	{
 		return new PlexilTreeNode(this);
 	}
 
+    // This supersedes, but does not override, the BaseTree method.
     public PlexilTreeNode getChild(int i)
     {
         return (PlexilTreeNode) super.getChild(i);
     }
 
+    // This supersedes, but does not override, the BaseTree method.
+    @SuppressWarnings("unchecked")
+    public List<? extends PlexilTreeNode> getChildren()
+    {
+        List<? extends Object> kids = super.getChildren();
+        if (kids == null)
+            return new ArrayList<PlexilTreeNode>();
+        return (List<? extends PlexilTreeNode>) kids;
+    }
+
+
+    // This supersedes, but does not override, the CommonTree method.
     public PlexilTreeNode getParent()
     {
         return (PlexilTreeNode) super.getParent();
     }
+
 
 
     //
@@ -85,7 +104,7 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
     /**
      * @brief Get the containing name binding context for this branch of the parse tree.
      * @return A NodeContext instance, or the global context.
-     * @note Derived classes that implement new binding contexts should override this method.
+     * @note Used by the PlexilTreeTransforms post-processor.
      */
     public NodeContext getContext()
     {
@@ -98,7 +117,6 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
 
     /**
      * @brief Establish bindings and do initial checks in top-down order.
-     * @note Derived classes that establish binding contexts should override or wrap this method.
      */
     public void earlyCheck(NodeContext context, CompilerState state)
     {
@@ -116,12 +134,13 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
 
     /**
      * @brief Establish bindings and do initial checks of this node's children.
-     * @note Derived classes should override this as applicable.
+     * @note Derived classes, especially those which establish binding contexts,
+     *       should override this as applicable.
      */
     protected void earlyCheckChildren(NodeContext context, CompilerState state)
     {
-        for (int i = 0; i < this.getChildCount(); i++)
-            this.getChild(i).earlyCheck(context, state);
+        for (PlexilTreeNode child : this.getChildren())
+            child.earlyCheck(context, state);
     }
 
     /**
@@ -146,8 +165,8 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
      */
     protected void checkChildren(NodeContext context, CompilerState state)
     {
-        for (int i = 0; i < this.getChildCount(); i++)
-            this.getChild(i).check(context, state);
+        for (PlexilTreeNode child : getChildren())
+            child.check(context, state);
     }
 	
     //* Returns the DOM representation of this part of the parse tree.
@@ -165,8 +184,8 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
     protected void constructXML()
     {
         constructXMLBase();
-        for (int i = 0; i < this.getChildCount(); i++) {
-            Element childXml = this.getChild(i).getXML();
+        for (PlexilTreeNode child : getChildren()) {
+            Element childXml = child.getXML();
             if (childXml != null)
                 m_xml.appendChild(childXml);
         }

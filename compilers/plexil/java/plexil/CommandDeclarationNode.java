@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,12 +25,13 @@
 
 package plexil;
 
-import java.util.Vector;
-
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
 import org.w3c.dom.Element;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CommandDeclarationNode extends PlexilTreeNode
 {
@@ -64,11 +65,11 @@ public class CommandDeclarationNode extends PlexilTreeNode
         }
 
         // Parse parameter list, if supplied
-        Vector<VariableName> parmSpecs = null;
+        List<VariableName> parmSpecs = null;
         ParameterSpecNode parmAST = getParameters();
         if (parmAST != null) {
             parmAST.earlyCheck(context, state); // for effect
-            parmSpecs = parmAST.getParameterVector();
+            parmSpecs = parmAST.getParameterList();
             if (parmSpecs != null) {
                 for (VariableName vn : parmSpecs) {
                     if (vn instanceof InterfaceVariableName) {
@@ -82,17 +83,17 @@ public class CommandDeclarationNode extends PlexilTreeNode
         }
 
         // Parse return type, if supplied
-        Vector<VariableName> returnSpecs = null;
+        VariableName returnSpec = null;
         ReturnSpecNode returnAST = (ReturnSpecNode) getReturn();
         if (returnAST != null) {
             returnAST.earlyCheck(context, state); // for effect
-            returnSpecs = returnAST.getReturnVector();
+            returnSpec = returnAST.getReturnSpec();
         } 
 
         // TODO: Handle resource list
 
         // Define in global environment
-        GlobalContext.getGlobalContext().addCommandName(this, cmdName, parmSpecs, returnSpecs);
+        GlobalContext.getGlobalContext().addCommandName(this, cmdName, parmSpecs, returnSpec);
     }
 
     @Override

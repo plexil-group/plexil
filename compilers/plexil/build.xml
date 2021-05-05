@@ -1,5 +1,5 @@
 <!--
-* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -83,6 +83,7 @@
 	      description="Generate Plexil parser code from .g file">
     <mkdir dir="${dir.generated}/plexil"/>
     <java jar="${jar.antlr}" fork="true" failonerror="true">
+      <!-- <arg value="-report"/> -->
       <arg value="-fo"/>
       <arg path="${dir.generated}/plexil"/>
       <arg file="${dir.source.grammars}/Plexil.g"/>
@@ -95,8 +96,10 @@
       <uptodate property="plexil-tree-grammar.source.up-to-date"
                 srcfile="${dir.source.grammars}/PlexilTreeTransforms.g">
         <compositemapper>
-          <mergemapper to="${dir.generated}/plexil/PlexilTreeTransforms.java"/>
-          <mergemapper to="${dir.generated}/plexil/PlexilTreeTransforms.tokens"/>
+          <globmapper from="${dir.source.grammars}/*.g"
+                      to="${dir.generated}/plexil/*.java"/>
+          <globmapper from="${dir.source.grammars}/*.g"
+                      to="${dir.generated}/plexil/*.tokens"/>
         </compositemapper>
       </uptodate>
       <uptodate property="plexil-tree-grammar.plexil-grammar.up-to-date">
@@ -118,6 +121,7 @@
           unless="plexil-tree-grammar.up-to-date"
 	      description="Generate Plexil AST transformations from .g file">
     <java jar="${jar.antlr}" fork="true">
+      <!-- <arg value="-report"/> -->
       <arg value="-fo"/>
       <arg path="${dir.generated}/plexil"/>
       <arg file="${dir.source.grammars}/PlexilTreeTransforms.g"/>

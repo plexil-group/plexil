@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -33,9 +33,9 @@ import org.antlr.runtime.tree.*;
 
 import org.w3c.dom.Element;
 
-public class WhileNode extends PlexilTreeNode
+public class WhileNode extends NodeTreeNode
 {
-    private NodeContext m_bodyContext = null;
+    private NodeContext m_context = null;
 
     public WhileNode(Token t)
     {
@@ -45,7 +45,7 @@ public class WhileNode extends PlexilTreeNode
     public WhileNode(WhileNode n)
     {
         super(n);
-		m_bodyContext = n.m_bodyContext;
+		m_context = n.m_context;
     }
 
 	public Tree dupNode()
@@ -53,58 +53,15 @@ public class WhileNode extends PlexilTreeNode
 		return new WhileNode(this);
 	}
 
-    //
-    // N.B. The extra complexity in the checking logic is to ensure the body
-    // is contained in a separate name binding context from the while loop
-    // as a whole.
-    //
-
-    /**
-     * @brief Prepare for the semantic check.
-     */
-    @Override
-    public void earlyCheck(NodeContext parentContext, CompilerState state)
-    {
-        earlyCheckSelf(parentContext, state);
-        this.getChild(0).earlyCheck(parentContext, state); // while-test expression
-        this.getChild(1).earlyCheck(m_bodyContext, state); // body
-    }
-
-    @Override
-    protected void earlyCheckSelf(NodeContext parentContext, CompilerState state)
-    {
-        // See if we have a node ID
-        String nodeId = null;
-        PlexilTreeNode parent = this.getParent();
-        if (parent != null && parent instanceof ActionNode) {
-            nodeId = ((ActionNode) parent).getNodeId();
-        }
-        else {
-            // should never happen
-            state.addDiagnostic(this,
-                                "Internal error: WhileNode instance has no parent ActionNode",
-                                Severity.FATAL);
-        }
-        // Construct body binding context
-        // FIXME: change suffix to match generated code!
-        m_bodyContext = new NodeContext(parentContext, nodeId + "_WHILE_BODY");
-    }
 
     /**
      * @brief Semantic check.
-     * @note Uses separate context for body.
      */
     @Override
-    public void check(NodeContext parentContext, CompilerState state)
+    protected void checkChildren(NodeContext parentContext, CompilerState state)
     {
-        checkSelf(parentContext, state);
-        this.getChild(0).check(parentContext, state); // while test
-        this.getChild(1).check(m_bodyContext, state); // body
-    }
+        super.checkChildren(parentContext, state); // NodeTreeNode method
 
-    @Override
-    protected void checkSelf(NodeContext context, CompilerState state)
-    {
         ExpressionNode whileTest = (ExpressionNode) this.getChild(0);
         if (!whileTest.assumeType(PlexilDataType.BOOLEAN_TYPE, state)) {
             state.addDiagnostic(whileTest,

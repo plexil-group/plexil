@@ -79,6 +79,7 @@ public class VariableDeclNode extends PlexilTreeNode
     }
 
     // Various places expect the variable to be defined early
+    @Override
     public void earlyCheck(NodeContext context, CompilerState state)
     {
         earlyCheckCommon(context, state);	
@@ -101,12 +102,10 @@ public class VariableDeclNode extends PlexilTreeNode
                                 Severity.FATAL);
         }
 
-        ExpressionNode initValNode = null;
-        if (this.getChildCount() > 2)
-            initValNode = (ExpressionNode) this.getChild(2);
-
-        if (this.getChildCount() > 2)
+        if (this.getChildCount() > 2) {
+            ExpressionNode initValNode = (ExpressionNode) this.getChild(2);
             initValNode.earlyCheck(context, state);
+        }
     }
 
     /**
@@ -116,15 +115,13 @@ public class VariableDeclNode extends PlexilTreeNode
     public void check(NodeContext context, CompilerState state)
     {
         // If supplied, check initial value for type conflict
-        ExpressionNode initValNode = null;
         if (this.getChildCount() > 2) {
             // check initial value for type conflict
             // N.B. we assume this is a LiteralNode,
             // but ExpressionNode supports the required method
             // and allows the syntax to be generalized later.
-            initValNode = (ExpressionNode) this.getChild(2);
+            ExpressionNode initValNode = (ExpressionNode) this.getChild(2);
             PlexilDataType type = getVariableType();
-            // FIXME: any chance initValNode could be null?
             PlexilDataType initType = initValNode.getDataType();
             // Allow integer initial val for real var (but not the other way around)
             if (initType == type ||

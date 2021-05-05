@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,9 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 // 
 // A specialized AST node that does code generation for literals.
 // The data type should be specified by the parser from the content.
@@ -51,6 +54,17 @@ public class ArrayLiteralNode extends LiteralNode
         return new ArrayLiteralNode(this);
     }
 
+    // Convenience method
+    @SuppressWarnings("unchecked")
+    private List<? extends LiteralNode> getElementNodes()
+    {
+        List<? extends PlexilTreeNode> kids = this.getChildren(); // PlexilTreeNode method
+        if (kids == null)
+            return new ArrayList<LiteralNode>();
+        return (List<? extends LiteralNode>) kids;
+    }
+
+    @Override
     public void earlyCheck(NodeContext context, CompilerState state)
     {
         super.earlyCheck(context, state);
@@ -58,8 +72,7 @@ public class ArrayLiteralNode extends LiteralNode
         // See if we can determine our own type from type of children
         PlexilDataType workingType = null;
         boolean workingTypeChanged = false;
-        for (int i = 0; i < this.getChildCount(); i++) {
-            LiteralNode elt = (LiteralNode) this.getChild(i);
+        for (LiteralNode elt : getElementNodes()) {
             PlexilDataType eltType = elt.getDataType();
 
             if (workingType == null) // first child
@@ -136,13 +149,12 @@ public class ArrayLiteralNode extends LiteralNode
         // Can each element of this array be coerced to the desired type?
         boolean success = true;
         PlexilDataType eltType = t.arrayElementType();
-        for (int childIdx = 0; childIdx < this.getChildCount(); childIdx++) {
-            LiteralNode child = (LiteralNode) this.getChild(childIdx);
-            if (!child.assumeType(eltType, state)) {
-                state.addDiagnostic(child,
+        for (LiteralNode elt : getElementNodes()) {
+            if (!elt.assumeType(eltType, state)) {
+                state.addDiagnostic(elt,
                                     "assumeType: Element of " + eltType.typeName()
                                     + " array literal has inconsistent type "
-                                    + child.getDataType().typeName(),
+                                    + elt.getDataType().typeName(),
                                     Severity.ERROR);
                 success = false;
                 break;
@@ -154,19 +166,17 @@ public class ArrayLiteralNode extends LiteralNode
         return success;
     }
 
-
     // Assumes this has been called after assumeType().
     public void checkTypeConsistency(NodeContext context, CompilerState state)
     {
         // Check that children are type consistent
         PlexilDataType eltType = m_dataType.arrayElementType();
-        for (int childIdx = 0; childIdx < this.getChildCount(); childIdx++) {
-            LiteralNode child = (LiteralNode) this.getChild(childIdx);
-            if (!child.assumeType(eltType, state)) {
-                state.addDiagnostic(child,
+        for (LiteralNode elt : getElementNodes()) {
+            if (!elt.assumeType(eltType, state)) {
+                state.addDiagnostic(elt,
                                     "checkTypeConsistency: Element of " + eltType.typeName()
                                     + " array literal has inconsistent type "
-                                    + child.getDataType().typeName(),
+                                    + elt.getDataType().typeName(),
                                     Severity.ERROR);
             }
         }
@@ -178,9 +188,8 @@ public class ArrayLiteralNode extends LiteralNode
         this.constructXMLBase();
 
         m_xml.setAttribute("Type", m_dataType.arrayElementType().typeName());
-        for (int childIdx = 0; childIdx < this.getChildCount(); childIdx++) {
-            m_xml.appendChild(((LiteralNode) this.getChild(childIdx)).getXML());
-        }
+        for (PlexilTreeNode child : this.getChildren())
+            m_xml.appendChild(((LiteralNode) child).getXML());
     }
         
     public String getXMLElementName() { return "ArrayValue"; }

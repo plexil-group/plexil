@@ -25,12 +25,12 @@
 
 package plexil;
 
-import java.util.Vector;
-
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
 import org.w3c.dom.Element;
+
+import java.util.List;
 
 public class LookupNode extends ExpressionNode
 {
@@ -107,7 +107,7 @@ public class LookupNode extends ExpressionNode
                 m_dataType = m_state.getReturnType();
 
                 // Check arglist
-                Vector<VariableName> argSpecs = m_state.getParameterVariables();
+                List<VariableName> argSpecs = m_state.getParameterVariables();
                 if (argSpecs == null) {
                     if (m_arguments != null) {
                         state.addDiagnostic(invocation,
@@ -121,7 +121,7 @@ public class LookupNode extends ExpressionNode
                     // No parameters given
                     if (m_arguments == null) {
                         if (argSpecs.size() == 1 &&
-                            argSpecs.elementAt(0) instanceof WildcardVariableName) {
+                            argSpecs.get(0) instanceof WildcardVariableName) {
                             // No parameters required, do nothing
                         }
                         else {
@@ -157,7 +157,7 @@ public class LookupNode extends ExpressionNode
         if (m_state != null) {
             // Check arglist
             // Formal vs. actual counts have already been done in checkSelf()
-            Vector<VariableName> argSpecs = m_state.getParameterVariables();
+            List<VariableName> argSpecs = m_state.getParameterVariables();
             if (argSpecs != null
                 && m_arguments != null) {
                 // Check arg types
