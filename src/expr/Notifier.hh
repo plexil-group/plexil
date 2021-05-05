@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -54,36 +54,42 @@ namespace PLEXIL
      * @brief Add a listener for changes to this Expression's value.
      * @param ptr The pointer to the listener to add.
      */
-    virtual void addListener(ExpressionListener *ptr);
+    virtual void addListener(ExpressionListener *ptr) override;
 
     /**
      * @brief Remove a listener from this Expression.
      * @param ptr The pointer to the listener to remove.
      */
-    virtual void removeListener(ExpressionListener *ptr);
+    virtual void removeListener(ExpressionListener *ptr) override;
 
     /**
      * @brief Make this expression active.  It will publish value changes and it will accept
      *        incoming change notifications.
      */
-    virtual void activate();
+    virtual void activate() override;
 
     /**
      * @brief Make this Expression inactive.  It will not publish value changes, nor will it
      *        accept incoming change notifications.
      */
-    virtual void deactivate();
+    virtual void deactivate() override;
 
     /**
      * @brief Determine whether this object is active (i.e. propagating change notifications).
      * @return true if active, false if not.
      */
-    virtual bool isActive() const;
+    virtual bool isActive() const override;
 
     /**
      * @brief Notify all listeners that this expression's value has changed.
      */
     virtual void publishChange();
+
+#ifdef RECORD_EXPRESSION_STATS
+    static Notifier const *getInstanceList();
+    Notifier const *next() const;
+    size_t Notifier::getListenerCount() const
+#endif
 
   protected:
 
