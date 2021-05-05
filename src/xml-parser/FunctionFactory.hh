@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,7 @@ namespace PLEXIL
   {
   public:
     CachedFunctionFactory(Operator const *op, std::string const &name);
-    virtual ~CachedFunctionFactory();
+    virtual ~CachedFunctionFactory() = default;
 
   protected:
     virtual Function *constructFunction(Operator const *op, size_t n) const;

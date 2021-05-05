@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -54,8 +54,28 @@ namespace PLEXIL
   }
 
   //
-  // Equal
+  // Helpers for Equal, NotEqual
   //
+
+  // For argument type checking at load time
+  // Types may not be known if lookup not declared, computed lookup name, etc.
+  static bool canBeEqual(ValueType typeA, ValueType typeB)
+  {
+    // Identical types can always be compared for equality
+    if (typeA == typeB)
+      return true;
+
+    // Punt if either type unknown
+    if (typeA == UNKNOWN_TYPE || typeB == UNKNOWN_TYPE)
+      return true;
+
+    // Arithmetic types
+    if (isNumericType(typeA) && isNumericType(typeB))
+      return true;
+
+    // Anything else is an error.
+    return false;
+  }
 
   // General (scalar) case
   template <typename T>
@@ -147,15 +167,9 @@ namespace PLEXIL
   }
 
   // Called at plan load time, so some expressions (e.g. Lookups) may not know their own types
-  bool Equal::checkArgTypes(Function const *func) const
+  bool Equal::checkArgTypes(std::vector<ValueType> const &typeVec) const
   {
-    ValueType typ0 = (*func)[0]->valueType();
-    if (typ0 == UNKNOWN_TYPE)
-      return true;
-    ValueType typ1 = (*func)[1]->valueType();
-    return typ1 == UNKNOWN_TYPE
-      || typ0 == typ1
-      || (isNumericType(typ0) && isNumericType(typ1));
+    return canBeEqual(typeVec.at(0), typeVec.at(1));
   }
 
   bool Equal::operator()(bool &result, Expression const *argA, Expression const *argB) const
@@ -177,15 +191,9 @@ namespace PLEXIL
     return count == 2;
   }
 
-  bool NotEqual::checkArgTypes(Function const *func) const
+  bool NotEqual::checkArgTypes(std::vector<ValueType> const &typeVec) const
   {
-    ValueType typ0 = (*func)[0]->valueType();
-    if (typ0 == UNKNOWN_TYPE)
-      return true;
-    ValueType typ1 = (*func)[1]->valueType();
-    return typ1 == UNKNOWN_TYPE
-      || typ0 == typ1
-      || (isNumericType(typ0) && isNumericType(typ1));
+    return canBeEqual(typeVec.at(0), typeVec.at(1));
   }
 
   bool NotEqual::operator()(Boolean &result, Expression const *argA, Expression const *argB) const
@@ -195,6 +203,25 @@ namespace PLEXIL
     if (returnVal)
       result = !tempResult;
     return returnVal;
+  }
+
+  //
+  // Helper function for checkArgTypes() methods
+  //
+  
+  static bool canBeCompared(ValueType typeA, ValueType typeB)
+  {
+    if (typeA == UNKNOWN_TYPE || typeB == UNKNOWN_TYPE)
+      return true;
+
+    if (isNumericType(typeA))
+      return isNumericType(typeB);
+
+    if (typeA == STRING_TYPE)
+      return typeB == STRING_TYPE;
+
+    // No ordering defined for other types in PLEXIL
+    return false;
   }
 
   //
@@ -214,9 +241,9 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool GreaterThan<T>::checkArgTypes(Function const *func) const
+  bool GreaterThan<T>::checkArgTypes(std::vector<ValueType> const &typeVec) const
   {
-    return func->allSameTypeOrUnknown(PlexilValueType<T>::value);
+    return canBeCompared(typeVec.at(0), typeVec.at(1));
   }
 
   template <typename T>
@@ -248,9 +275,9 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool GreaterEqual<T>::checkArgTypes(Function const *func) const
+  bool GreaterEqual<T>::checkArgTypes(std::vector<ValueType> const &typeVec) const
   {
-    return func->allSameTypeOrUnknown(PlexilValueType<T>::value);
+    return canBeCompared(typeVec.at(0), typeVec.at(1));
   }
 
   template <typename T>
@@ -282,9 +309,9 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool LessThan<T>::checkArgTypes(Function const *func) const
+  bool LessThan<T>::checkArgTypes(std::vector<ValueType> const &typeVec) const
   {
-    return func->allSameTypeOrUnknown(PlexilValueType<T>::value);
+    return canBeCompared(typeVec.at(0), typeVec.at(1));
   }
 
   template <typename T>
@@ -316,9 +343,9 @@ namespace PLEXIL
   }
 
   template <typename T>
-  bool LessEqual<T>::checkArgTypes(Function const *func) const
+  bool LessEqual<T>::checkArgTypes(std::vector<ValueType> const &typeVec) const
   {
-    return func->allSameTypeOrUnknown(PlexilValueType<T>::value);
+    return canBeCompared(typeVec.at(0), typeVec.at(1));
   }
 
   template <typename T>

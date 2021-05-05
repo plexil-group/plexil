@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -56,12 +56,12 @@ namespace PLEXIL
     virtual bool isPropagationSource() const;
 
     // Delegated to each individual operator.
-    // Default method returns false.
-    virtual bool checkArgCount(size_t count) const;
+    // No default method; derived classes must implement this.
+    virtual bool checkArgCount(size_t count) const = 0;
 
     // Delegated to each individual operator.
     // Default method returns true.
-    virtual bool checkArgTypes(Function const *ev) const;
+    virtual bool checkArgTypes(std::vector<ValueType> const &typeVec) const;
 
     // Delegated to OperatorImpl by default
     virtual ValueType valueType() const = 0;
@@ -96,6 +96,9 @@ namespace PLEXIL
     virtual void printValue(std::ostream &s, Function const &exprs) const = 0;
     virtual Value toValue(Function const &exprs) const = 0;
 
+    // Helper for checkArgTypes() methods
+    static bool allSameTypeOrUnknown(ValueType typ, std::vector<ValueType> const &typeVec);
+
   protected:
     Operator(std::string const &name);
 
@@ -104,10 +107,10 @@ namespace PLEXIL
   private:
     // unimplemented
     Operator() = delete;
-    Operator(Operator const &) = delete; 
-    Operator(Operator &&) = delete; 
-    Operator& operator=(Operator const &) = delete; 
-    Operator& operator=(Operator &&) = delete; 
+    Operator(Operator const &) = delete;
+    Operator(Operator &&) = delete;
+    Operator& operator=(Operator const &) = delete;
+    Operator& operator=(Operator &&) = delete;
   };
 
 } // namespace PLEXIL

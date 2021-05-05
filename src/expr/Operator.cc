@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,8 @@
 #include "PlanError.hh"
 #include "PlexilTypeTraits.hh"
 
+#include <vector>
+
 namespace PLEXIL
 {
 
@@ -51,13 +53,19 @@ namespace PLEXIL
     return false;
   }
 
-  bool Operator::checkArgCount(size_t /* count */) const
+  bool Operator::checkArgTypes(std::vector<ValueType> const & /* typeVec */) const
   {
-    return false;
+    return true;
   }
 
-  bool Operator::checkArgTypes(Function const * /* func */) const
+  // Static helper for checkArgTypes()
+  bool Operator::allSameTypeOrUnknown(ValueType typ,
+                                      std::vector<ValueType> const &typeVec)
   {
+    for (ValueType const &actual : typeVec) {
+      if (actual != typ && actual != UNKNOWN_TYPE)
+        return false;
+    }
     return true;
   }
 

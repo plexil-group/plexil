@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -37,19 +37,15 @@ namespace PLEXIL
     : OperatorImpl<String>("Concat")
   {
   }
-  
-  StringConcat::~StringConcat()
-  {
-  }
 
   bool StringConcat::checkArgCount(size_t /* count */) const
   {
     return true;
   }
 
-  bool StringConcat::checkArgTypes(Function const *func) const
+  bool StringConcat::checkArgTypes(std::vector<ValueType> const &typeVec) const
   {
-    return func->allSameTypeOrUnknown(STRING_TYPE);
+    return allSameTypeOrUnknown(STRING_TYPE, typeVec);
   }
 
   bool StringConcat::operator()(String &result) const
@@ -105,18 +101,14 @@ namespace PLEXIL
   {
   }
 
-  StringLength::~StringLength()
-  {
-  }
-
   bool StringLength::checkArgCount(size_t count) const
   {
     return count == 1;
   }
 
-  bool StringLength::checkArgTypes(Function const *func) const
+  bool StringLength::checkArgTypes(std::vector<ValueType> const &typeVec) const
   {
-    ValueType typ = (*func)[0]->valueType();
+    ValueType typ = typeVec.at(0);
     return typ == STRING_TYPE || typ == UNKNOWN_TYPE;
   }
 

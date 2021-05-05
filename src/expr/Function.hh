@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -65,8 +65,7 @@ namespace PLEXIL
 
     // Argument accessors
 
-    virtual size_t size() const  = 0;
-    virtual bool allSameTypeOrUnknown(ValueType vt) const = 0;
+    virtual size_t size() const = 0;
     virtual void setArgument(size_t i, Expression *expr, bool garbage) = 0;
     virtual Expression const *operator[](size_t n) const = 0;
 
@@ -110,25 +109,11 @@ namespace PLEXIL
 
     // Needed by Operator::calcNative for array types
     virtual bool apply(Operator const *op, Array &result) const;
-    
+
   protected:
 
     // Constructor only available to derived classes
     Function(Operator const *op);
-
-    // *** FIXME: are the following 3 members needed here?? ***
-
-    //
-    // Notifier API
-    // Implemented by derived classes
-    //
-    virtual void handleActivate() override = 0;
-    virtual void handleDeactivate() override = 0;
-
-    //
-    // Propagator API
-    //
-    virtual void doSubexprs(ListenableUnaryOperator const &f) override = 0;
 
     Operator const *m_op;
 

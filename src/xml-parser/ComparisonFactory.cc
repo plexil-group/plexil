@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,8 +28,8 @@
 
 #include "createExpression.hh"
 #include "Function.hh"
+#include "ParserException.hh" // checkParserException() macro
 #include "parser-utils.hh"
-#include "ParserException.hh"
 
 #include "pugixml.hpp"
 
@@ -62,6 +62,7 @@ namespace PLEXIL
     case DATE_TYPE:
     case DURATION_TYPE:
       arg1Type = REAL_TYPE;
+      break;
 
       // Legal comparison types
     case REAL_TYPE:

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -68,20 +68,15 @@ namespace PLEXIL
   }
 
   template <typename NUM>
-  ConversionOperator<NUM>::~ConversionOperator()
-  {
-  }
-
-  template <typename NUM>
   bool ConversionOperator<NUM>::checkArgCount(size_t count) const
   {
     return count == 1;
   }
 
   template <typename NUM>
-  bool ConversionOperator<NUM>::checkArgTypes(Function const *ev) const
+  bool ConversionOperator<NUM>::checkArgTypes(std::vector<ValueType> const &typeVec) const
   {
-    ValueType typ = (*ev)[0]->valueType();
+    ValueType typ = typeVec.at(0);
     return isNumericType(typ) || typ == UNKNOWN_TYPE;
   }
 
@@ -136,11 +131,6 @@ namespace PLEXIL
   }
 
   template <typename NUM>
-  Ceiling<NUM>::~Ceiling()
-  {
-  }
-
-  template <typename NUM>
   bool Ceiling<NUM>::calcInternal(Real &result,
                                   Expression const *arg) const
   {
@@ -158,11 +148,6 @@ namespace PLEXIL
   template <typename NUM>
   Floor<NUM>::Floor()
     : ConversionOperator<NUM>("FLOOR")
-  {
-  }
-
-  template <typename NUM>
-  Floor<NUM>::~Floor()
   {
   }
 
@@ -188,11 +173,6 @@ namespace PLEXIL
   }
 
   template <typename NUM>
-  Round<NUM>::~Round()
-  {
-  }
-
-  template <typename NUM>
   bool Round<NUM>::calcInternal(Real &result,
                                 Expression const *arg) const
   {
@@ -210,11 +190,6 @@ namespace PLEXIL
   template <typename NUM>
   Truncate<NUM>::Truncate()
     : ConversionOperator<NUM>("TRUNC")
-  {
-  }
-
-  template <typename NUM>
-  Truncate<NUM>::~Truncate()
   {
   }
 
@@ -242,19 +217,9 @@ namespace PLEXIL
   {
   }
 
-  RealToInteger::~RealToInteger()
-  {
-  }
-
   bool RealToInteger::checkArgCount(size_t count) const
   {
     return count == 1;
-  }
-
-  bool RealToInteger::checkArgTypes(Function const *func) const
-  {
-    ValueType typ = (*func)[0]->valueType();
-    return isNumericType(typ) || typ == UNKNOWN_TYPE;
   }
 
   bool RealToInteger::calc(Integer & result,
