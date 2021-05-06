@@ -31,7 +31,8 @@ add_library(PlexilXmlParser ${PlexilExec_SHARED_OR_STATIC}
   ConcreteExpressionFactory.cc ConversionFunctionFactory.cc commandXmlParser.cc
   createExpression.cc ExpressionFactory.cc findDeclarations.cc
   FunctionFactory.cc InternalExpressionFactories.cc LookupFactory.cc
-  NodeFunctionFactory.cc parseAssignment.cc parseGlobalDeclarations.cc
+  NodeFunctionFactory.cc OperatorFactory.cc Operators.cc
+  parseAssignment.cc parseGlobalDeclarations.cc
   parseLibraryCall.cc parseNode.cc parseNodeReference.cc parsePlan.cc
   parser-utils.cc planLibrary.cc SymbolTable.cc updateXmlParser.cc
   UserVariableFactory.cc)
