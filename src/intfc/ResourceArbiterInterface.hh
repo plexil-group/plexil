@@ -39,9 +39,7 @@ namespace PLEXIL
   class ResourceArbiterInterface
   {
   public:
-    virtual ~ResourceArbiterInterface()
-    {
-    }
+    virtual ~ResourceArbiterInterface() = default;
 
     // Public API
     virtual bool readResourceHierarchyFile(const std::string& fName) = 0;

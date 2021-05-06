@@ -242,13 +242,8 @@ namespace PLEXIL
     ResourceHierarchyMap m_resourceHierarchy;
     
   public:
-    ResourceArbiterImpl()
-    {
-    }
-
-    virtual ~ResourceArbiterImpl()
-    {
-    }
+    ResourceArbiterImpl() = default;
+    virtual ~ResourceArbiterImpl() = default;
 
     virtual bool readResourceHierarchyFile(const std::string& fName)
     {
