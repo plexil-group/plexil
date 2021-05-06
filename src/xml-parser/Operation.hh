@@ -35,6 +35,7 @@ namespace PLEXIL
 {
 
   // Forward references
+  class Function;
   class Operator;
 
   //! @class Operation
@@ -64,6 +65,9 @@ namespace PLEXIL
     // Return the appropriate Operator instance for the given argument types.
     virtual Operator const *getOperator(std::vector<ValueType> const &typeVec,
                                         ValueType desiredType) const = 0;
+
+    // Construct the Function instance for the expression.
+    virtual Function *constructFunction(Operator const *oper, size_t nArgs) const = 0;
 
   protected:
     // Only available to derived classes.
