@@ -28,6 +28,7 @@
 
 #include "CachedFunction.hh"
 #include "createExpression.hh"
+#include "ExpressionFactory.hh"
 #include "Function.hh"
 #include "Operator.hh"
 #include "parser-utils.hh"
@@ -37,83 +38,131 @@
 
 namespace PLEXIL
 {
-  FunctionFactory::FunctionFactory(Operator const *op, std::string const &name)
-    : ExpressionFactory(name),
-      m_op(op)
+
+  // Base class
+  class FunctionFactory : public ExpressionFactory
   {
-  }
+  public:
+    FunctionFactory(Operator const *op, std::string const &name)
+      : ExpressionFactory(name),
+        m_op(op)
+    {
+    }
+    
+    virtual ~FunctionFactory() = default;
 
-  CachedFunctionFactory::CachedFunctionFactory(Operator const *op, std::string const &name)
-    : FunctionFactory(op, name)
-  {
-  }
+    virtual ValueType check(char const *nodeId,
+                            pugi::xml_node expr,
+                            ValueType desiredType) const
+    {
+      size_t n = std::distance(expr.begin(), expr.end());
+      Operator const *oper = m_op;
+      assertTrueMsg(oper, "FunctionFactory::check: no operator for " << m_name);
+      checkParserExceptionWithLocation(oper->checkArgCount(n),
+                                       expr,
+                                       "Node \"" << nodeId
+                                       << "\": Wrong number of operands for operator "
+                                       << oper->getName());
 
-  ValueType FunctionFactory::check(char const *nodeId,
-                                   pugi::xml_node expr,
-                                   ValueType /* desiredType */) const
-  {
-    size_t n = std::distance(expr.begin(), expr.end());
-    Operator const *oper = m_op;
-    assertTrueMsg(oper, "FunctionFactory::check: no operator for " << m_name);
-    checkParserExceptionWithLocation(oper->checkArgCount(n),
-                                     expr,
-                                     "Node \"" << nodeId
-                                     << "\": Wrong number of operands for operator "
-                                     << oper->getName());
-
-    // Check arguments
-    std::vector<ValueType> argTypes;
-    for (pugi::xml_node subexp = expr.first_child();
-         subexp;
-         subexp = subexp.next_sibling())
-      argTypes.push_back(checkExpression(nodeId, subexp));
-
-    // It would be nice to get more detailed info than this. Maybe later,
-    checkParserExceptionWithLocation(oper->checkArgTypes(argTypes),
-                                     expr,
-                                     "Node \"" << nodeId
-                                     << "\": Some argument to operator "
-                                     << oper->getName()
-                                     << " has an invalid or unimplemented type");
-
-    return oper->valueType();
-  }
-
-  Expression *FunctionFactory::allocate(pugi::xml_node const expr,
-                                        NodeConnector *node,
-                                        bool &wasCreated,
-                                        ValueType returnType) const
-  {
-    size_t n = std::distance(expr.begin(), expr.end());
-    Operator const *oper = m_op;
-    Function *result = this->constructFunction(oper, n);
-    try {
-      size_t i = 0;
+      // Check arguments
+      std::vector<ValueType> argTypes;
       for (pugi::xml_node subexp = expr.first_child();
-           subexp && i < n;
-           subexp = subexp.next_sibling(), ++i) {
-        bool created;
-        Expression *arg = createExpression(subexp, node, created);
-        result->setArgument(i, arg, created);
+           subexp;
+           subexp = subexp.next_sibling())
+        argTypes.push_back(checkExpression(nodeId, subexp));
+
+      // It would be nice to get more detailed info than this. Maybe later,
+      checkParserExceptionWithLocation(oper->checkArgTypes(argTypes),
+                                       expr,
+                                       "Node \"" << nodeId
+                                       << "\": Some argument to operator "
+                                       << oper->getName()
+                                       << " has an invalid or unimplemented type");
+
+      return oper->valueType();
+    }
+
+    virtual Expression *allocate(pugi::xml_node const expr,
+                                 NodeConnector *node,
+                                 bool & wasCreated,
+                                 ValueType returnType) const
+    {
+      size_t n = std::distance(expr.begin(), expr.end());
+      Operator const *oper = m_op;
+      Function *result = this->constructFunction(oper, n);
+      try {
+        size_t i = 0;
+        for (pugi::xml_node subexp = expr.first_child();
+             subexp && i < n;
+             subexp = subexp.next_sibling(), ++i) {
+          bool created;
+          Expression *arg = createExpression(subexp, node, created);
+          result->setArgument(i, arg, created);
+        }
       }
-    }
-    catch (ParserException & /* e */) {
-      delete result;
-      throw;
+      catch (ParserException & /* e */) {
+        delete result;
+        throw;
+      }
+
+      wasCreated = true;
+      return result;
     }
 
-    wasCreated = true;
-    return result;
+  protected:
+
+    virtual Function *constructFunction(Operator const *op, size_t n) const
+    {
+      return makeFunction(op,n);
+    }
+
+  private:
+    // Unimplemented
+    FunctionFactory() = delete;
+    FunctionFactory(FunctionFactory const &) = delete;
+    FunctionFactory(FunctionFactory &&) = delete;
+    FunctionFactory &operator=(FunctionFactory const &) = delete;
+    FunctionFactory &operator=(FunctionFactory &&) = delete;
+
+    Operator const *m_op;
+  };
+
+  ExpressionFactory *
+  makeFunctionFactory(Operator const *op, std::string const &name)
+  {
+    return new FunctionFactory(op, name);
   }
 
-  Function *FunctionFactory::constructFunction(Operator const *op, size_t n) const
+  // Derivative of above - constructs a cached function, otherwise identical
+  class CachedFunctionFactory : public FunctionFactory
   {
-    return makeFunction(op,n);
-  }
+  public:
+    CachedFunctionFactory(Operator const *op, std::string const &name)
+      : FunctionFactory(op, name)
+    {
+    }
 
-  Function *CachedFunctionFactory::constructFunction(Operator const *op, size_t n) const
+    virtual ~CachedFunctionFactory() = default;
+
+  protected:
+    virtual Function *constructFunction(Operator const *op, size_t n) const
+    {
+      return makeCachedFunction(op,n);
+    }
+
+  private:
+    // Unimplemented
+    CachedFunctionFactory() = delete;
+    CachedFunctionFactory(CachedFunctionFactory const &) = delete;
+    CachedFunctionFactory(CachedFunctionFactory &&) = delete;
+    CachedFunctionFactory &operator=(CachedFunctionFactory const &) = delete;
+    CachedFunctionFactory &operator=(CachedFunctionFactory &&) = delete;
+  };
+
+  ExpressionFactory *
+  makeCachedFunctionFactory(Operator const *op, std::string const &name)
   {
-    return makeCachedFunction(op,n);
+    return new CachedFunctionFactory(op, name);
   }
 
 } // namespace PLEXIL
