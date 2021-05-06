@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -56,7 +56,9 @@ namespace PLEXIL
   {
   }
 
-  ValueType LookupFactory::check(char const *nodeId, xml_node const expr) const
+  ValueType LookupFactory::check(char const *nodeId,
+                                 xml_node const expr,
+                                 ValueType /* desiredType */) const
   {
     xml_node stateNameXml = expr.first_child();
     checkParserExceptionWithLocation(testTag(NAME_TAG, stateNameXml),

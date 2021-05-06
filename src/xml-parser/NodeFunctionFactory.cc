@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,9 @@ namespace PLEXIL
   {
   }
 
-  ValueType NodeFunctionFactory::check(char const *nodeId, pugi::xml_node expr) const
+  ValueType NodeFunctionFactory::check(char const *nodeId,
+                                       pugi::xml_node expr,
+                                       ValueType /* desiredType */) const
   {
     assertTrueMsg(m_op, "NodeFunctionFactory::check: no operator for " << m_name);
     size_t n = std::distance(expr.begin(), expr.end());

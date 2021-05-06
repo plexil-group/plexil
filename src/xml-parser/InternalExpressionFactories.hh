@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -57,7 +57,7 @@ namespace PLEXIL
     {
     }
 
-    ValueType check(char const *nodeId, pugi::xml_node const expr) const;
+    ValueType check(char const *nodeId, pugi::xml_node const expr, ValueType desiredType) const;
 
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
@@ -84,7 +84,7 @@ namespace PLEXIL
     {
     }
 
-    ValueType check(char const *nodeId, pugi::xml_node const expr) const;
+    ValueType check(char const *nodeId, pugi::xml_node const expr, ValueType desiredType) const;
 
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
@@ -111,7 +111,7 @@ namespace PLEXIL
     {
     }
 
-    ValueType check(char const *nodeId, pugi::xml_node const expr) const;
+    ValueType check(char const *nodeId, pugi::xml_node const expr, ValueType desiredType) const;
 
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
@@ -138,7 +138,7 @@ namespace PLEXIL
     {
     }
 
-    ValueType check(char const *nodeId, pugi::xml_node const expr) const;
+    ValueType check(char const *nodeId, pugi::xml_node const expr, ValueType desiredType) const;
 
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
@@ -165,7 +165,7 @@ namespace PLEXIL
     {
     }
 
-    ValueType check(char const *nodeId, pugi::xml_node const expr) const;
+    ValueType check(char const *nodeId, pugi::xml_node const expr, ValueType desiredType) const;
 
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,
@@ -196,7 +196,7 @@ namespace PLEXIL
     {
     }
 
-    ValueType check(char const *nodeId, pugi::xml_node const expr) const;
+    ValueType check(char const *nodeId, pugi::xml_node const expr, ValueType desiredType) const;
 
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,

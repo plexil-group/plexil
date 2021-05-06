@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -38,7 +38,7 @@ namespace PLEXIL
     ArrayVariableReferenceFactory(const std::string& name);
     virtual ~ArrayVariableReferenceFactory();
 
-    ValueType check(char const *nodeId, pugi::xml_node expr) const;
+    ValueType check(char const *nodeId, pugi::xml_node expr, ValueType desiredType) const;
 
     Expression *allocate(pugi::xml_node const expr,
                          NodeConnector *node,

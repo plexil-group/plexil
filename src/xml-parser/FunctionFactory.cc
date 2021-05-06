@@ -48,7 +48,9 @@ namespace PLEXIL
   {
   }
 
-  ValueType FunctionFactory::check(char const *nodeId, pugi::xml_node expr) const
+  ValueType FunctionFactory::check(char const *nodeId,
+                                   pugi::xml_node expr,
+                                   ValueType /* desiredType */) const
   {
     size_t n = std::distance(expr.begin(), expr.end());
     Operator const *oper = m_op;

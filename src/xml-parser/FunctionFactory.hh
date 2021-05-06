@@ -42,7 +42,9 @@ namespace PLEXIL
     FunctionFactory(Operator const *op, std::string const &name);
     virtual ~FunctionFactory() = default;
 
-    virtual ValueType check(char const *nodeId, pugi::xml_node expr) const;
+    virtual ValueType check(char const *nodeId,
+                            pugi::xml_node expr,
+                            ValueType desiredType) const;
 
     virtual Expression *allocate(pugi::xml_node const expr,
                                  NodeConnector *node,

@@ -64,7 +64,9 @@ namespace PLEXIL
 
   // General case. For all but string types, the value string may not be empty.
   template <typename T>
-  ValueType ConcreteExpressionFactory<Constant<T> >::check(char const *nodeId, pugi::xml_node const expr) const
+  ValueType ConcreteExpressionFactory<Constant<T> >::check(char const *nodeId,
+                                                           pugi::xml_node const expr,
+                                                           ValueType /* desiredType */) const
   {
     checkParserExceptionWithLocation(expr.first_child() && *(expr.child_value()),
                                      expr,
@@ -147,7 +149,8 @@ namespace PLEXIL
   // String can be empty, don't care about contents
   template <>
   ValueType ConcreteExpressionFactory<Constant<String> >::check(char const *nodeId,
-                                                                pugi::xml_node const expr) const
+                                                                pugi::xml_node const expr,
+                                                                ValueType /* desiredType */) const
   {
     return STRING_TYPE;
   }
@@ -173,7 +176,8 @@ namespace PLEXIL
   //
 
   ValueType ConcreteExpressionFactory<ArrayReference>::check(char const *nodeId,
-                                                             pugi::xml_node const expr) const
+                                                             pugi::xml_node const expr,
+                                                             ValueType /* desiredType */) const
   {
     // Syntax checks
     checkHasChildElement(expr);
@@ -321,7 +325,9 @@ namespace PLEXIL
   // Generic variable references
   //
 
-  ValueType VariableReferenceFactory::check(char const *nodeId, xml_node const expr) const
+  ValueType VariableReferenceFactory::check(char const *nodeId,
+                                            xml_node const expr,
+                                            ValueType /* desiredType */) const
   {
     checkNotEmpty(expr);
     char const *varName = expr.child_value();

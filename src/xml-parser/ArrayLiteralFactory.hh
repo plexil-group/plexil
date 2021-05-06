@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,35 +27,14 @@
 #ifndef PLEXIL_ARRAY_LITERAL_FACTORY_HH
 #define PLEXIL_ARRAY_LITERAL_FACTORY_HH
 
-#include "ExpressionFactory.hh"
+#include <string>
 
 namespace PLEXIL
 {
-  template <typename T>
-  void checkArrayLiteral(char const *eltTypeName, pugi::xml_node const expr);
+  // Forward reference
+  class ExpressionFactory;
 
-  template <typename T>
-  Expression *createArrayLiteral(char const *eltTypeName, pugi::xml_node const expr);
-
-  class ArrayLiteralFactory : public ExpressionFactory
-  {
-  public:
-    ArrayLiteralFactory(std::string const &name);
-    ~ArrayLiteralFactory();
-
-    ValueType check(char const *nodeId, pugi::xml_node expr) const;
-
-    Expression *allocate(pugi::xml_node const expr,
-                         NodeConnector *node,
-                         bool &wasCreated,
-                         ValueType returnType) const;
-
-  private:
-    // Default, copy, assign all prohibited
-    ArrayLiteralFactory();
-    ArrayLiteralFactory(ArrayLiteralFactory const &);
-    ArrayLiteralFactory & operator=(ArrayLiteralFactory const &);
-  };
+  ExpressionFactory *makeArrayLiteralFactory(std::string const &name);
 
 } // namespace PLEXIL
 

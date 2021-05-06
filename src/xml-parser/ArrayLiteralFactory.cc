@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
 #include "ArrayLiteralFactory.hh"
 
 #include "Constant.hh"
+#include "ExpressionFactory.hh"
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
 
@@ -46,14 +47,6 @@
 
 namespace PLEXIL
 {
-  ArrayLiteralFactory::ArrayLiteralFactory(std::string const &name)
-    : ExpressionFactory(name)
-  {
-  }
-
-  ArrayLiteralFactory::~ArrayLiteralFactory()
-  {
-  }
 
   //
   // First pass: XML checks
@@ -97,49 +90,6 @@ namespace PLEXIL
                                        << " in array value of type \"" << eltTypeName);
       thisElement = thisElement.next_sibling();
     }
-  }
-
-  ValueType ArrayLiteralFactory::check(char const *nodeId, pugi::xml_node expr) const
-  {
-    // confirm that we have an array value
-    checkTag(ARRAY_VAL_TAG, expr);
-
-    // confirm that we have an element type
-    checkAttr(TYPE_TAG, expr);
-    const char* valueType = expr.attribute(TYPE_TAG).value();
-    ValueType valtyp = parseValueType(valueType);
-    checkParserExceptionWithLocation(valtyp != UNKNOWN_TYPE,
-                                     expr, // should be attribute
-                                     "Node \"" << nodeId
-                                     << "\": Unknown array element Type value \""
-                                     << valueType << "\"");
-
-    // Check contents
-    switch (valtyp) {
-    case BOOLEAN_TYPE:
-      checkArrayLiteral<Boolean>(valueType, expr);
-      break;
-
-    case INTEGER_TYPE:
-      checkArrayLiteral<Integer>(valueType, expr);
-      break;
-
-    case REAL_TYPE:
-      checkArrayLiteral<Real>(valueType, expr);
-      break;
-
-    case STRING_TYPE:
-      checkArrayLiteral<String>(valueType, expr);
-      break;
-
-    default:
-      reportParserExceptionWithLocation(expr, // should be attribute
-                                        "Node \"" << nodeId
-                                        << "\": Invalid or unimplemented array element Type value \""
-                                        << valueType << "\"");
-      break;
-    }
-    return arrayType(valtyp);
   }
 
   //
@@ -196,44 +146,102 @@ namespace PLEXIL
     return new Constant<ArrayImpl<String> >(ArrayImpl<String>(values));
   }
 
-  Expression *ArrayLiteralFactory::allocate(pugi::xml_node const expr,
-                                            NodeConnector * /* node */,
-                                            bool &wasCreated,
-                                            ValueType /* returnType */) const
+  class ArrayLiteralFactory : public ExpressionFactory
   {
-    const char* valueType = expr.attribute(TYPE_TAG).value();
-    ValueType valtyp = parseValueType(valueType);
-    wasCreated = true;
-
-    switch (valtyp) {
-    case BOOLEAN_TYPE:
-      return createArrayLiteral<Boolean>(valueType, expr);
-
-    case INTEGER_TYPE:
-      return createArrayLiteral<Integer>(valueType, expr);
-
-    case REAL_TYPE:
-      return createArrayLiteral<Real>(valueType, expr);
-
-    case STRING_TYPE:
-      return createArrayLiteral<String>(valueType, expr);
-
-    default:
-      reportParserExceptionWithLocation(expr, // should be attribute
-                                        "Invalid or unimplemented array element Type value \""
-                                        << valueType << "\"");
-      return nullptr;
+  public:
+    ArrayLiteralFactory(std::string const &name)
+      : ExpressionFactory(name)
+    {
     }
+
+    virtual ~ArrayLiteralFactory() = default;
+
+    ValueType check(char const *nodeId,
+                    pugi::xml_node expr,
+                    ValueType /* desiredType */) const
+    {
+      // confirm that we have an array value
+      checkTag(ARRAY_VAL_TAG, expr);
+
+      // confirm that we have an element type
+      checkAttr(TYPE_TAG, expr);
+      const char* valueType = expr.attribute(TYPE_TAG).value();
+      ValueType valtyp = parseValueType(valueType);
+      checkParserExceptionWithLocation(valtyp != UNKNOWN_TYPE,
+                                       expr, // should be attribute
+                                       "Node \"" << nodeId
+                                       << "\": Unknown array element Type value \""
+                                       << valueType << "\"");
+
+      // Check contents
+      switch (valtyp) {
+      case BOOLEAN_TYPE:
+        checkArrayLiteral<Boolean>(valueType, expr);
+        break;
+
+      case INTEGER_TYPE:
+        checkArrayLiteral<Integer>(valueType, expr);
+        break;
+
+      case REAL_TYPE:
+        checkArrayLiteral<Real>(valueType, expr);
+        break;
+
+      case STRING_TYPE:
+        checkArrayLiteral<String>(valueType, expr);
+        break;
+
+      default:
+        reportParserExceptionWithLocation(expr, // should be attribute
+                                          "Node \"" << nodeId
+                                          << "\": Invalid or unimplemented array element Type value \""
+                                          << valueType << "\"");
+        break;
+      }
+      return arrayType(valtyp);
+    }
+      
+
+    Expression *allocate(pugi::xml_node const expr,
+                         NodeConnector *node,
+                         bool &wasCreated,
+                         ValueType returnType) const
+    {
+      const char* valueType = expr.attribute(TYPE_TAG).value();
+      ValueType valtyp = parseValueType(valueType);
+      wasCreated = true;
+
+      switch (valtyp) {
+      case BOOLEAN_TYPE:
+        return createArrayLiteral<Boolean>(valueType, expr);
+
+      case INTEGER_TYPE:
+        return createArrayLiteral<Integer>(valueType, expr);
+
+      case REAL_TYPE:
+        return createArrayLiteral<Real>(valueType, expr);
+
+      case STRING_TYPE:
+        return createArrayLiteral<String>(valueType, expr);
+
+      default:
+        reportParserExceptionWithLocation(expr, // should be attribute
+                                          "Invalid or unimplemented array element Type value \""
+                                          << valueType << "\"");
+        return nullptr;
+      }
+    }
+
+  private:
+    // Default, copy, assign all prohibited
+    ArrayLiteralFactory();
+    ArrayLiteralFactory(ArrayLiteralFactory const &);
+    ArrayLiteralFactory & operator=(ArrayLiteralFactory const &);
+  };
+
+  ExpressionFactory *makeArrayLiteralFactory(std::string const &name)
+  {
+    return new ArrayLiteralFactory(name);
   }
-
-  // Explicit instantiations
-  // (Are these redundant with the calls above?)
-  template void checkArrayLiteral<Boolean>(char const *eltTypeName, pugi::xml_node const expr);
-  template void checkArrayLiteral<Integer>(char const *eltTypeName, pugi::xml_node const expr);
-  template void checkArrayLiteral<Real>(char const *eltTypeName, pugi::xml_node const expr);
-
-  template Expression *createArrayLiteral<Boolean>(char const *eltTypeName, pugi::xml_node const expr);
-  template Expression *createArrayLiteral<Integer>(char const *eltTypeName, pugi::xml_node const expr);
-  template Expression *createArrayLiteral<Real>(char const *eltTypeName, pugi::xml_node const expr);
 
 } // namespace PLEXIL
