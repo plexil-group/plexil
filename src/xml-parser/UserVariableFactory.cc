@@ -27,6 +27,7 @@
 #include "UserVariableFactory.hh"
 
 #include "createExpression.hh"
+#include "ExpressionFactory.hh"
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
 #include "UserVariable.hh"
@@ -37,18 +38,19 @@ using pugi::xml_node;
 
 namespace PLEXIL
 {
-  UserVariableFactory::UserVariableFactory(std::string const &name)
+
+
+  class UserVariableFactory : public ExpressionFactory
+  {
+  public:
+    UserVariableFactory(std::string const &name)
     : ExpressionFactory(name)
   {
   }
+      
+    virtual ~UserVariableFactory() = default;
 
-  UserVariableFactory::~UserVariableFactory()
-  {
-  }
-
-  ValueType UserVariableFactory::check(char const *nodeId,
-                                       pugi::xml_node const expr,
-                                       ValueType /* desiredType */) const
+    ValueType check(char const *nodeId, pugi::xml_node const expr, ValueType desiredType) const
   {
     // We know the declaration has a name and a valid type;
     // see checkVariableDeclaration() in parseNode.cc
@@ -99,10 +101,10 @@ namespace PLEXIL
 
   // N.B. Construction of initializer expression happens later.
 
-  Expression *UserVariableFactory::allocate(xml_node const expr,
-                                            NodeConnector * /* node */,
-                                            bool &wasCreated,
-                                            ValueType /* returnType */) const
+    Expression *allocate(pugi::xml_node const expr,
+                         NodeConnector *node,
+                         bool &wasCreated,
+                         ValueType returnType) const
   {
     xml_node temp = expr.first_child();
     char const *name = temp.child_value();
@@ -129,6 +131,20 @@ namespace PLEXIL
       errorMsg("UserVariableFactory::allocate: Internal type error");
       return nullptr;
     }
+  }
+
+  private:
+    // Default, copy, assign all prohibited
+    UserVariableFactory() = delete;
+    UserVariableFactory(UserVariableFactory const &) = delete;
+    UserVariableFactory(UserVariableFactory &&) = delete;
+    UserVariableFactory & operator=(UserVariableFactory const &) = delete;
+    UserVariableFactory & operator=(UserVariableFactory &&) = delete;
+  };
+
+  ExpressionFactory *makeUserVariableFactory(std::string const &name)
+  {
+    return new UserVariableFactory(name);
   }
 
 } // namespace PLEXIL
