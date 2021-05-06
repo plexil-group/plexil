@@ -27,30 +27,14 @@
 #ifndef PLEXIL_LOOKUP_FACTORY_HH
 #define PLEXIL_LOOKUP_FACTORY_HH
 
-#include "ExpressionFactory.hh"
+#include <string>
 
 namespace PLEXIL
 {
+  // Forward reference
+  class ExpressionFactory;
   
-  class LookupFactory : public ExpressionFactory
-  {
-  public:
-    LookupFactory(std::string const &name);
-    virtual ~LookupFactory();
-
-    ValueType check(char const *nodeId, pugi::xml_node const expr, ValueType desiredType) const;
-
-    Expression *allocate(pugi::xml_node const expr,
-                         NodeConnector *node,
-                         bool & wasCreated,
-                         ValueType returnType) const;
-    
-  private:
-    // Unimplemented
-    LookupFactory();
-    LookupFactory(LookupFactory const &);
-    LookupFactory &operator=(LookupFactory const &);
-  };
+  ExpressionFactory *makeLookupFactory(std::string const &name);
 
 }
 
