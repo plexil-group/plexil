@@ -39,7 +39,6 @@
 #include "createExpression.hh"
 #include "Debug.hh"
 #include "Error.hh"
-#include "FunctionFactory.hh"
 #include "InternalExpressionFactories.hh"
 #include "LookupFactory.hh"
 #include "NodeConnector.hh"
