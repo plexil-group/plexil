@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,14 +39,16 @@ namespace PLEXIL
   {
   public:
     NodeStateConstant(NodeState value);
-    ~NodeStateConstant();
+    virtual ~NodeStateConstant() = default;
     char const *exprName() const;
 
   private:
     // Disallow default, copy, assign
-    NodeStateConstant();
-    NodeStateConstant(NodeStateConstant const &);
-    NodeStateConstant &operator=(NodeStateConstant const &);
+    NodeStateConstant() = delete;
+    NodeStateConstant(NodeStateConstant const &) = delete;
+    NodeStateConstant(NodeStateConstant &&) = delete;
+    NodeStateConstant &operator=(NodeStateConstant const &) = delete;
+    NodeStateConstant &operator=(NodeStateConstant &&) = delete;
   };
 
   extern Expression *INACTIVE_CONSTANT();
@@ -61,14 +63,16 @@ namespace PLEXIL
   {
   public:
     NodeOutcomeConstant(NodeOutcome value);
-    ~NodeOutcomeConstant();
+    virtual ~NodeOutcomeConstant() = default;
     char const *exprName() const;
 
   private:
     // Disallow default, copy, assign
-    NodeOutcomeConstant();
-    NodeOutcomeConstant(NodeOutcomeConstant const &);
-    NodeOutcomeConstant &operator=(NodeOutcomeConstant const &);
+    NodeOutcomeConstant() = delete;
+    NodeOutcomeConstant(NodeOutcomeConstant const &) = delete;
+    NodeOutcomeConstant(NodeOutcomeConstant &&) = delete;
+    NodeOutcomeConstant &operator=(NodeOutcomeConstant const &) = delete;
+    NodeOutcomeConstant &operator=(NodeOutcomeConstant &&) = delete;
   };
 
   extern Expression *SUCCESS_CONSTANT();
@@ -80,14 +84,16 @@ namespace PLEXIL
   {
   public:
     FailureTypeConstant(FailureType value);
-    ~FailureTypeConstant();
+    virtual ~FailureTypeConstant() = default;
     char const *exprName() const;
 
   private:
     // Disallow default, copy, assign
-    FailureTypeConstant();
-    FailureTypeConstant(FailureTypeConstant const &);
-    FailureTypeConstant &operator=(FailureTypeConstant const &);
+    FailureTypeConstant() = delete;
+    FailureTypeConstant(FailureTypeConstant const &) = delete;
+    FailureTypeConstant(FailureTypeConstant &&) = delete;
+    FailureTypeConstant &operator=(FailureTypeConstant const &) = delete;
+    FailureTypeConstant &operator=(FailureTypeConstant &&) = delete;
   };
 
   extern Expression *PRE_CONDITION_FAILED_CONSTANT();
@@ -101,14 +107,16 @@ namespace PLEXIL
   {
   public:
     CommandHandleConstant(CommandHandleValue value);
-    ~CommandHandleConstant();
+    virtual ~CommandHandleConstant() = default;
     char const *exprName() const;
 
   private:
     // Disallow default, copy, assign
-    CommandHandleConstant();
-    CommandHandleConstant(CommandHandleConstant const &);
-    CommandHandleConstant &operator=(CommandHandleConstant const &);
+    CommandHandleConstant() = delete;
+    CommandHandleConstant(CommandHandleConstant const &) = delete;
+    CommandHandleConstant(CommandHandleConstant &&) = delete;
+    CommandHandleConstant &operator=(CommandHandleConstant const &) = delete;
+    CommandHandleConstant &operator=(CommandHandleConstant &&) = delete;
   };
 
   extern Expression *COMMAND_SENT_TO_SYSTEM_CONSTANT();

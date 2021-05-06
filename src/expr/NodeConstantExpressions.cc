@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,10 +40,6 @@ namespace PLEXIL
   {
   }
 
-  NodeStateConstant::~NodeStateConstant()
-  {
-  }
-
   char const *NodeStateConstant::exprName() const
   {
     return "NodeStateValue";
@@ -64,10 +60,6 @@ namespace PLEXIL
 
   NodeOutcomeConstant::NodeOutcomeConstant(NodeOutcome value)
     : Constant<NodeOutcome>(value)
-  {
-  }
-
-  NodeOutcomeConstant::~NodeOutcomeConstant()
   {
   }
 
@@ -92,10 +84,6 @@ namespace PLEXIL
   {
   }
 
-  FailureTypeConstant::~FailureTypeConstant()
-  {
-  }
-
   char const *FailureTypeConstant::exprName() const
   {
     return "FailureTypeValue";
@@ -116,10 +104,6 @@ namespace PLEXIL
 
   CommandHandleConstant::CommandHandleConstant(CommandHandleValue value)
     : Constant<CommandHandleValue>(value)
-  {
-  }
-
-  CommandHandleConstant::~CommandHandleConstant()
   {
   }
 
