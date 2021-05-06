@@ -381,8 +381,8 @@ namespace PLEXIL
 
   std::unique_ptr<Operation>
   makeSpecialArithmeticOperation(std::string const &name,
-                                 ValueType returnType,
-                                 Operator const *oper)
+                                 Operator const *oper,
+                                 ValueType returnType)
   {
     return std::make_unique<SpecialArithmeticOperation>(name, oper, returnType);
   }
