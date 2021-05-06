@@ -24,7 +24,6 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ArithmeticFunctionFactory.hh"
 #include "ArithmeticOperators.hh"
 #include "ArrayLiteralFactory.hh"
 #include "ArrayOperators.hh"
@@ -34,9 +33,7 @@
 #include "ArrayVariableReferenceFactory.hh"
 #include "BooleanOperators.hh"
 #include "Comparisons.hh"
-#include "ComparisonFactory.hh"
 #include "ConcreteExpressionFactory.hh"
-#include "ConversionFunctionFactory.hh"
 #include "Constant.hh"
 #include "ConversionOperators.hh"
 #include "createExpression.hh"
