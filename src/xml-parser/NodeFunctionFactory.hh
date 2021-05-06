@@ -27,38 +27,21 @@
 #ifndef PLEXIL_NODE_FUNCTION_FACTORY_HH
 #define PLEXIL_NODE_FUNCTION_FACTORY_HH
 
-#include "ExpressionFactory.hh"
+#include <string>
 
 namespace PLEXIL
 {
+  // Forward references
+  class ExpressionFactory;
   class NodeOperator;
 
-  // Base class
-  class NodeFunctionFactory : public ExpressionFactory
-  {
-  public:
-    NodeFunctionFactory(NodeOperator const *op, std::string const &name);
-    virtual ~NodeFunctionFactory();
-
-    ValueType check(char const *nodeId, pugi::xml_node expr, ValueType desiredType) const;
-
-    Expression *allocate(pugi::xml_node const expr,
-                         NodeConnector *node,
-                         bool & wasCreated,
-                         ValueType returnType) const;
-
-  private:
-    // Unimplemented
-    NodeFunctionFactory();
-    NodeFunctionFactory(NodeFunctionFactory const &);
-    NodeFunctionFactory &operator=(NodeFunctionFactory const &);
-
-    NodeOperator const *m_op;
-  };
+  ExpressionFactory *
+  makeNodeFunctionFactory(NodeOperator const *op, std::string const &name);
 
 } // namespace PLEXIL
 
 // Convenience macros
-#define REGISTER_NODE_FUNCTION(CLASS,NAME) new PLEXIL::NodeFunctionFactory(CLASS::instance(), #NAME)
+#define REGISTER_NODE_FUNCTION(CLASS,NAME) \
+  PLEXIL::makeNodeFunctionFactory(CLASS::instance(), #NAME)
 
 #endif // PLEXIL_NODE_FUNCTION_FACTORY_HH
