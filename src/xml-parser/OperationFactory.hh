@@ -47,15 +47,16 @@ namespace PLEXIL
 // Base (general case) macro
 #define REGISTER_OPERATION(NAME,OPER) PLEXIL::makeOperationFactory(#NAME, (OPER))
 
+//
 // Simple operations
+//
+
 #define REGISTER_SIMPLE_OPERATION(NAME,ARGTYPE,RETTYPE,CLASS) \
   PLEXIL::makeOperationFactory(#NAME, \
                                PLEXIL::makeSimpleOperation(#NAME, CLASS::instance(), ARGTYPE, RETTYPE))
 
-// Variations of above
-
 // One-arg simple operations
-#define REGISTER_ONE_ARG_OPERATION(NAME,ARGTYPE,RETTYPE,CLASS) \
+#define REGISTER_ONE_ARG_OPERATION(NAME,CLASS,ARGTYPE,RETTYPE) \
   PLEXIL::makeOperationFactory(#NAME, \
                                PLEXIL::makeSimpleOperation(#NAME, CLASS::instance(), ARGTYPE, RETTYPE, 1, 1))
 
@@ -64,7 +65,10 @@ namespace PLEXIL
   PLEXIL::makeOperationFactory(#NAME, \
                                PLEXIL::makeSimpleOperation(#NAME, CLASS::instance(), BOOLEAN_TYPE, BOOLEAN_TYPE))
 
+//
 // Arithmetic ops
+//
+
 #define REGISTER_ARITHMETIC_OPERATION(NAME,CLASS) \
   PLEXIL::makeOperationFactory(#NAME, \
                                PLEXIL::makeArithmeticOperation(#NAME, CLASS<Integer>::instance(), CLASS<Real>::instance()))
@@ -77,7 +81,7 @@ namespace PLEXIL
   PLEXIL::makeOperationFactory(#NAME, \
                                PLEXIL::makeArithmeticOperation(#NAME, CLASS<Integer>::instance(), CLASS<Real>::instance(), 2, 2))
 
-#define REGISTER_SPECIAL_ARITHMETIC_OPERATION(NAME,RETTYPE,CLASS) \
+#define REGISTER_SPECIAL_ARITHMETIC_OPERATION(NAME,CLASS,RETTYPE) \
   PLEXIL::makeOperationFactory(#NAME, \
                                PLEXIL::makeSpecialArithmeticOperation(#NAME, CLASS::instance(), RETTYPE))
   
@@ -94,5 +98,10 @@ namespace PLEXIL
 #define REGISTER_COMPARISON_OPERATION(NAME,CLASS) \
   PLEXIL::makeOperationFactory(#NAME, \
                                PLEXIL::makeComparisonOperation(#NAME, CLASS<Integer>::instance(), CLASS<Real>::instance(), CLASS<String>::instance()))
+
+// Predicates of any argument (e.g. IsKnown)
+#define REGISTER_ANY_ARG_PREDICATE(NAME,CLASS) \
+  PLEXIL::makeOperationFactory(#NAME, \
+                               PLEXIL::makeAnyArgOperation(#NAME, CLASS::instance(), BOOLEAN_TYPE, 1, 1))
 
 #endif // PLEXIL_OPERATION_FACTORY_HH
