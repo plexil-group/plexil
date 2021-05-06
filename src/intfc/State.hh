@@ -50,7 +50,7 @@ namespace PLEXIL
     State(std::string const &name, Value const &arg0, Value const &arg1);
     State(std::string const &name, std::vector<Value> const &args);
 
-    ~State();
+    ~State() = default;
 
     State &operator=(State const &other);
     State &operator=(State &&other);

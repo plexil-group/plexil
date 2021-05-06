@@ -83,10 +83,6 @@ namespace PLEXIL
   {
   }
 
-  State::~State()
-  {
-  }
-
   State &State::operator=(State const &other)
   {
     m_name = other.m_name;
