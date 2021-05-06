@@ -38,16 +38,6 @@ namespace PLEXIL
   {
   }
 
-  bool StringConcat::checkArgCount(size_t /* count */) const
-  {
-    return true;
-  }
-
-  bool StringConcat::checkArgTypes(std::vector<ValueType> const &typeVec) const
-  {
-    return allSameTypeOrUnknown(STRING_TYPE, typeVec);
-  }
-
   bool StringConcat::operator()(String &result) const
   {
     result.clear();
@@ -99,17 +89,6 @@ namespace PLEXIL
   StringLength::StringLength()
     : OperatorImpl<Integer>("STRLEN")
   {
-  }
-
-  bool StringLength::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
-  bool StringLength::checkArgTypes(std::vector<ValueType> const &typeVec) const
-  {
-    ValueType typ = typeVec.at(0);
-    return typ == STRING_TYPE || typ == UNKNOWN_TYPE;
   }
 
   bool StringLength::operator()(Integer &result, Expression const *arg) const

@@ -40,9 +40,6 @@ namespace PLEXIL
   public:
     virtual ~ConversionOperator() = default;
 
-    virtual bool checkArgCount(size_t count) const;
-    virtual bool checkArgTypes(std::vector<ValueType> const &typeVec) const;
-
     // Overrides
     virtual bool operator()(NUM &result, Expression const *arg0, Expression const *arg1) const;
     virtual bool operator()(NUM &result, Function const &args) const;
@@ -135,7 +132,6 @@ namespace PLEXIL
   public:
     RealToInteger();
     virtual ~RealToInteger() = default;
-    virtual bool checkArgCount(size_t count) const;
     bool calc(Integer &result, Expression const *arg) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(RealToInteger, Integer);
 

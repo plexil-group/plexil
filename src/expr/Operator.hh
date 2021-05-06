@@ -55,14 +55,6 @@ namespace PLEXIL
      */
     virtual bool isPropagationSource() const;
 
-    // Delegated to each individual operator.
-    // No default method; derived classes must implement this.
-    virtual bool checkArgCount(size_t count) const = 0;
-
-    // Delegated to each individual operator.
-    // Default method returns true.
-    virtual bool checkArgTypes(std::vector<ValueType> const &typeVec) const;
-
     // Delegated to OperatorImpl by default
     virtual ValueType valueType() const = 0;
     virtual void *allocateCache() const = 0;
@@ -95,9 +87,6 @@ namespace PLEXIL
     virtual bool isKnown(Function const &exprs) const = 0;
     virtual void printValue(std::ostream &s, Function const &exprs) const = 0;
     virtual Value toValue(Function const &exprs) const = 0;
-
-    // Helper for checkArgTypes() methods
-    static bool allSameTypeOrUnknown(ValueType typ, std::vector<ValueType> const &typeVec);
 
   protected:
     Operator(std::string const &name);

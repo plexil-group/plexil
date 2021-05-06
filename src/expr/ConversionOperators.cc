@@ -68,19 +68,6 @@ namespace PLEXIL
   }
 
   template <typename NUM>
-  bool ConversionOperator<NUM>::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
-  template <typename NUM>
-  bool ConversionOperator<NUM>::checkArgTypes(std::vector<ValueType> const &typeVec) const
-  {
-    ValueType typ = typeVec.at(0);
-    return isNumericType(typ) || typ == UNKNOWN_TYPE;
-  }
-
-  template <typename NUM>
   bool ConversionOperator<NUM>::operator()(NUM & /* result */,
                                            Expression const */* arg0 */,
                                            Expression const */* arg1 */) const
@@ -215,11 +202,6 @@ namespace PLEXIL
   RealToInteger::RealToInteger()
     : OperatorImpl<Integer>("REAL_TO_INT")
   {
-  }
-
-  bool RealToInteger::checkArgCount(size_t count) const
-  {
-    return count == 1;
   }
 
   bool RealToInteger::calc(Integer & result,

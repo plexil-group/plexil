@@ -38,9 +38,7 @@ namespace PLEXIL
   class IsKnown final : public OperatorImpl<Boolean>
   {
   public:
-    ~IsKnown() = default;
-
-    bool checkArgCount(size_t count) const;
+    virtual ~IsKnown() = default;
 
     bool operator()(bool &result, Expression const *arg) const;
 
@@ -59,11 +57,7 @@ namespace PLEXIL
   class Equal final : public OperatorImpl<Boolean>
   {
   public:
-    ~Equal() = default;
-
-    bool checkArgCount(size_t count) const;
-
-    bool checkArgTypes(std::vector<ValueType> const &typeVec) const;
+    virtual ~Equal() = default;
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
@@ -82,11 +76,7 @@ namespace PLEXIL
   class NotEqual final : public OperatorImpl<Boolean>
   {
   public:
-    ~NotEqual() = default;
-
-    bool checkArgCount(size_t count) const;
-
-    bool checkArgTypes(std::vector<ValueType> const &typeVec) const;
+    virtual ~NotEqual() = default;
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
@@ -106,11 +96,7 @@ namespace PLEXIL
   class GreaterThan final : public OperatorImpl<Boolean>
   {
   public:
-    ~GreaterThan() = default;
-
-    bool checkArgCount(size_t count) const;
-
-    bool checkArgTypes(std::vector<ValueType> const &typeVec) const;
+    virtual ~GreaterThan() = default;
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
@@ -130,11 +116,7 @@ namespace PLEXIL
   class GreaterEqual final : public OperatorImpl<Boolean>
   {
   public:
-    ~GreaterEqual() = default;
-
-    bool checkArgCount(size_t count) const;
-
-    bool checkArgTypes(std::vector<ValueType> const &typeVec) const;
+    virtual ~GreaterEqual() = default;
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
@@ -154,11 +136,7 @@ namespace PLEXIL
   class LessThan final : public OperatorImpl<Boolean>
   {
   public:
-    ~LessThan() = default;
-
-    bool checkArgCount(size_t count) const;
-
-    bool checkArgTypes(std::vector<ValueType> const &typeVec) const;
+    virtual ~LessThan() = default;
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 
@@ -178,11 +156,7 @@ namespace PLEXIL
   class LessEqual final : public OperatorImpl<Boolean>
   {
   public:
-    ~LessEqual() = default;
-
-    bool checkArgCount(size_t count) const;
-
-    bool checkArgTypes(std::vector<ValueType> const &typeVec) const;
+    virtual ~LessEqual() = default;
 
     bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
 

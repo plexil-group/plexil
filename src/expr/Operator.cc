@@ -53,22 +53,6 @@ namespace PLEXIL
     return false;
   }
 
-  bool Operator::checkArgTypes(std::vector<ValueType> const & /* typeVec */) const
-  {
-    return true;
-  }
-
-  // Static helper for checkArgTypes()
-  bool Operator::allSameTypeOrUnknown(ValueType typ,
-                                      std::vector<ValueType> const &typeVec)
-  {
-    for (ValueType const &actual : typeVec) {
-      if (actual != typ && actual != UNKNOWN_TYPE)
-        return false;
-    }
-    return true;
-  }
-
 #define DEFINE_OPERATOR_DEFAULT_METHODS(_rtype_) \
   bool Operator::operator()(_rtype_ & /* result */, Expression const * /* arg */) const \
   { \

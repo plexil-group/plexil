@@ -35,21 +35,6 @@ namespace PLEXIL
   {
   }
 
-  BooleanNot::~BooleanNot()
-  {
-  }
-
-  bool BooleanNot::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
-  bool BooleanNot::checkArgTypes(std::vector<ValueType> const &typeVec) const
-  {
-    ValueType typ = typeVec.at(0);
-    return typ == BOOLEAN_TYPE || typ == UNKNOWN_TYPE;
-  }
-
   bool BooleanNot::operator()(Boolean &result, Expression const *arg) const
   {
     bool temp;
@@ -62,20 +47,6 @@ namespace PLEXIL
   BooleanOr::BooleanOr()
     : OperatorImpl<bool>("OR")
   {
-  }
-
-  BooleanOr::~BooleanOr()
-  {
-  }
-
-  bool BooleanOr::checkArgCount(size_t count) const
-  {
-    return count > 0;
-  }
-
-  bool BooleanOr::checkArgTypes(std::vector<ValueType> const &typeVec) const
-  {
-    return allSameTypeOrUnknown(BOOLEAN_TYPE, typeVec);
   }
 
   bool BooleanOr::operator()(Boolean &result, Expression const *arg) const
@@ -134,20 +105,6 @@ namespace PLEXIL
   {
   }
 
-  BooleanAnd::~BooleanAnd()
-  {
-  }
-
-  bool BooleanAnd::checkArgCount(size_t count) const
-  {
-    return count > 0;
-  }
-
-  bool BooleanAnd::checkArgTypes(std::vector<ValueType> const &typeVec) const
-  {
-    return allSameTypeOrUnknown(BOOLEAN_TYPE, typeVec);
-  }
-
   bool BooleanAnd::operator()(Boolean &result, Expression const *arg) const
   {
     return arg->getValue(result);
@@ -200,20 +157,6 @@ namespace PLEXIL
   BooleanXor::BooleanXor()
     : OperatorImpl<bool>("XOR")
   {
-  }
-
-  BooleanXor::~BooleanXor()
-  {
-  }
-
-  bool BooleanXor::checkArgCount(size_t count) const
-  {
-    return count > 0;
-  }
-
-  bool BooleanXor::checkArgTypes(std::vector<ValueType> const &typeVec) const
-  {
-    return allSameTypeOrUnknown(BOOLEAN_TYPE, typeVec);
   }
 
   bool BooleanXor::operator()(Boolean &result, Expression const *arg) const

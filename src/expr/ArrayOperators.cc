@@ -39,21 +39,6 @@ namespace PLEXIL
     : OperatorImpl<Integer>("ArraySize")
   {
   }
-  
-  ArraySize::~ArraySize()
-  {
-  }
-
-  bool ArraySize::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
-  bool ArraySize::checkArgTypes(std::vector<ValueType> const &typeVec) const
-  {
-    ValueType typ = typeVec.at(0);
-    return isArrayType(typ) || typ == UNKNOWN_TYPE;
-  }
 
   bool ArraySize::operator()(Integer &result, Expression const *arg) const
   {
@@ -71,21 +56,6 @@ namespace PLEXIL
   ArrayMaxSize::ArrayMaxSize()
     : OperatorImpl<Integer>("ArrayMaxSize")
   {
-  }
-  
-  ArrayMaxSize::~ArrayMaxSize()
-  {
-  }
-
-  bool ArrayMaxSize::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
-  bool ArrayMaxSize::checkArgTypes(std::vector<ValueType> const &typeVec) const
-  {
-    ValueType typ = typeVec.at(0);
-    return isArrayType(typ) || typ == UNKNOWN_TYPE;
   }
 
   bool ArrayMaxSize::operator()(Integer &result, Expression const *arg) const
@@ -107,21 +77,6 @@ namespace PLEXIL
   {
   }
 
-  AllElementsKnown::~AllElementsKnown()
-  {
-  }
-
-  bool AllElementsKnown::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
-  bool AllElementsKnown::checkArgTypes(std::vector<ValueType> const &typeVec) const
-  {
-    ValueType typ = typeVec.at(0);
-    return isArrayType(typ) || typ == UNKNOWN_TYPE;
-  }
-
   bool AllElementsKnown::operator()(Boolean &result, Expression const *arg) const
   {
     Array const *ary;
@@ -138,21 +93,6 @@ namespace PLEXIL
   AnyElementsKnown::AnyElementsKnown()
     : OperatorImpl<Boolean>("ANY_KNOWN")
   {
-  }
-
-  AnyElementsKnown::~AnyElementsKnown()
-  {
-  }
-
-  bool AnyElementsKnown::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
-  bool AnyElementsKnown::checkArgTypes(std::vector<ValueType> const &typeVec) const
-  {
-    ValueType typ = typeVec.at(0);
-    return isArrayType(typ) || typ == UNKNOWN_TYPE;
   }
 
   bool AnyElementsKnown::operator()(Boolean &result, Expression const *arg) const

@@ -37,10 +37,6 @@ namespace PLEXIL
   public:
     virtual ~StringConcat() = default;
 
-    bool checkArgCount(size_t count) const;
-
-    bool checkArgTypes(std::vector<ValueType> const &typeVec) const;
-
     bool operator()(String &result) const;
 
     bool operator()(String &result, Expression const *arg) const;
@@ -67,10 +63,6 @@ namespace PLEXIL
   {
   public:
     virtual ~StringLength() = default;
-
-    bool checkArgCount(size_t count) const;
-
-    bool checkArgTypes(std::vector<ValueType> const &typeVec) const;
 
     bool operator()(Integer &result, Expression const *arg) const;
 

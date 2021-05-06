@@ -36,11 +36,7 @@ namespace PLEXIL
   {
   public:
     ArraySize();
-    ~ArraySize();
-
-    bool checkArgCount(size_t count) const;
-
-    bool checkArgTypes(std::vector<ValueType> const &typeVec) const;
+    virtual ~ArraySize() = default;
 
     bool operator()(Integer &result, Expression const *arg) const;
 
@@ -56,11 +52,7 @@ namespace PLEXIL
   {
   public:
     ArrayMaxSize();
-    ~ArrayMaxSize();
-
-    bool checkArgCount(size_t count) const;
-
-    bool checkArgTypes(std::vector<ValueType> const &typeVec) const;
+    virtual ~ArrayMaxSize() = default;
 
     bool operator()(Integer &result, Expression const *arg) const;
 
@@ -76,11 +68,7 @@ namespace PLEXIL
   {
   public:
     AllElementsKnown();
-    ~AllElementsKnown();
-
-    bool checkArgCount(size_t count) const;
-
-    bool checkArgTypes(std::vector<ValueType> const &typeVec) const;
+    virtual ~AllElementsKnown() = default;
 
     bool operator()(Boolean &result, Expression const *arg) const;
 
@@ -96,11 +84,7 @@ namespace PLEXIL
   {
   public:
     AnyElementsKnown();
-    ~AnyElementsKnown();
-
-    bool checkArgCount(size_t count) const;
-
-    bool checkArgTypes(std::vector<ValueType> const &typeVec) const;
+    virtual ~AnyElementsKnown() = default;
 
     bool operator()(Boolean &result, Expression const *arg) const;
 

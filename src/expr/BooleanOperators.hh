@@ -36,11 +36,7 @@ namespace PLEXIL
   {
   public:
     BooleanNot();
-    ~BooleanNot();
-
-    bool checkArgCount(size_t count) const;
-
-    bool checkArgTypes(std::vector<ValueType> const &typeVec) const;
+    ~BooleanNot() = default;
 
     bool operator()(Boolean &result, Expression const *arg) const;
 
@@ -55,11 +51,7 @@ namespace PLEXIL
   {
   public:
     BooleanOr();
-    ~BooleanOr();
-
-    bool checkArgCount(size_t count) const;
-
-    bool checkArgTypes(std::vector<ValueType> const &typeVec) const;
+    ~BooleanOr() = default;
 
     bool operator()(Boolean &result, Expression const *arg) const;
     bool operator()(Boolean &result, Expression const *argA, Expression const *argB) const;
@@ -76,11 +68,7 @@ namespace PLEXIL
   {
   public:
     BooleanAnd();
-    ~BooleanAnd();
-
-    bool checkArgCount(size_t count) const;
-
-    bool checkArgTypes(std::vector<ValueType> const &typeVec) const;
+    ~BooleanAnd() = default;
 
     bool operator()(Boolean &result, Expression const *arg) const;
     bool operator()(Boolean &result, Expression const *argA, Expression const *argB) const;
@@ -97,11 +85,7 @@ namespace PLEXIL
   {
   public:
     BooleanXor();
-    ~BooleanXor();
-
-    bool checkArgCount(size_t count) const;
-
-    bool checkArgTypes(std::vector<ValueType> const &typeVec) const;
+    ~BooleanXor() = default;
 
     bool operator()(Boolean &result, Expression const *arg) const;
     bool operator()(Boolean &result, Expression const *argA, Expression const *argB) const;
