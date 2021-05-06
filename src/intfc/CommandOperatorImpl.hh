@@ -39,9 +39,7 @@ namespace PLEXIL
   class CommandOperatorImpl : public CommandOperator
   {
   public:
-    virtual ~CommandOperatorImpl()
-    {
-    }
+    virtual ~CommandOperatorImpl() = default;
 
     // Default methods, based on R
     ValueType valueType() const;
