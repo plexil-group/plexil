@@ -26,6 +26,9 @@
 
 #include "Operations.hh"
 
+#include "CachedFunction.hh"
+#include "Function.hh"
+
 #include <limits>
 
 namespace PLEXIL
@@ -49,6 +52,12 @@ namespace PLEXIL
     virtual bool checkArgCount(size_t count) const
     {
       return count >= m_minArgs && count <= m_maxArgs;
+    }
+
+    // Construct the Function instance for the expression.
+    virtual Function *constructFunction(Operator const *oper, size_t nArgs) const
+    {
+      return makeFunction(oper, nArgs);
     }
 
   protected:
@@ -87,7 +96,7 @@ namespace PLEXIL
 
   //! @class SimpleOperation
   //! Represents operations with the same parameter and return type, and one operator.
-  //! E.g. Boolean OR, string concatenation.
+  //! E.g. Boolean OR
 
   class SimpleOperation : public OperationBase
   {
@@ -145,6 +154,54 @@ namespace PLEXIL
                       size_t maxArgs)
   {
     return std::make_unique<SimpleOperation>(name, oper, argType, returnType, minArgs, maxArgs);
+  }
+
+
+  //! @class CachedSimpleOperation
+  //! Represents operations with the same parameter and return type, and one operator,
+  //! which cache their results.
+  //! E.g. string concatenation.
+
+  class CachedSimpleOperation : public SimpleOperation
+  {
+  public:
+    CachedSimpleOperation(std::string const &name,
+                          Operator const *oper,
+                          ValueType argType,
+                          ValueType returnType,
+                          size_t minArgs = 0,
+                          size_t maxArgs = std::numeric_limits<size_t>::max())
+      : SimpleOperation(name, oper, argType, returnType, minArgs, maxArgs)
+    {
+    }
+
+    virtual ~CachedSimpleOperation() = default;
+
+    // Construct the Function instance for the expression.
+    virtual Function *constructFunction(Operator const *oper, size_t nArgs) const override
+    {
+      return makeCachedFunction(oper, nArgs);
+    }
+
+  private:
+
+    // Not implemented
+    CachedSimpleOperation() = delete;
+    CachedSimpleOperation(CachedSimpleOperation const &) = delete;
+    CachedSimpleOperation(CachedSimpleOperation &&) = delete;
+  };
+
+  std::unique_ptr<Operation>
+  makeCachedSimpleOperation(std::string const &name,
+                            Operator const *oper,
+                            ValueType argType,
+                            ValueType returnType,
+                            size_t minArgs,
+                            size_t maxArgs)
+  {
+    return std::make_unique<CachedSimpleOperation>(name, oper,
+                                                   argType, returnType,
+                                                   minArgs, maxArgs);
   }
 
   // Represents an operation which accepts arguments of any type,
@@ -655,6 +712,58 @@ namespace PLEXIL
                           Operator const *stringOper)
   {
     return std::make_unique<ComparisonOperation>(name, integerOper, realOper, stringOper);
+  }
+
+  //! Operations which take one array parameter and return a value of a particular type.
+  //! E.g. arraySize, allElementsKnown
+  class ArrayOperation : public OperationBase
+  {
+  public:
+    ArrayOperation(std::string const &name,
+                   Operator const *oper,
+                   ValueType returnType)
+      : OperationBase(name, 1, 1),
+        m_operator(oper),
+        m_returnType(returnType)
+    {
+    }
+
+    virtual ~ArrayOperation() = default;
+
+    virtual bool checkArgTypes(std::vector<ValueType> const &typeVec) const
+    {
+      return isArrayType(typeVec.at(0));
+    }
+
+    virtual ValueType getValueType(std::vector<ValueType> const & /* typeVec */,
+                                   ValueType /* desiredType */) const
+    {
+      return m_returnType;
+    }
+
+    virtual Operator const *getOperator(std::vector<ValueType> const & /* typeVec */,
+                                        ValueType /* desiredType */) const
+    {
+      return m_operator;
+    }
+
+  private:
+
+    // Not implemented
+    ArrayOperation() = delete;
+    ArrayOperation(ArrayOperation const &) = delete;
+    ArrayOperation(ArrayOperation &&) = delete;
+
+    Operator const *m_operator;
+    ValueType const m_returnType;
+  };
+
+  std::unique_ptr<Operation>
+  makeArrayOperation(std::string const &name,
+                     Operator const *oper,
+                     ValueType returnType)
+  {
+    return std::make_unique<ArrayOperation>(name, oper, returnType);
   }
 
 } // namespace PLEXIL
