@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -38,8 +38,8 @@ namespace PLEXIL
   class InputQueue
   {
   public:
-    InputQueue() {}
-    virtual ~InputQueue() {}
+    InputQueue() = default;
+    virtual ~InputQueue() = default;
 
     // Simple query
     virtual bool isEmpty() const = 0;
