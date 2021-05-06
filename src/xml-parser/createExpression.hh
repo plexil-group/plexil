@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -44,11 +44,14 @@ namespace PLEXIL
    * @brief Check the XML for validity as an expression.
    * @param nodeId Name of the node to which the expression belongs.
    * @param expr The XML representation of the expression.
+   * @param desiredType The ValueType expected by the receiver of this expression.
    * @return The ValueType of the expression; UNKNOWN_TYPE if could not be determined.
    * @note Throws ParserException if any problems are found.
    */
 
-  extern ValueType checkExpression(char const *nodeId, pugi::xml_node const expr);
+  extern ValueType checkExpression(char const *nodeId,
+                                   pugi::xml_node const expr,
+                                   ValueType desiredType = UNKNOWN_TYPE);
 
   /**
    * @brief Check the XML for validity as an assignable expression.
