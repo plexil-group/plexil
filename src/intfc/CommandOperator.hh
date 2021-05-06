@@ -43,9 +43,7 @@ namespace PLEXIL
   class CommandOperator
   {
   public:
-    virtual ~CommandOperator()
-    {
-    }
+    virtual ~CommandOperator() = default;
 
     std::string const &getName() const
     {
@@ -90,9 +88,9 @@ namespace PLEXIL
 
   private:
     // unimplemented
-    CommandOperator();
-    CommandOperator(CommandOperator const &);
-    CommandOperator &operator=(CommandOperator const &);
+    CommandOperator() = delete;
+    CommandOperator(CommandOperator const &) = delete;
+    CommandOperator(CommandOperator &&) = delete;
   };
 
 } // namespace PLEXIL
