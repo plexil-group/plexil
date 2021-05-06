@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,7 @@ namespace PLEXIL
                                      assnXml,
                                      "Assignment Node \"" << nodeId
                                      << "\": Invalid right hand side for Assignment");
-    ValueType rht = checkExpression(nodeId, rhsXml.first_child());
+    ValueType rht = checkExpression(nodeId, rhsXml.first_child(), lht);
 
     // Check type consistency between variable (or array elt) and RHS expression
     checkParserExceptionWithLocation(areTypesCompatible(lht, rht),
@@ -90,7 +90,7 @@ namespace PLEXIL
   void constructAssignment(AssignmentNode *anode, xml_node const xml)
   {
     assertTrue_1(anode);
-    // Just construct it, will be populated in second pass
+    // Just construct it, will be populated in third pass
     anode->setAssignment(new Assignment());
   }
 
