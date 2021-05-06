@@ -51,7 +51,8 @@ namespace PLEXIL
   //
 
   ValueType ConcreteExpressionFactory<StateVariable>::check(char const * nodeId,
-                                                            pugi::xml_node const expr) const
+                                                            pugi::xml_node const expr,
+                                                            ValueType /* desiredType*/) const
   {
     checkHasChildElement(expr);
     checkNodeReference(expr.first_child());
@@ -73,7 +74,8 @@ namespace PLEXIL
   }
 
   ValueType ConcreteExpressionFactory<OutcomeVariable>::check(char const *nodeId,
-                                                              pugi::xml_node const expr) const
+                                                              pugi::xml_node const expr,
+                                                              ValueType /* desiredType*/) const
   {
     checkHasChildElement(expr);
     checkNodeReference(expr.first_child());
@@ -96,7 +98,8 @@ namespace PLEXIL
 
 
   ValueType ConcreteExpressionFactory<FailureVariable>::check(char const *nodeId,
-                                                              pugi::xml_node const expr) const
+                                                              pugi::xml_node const expr,
+                                                              ValueType /* desiredType*/) const
   {
     checkHasChildElement(expr);
     checkNodeReference(expr.first_child());
@@ -118,7 +121,8 @@ namespace PLEXIL
   }
 
   ValueType ConcreteExpressionFactory<CommandHandleVariable>::check(char const *nodeId,
-                                                                    pugi::xml_node const expr) const
+                                                                    pugi::xml_node const expr,
+                                                                    ValueType /* desiredType*/) const
   {
     checkHasChildElement(expr);
     checkNodeReference(expr.first_child());
@@ -149,7 +153,8 @@ namespace PLEXIL
   // Specialization for node timepoint references
 
   ValueType ConcreteExpressionFactory<NodeTimepointValue>::check(char const *nodeId,
-                                                                 pugi::xml_node const expr) const
+                                                                 pugi::xml_node const expr,
+                                                                 ValueType /* desiredType*/) const
   {
     checkHasChildElement(expr);
     checkNodeReference(expr.first_child());
@@ -205,7 +210,8 @@ namespace PLEXIL
 
   template <>
   ValueType NamedConstantExpressionFactory<NodeStateConstant>::check(char const *nodeId,
-                                                                     pugi::xml_node const expr) const
+                                                                     pugi::xml_node const expr,
+                                                                     ValueType /* desiredType*/) const
   {
     checkNotEmpty(expr);
     switch (parseNodeState(expr.child_value())) {
@@ -263,7 +269,8 @@ namespace PLEXIL
 
   template <>
   ValueType NamedConstantExpressionFactory<NodeOutcomeConstant>::check(char const *nodeId,
-                                                                       pugi::xml_node const expr) const
+                                                                       pugi::xml_node const expr,
+                                                                       ValueType /* desiredType*/) const
   {
     checkNotEmpty(expr);
     switch (parseNodeOutcome(expr.child_value())) {
@@ -309,7 +316,8 @@ namespace PLEXIL
 
   template <>
   ValueType NamedConstantExpressionFactory<FailureTypeConstant>::check(char const *nodeId,
-                                                                       pugi::xml_node const expr) const
+                                                                       pugi::xml_node const expr,
+                                                                       ValueType /* desiredType*/) const
   {
     checkNotEmpty(expr);
     switch (parseFailureType(expr.child_value())) {
@@ -363,7 +371,8 @@ namespace PLEXIL
 
   template <>
   ValueType NamedConstantExpressionFactory<CommandHandleConstant>::check(char const *nodeId,
-                                                                         pugi::xml_node const expr) const
+                                                                         pugi::xml_node const expr,
+                                                                         ValueType /* desiredType*/) const
   {
     checkNotEmpty(expr);
     switch (parseCommandHandleValue(expr.child_value())) {
