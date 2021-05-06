@@ -27,34 +27,15 @@
 #ifndef PLEXIL_ARRAY_VARIABLE_FACTORY_HH
 #define PLEXIL_ARRAY_VARIABLE_FACTORY_HH
 
-#include "ExpressionFactory.hh"
+#include <string>
 
 namespace PLEXIL
 {
+  // Forward reference
+  class ExpressionFactory;
 
-  class ArrayVariableFactory : public ExpressionFactory
-  {
-  public:
-    ArrayVariableFactory(std::string const &name);
-    ~ArrayVariableFactory();
-
-    ValueType check(char const *nodeId,
-                    pugi::xml_node expr,
-                    ValueType desiredType) const;
-
-    Expression *allocate(pugi::xml_node const expr,
-                         NodeConnector *node,
-                         bool &wasCreated,
-                         ValueType returnType) const;
-
-  private:
-    // Default, copy, assign all prohibited
-    ArrayVariableFactory();
-    ArrayVariableFactory(ArrayVariableFactory const &);
-    ArrayVariableFactory & operator=(ArrayVariableFactory const &);
-  };
+  ExpressionFactory * makeArrayVariableFactory(std::string const &name);
 
 } // namespace PLEXIL
 
 #endif // PLEXIL_ARRAY_VARIABLE_FACTORY_HH
-
