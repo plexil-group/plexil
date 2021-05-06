@@ -65,6 +65,12 @@ namespace PLEXIL
   PLEXIL::makeOperationFactory(#NAME, \
                                PLEXIL::makeSimpleOperation(#NAME, CLASS::instance(), BOOLEAN_TYPE, BOOLEAN_TYPE))
 
+// Cached simple operations (mostly for string concatenation)
+#define REGISTER_CACHED_SIMPLE_OPERATION(NAME,CLASS,ARGTYPE,RETTYPE) \
+  PLEXIL::makeOperationFactory(#NAME, \
+                               PLEXIL::makeCachedSimpleOperation(#NAME, CLASS::instance(), ARGTYPE, RETTYPE))
+
+
 //
 // Arithmetic ops
 //
@@ -103,5 +109,10 @@ namespace PLEXIL
 #define REGISTER_ANY_ARG_PREDICATE(NAME,CLASS) \
   PLEXIL::makeOperationFactory(#NAME, \
                                PLEXIL::makeAnyArgOperation(#NAME, CLASS::instance(), BOOLEAN_TYPE, 1, 1))
+
+// Array queries
+#define REGISTER_ARRAY_QUERY_OPERATION(NAME,CLASS,RETTYPE) \
+  PLEXIL::makeOperationFactory(#NAME, \
+                               PLEXIL::makeArrayOperation(#NAME, CLASS::instance(), RETTYPE))
 
 #endif // PLEXIL_OPERATION_FACTORY_HH

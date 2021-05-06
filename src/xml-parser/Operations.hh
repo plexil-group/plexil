@@ -40,7 +40,7 @@ namespace PLEXIL
 
   // A "simple" operation accepts parameters of one specific type,
   // returns a fixed (potentially different) return type, and has one operator.
-  // E.g. Boolean OR, string concatenation, array length.
+  // E.g. Boolean OR
 
   std::unique_ptr<Operation>
   makeSimpleOperation(std::string const &name,
@@ -49,6 +49,19 @@ namespace PLEXIL
                       ValueType returnType,
                       size_t minArgs = 0,
                       size_t maxArgs = std::numeric_limits<size_t>::max());
+
+  // A cached simple operation accepts parameters of one specific type,
+  // returns a fixed (potentially different) return type, ahas one operator,
+  // and caches its result.
+  // E.g. string concatenation
+
+  std::unique_ptr<Operation>
+  makeCachedSimpleOperation(std::string const &name,
+                            Operator const *oper,
+                            ValueType argType,
+                            ValueType returnType,
+                            size_t minArgs = 0,
+                            size_t maxArgs = std::numeric_limits<size_t>::max());
 
   // An "any-arg" operation accepts arguments of any type,
   // and returns one specific type.
@@ -108,6 +121,14 @@ namespace PLEXIL
                           Operator const *integerOper,
                           Operator const *realOper,
                           Operator const *stringOper);
+
+  //! Operations which take one array parameter and return a value of a particular type.
+  //! E.g. arraySize, allElementsKnown
+
+  std::unique_ptr<Operation>
+  makeArrayOperation(std::string const &name,
+                     Operator const *oper,
+                     ValueType returnType);
 
 } // namespace PLEXIL
 
