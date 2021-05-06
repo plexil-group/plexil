@@ -49,7 +49,7 @@ namespace PLEXIL
     /**
      * @brief Destructor.
      */
-    ~CommandHandleVariable();
+    virtual ~CommandHandleVariable();
 
     // Listenable API
     virtual bool isPropagationSource() const;
