@@ -110,7 +110,7 @@ namespace PLEXIL
                     << m_operation->getName()
                     << "\n Arg types " << valueTypeName(argTypes[0])
                     << ", " << valueTypeName(argTypes[1]));
-      Function *result = makeFunction(oper, n);
+      Function *result = m_operation->constructFunction(oper, n);
 
       for (size_t j = 0 ; j < n; ++j) {
         result->setArgument(j, args[j], argCreated[j]);
