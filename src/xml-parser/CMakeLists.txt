@@ -26,14 +26,14 @@
 # XML parser module subproject of PLEXIL_EXEC
 
 add_library(PlexilXmlParser ${PlexilExec_SHARED_OR_STATIC}
-  ArrayLiteralFactory.cc ArrayVariableFactory.cc
-  ArrayVariableReferenceFactory.cc ComparisonFactory.cc
-  ConcreteExpressionFactory.cc commandXmlParser.cc createExpression.cc
-  ExpressionFactory.cc findDeclarations.cc InternalExpressionFactories.cc
-  LookupFactory.cc NodeFunctionFactory.cc OperatorFactory.cc Operators.cc
-  parseAssignment.cc parseGlobalDeclarations.cc parseLibraryCall.cc
-  parseNode.cc parseNodeReference.cc parsePlan.cc parser-utils.cc
-  planLibrary.cc SymbolTable.cc updateXmlParser.cc UserVariableFactory.cc
+  ArrayLiteralFactory.cc ArrayReferenceFactory.cc ArrayVariableFactory.cc
+  ArrayVariableReferenceFactory.cc commandXmlParser.cc ConstantFactory.cc
+  createExpression.cc ExpressionFactory.cc findDeclarations.cc
+  InternalExpressionFactories.cc LookupFactory.cc NodeFunctionFactory.cc
+  OperatorFactory.cc Operators.cc parseAssignment.cc parseGlobalDeclarations.cc
+  parseLibraryCall.cc parseNode.cc parseNodeReference.cc parsePlan.cc
+  parser-utils.cc planLibrary.cc SymbolTable.cc updateXmlParser.cc
+  UserVariableFactory.cc VariableReferenceFactory.cc
   )
 
 # ExpressionMap.hh is included by createExpression.cc
