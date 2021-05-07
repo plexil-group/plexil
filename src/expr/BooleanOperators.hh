@@ -36,7 +36,7 @@ namespace PLEXIL
   {
   public:
     BooleanNot();
-    ~BooleanNot() = default;
+    virtual ~BooleanNot() = default;
 
     bool operator()(Boolean &result, Expression const *arg) const;
 
@@ -51,7 +51,7 @@ namespace PLEXIL
   {
   public:
     BooleanOr();
-    ~BooleanOr() = default;
+    virtual ~BooleanOr() = default;
 
     bool operator()(Boolean &result, Expression const *arg) const;
     bool operator()(Boolean &result, Expression const *argA, Expression const *argB) const;
@@ -68,7 +68,7 @@ namespace PLEXIL
   {
   public:
     BooleanAnd();
-    ~BooleanAnd() = default;
+    virtual ~BooleanAnd() = default;
 
     bool operator()(Boolean &result, Expression const *arg) const;
     bool operator()(Boolean &result, Expression const *argA, Expression const *argB) const;
@@ -85,7 +85,7 @@ namespace PLEXIL
   {
   public:
     BooleanXor();
-    ~BooleanXor() = default;
+    virtual ~BooleanXor() = default;
 
     bool operator()(Boolean &result, Expression const *arg) const;
     bool operator()(Boolean &result, Expression const *argA, Expression const *argB) const;
