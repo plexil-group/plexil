@@ -29,14 +29,59 @@
 
 #include "ExpressionFactory.hh"
 
+#include "pugixml.hpp"
+
 namespace PLEXIL
 {
-  // Forward references
-  template <typename T> class Constant;
 
-  class ArrayReference;
-  class MutableArrayReference;
+  //! Check the XML of the given expression for errors. If none found,
+  //! return the value type of the expression.  Throw a ParserException
+  //! if any errors are discovered.
+  //! @tparam EXPR Notionally, a subclass of Expression which the
+  //!              factory's allocate() method will return.
+  //! @param nodeId The node ID of the PLEXIL node containing the expression.
+  //! @param expr The pugixml representation of the expression.
+  //! @param desiredType A value type suggested by the containing expression;
+  //!                    used in Assignments.
+  //! @return The result type the expression will return.
+  //! @note C++ forbids partial specialization of function templates.
 
+  template <class EXPR>
+  ValueType factoryCheck(char const *nodeId,
+                         pugi::xml_node const expr,
+                         ValueType desiredType);
+
+  //! Return a pointer to an Expression instance described by the XML.
+  //! @tparam EXPR Notionally, a subclass of Expression which the function
+  //!              will return; however, this is not checked or enforced.
+  //! @param expr The pugixml representation of the expression.
+  //! @param nodeId The node ID of the PLEXIL node containing the expression.
+  //! @param wasCreated[out] This will be set to true if the returned object was
+  //!                        constructed; false if an existing object was returned.
+  //! @param desiredType A value type suggested by the containing expression;
+  //!                    used in Assignments.
+  //! @return Pointer to the Expression.
+  //! @note C++ forbids partial specialization of function templates.
+
+  template <class EXPR>
+  Expression *factoryAllocate(pugi::xml_node const expr,
+                              NodeConnector *node,
+                              bool &wasCreated,
+                              ValueType returnType);
+
+  //! @class ConcreteExpressionFactory
+  //! A skeleton factory class, which delegates its work to the two
+  //! function templates above.
+  //! @tparam EXPR Notionally, a subclass of Expression which the
+  //!              factory's allocate() method will return;
+  //!              this is not checked or enforced, however.
+  //! @note Using a templated type (e.g. Constant<T>) as the type
+  //! parameter will not save you from writing factoryCheck() and
+  //! factoryAllocate() functions for each concrete instantiation
+  //! of the templated type. This is because template functions,
+  //! to which ConcreteExpressionFactory delegates its work,
+  //! cannot be partially specialized.
+  
   template <class EXPR>
   class ConcreteExpressionFactory : public ExpressionFactory
   {
@@ -46,113 +91,35 @@ namespace PLEXIL
     {
     }
 
-    ~ConcreteExpressionFactory()
+    virtual ~ConcreteExpressionFactory() = default;
+
+    virtual ValueType check(char const *nodeId,
+                            pugi::xml_node const expr,
+                            ValueType desiredType) const
     {
+      return factoryCheck<EXPR>(nodeId, expr, desiredType);
     }
-
-    ValueType check(char const *nodeId, pugi::xml_node const expr, ValueType desiredType) const;
-
-    Expression *allocate(pugi::xml_node const expr,
-                         NodeConnector *node,
-                         bool &wasCreated,
-                         ValueType returnType) const
-    = 0;
-
-  private:
-    // Default, copy, assign all prohibited
-    ConcreteExpressionFactory();
-    ConcreteExpressionFactory(const ConcreteExpressionFactory &);
-    ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
-  };
-
-  template <typename T>
-  class ConcreteExpressionFactory<Constant<T> > : public ExpressionFactory
-  {
-  public:
-    ConcreteExpressionFactory(const std::string& name)
-      : ExpressionFactory(name) 
-    {
-    }
-
-    ~ConcreteExpressionFactory()
-    {
-    }
-    
-    ValueType check(char const *nodeId, pugi::xml_node const expr, ValueType desiredType) const;
-
-    Expression *allocate(pugi::xml_node const expr,
-                         NodeConnector *node,
-                         bool &wasCreated,
-                         ValueType returnType) const;
-
-  private:
-    // Default, copy, assign all prohibited
-    ConcreteExpressionFactory();
-    ConcreteExpressionFactory(const ConcreteExpressionFactory &);
-    ConcreteExpressionFactory &operator=(const ConcreteExpressionFactory &);
-  };
-
-  template <>
-  class ConcreteExpressionFactory<ArrayReference> : public ExpressionFactory
-  {
-  public:
-    ConcreteExpressionFactory(std::string const &name)
-      : ExpressionFactory(name)
-    {
-    }
-
-    ~ConcreteExpressionFactory()
-    {
-    }
-
-    ValueType check(char const *nodeId, pugi::xml_node const expr, ValueType desiredType) const;
 
     virtual Expression *allocate(pugi::xml_node const expr,
                                  NodeConnector *node,
-                                 bool & wasCreated,
-                                 ValueType returnType) const;
-
-  private:
-    // Default, copy, assign prohibited
-    ConcreteExpressionFactory();
-    ConcreteExpressionFactory(ConcreteExpressionFactory const &);
-    ConcreteExpressionFactory &operator=(ConcreteExpressionFactory const &);
-  };
-
-  // Special case for ArrayElement as assignment target or InOut alias
-  Expression *createMutableArrayReference(pugi::xml_node const expr,
-                                          NodeConnector *node,
-                                          bool & wasCreated);
-
-  class VariableReferenceFactory : public ExpressionFactory
-  {
-  public:
-    VariableReferenceFactory(std::string const &name, ValueType typ)
-      : ExpressionFactory(name),
-	m_type (typ)
+                                 bool &wasCreated,
+                                 ValueType returnType) const
     {
+      return factoryAllocate<EXPR>(expr, node, wasCreated, returnType);
     }
 
-    ~VariableReferenceFactory()
-    {
-    }
-
-    ValueType check(char const *nodeId, pugi::xml_node const expr, ValueType desiredType) const;
-
-    virtual Expression *allocate(pugi::xml_node const expr,
-                                 NodeConnector *node,
-                                 bool & wasCreated,
-                                 ValueType returnType) const;
-
   private:
-    // Default, copy, assign prohibited
-    VariableReferenceFactory();
-    VariableReferenceFactory(VariableReferenceFactory const &);
-    VariableReferenceFactory &operator=(VariableReferenceFactory const &);
-
-    ValueType const m_type;
+    // Default, copy, assign all prohibited
+    ConcreteExpressionFactory() = delete;
+    ConcreteExpressionFactory(ConcreteExpressionFactory const &) = delete;
+    ConcreteExpressionFactory(ConcreteExpressionFactory &&) = delete;
+    ConcreteExpressionFactory &operator=(ConcreteExpressionFactory const &) = delete;
+    ConcreteExpressionFactory &operator=(ConcreteExpressionFactory &&) = delete;
   };
 
 } // namespace PLEXIL
+
+// Convenience macro
+#define ENSURE_EXPRESSION_FACTORY(CLASS) template class PLEXIL::ConcreteExpressionFactory<CLASS>;
 
 #endif // PLEXIL_CONCRETE_EXPRESSION_FACTORY_HH
