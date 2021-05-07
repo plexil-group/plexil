@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -463,9 +463,9 @@ namespace PLEXIL
   }
 
   template <typename NUM>
-  bool SquareRoot<NUM>::checkArgTypes(Function const *func) const
+  bool SquareRoot<NUM>::checkArgTypes(std::vector<ValueType> const &typeVec) const
   {
-    ValueType typ = (*func)[0]->valueType();
+    ValueType typ = typeVec.at(0);
     return isNumericType(typ) || typ == UNKNOWN_TYPE;
   }
 

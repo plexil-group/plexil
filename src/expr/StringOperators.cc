@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -47,9 +47,9 @@ namespace PLEXIL
     return true;
   }
 
-  bool StringConcat::checkArgTypes(Function const *func) const
+  bool StringConcat::checkArgTypes(std::vector<ValueType> const &typeVec) const
   {
-    return func->allSameTypeOrUnknown(STRING_TYPE);
+    return allSameTypeOrUnknown(STRING_TYPE, typeVec);
   }
 
   bool StringConcat::operator()(String &result) const
@@ -114,10 +114,9 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool StringLength::checkArgTypes(Function const *func) const
+  bool StringLength::checkArgTypes(std::vector<ValueType> const &typeVec) const
   {
-    ValueType typ = (*func)[0]->valueType();
-    return typ == STRING_TYPE || typ == UNKNOWN_TYPE;
+    return typeVec.at(0) == STRING_TYPE || typeVec.at(0) == UNKNOWN_TYPE;
   }
 
   bool StringLength::operator()(Integer &result, Expression const *arg) const

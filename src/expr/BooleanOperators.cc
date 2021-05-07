@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -44,9 +44,9 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool BooleanNot::checkArgTypes(Function const *func) const
+  bool BooleanNot::checkArgTypes(std::vector<ValueType> const &typeVec) const
   {
-    ValueType typ = (*func)[0]->valueType();
+    ValueType typ = typeVec.at(0);
     return typ == BOOLEAN_TYPE || typ == UNKNOWN_TYPE;
   }
 
@@ -73,9 +73,9 @@ namespace PLEXIL
     return count > 0;
   }
 
-  bool BooleanOr::checkArgTypes(Function const *func) const
+  bool BooleanOr::checkArgTypes(std::vector<ValueType> const &typeVec) const
   {
-    return func->allSameTypeOrUnknown(BOOLEAN_TYPE);
+    return allSameTypeOrUnknown(BOOLEAN_TYPE, typeVec);
   }
 
   bool BooleanOr::operator()(bool &result, Expression const *arg) const
@@ -143,9 +143,9 @@ namespace PLEXIL
     return count > 0;
   }
 
-  bool BooleanAnd::checkArgTypes(Function const *func) const
+  bool BooleanAnd::checkArgTypes(std::vector<ValueType> const &typeVec) const
   {
-    return func->allSameTypeOrUnknown(BOOLEAN_TYPE);
+    return allSameTypeOrUnknown(BOOLEAN_TYPE, typeVec);
   }
 
   bool BooleanAnd::operator()(bool &result, Expression const *arg) const
@@ -211,9 +211,9 @@ namespace PLEXIL
     return count > 0;
   }
 
-  bool BooleanXor::checkArgTypes(Function const *func) const
+  bool BooleanXor::checkArgTypes(std::vector<ValueType> const &typeVec) const
   {
-    return func->allSameTypeOrUnknown(BOOLEAN_TYPE);
+    return allSameTypeOrUnknown(BOOLEAN_TYPE, typeVec);
   }
 
   bool BooleanXor::operator()(bool &result, Expression const *arg) const

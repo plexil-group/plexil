@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,11 +40,11 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(Function const *ev) const;
+    bool checkArgTypes(std::vector<ValueType> const &typeVec) const;
 
-    bool operator()(int32_t &result, Expression const *arg) const;
+    bool operator()(Integer &result, Expression const *arg) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(ArraySize, int32_t);
+    DECLARE_OPERATOR_STATIC_INSTANCE(ArraySize, Integer);
 
   private:
     // Disallow copy, assign
@@ -52,7 +52,7 @@ namespace PLEXIL
     ArraySize &operator=(const ArraySize &);
   };
 
-  class ArrayMaxSize : public OperatorImpl<int32_t>
+  class ArrayMaxSize : public OperatorImpl<Integer>
   {
   public:
     ArrayMaxSize();
@@ -60,11 +60,11 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(Function const *ev) const;
+    bool checkArgTypes(std::vector<ValueType> const &typeVec) const;
 
-    bool operator()(int32_t &result, Expression const *arg) const;
+    bool operator()(Integer &result, Expression const *arg) const;
 
-    DECLARE_OPERATOR_STATIC_INSTANCE(ArrayMaxSize, int32_t);
+    DECLARE_OPERATOR_STATIC_INSTANCE(ArrayMaxSize, Integer);
 
   private:
     // Disallow copy, assign
@@ -80,7 +80,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(Function const *ev) const;
+    bool checkArgTypes(std::vector<ValueType> const &typeVec) const;
 
     bool operator()(bool &result, Expression const *arg) const;
 
@@ -100,7 +100,7 @@ namespace PLEXIL
 
     bool checkArgCount(size_t count) const;
 
-    bool checkArgTypes(Function const *ev) const;
+    bool checkArgTypes(std::vector<ValueType> const &typeVec) const;
 
     bool operator()(bool &result, Expression const *arg) const;
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -41,7 +41,7 @@ namespace PLEXIL
     virtual ~ConversionOperator();
 
     virtual bool checkArgCount(size_t count) const;
-    virtual bool checkArgTypes(Function const *ev) const;
+    virtual bool checkArgTypes(std::vector<ValueType> const &typeVec) const;
 
     // Overrides
     virtual bool operator()(NUM &result, Expression const *arg0, Expression const *arg1) const;
@@ -69,7 +69,7 @@ namespace PLEXIL
   {
   public:
     Ceiling();
-    ~Ceiling();
+    virtual ~Ceiling();
     virtual bool calcInternal(Real &result, Expression const *arg) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Ceiling, NUM);
 
@@ -83,7 +83,7 @@ namespace PLEXIL
   {
   public:
     Floor();
-    ~Floor();
+    virtual ~Floor();
     virtual bool calcInternal(Real &result, Expression const *arg) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Floor, NUM);
 
@@ -111,7 +111,7 @@ namespace PLEXIL
   {
   public:
     Truncate();
-    ~Truncate();
+    virtual ~Truncate();
     virtual bool calcInternal(Real &result, Expression const *arg) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Truncate, NUM);
 
@@ -124,10 +124,11 @@ namespace PLEXIL
   {
   public:
     RealToInteger();
-    ~RealToInteger();
+    virtual ~RealToInteger();
     virtual bool checkArgCount(size_t count) const;
-    bool checkArgTypes(Function const *ev) const;
-    bool calc(Integer &result, Expression const *arg) const;
+    virtual bool checkArgTypes(std::vector<ValueType> const &typeVec) const;
+    virtual bool calc(Integer &result, Expression const *arg) const;
+
     DECLARE_OPERATOR_STATIC_INSTANCE(RealToInteger, Integer);
 
   private:

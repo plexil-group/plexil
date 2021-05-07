@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -49,9 +49,9 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool ArraySize::checkArgTypes(Function const *func) const
+  bool ArraySize::checkArgTypes(std::vector<ValueType> const &typeVec) const
   {
-    ValueType typ = (*func)[0]->valueType();
+    ValueType typ = typeVec.at(0);
     return isArrayType(typ) || typ == UNKNOWN_TYPE;
   }
 
@@ -82,9 +82,9 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool ArrayMaxSize::checkArgTypes(Function const *func) const
+  bool ArrayMaxSize::checkArgTypes(std::vector<ValueType> const &typeVec) const
   {
-    ValueType typ = (*func)[0]->valueType();
+    ValueType typ = typeVec.at(0);
     return isArrayType(typ) || typ == UNKNOWN_TYPE;
   }
 
@@ -116,9 +116,9 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool AllElementsKnown::checkArgTypes(Function const *func) const
+  bool AllElementsKnown::checkArgTypes(std::vector<ValueType> const &typeVec) const
   {
-    ValueType typ = (*func)[0]->valueType();
+    ValueType typ = typeVec.at(0);
     return isArrayType(typ) || typ == UNKNOWN_TYPE;
   }
 
@@ -149,9 +149,9 @@ namespace PLEXIL
     return count == 1;
   }
 
-  bool AnyElementsKnown::checkArgTypes(Function const *func) const
+  bool AnyElementsKnown::checkArgTypes(std::vector<ValueType> const &typeVec) const
   {
-    ValueType typ = (*func)[0]->valueType();
+    ValueType typ = typeVec.at(0);
     return isArrayType(typ) || typ == UNKNOWN_TYPE;
   }
 
