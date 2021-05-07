@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,11 @@ namespace PLEXIL
   extern Expression *INT_ONE_EXP();
   extern Expression *INT_ZERO_EXP();
   extern Expression *INT_MINUS_ONE_EXP();
+
+  // Real
+  extern Expression *REAL_ONE_EXP();
+  extern Expression *REAL_ZERO_EXP();
+  extern Expression *REAL_MINUS_ONE_EXP();
 
   // more as required
 } // namespace PLEXIL

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -63,6 +63,24 @@ namespace PLEXIL
   {
     static IntegerConstant sl_int_minus_one(-1);
     return &sl_int_minus_one;
+  }
+
+  Expression *REAL_ONE_EXP()
+  {
+    static RealConstant sl_real_one(1);
+    return &sl_real_one;
+  }
+
+  Expression *REAL_ZERO_EXP()
+  {
+    static RealConstant sl_real_zero((int32_t) 0);
+    return &sl_real_zero;
+  }
+
+  Expression *REAL_MINUS_ONE_EXP()
+  {
+    static RealConstant sl_real_minus_one(-1);
+    return &sl_real_minus_one;
   }
 
 } // namespace PLEXIL
