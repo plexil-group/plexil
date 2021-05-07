@@ -38,10 +38,10 @@ AC_CONFIG_MACRO_DIR([m4])
 # Check whether compilers exist and work
 
 # Note that AC_PROG_CXX sets CXXFLAGS to '-g -O2' if not already set
-# This version of PLEXIL requires C++14 or later, so set the standard
+# This version of PLEXIL requires C++11 or later, so set the standard
 # in the CXXFLAGS defaults.
 # This bit of hackery is straight out of the GNU Autoconf manual
-: ${CXXFLAGS="-std=c++14 -g -O2"}
+: ${CXXFLAGS="-std=c++11 -g -O2"}
 
 AC_PROG_CXX
 AC_PROG_CC
