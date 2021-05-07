@@ -28,6 +28,8 @@
 
 #include "NodeImpl.hh"
 
+#include <ostream>
+
 namespace PLEXIL
 {
   //

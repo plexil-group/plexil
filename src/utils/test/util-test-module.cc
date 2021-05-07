@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,6 @@
 */
 
 #include "util-test-module.hh"
-#include "ConstantMacros.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "lifecycle-utils.h"
@@ -56,13 +55,6 @@
 #include "timespec-utils.hh"
 #include "timeval-utils.hh"
 
-#include <cassert>
-
-#ifdef STDC_HEADERS
-#include <cfloat>
-#include <cstring> // for strcmp
-#endif
-
 #include <iomanip>
 #include <iostream>
 #include <fstream>
@@ -70,24 +62,41 @@
 #include <sstream>
 #include <typeinfo>
 
+#if defined(HAVE_CASSERT)
+#include <cassert>
+#elif defined(HAVE_ASSERT_H)
+#include <assert.h>
+#endif
+
+#if defined(HAVE_CFLOAT)
+#include <cfloat>
+#elif defined(HAVE_FLOAT_H)
+#include <float.h>
+#endif
+
+#if defined(HAVE_CSTRING)
+#include <cstring> // strcmp()
+#elif defined(HAVE_STRING_H)
+#include <string.h> // strcmp()
+#endif
+
 #ifdef HAVE_SYS_TIME_H 
 #include <sys/time.h>
 #elif defined(__VXWORKS__)
 #include <time.h>
+#ifdef HAVE_SYS_TIMES_H
 #include <sys/times.h>
-#include <sysLib.h> /* for sysClkRateGet() */
 #endif
-
-#if S950
-// apparently needed for sys950lib
-#include <types/vxTypesOld.h>
-#include <sys950Lib.h>
+#ifdef HAVE_SYSLIB_H
+#include <sysLib.h> /* for sysClkRateGet() */
+#endif 
 #endif
 
 // Tests not in this source file
 
 extern bool LinkedQueueTest();
 extern bool SimpleMapTest();
+extern bool SimpleSetTest();
 extern bool bitsetUtilsTest();
 
 /**
@@ -115,7 +124,7 @@ using namespace PLEXIL;
 
 class TestError {
 public:
-  DECLARE_STATIC_CLASS_CONST(char*, TEST_CONST, "TestData");
+  static constexpr const char TEST_CONST[] = "TestData";
   DECLARE_ERROR(BadThing);
 };
 
@@ -127,7 +136,7 @@ public:
   }
 private:
   static bool testExceptions() {
-    assertTrue_1(strcmp(TestError::TEST_CONST(), "TestData") == 0);
+    assertTrue_1(strcmp(TestError::TEST_CONST, "TestData") == 0);
     bool success = true;
     Error::doThrowExceptions();
     int var = 1;
@@ -494,6 +503,7 @@ void UtilModuleTests::runTests(std::string /* path */)
   runTestSuite(StricmpTests::test);
 
   runTestSuite(SimpleMapTest);
+  runTestSuite(SimpleSetTest);
   runTestSuite(LinkedQueueTest);
   runTestSuite(bitsetUtilsTest);
 

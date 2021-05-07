@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,15 +27,15 @@
 #include "parseNode.hh"
 
 #include "Alias.hh"
+#include "Array.hh"
 #include "ArrayLiteralFactory.hh"
 #include "Assignable.hh"
 #include "AssignmentNode.hh"
-#include "Command.hh"
+#include "CommandImpl.hh"
 #include "CommandNode.hh"
 #include "commandXmlParser.hh"
 #include "createExpression.hh"
 #include "Debug.hh"
-#include "Error.hh"
 #include "LibraryCallNode.hh"
 #include "ListNode.hh"
 #include "Mutex.hh"
@@ -46,15 +46,23 @@
 #include "PlexilSchema.hh"
 #include "UpdateNode.hh"
 #include "updateXmlParser.hh"
+#include "Variable.hh"
 
 #include "pugixml.hpp"
 
-#include <algorithm>
+#include <algorithm> // std::distance(), std::find_if()
 #include <limits>
 
-#ifdef STDC_HEADERS
-#include <cstdlib> // for strtoul()
-#include <cstring> // strcmp()
+#if defined(HAVE_CSTDLIB)
+#include <cstdlib>  // strtoul()
+#elif defined(HAVE_STDLIB_H)
+#include <stdlib.h> // strtoul()
+#endif
+
+#if defined(HAVE_CSTRING)
+#include <cstring>  // strcmp()
+#elif defined(HAVE_STRING_H)
+#include <string.h> // strcmp()
 #endif
 
 using pugi::xml_attribute;
@@ -62,8 +70,28 @@ using pugi::xml_node;
 using pugi::xpath_node;
 using pugi::node_element;
 
+using std::string;
+
 namespace PLEXIL
 {
+
+  //
+  // Local utility functions
+  //
+
+  static inline char const *getVarDeclName(xml_node const decl)
+  {
+    return decl.child_value(NAME_TAG);
+  }
+
+  static ValueType getVarDeclType(xml_node const decl)
+  {
+    ValueType typ = parseValueType(decl.child_value(TYPE_TAG));
+    if (testTag(DECL_ARRAY_TAG, decl))
+      return arrayType(typ);
+    else 
+      return typ;
+  }
 
   //
   // First pass: check the XML for obvious oopsies
@@ -79,7 +107,8 @@ namespace PLEXIL
     PlexilNodeType nodeType = parseNodeType(typeAttr.value());
     checkParserExceptionWithLocation(nodeType < NodeType_error,
                                      xml, // should be attribute
-                                     "Invalid " << NODETYPE_ATTR << " \"" << typeAttr.value() << "\"");
+                                     "Invalid " << NODETYPE_ATTR
+                                     << " \"" << typeAttr.value() << "\"");
     return nodeType;
   }
 
@@ -98,19 +127,21 @@ namespace PLEXIL
     checkParserExceptionWithLocation(temp,
                                      decl,
                                      "Node \"" << nodeId
-                                     << "\": Empty " << decl.name() << " element in " << decl.name());
+                                     << "\": Empty " << decl.name()
+                                     << " element in " << decl.name());
     checkTag(NAME_TAG, temp);
     char const *name = temp.child_value();
     checkParserExceptionWithLocation(*name,
                                      temp,
                                      "Node \"" << nodeId
-                                     << "\": Empty " << temp.name() << " element in " << decl.name());
+                                     << "\": Empty " << temp.name()
+                                     << " element in " << decl.name());
     temp = temp.next_sibling();
     checkParserExceptionWithLocation(temp,
                                      decl,
                                      "Node \"" << nodeId
-                                     << "\": " << decl.name() << " missing " << TYPE_TAG
-                                     << " element in "
+                                     << "\": " << decl.name() << " missing required "
+                                     << TYPE_TAG << " element in "
                                      << decl.name() << ' ' << decl.child_value(NAME_TAG));
     checkTag(TYPE_TAG, temp);
     checkParserExceptionWithLocation(*temp.child_value(),
@@ -144,25 +175,6 @@ namespace PLEXIL
                                      decl,
                                      "Malformed or empty " << decl.name()
                                      << " in node " << nodeId);
-
-    // Ensure supplied name is locally unique
-    // Only look backwards
-    xml_node otherDecl = decl.previous_sibling(DECLARE_MUTEX_TAG);
-    while (otherDecl) {
-      checkParserExceptionWithLocation(!strcmp(name, otherDecl.child_value(NAME_TAG)),
-                                       decl.child(NAME_TAG),
-                                       "Multiple mutexes named \""
-                                       << name
-                                       << "\" in node " << nodeId);
-      otherDecl = otherDecl.previous_sibling(DECLARE_MUTEX_TAG);
-    }
-  }
-
-  // Non-error-checking variant of above
-  static char const *getVarDeclName(xml_node const decl)
-  {
-    // Name is always the first element
-    return decl.first_child().child_value();
   }
 
   static void checkVariableDeclarations(char const *nodeId, xml_node const decls)
@@ -172,16 +184,6 @@ namespace PLEXIL
         checkLocalMutexDeclaration(nodeId, decl);
       else
         checkVariableDeclaration(nodeId, decl);
-
-      // Check for duplicate names
-      char const *name = getVarDeclName(decl);
-      for (xml_node sib = decl.previous_sibling(); sib; sib = sib.previous_sibling()) {
-        checkParserExceptionWithLocation(strcmp(name, getVarDeclName(sib)),
-                                         decl,
-                                         "Node \"" << nodeId
-                                         << "\": Multiple variables named \""
-                                         << name << '"');
-      }
     }
   }
 
@@ -193,13 +195,87 @@ namespace PLEXIL
       if (!strcmp(IN_TAG, name) || !strcmp(INOUT_TAG, name)) {
         for (xml_node decl = elt.first_child(); decl; decl = decl.next_sibling())
           checkVariableDeclaration(nodeId, decl);
-        // Check for duplicate names
-        // TODO
       }
       else
         reportParserExceptionWithLocation(elt,
                                           "Node " << nodeId
-                                          << ": Illegal " << name << " element inside " << INTERFACE_TAG);
+                                          << ": Illegal " << name
+                                          << " element inside " << INTERFACE_TAG);
+    }
+  }
+
+  //! Check that all variables declared in this node are uniquely
+  //! named. If not, report the conflict.
+  //! @param nodeId The NodeId of the containing node.
+  //! @param varDeclsXml The VariableDeclarations element of the node
+  //!                    (may be empty).
+  //! @param ifaceXml The Interface element of the node (may be empty).
+  static void checkVariableNameConflicts(char const *nodeId,
+                                         xml_node const varDeclsXml,
+                                         xml_node const ifaceXml)
+  {
+    std::vector<string> inNames;
+    std::vector<string> inOutNames;
+    std::vector<string> varNames;
+
+    // Gather the names, checking for conflicts as we go
+    if (ifaceXml) {
+      for (xml_node inXml : ifaceXml.child(IN_TAG).children()) {
+        string name = getVarDeclName(inXml);
+        for (string const &other : inNames) {
+          checkParserExceptionWithLocation(name != other,
+                                           inXml,
+                                           "Node " << nodeId
+                                           << ": Multiple In variables with the name \""
+                                           << name << '"');
+        }
+        inNames.push_back(name);
+      }
+      for (xml_node inOutXml : ifaceXml.child(INOUT_TAG).children()) {
+        string name = getVarDeclName(inOutXml);
+        for (string const &other : inNames) {
+          checkParserExceptionWithLocation(name != other,
+                                           inOutXml,
+                                           "Node " << nodeId
+                                           << ": In and InOut variables with the same name \""
+                                           << name << '"');
+        }
+        for (string const &other : inOutNames) {
+          checkParserExceptionWithLocation(name != other,
+                                           inOutXml,
+                                           "Node " << nodeId
+                                           << ": Multiple InOut variables with the name \""
+                                           << name << '"');
+        }
+        inOutNames.push_back(string(getVarDeclName(inOutXml)));
+      }
+    }
+    if (varDeclsXml) {
+      for (xml_node varXml : varDeclsXml.children()) {
+        string name = getVarDeclName(varXml);
+        for (string const &other : inNames) {
+          checkParserExceptionWithLocation(name != other,
+                                           varXml,
+                                           "Node " << nodeId
+                                           << ": In and local variables with the same name \""
+                                           << name << '"');
+        }
+        for (string const &other : inOutNames) {
+          checkParserExceptionWithLocation(name != other,
+                                           varXml,
+                                           "Node " << nodeId
+                                           << ": InOut and local variables with the same name \""
+                                           << name << '"');
+        }
+        for (string const &other : varNames) {
+          checkParserExceptionWithLocation(name != other,
+                                           varXml,
+                                           "Node " << nodeId
+                                           << ": Multiple local variables with the name \""
+                                           << name << '"');
+        }
+        varNames.push_back(string(getVarDeclName(varXml)));
+      }
     }
   }
 
@@ -232,26 +308,36 @@ namespace PLEXIL
   static bool isMutexInScope(char const *mutexName, xml_node ref)
   {
     // Search containing nodes first
-    xml_node container = ref.parent().parent();
+    xml_node container = ref.parent().parent(); // UsingMutex, Node
     while (container) {
       checkParserExceptionWithLocation(container && !strcmp(NODE_TAG, container.name()),
                                        container,
                                        "isMutexInScope internal error: Expected " << NODE_TAG
                                        << ", got " << container.name());
       for (xpath_node const xnode : container.select_nodes("./VariableDeclarations/DeclareMutex/Name")) {
-        if (!strcmp(mutexName, xnode.node().child_value()))
+        debugMsg("isMutexInScope", " \"" << mutexName << "\" trying local mutex \""
+                 << xnode.node().child_value() << '"');
+        if (!strcmp(mutexName, xnode.node().child_value())) {
+          debugMsg("isMutexInScope",
+                   " \"" << mutexName << "\" found in containing node, returning true");
           return true;
+        }
       }
       container = container.parent().parent().parent(); // NodeList, NodeBody, Node
     }
 
     // Check global decls
     xml_node const doc = ref.root();
-    for (xpath_node const xnode : doc.select_nodes("/PlexilPlan/GlobalDeclarations/DeclareMutex")) {
-      if (!strcmp(mutexName, xnode.node().child_value()))
+    for (xpath_node const xnode : doc.select_nodes("/PlexilPlan/GlobalDeclarations/DeclareMutex/Name")) {
+      debugMsg("isMutexInScope", " \"" << mutexName << "\" trying global mutex \""
+               << xnode.node().child_value() << '"');
+      if (!strcmp(mutexName, xnode.node().child_value())) {
+        debugMsg("isMutexInScope", " \"" << mutexName << "\" found global mutex, returning true");
         return true;
+      }
     }
 
+    debugMsg("isMutexInScope", " \"" << mutexName << "\" not found, returning false");
     return false;
   }
   
@@ -629,6 +715,10 @@ namespace PLEXIL
     if (ifaceXml)
       checkInterface(nodeId, ifaceXml);
 
+    // Check for variable name conflicts
+    if (varDeclsXml || ifaceXml)
+      checkVariableNameConflicts(nodeId, varDeclsXml, ifaceXml);
+
     // Check priority (if supplied)
     if (prioXml)
       checkPriority(nodeId, prioXml);
@@ -658,16 +748,6 @@ namespace PLEXIL
   // Second pass: begin constructing the node
   //
 
-  // For Interface specs; may have other uses.
-  static ValueType getVarDeclType(xml_node const decl)
-  {
-    ValueType typ = parseValueType(decl.child_value(TYPE_TAG));
-    if (testTag(DECL_ARRAY_TAG, decl))
-      return arrayType(typ);
-    else 
-      return typ;
-  }
-
   //
   // N.B. There is a limited amount of checking we can do on interface variables in the second pass.
   // LibraryNodeCall aliases can't be expanded because some of the variables they can reference
@@ -686,6 +766,7 @@ namespace PLEXIL
   static void parseInDecl(NodeImpl *node, xml_node const inXml, bool isCall)
   {
     char const *name = getVarDeclName(inXml);
+    // Shouldn't be possible
     checkParserExceptionWithLocation(!node->findLocalVariable(name),
                                      inXml,
                                      "In interface variable " << name
@@ -696,6 +777,7 @@ namespace PLEXIL
   static void parseInOutDecl(NodeImpl *node, xml_node const inOutXml, bool isCall)
   {
     char const *name = getVarDeclName(inOutXml);
+    // Shouldn't be possible
     checkParserExceptionWithLocation(!node->findLocalVariable(name),
                                      inOutXml,
                                      "InOut interface variable " << name
@@ -865,7 +947,7 @@ namespace PLEXIL
         break;
 
       case NodeType_Command:
-        dynamic_cast<CommandNode *>(node)->setCommand(new Command(node->getNodeId()));
+        dynamic_cast<CommandNode *>(node)->setCommand(new CommandImpl(node->getNodeId()));
         break;
 
       case NodeType_LibraryNodeCall:
@@ -912,135 +994,146 @@ namespace PLEXIL
   // Finish populating the node and its children.
   // 
 
-  static void parseVariableInitializer(NodeImpl *node, xml_node const decl)
+  // TODO - Refactor so checks can be reused by In or InOut
+  
+  //! Perform checks on a variable declaration's initial value, and
+  //! set the variable's initializer. Report errors as appropriate.
+  //! @param node The Node instance in which the declaration occurs.
+  //! @param decl The declaration XML.
+  //! @param isInterface True if parsing an In or InOut interface
+  //!                    variable declaration, false otherwise.
+  static Expression *parseVariableInitializer(bool &garbage,
+                                              NodeImpl *node,
+                                              xml_node const decl,
+                                              bool isInterface)
   {
-    xml_node initXml = decl.child(INITIALVAL_TAG);
-    if (initXml) {
-      char const *varName = decl.child_value(NAME_TAG);
-      Expression *var = node->findLocalVariable(varName);
-      assertTrueMsg(var,
-                    "finalizeNode: Internal error: variable " << varName
-                    << " not found in node " << node->getNodeId());
-      // FIXME: is this needed/possible?
-      checkParserExceptionWithLocation(var->isAssignable(),
-                                       initXml,
-                                       "This variable may not take an initializer");
-      checkHasChildElement(initXml);
-      Expression *init;
-      ValueType varType = var->valueType();
-      bool garbage;
-      if (isArrayType(varType)
-          && testTag(typeNameAsValue(arrayElementType(varType)), initXml.first_child())) {
-        // Handle old style initializer
-        garbage = true; // always constructed
-        switch (varType) {
-        case BOOLEAN_ARRAY_TYPE:
-          init = createArrayLiteral<bool>("Boolean", initXml);
-          break;
+    // The initial value XML has been checked at least superficially.
+    char const *varName = decl.child_value(NAME_TAG);
+    ValueType varType = getVarDeclType(decl);
 
-        case INTEGER_ARRAY_TYPE:
-          init = createArrayLiteral<int32_t>("Integer", initXml);
-          break;
-
-        case REAL_ARRAY_TYPE:
-          init = createArrayLiteral<double>("Real", initXml);
-          break;
-
-        case STRING_ARRAY_TYPE:
-          init = createArrayLiteral<std::string>("String", initXml);
-          break;
-
-        default:
-          reportParserExceptionWithLocation(initXml,
-                                            "Can't parse initial value for unimplemented or illegal type "
-                                            << valueTypeName(varType));
-          return;
-        }
-      }
-      else {
-        // Simply parse whatever's inside the <InitialValue>
-        initXml = initXml.first_child();
-        init = createExpression(initXml, node, garbage);
-      }
-      ValueType initType = init->valueType();
-      if (!areTypesCompatible(varType, initType)) {
-        if (garbage)
-          delete init;
-        reportParserExceptionWithLocation(initXml,
-                                          "Node " << node->getNodeId()
-                                          << ": Initialization type mismatch for variable "
-                                          << varName << ", variable is " << valueTypeName(varType)
-                                          << ", initializer is " << valueTypeName(initType));
-        return; // make cppcheck happy
-      }
-      if (isArrayType(varType)) {
-        // Check whether initial value is larger than declared size
-        int sizeSpec = decl.child(MAX_SIZE_TAG).text().as_int(-1);
-        if (sizeSpec >= 0) {
-          Array const *initArray = nullptr;
-          assertTrueMsg(init->getValuePointer(initArray),
-                        "Internal error: array initial value is unknown");
-          if (initArray->size() > (size_t) sizeSpec) {
-            if (garbage)
-              delete init;
-            reportParserExceptionWithLocation(decl,
-                                              "Node " << node->getNodeId()
-                                              << ": initial value for array variable "
-                                              << varName << " exceeds declared array size");
-            return; // make cppcheck happy
+    // Parse the InitialValue expresion
+    xml_node const initXml = decl.child(INITIALVAL_TAG).first_child();
+    Expression *init = createExpression(initXml, node, garbage);
+    ValueType initType = init->valueType();
+    if (isArrayType(varType)) {
+      int sizeSpec = decl.child(MAX_SIZE_TAG).text().as_int(-1);
+      if (isArrayType(init->valueType())) {
+        // Is array, is it constant?
+        if (init->isConstant()) {
+          // Check whether initial value is larger than declared size
+          if (sizeSpec >= 0) {
+            Array const *initArray = nullptr;
+            assertTrueMsg(init->getValuePointer(initArray),
+                          "Internal error: array initial value is unknown");
+            if (initArray->size() > (size_t) sizeSpec) {
+              if (garbage)
+                delete init;
+              reportParserExceptionWithLocation(decl,
+                                                "Node " << node->getNodeId()
+                                                << ": initial value for array variable "
+                                                << varName << " exceeds declared array size");
+            }
           }
         }
+        // else is a variable, must defer max size check to activation time
       }
-      var->asAssignable()->setInitializer(init, garbage);
+      else if (areTypesCompatible(arrayElementType(varType),
+                                  init->valueType())) {
+        // Initializer is scalar literal
+        checkParserExceptionWithLocation(sizeSpec >= 0,
+                                         decl,
+                                         "Node " << node->getNodeId()
+                                         << ", array variable \"" << varName 
+                                         << "\": Scalar initial value requires "
+                                         << MAX_SIZE_TAG);
+      }
+      else {
+        if (garbage)
+          delete init;
+
+        // Should have been caught in ArrayVariableFactory::check()
+        errorMsg("parseVariableInitializer: internal error: \n Node "
+                 << node->getNodeId() << ", array variable \"" << varName 
+                 << "\": Invalid " << INITIALVAL_TAG
+                 << " for array variable");
+      }
+    }
+    else if (!areTypesCompatible(varType, initType)) {
+      if (garbage)
+        delete init;
+
+      // Should have been caught in UserVariableFactory::check()
+      errorMsg("parseVariableInitializer: internal error: \n Node "
+               << node->getNodeId() << ", variable \"" << varName 
+               << "\": Initialization type mismatch.\n"
+               << " Variable type is " << valueTypeName(varType)
+               << ", initializer is " << valueTypeName(initType));
+    }
+
+    return init;
+  }
+
+  //! Process initializers in this node's variable declarations, if any
+  static void constructVariableInitializers(NodeImpl *node, xml_node const nodeXml)
+  {
+    if (!nodeXml.child(VAR_DECLS_TAG))
+      return;
+    debugMsg("finalizeNode",
+             " constructing variable initializers for " << node->getNodeId());
+    for (xml_node decl : nodeXml.child(VAR_DECLS_TAG).children()) {
+      if (decl.child(INITIALVAL_TAG)) {
+        char const *varName = getVarDeclName(decl);
+        Expression *var = node->findLocalVariable(varName);
+        assertTrueMsg(var,
+                      "parseVariableInitializer: Internal error: variable " << varName
+                      << " not found in node " << node->getNodeId());
+        bool garbage = false;
+        Expression *init = parseVariableInitializer(garbage, node, decl, false);
+        var->asAssignable()->getBaseVariable()->setInitializer(init, garbage);
+      }
     }
   }
 
-  // Process variable declarations, if any
-  static void constructVariableInitializers(NodeImpl *node, xml_node const xml)
-  {
-    xml_node temp = xml.child(VAR_DECLS_TAG);
-    if (!temp)
-      return;
-
-    debugMsg("finalizeNode",
-             " constructing variable initializers for " << node->getNodeId());
-    for (xml_node decl = temp.first_child();
-         decl;
-         decl = decl.next_sibling()) 
-      parseVariableInitializer(node, decl);
-  }
-
+  //! Link the variable declared in inXml into the node. If no
+  //! variable by that name is present, and there is an InitialValue
+  //! element, create a read-only "variable" using that expression's value.
+  //! @param node The partially constructed Node containing the In declaration.
+  //! @param inXml Variable declaration for the In variable.
+  //! @param isCall True if node is the result of expanding a library
+  //!               node call, false otherwise.
   static void linkInVar(NodeImpl *node, xml_node const inXml, bool isCall)
   {
     char const *name = getVarDeclName(inXml);
-
     debugMsg("linkInVar",
              " node " << node->getNodeId() << ", In variable " << name);
+
     // Find the variable, if it exists
     // If a library call, should be in caller's alias list.
-    // If not, should have been declared by an ancestor.
-    Expression *exp = node->findVariable(name);
-    ValueType typ = getVarDeclType(inXml);
-    if (exp) {
+    // If not a call, should have been declared by an ancestor.
+    Expression *inVar = node->findVariable(name);
+    ValueType inType = getVarDeclType(inXml);
+    if (inVar) {
       debugMsg("linkInVar", " found ancestor variable");
-      checkParserExceptionWithLocation(areTypesCompatible(typ, exp->valueType()),
+      checkParserExceptionWithLocation(inType == inVar->valueType(),
                                        inXml,
-                                       "In interface variable " << name
-                                       << ": Type " << valueTypeName(typ)
-                                       << " expected, but expression of type "
-                                       << valueTypeName(exp->valueType()) << " was provided");
-      if (exp->isAssignable()) {
+                                       "Node " << node->getNodeId()
+                                       << ", In interface variable \"" << name
+                                       << "\":\n Declared type is " << valueTypeName(inType)
+                                       << ", but expression of type "
+                                       << valueTypeName(inVar->valueType()) << " was provided");
+      if (inVar->isAssignable()) {
         // Construct read-only alias.
         debugMsg("linkInVar",
                  " constructing read-only alias for ancestor variable " << name);
 
         // Ancestor owns the aliased expression, so we can't delete it.
-        Expression *alias = new Alias(name, exp, false);
+        Expression *alias = new Alias(name, inVar, false);
         if (!node->addLocalVariable(name, alias)) {
           delete alias;
-          reportParserExceptionWithLocation(inXml,
-                                            "In interface variable " << name
-                                            << " shadows existing local variable of same name");
+          // This shouldn't be possible
+          errorMsg("linkInVar: Internal error: Node " << node->getNodeId()
+                   << ": In interface variable " << name
+                   << " shadows existing local variable of same name");
         }
         
         // else nothing to do - "variable" already accessible and read-only
@@ -1050,41 +1143,37 @@ namespace PLEXIL
       debugMsg("linkInVar", " no ancestor variable found");
 
       // No such variable/alias - use default initial value
-      xml_node initXml = inXml.child(INITIALVAL_TAG);
-      checkParserExceptionWithLocation(initXml,
+      checkParserExceptionWithLocation(inXml.child(INITIALVAL_TAG),
                                        inXml,
-                                       "In variable " << name << " not found and no default InitialValue provided");
+                                       "Node " << node->getNodeId()
+                                       << ": In interface variable \"" << name
+                                       << "\" not found and no default InitialValue provided");
 
       debugMsg("linkInVar", " constructing default value");
       bool garbage;
-      exp = createExpression(initXml.first_child(), node, garbage);
-      if (!areTypesCompatible(typ, exp->valueType())) {
-        ValueType expType = exp->valueType();
-        if (garbage)
-          delete exp;
-        reportParserExceptionWithLocation(initXml,
-                                          "In interface variable " << name
-                                          << " has type " << valueTypeName(typ)
-                                          << " but default InitialValue is of incompatible type "
-                                          << valueTypeName(expType));
-        return; // make cppcheck happy
-      }
+      inVar = parseVariableInitializer(garbage, node, inXml, isCall);
+
       // If exp is writable or is not something we can delete, 
       // wrap it in an Alias
-      if (exp->isAssignable() || !garbage) {
+      if (inVar->isAssignable() || !garbage) {
         debugMsg("linkInVar", " constructing read-only alias for default value");
-        exp = new Alias(name, exp, garbage);
+        inVar = new Alias(name, inVar, garbage);
       }
-      if (!node->addLocalVariable(name, exp)) {
-        delete exp;
-        reportParserExceptionWithLocation(inXml,
-                                          "In interface variable " << name
-                                          << " shadows local variable of same name");
-        return; // make cppcheck happy
+      if (!node->addLocalVariable(name, inVar)) {
+        delete inVar;
+        // Shouldn't be possible
+        errorMsg("linkInVar: Internal error: Node " << node->getNodeId()
+                 << ": In interface variable \"" << name
+                 << "\" shadows local variable of same name");
       }
     }
   }
 
+  //! Link the variable declared in inOutXml with its alias (if provided).
+  //! @param node The node.
+  //! @param inOutXml The declaration XML for an InOut variable.
+  //! @param isCall True if the node is the result of expanding a library node call,
+  //!               false if not.  
   static void linkInOutVar(NodeImpl *node, xml_node const inOutXml, bool isCall)
   {
     char const *name = getVarDeclName(inOutXml);
@@ -1094,45 +1183,43 @@ namespace PLEXIL
     // If not, should have been declared by an ancestor.
     Expression *exp = node->findVariable(name);
     if (exp) {
-      checkParserExceptionWithLocation(areTypesCompatible(typ, exp->valueType()),
+      checkParserExceptionWithLocation(typ == exp->valueType(),
                                        inOutXml,
-                                       "InOut interface variable " << name
-                                       << ": Type " << valueTypeName(typ)
-                                       << " expected, but expression of type "
+                                       "Node " << node->getNodeId()
+                                       << " InOut interface variable \"" << name
+                                       << "\": \n Declared type is " << valueTypeName(typ)
+                                       << ", but expression of type "
                                        << valueTypeName(exp->valueType()) << " was provided");
+
       checkParserExceptionWithLocation(exp->isAssignable(),
                                        inOutXml,
-                                       "InOut interface variable " << name
-                                       << " is read-only");
+                                       "Node " << node->getNodeId()
+                                       << ": InOut interface variable \"" << name
+                                       << "\" is read-only");
     }
     else {
-      // No such variable/alias - use default initial value
-      xml_node initXml = inOutXml.child(INITIALVAL_TAG);
-      checkParserExceptionWithLocation(initXml,
+      // No such variable/alias - use default initial value if supplied
+      checkParserExceptionWithLocation(inOutXml.child(INITIALVAL_TAG),
                                        inOutXml,
-                                       "InOut variable " << name << " not found and no default InitialValue provided");
-      bool garbage, initGarbage;
-      Expression *initExp =
-        createExpression(initXml.first_child(), node, initGarbage);
-      ValueType initExpType = initExp->valueType(); 
-      if (!areTypesCompatible(typ, initExpType)) {
-        if (initGarbage)
-          delete initExp;
-        reportParserExceptionWithLocation(initXml,
-                                          "InOut variable " << name
-                                          << " has type " << valueTypeName(typ)
-                                          << " but default InitialValue is of incompatible type "
-                                          << valueTypeName(initExpType));
-      }
+                                       "Node " << node->getNodeId()
+                                       << ": InOut variable " << name
+                                       << " not found and no default InitialValue provided");
+
+      // Parse and check initial value expression
+      bool initGarbage, garbage;
+      Expression *initExp = parseVariableInitializer(initGarbage, node, inOutXml, isCall);
       Expression *var = createAssignable(inOutXml, node, garbage);
       assertTrue_1(garbage); // better be something we can delete!
       if (!node->addLocalVariable(name, var)) {
         delete var;
-        reportParserExceptionWithLocation(inOutXml,
-                                          "InOut interface variable " << name
-                                          << " shadows local variable of same name");
+        if (initGarbage)
+          delete initExp;
+        // Shouldn't be possible
+        errorMsg("linkInOutVar: internal error: Node " << node->getNodeId()
+                 << ":\n InOut interface variable " << name
+                 << " shadows local variable of same name");
       }
-      var->asAssignable()->setInitializer(initExp, initGarbage);
+      var->asAssignable()->getBaseVariable()->setInitializer(initExp, initGarbage);
     }
   }
 

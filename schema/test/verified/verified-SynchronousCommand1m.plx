@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tr="extended-plexil-translator">
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <GlobalDeclarations>
     <DeclareMutex>
       <Name>m</Name>
@@ -19,7 +19,7 @@
     <NodeBody>
       <NodeList>
         <Node NodeType="NodeList" epx="aux">
-          <NodeId>ep2cp_SynchronousCommandAux</NodeId>
+          <NodeId generated="1">ep2cp_SynchronousCommandAux</NodeId>
           <VariableDeclarations>
             <DeclareVariable>
               <Name>ep2cp_return</Name>
@@ -29,7 +29,7 @@
           <NodeBody>
             <NodeList>
               <Node NodeType="Command" epx="aux">
-                <NodeId>ep2cp_SynchronousCommandCommand</NodeId>
+                <NodeId generated="1">ep2cp_SynchronousCommandCommand</NodeId>
                 <EndCondition>
                   <IsKnown>
                     <IntegerVariable>ep2cp_return</IntegerVariable>
@@ -45,7 +45,7 @@
                 </NodeBody>
               </Node>
               <Node NodeType="Assignment" epx="aux">
-                <NodeId>ep2cp_SynchronousCommandAssignment</NodeId>
+                <NodeId generated="1">ep2cp_SynchronousCommandAssignment</NodeId>
                 <StartCondition>
                   <Finished>
                     <NodeRef dir="sibling">ep2cp_SynchronousCommandCommand</NodeRef>

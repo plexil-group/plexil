@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -312,7 +312,7 @@ namespace PLEXIL
          myLocalVariableMapValues.push_back(tempValueString);
          //filter out local variables that are 'state' key  or 'UNKNOWN' value
          if (tempNameString != "state" && tempValueString != "UNKNOWN")
-            myLocalVars << tempString << ", ";
+           myLocalVars << tempString.str() << ", ";
       }
       return myLocalVars.str();
    }
@@ -321,16 +321,15 @@ namespace PLEXIL
    {
       std::ostringstream myChildNode;
       //get child nodes
-      const vector<NodeImpl *>& tempChildList = nodeId->getChildren();
+      const vector<NodeImplPtr>& tempChildList = nodeId->getChildren();
       if (tempChildList.size() == 0) 
       {
          return std::string();
       }
       else
       {
-         for (vector<NodeImpl *>::const_iterator i = tempChildList.begin(); 
-            i != tempChildList.end(); i++) 
-           myChildNode << (*i)->getNodeId() << ", ";
+        for (NodeImplPtr const &n : tempChildList)
+           myChildNode << n->getNodeId() << ", ";
       }
       return myChildNode.str();
    }
@@ -639,21 +638,20 @@ namespace PLEXIL
    *  grabs info from nodes in finished state,
    *  nodes info is stored in each node's NodeObj struct
    **/
-   void GanttListener::implementNotifyNodeTransition(NodeState /* prevState */, 
-                                                     Node *nodeId) const
+   void GanttListener::implementNotifyNodeTransition(NodeTransition const &transition) const
    {  
       static GanttListener myListener;
       //get state
-      const NodeState& newState = nodeId->getState();
+      const NodeState newState = transition.node->getState();
       switch (newState) {
          case EXECUTING_STATE:
-            myListener.m_nodes.push_back(myListener.createNodeObj(nodeId));
+            myListener.m_nodes.push_back(myListener.createNodeObj(transition.node));
             break;
          case FAILING_STATE:
             myListener.m_planFailureState = true;
             // fall through to FINISHED_STATE
          case FINISHED_STATE:
-            myListener.processOutputData(nodeId);
+            myListener.processOutputData(transition.node);
             break;
          default:
             break;

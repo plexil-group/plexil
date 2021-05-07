@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tr="extended-plexil-translator">
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <GlobalDeclarations>
     <DeclareMutex>
       <Name>m</Name>
@@ -21,8 +21,8 @@
     </UsingMutex>
     <NodeBody>
       <NodeList>
-        <Node NodeType="NodeList" epx="aux">
-          <NodeId>ep2cp_WhileBody</NodeId>
+        <Node NodeType="NodeList" epx="While_wrapper">
+          <NodeId generated="1">ep2cp_WhileBody</NodeId>
           <RepeatCondition>
             <Succeeded>
               <NodeRef dir="child">ep2cp_WhileTest</NodeRef>
@@ -31,16 +31,13 @@
           <NodeBody>
             <NodeList>
               <Node NodeType="Empty" epx="Condition">
-                <NodeId>ep2cp_WhileTest</NodeId>
+                <NodeId generated="1">ep2cp_WhileTest</NodeId>
                 <PostCondition>
                   <BooleanVariable>foo</BooleanVariable>
                 </PostCondition>
               </Node>
               <Node NodeType="Empty" epx="Action">
                 <NodeId>One</NodeId>
-                <UsingMutex>
-                  <Name>m</Name>
-                </UsingMutex>
                 <StartCondition>
                   <Succeeded>
                     <NodeRef dir="sibling">ep2cp_WhileTest</NodeRef>

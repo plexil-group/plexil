@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -155,6 +155,9 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
         case PlexilLexer.ARGUMENT_LIST:
             return new ArgumentListNode(payload);
 
+        case PlexilLexer.DO_KYWD:
+            return new DoNode(payload);
+
         case PlexilLexer.FOR_KYWD:
             return new ForNode(payload);
 
@@ -166,6 +169,7 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
             return new InterfaceDeclNode(payload);
 
         case PlexilLexer.LIBRARY_ACTION_KYWD:
+        case PlexilLexer.LIBRARY_NODE_KYWD:
             return new LibraryDeclarationNode(payload);
 
         case PlexilLexer.LIBRARY_CALL_KYWD:
@@ -229,13 +233,13 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
         case PlexilLexer.NEG_INT:
         case PlexilLexer.DOUBLE:
         case PlexilLexer.NEG_DOUBLE:
-            // Date/duration
-        case PlexilLexer.DATE_LITERAL:
-        case PlexilLexer.DURATION_LITERAL:
             // Command handle
+        case PlexilLexer.COMMAND_ABORTED_KYWD:
+        case PlexilLexer.COMMAND_ABORT_FAILED_KYWD:
         case PlexilLexer.COMMAND_ACCEPTED_KYWD:
         case PlexilLexer.COMMAND_DENIED_KYWD:
         case PlexilLexer.COMMAND_FAILED_KYWD:
+        case PlexilLexer.COMMAND_INTERFACE_ERROR_KYWD:
         case PlexilLexer.COMMAND_RCVD_KYWD:
         case PlexilLexer.COMMAND_SENT_KYWD:
         case PlexilLexer.COMMAND_SUCCESS_KYWD:
@@ -262,11 +266,16 @@ public class PlexilTreeAdaptor extends org.antlr.runtime.tree.CommonTreeAdaptor
 
             return new LiteralNode(payload);
 
+            // Specialized literals
         case PlexilLexer.ARRAY_LITERAL:
             return new ArrayLiteralNode(payload);
 
         case PlexilLexer.STRING:
             return new StringLiteralNode(payload);
+
+        case PlexilLexer.DATE_LITERAL:
+        case PlexilLexer.DURATION_LITERAL:
+            return new TemporalLiteralNode(payload);
 
         default:
             return new PlexilTreeNode(payload);

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -144,11 +144,6 @@ namespace PLEXIL
       errorMsg("setArgument(): no arguments to set in NullaryCachedFunction");
     }
 
-    virtual bool allSameTypeOrUnknown(ValueType /* vt */) const
-    {
-      return true;
-    }
-
     virtual void printSubexpressions(std::ostream & /* s */) const
     {
     }
@@ -206,17 +201,6 @@ namespace PLEXIL
             delete exprs[i];
         }
       }
-    }
-
-    // Not worth optimizing this, it's only used once per function at load time.
-    virtual bool allSameTypeOrUnknown(ValueType vtyp) const
-    {
-      for (size_t i = 0; i < N; ++i) {
-        ValueType vti = exprs[i]->valueType();
-        if (vti != vtyp && vti != UNKNOWN_TYPE)
-          return false;
-      }
-      return true;
     }
 
     virtual size_t size() const
@@ -501,16 +485,6 @@ namespace PLEXIL
       assertTrue_2(i < m_size, "setArgument(): too many args");
       exprs[i] = exp;
       garbage[i] = isGarbage;
-    }
-
-    virtual bool allSameTypeOrUnknown(ValueType vtyp) const
-    {
-      for (size_t i = 0; i < m_size; ++i) {
-        ValueType vti = exprs[i]->valueType();
-        if (vti != vtyp && vti != UNKNOWN_TYPE)
-          return false;
-      }
-      return true;
     }
 
     void handleActivate()

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,17 +28,18 @@
 #include "Assignment.hh"
 #include "AssignmentNode.hh"
 #include "createExpression.hh"
-#include "Error.hh"
-#include "ExpressionFactory.hh"
 #include "parser-utils.hh"
+#include "ParserException.hh"
 #include "PlexilSchema.hh"
 
 #include "pugixml.hpp"
 
 #include <cerrno>
 
-#ifdef HAVE_STDLIB_H
-#include <cstdlib> // for strtoul()
+#if defined(HAVE_CSTDLIB)
+#include <cstdlib>  // strtoul()
+#elif defined(HAVE_STDLIB_H)
+#include <stdlib.h> // strtoul()
 #endif
 
 #include <limits>
@@ -75,7 +76,7 @@ namespace PLEXIL
                                      assnXml,
                                      "Assignment Node \"" << nodeId
                                      << "\": Invalid right hand side for Assignment");
-    ValueType rht = checkExpression(nodeId, rhsXml.first_child());
+    ValueType rht = checkExpression(nodeId, rhsXml.first_child(), lht);
 
     // Check type consistency between variable (or array elt) and RHS expression
     checkParserExceptionWithLocation(areTypesCompatible(lht, rht),
@@ -89,7 +90,7 @@ namespace PLEXIL
   void constructAssignment(AssignmentNode *anode, xml_node const xml)
   {
     assertTrue_1(anode);
-    // Just construct it, will be populated in second pass
+    // Just construct it, will be populated in third pass
     anode->setAssignment(new Assignment());
   }
 

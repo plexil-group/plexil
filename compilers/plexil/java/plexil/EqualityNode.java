@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,6 @@ package plexil;
 
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
-
-import plexil.PlexilTreeNode;
 
 public class EqualityNode extends ExpressionNode
 {
@@ -64,16 +62,6 @@ public class EqualityNode extends ExpressionNode
                             "Operands to the " + this.getToken().getText()
                             + " operator have incompatible types",
                             Severity.ERROR);
-    }
-
-    /**
-     * @brief Construct the XML representing this part of the parse tree, and store it in m_xml.
-     */
-    protected void constructXML()
-    {
-        super.constructXML();
-        m_xml.addChild(this.getChild(0).getXML());
-        m_xml.addChild(this.getChild(1).getXML());
     }
 
     protected String getXMLElementName()

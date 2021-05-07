@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,20 +25,21 @@
 */
 
 #include "Assignable.hh"
-#include "Command.hh"
-#include "CommandNode.hh"
+#include "CommandImpl.hh"
 #include "createExpression.hh"
 #include "Error.hh"
-#include "ExpressionFactory.hh"
 #include "ExprVec.hh"
 #include "parser-utils.hh"
+#include "ParserException.hh"
 #include "PlexilSchema.hh"
 #include "SymbolTable.hh"
 
 #include "pugixml.hpp"
 
-#ifdef STDC_HEADERS
+#if defined(HAVE_CSTRING)
 #include <cstring>
+#elif defined(HAVE_STRING_H)
+#include <string.h>
 #endif
 
 using pugi::xml_node;
@@ -279,7 +280,7 @@ namespace PLEXIL
 
   // Pass 3
   static void finalizeResourceList(NodeConnector *node,
-                                   Command *cmd,
+                                   CommandImpl *cmd,
                                    xml_node const rlist)
   {
     ResourceList *resources =
@@ -361,7 +362,7 @@ namespace PLEXIL
   }
 
   // Pass 3
-  void finalizeCommand(Command *cmd, NodeConnector *node, xml_node const cmdXml)
+  void finalizeCommand(CommandImpl *cmd, NodeConnector *node, xml_node const cmdXml)
   {
     xml_node temp = cmdXml.first_child();
 

@@ -26,11 +26,10 @@
 
 #include "planLibrary.hh"
 
-#include "Error.hh"
 #include "lifecycle-utils.h"
 #include "map-utils.hh"
 #include "parsePlan.hh"
-#include "parser-utils.hh"
+#include "ParserException.hh"
 #include "PlexilSchema.hh"
 #include "SimpleMap.hh"
 #include "SymbolTable.hh"

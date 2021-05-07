@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,20 +29,26 @@
 # Because an ancient version of vxWorks only offered this version
 #AC_PREREQ(2.59)
 AC_PREREQ(2.62)
-AC_INIT(Plexil, 6.0.0d3, plexil-support@sourceforge.net, plexil, https://plexil.wiki.sourceforge.net/)
+AC_INIT([Plexil], [6.0.0d3], [plexil-support@sourceforge.net], [plexil], [https://plexil.wiki.sourceforge.net/])
 AC_LANG(C++)
 AC_CONFIG_SRCDIR([app-framework/AdapterConfiguration.cc])
 AC_CONFIG_HEADER([plexil-config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
-# Note that these two commands set default CFLAGS/CXXFLAGS to '-g -O2'
+# Check whether compilers exist and work
+
+# Note that AC_PROG_CXX sets CXXFLAGS to '-g -O2' if not already set
+# This version of PLEXIL requires C++14 or later, so set the standard
+# in the CXXFLAGS defaults.
+# This bit of hackery is straight out of the GNU Autoconf manual
+: ${CXXFLAGS="-std=c++14 -g -O2"}
+
 AC_PROG_CXX
 AC_PROG_CC
 
-AM_PROG_CC_C_O
-
-# Required to build the expression parser
-AC_PATH_PROG([GPERF], [gperf], [gperf])
+# Required to build the expression parser's table
+AC_PATH_PROG([GPERF], [gperf])
+AS_IF([test "x${GPERF}" = 'x'], [AC_MSG_ERROR([Required program 'gperf' not found. Aborting.])])
 
 # Use this with autoconf 2.62 and newer
 LT_INIT([])
@@ -50,7 +56,11 @@ LT_INIT([])
 #AC_PROG_LIBTOOL
 
 AC_SUBST([LIBTOOL_DEPS])
+
 AM_INIT_AUTOMAKE
+
+# Required with Automake versions < 1.13
+#AM_PROG_CC_C_O
 
 # Comment out this line to see the gory details of the build process
 AM_SILENT_RULES([yes])
@@ -90,7 +100,6 @@ AC_ARG_ENABLE([universal-exec],
 AM_CONDITIONAL([DEBUG_LISTENER_OPT], [test "x$enable_debug_listener" != "xno"])
 AM_CONDITIONAL([DEBUG_LOGGING_OPT], [test "x$enable_debug_logging" != "xno"])
 AM_CONDITIONAL([THREADS_OPT], [test "x$with_threads" != "xno"])
-AM_CONDITIONAL([UNIX_TIME_OPT], [test "x$with_unix_time" != "xno"])
 AM_CONDITIONAL([VIEWER_OPT], [test "x$enable_viewer" != "xno"])
 AM_CONDITIONAL([UNIVERSAL_EXEC_OPT], [test "x$enable_universal_exec" != "xno"])
 AM_CONDITIONAL([SHARED_LIB_OPT], [test "x$enable_shared" != "xno"])
@@ -106,73 +115,104 @@ AM_CONDITIONAL([TEST_EXEC_OPT], [test "x$enable_test_exec" = "xyes"])
 AM_CONDITIONAL([UDP_OPT], [test "x$enable_udp" = "xyes"])
 
 # Helpers for headers
+
+# Enabled by default
 AS_IF([test "x$enable_debug_logging" = "xno"],[
   AC_DEFINE([NO_DEBUG_MESSAGE_SUPPORT],[1],[Define to 1 if debug logging is disabled.])
 ])
-AS_IF([test "x$with_threads" != "xno"],[
-  AC_DEFINE([PLEXIL_WITH_THREADS],[1],[Define to 1 if multithreading is enabled.])
-])
-AS_IF([test "x$with_unix_time" != "xno"],[
-  AC_DEFINE([PLEXIL_WITH_UNIX_TIME],[1],[Define to 1 if Unix native time facilities are enabled.])
-])
 AS_IF([test "x$enable_debug_listener" != "xno"],[
   AC_DEFINE([HAVE_DEBUG_LISTENER],[1],[Define to 1 if PlanDebugListener is enabled in the build.])
+])
+AS_IF([test "x$with_threads" != "xno"],[
+  AC_DEFINE([PLEXIL_WITH_THREADS],[1],[Define to 1 if multithreading is enabled.])
 ])
 AS_IF([test "x$enable_viewer" != "xno"],[
   AC_DEFINE([HAVE_LUV_LISTENER],[1],[Define to 1 if LuvListener is enabled in the build.])
 ])
 
+# Disabled by default
+AS_IF([test "x$enable_gantt" = "xyes"],[
+  AC_DEFINE([HAVE_GANTT_LISTENER],[1],[Define to 1 if GanttListener is enabled in the build.])
+])
+AS_IF([test "x$enable_ipc" = "xyes"],[
+  AC_DEFINE([HAVE_IPC_ADAPTER],[1],[Define to 1 if IpcAdapter is enabled in the build.])
+])
+AS_IF([test "x$enable_udp" = "xyes"],[
+  AC_DEFINE([HAVE_UDP_ADAPTER],[1],[Define to 1 if UdpAdapter is enabled in the build.])
+])
+
 # Checks for libraries.
 
-# implied by header check for dlfcn.h
-AC_CHECK_LIB([dl], [dlopen])
-AC_CHECK_LIB([pthread], [pthread_create])
-AC_CHECK_LIB([m], [sqrt])
-# Used by UdpAdapter (and IPC)
-AC_CHECK_LIB([nsl], [inet_ntoa])
+# Math
+AC_SEARCH_LIBS([cos], [m])
+# pthread support
+AC_SEARCH_LIBS([pthread_sigmask], [pthread])
 # POSIX timer - not present on macOS
-AC_CHECK_LIB([rt], [timer_create])
+AC_SEARCH_LIBS([timer_create], [rt])
+# Dispatch queues - macOS
+AC_SEARCH_LIBS([dispatch_main], [dispatch])
 
 # Checks for header files.
 
-# Checks for ISO C90 (ANSI C89) header files stdlib.h, stdarg.h, string.h, float.h
-AC_HEADER_STDC
-# time.h and sys/time.h
-AC_CHECK_HEADERS([time.h sys/time.h])
-# Newer standard C (C95, C99, etc.) headers for PLEXIL core functionality
-# Some platforms (e.g. vxWorks) may lack some of these
-# NOTE: pugixml depends on wchar.h, but does not use these configuration files.
-AC_CHECK_HEADERS([inttypes.h math.h stddef.h stdint.h])
-# glibc backtrace functionality
-AC_CHECK_HEADERS([execinfo.h])
-# POSIX dependencies for core functionality
-AC_CHECK_HEADERS([dlfcn.h unistd.h sys/types.h])
-# POSIX headers for network functionality
-AC_CHECK_HEADERS([arpa/inet.h fcntl.h netdb.h netinet/in.h sys/socket.h])
-# Kernel queues (BSD based systems)
-AC_CHECK_HEADERS([sys/event.h])
+# C++ standard headers for PLEXIL core functionality
+AC_CHECK_HEADERS_ONCE([cassert ctype cerrno cfloat cinttypes climits cmath csignal cstddef cstdint cstdio cstdlib cstring ctime])
 
-# Non-Unix-like platforms
-AC_CHECK_HEADERS([sockLib.h vxWorks.h])
+# Standard C (C90, C99, etc.) headers for PLEXIL core functionality
+# Some platforms (e.g. vxWorks) may lack some of these
+# NOTE: checks only apply to PLEXIL source code, not imported third party code
+AC_CHECK_HEADERS_ONCE([assert.h ctype.h errno.h float.h inttypes.h math.h signal.h stddef.h stdint.h stdio.h stdlib.h string.h time.h])
+
+# Check whether cstdint (stdint.h) and cinttypes (inttypes.h) behave correctly
+# This is required because of a misfeature in the C99 spec
+
+AC_COMPILE_IFELSE(
+  [AC_LANG_PROGRAM([[@%:@include <stdint.h>]],
+                   [[return argc < INT8_MAX;]])],
+  [AC_DEFINE([HAVE_GOOD_STDINT_H], 1,
+             [Define to 1 if stdint.h defines limit and constant macros correctly under C++])])
+
+AC_COMPILE_IFELSE(
+  [AC_LANG_PROGRAM([[@%:@include <stdio.h>
+@%:@include <inttypes.h>]],
+                   [[printf("%" PRId32 " ", 1);
+                     return 0;]])],
+  [AC_DEFINE([HAVE_GOOD_INTTYPES_H], 1,
+  [Define to 1 if inttypes.h defines format macros correctly under C++])])
+
+# POSIX dependencies for core functionality
+AC_CHECK_HEADERS_ONCE([dlfcn.h fcntl.h pthread.h semaphore.h unistd.h sys/stat.h sys/time.h])
+# POSIX headers for network functionality
+AC_CHECK_HEADERS_ONCE([netdb.h poll.h arpa/inet.h netinet/in.h sys/socket.h])
+
+# glibc backtrace functionality
+AC_CHECK_HEADERS_ONCE([execinfo.h])
+
+# Grand Central Dispatch (macOS & BSDs)
+# *** FIXME: FreeBSD doc says this is in /usr/local/include,
+# how do we tell Autoconf to look there?
+AC_CHECK_HEADERS_ONCE([dispatch/dispatch.h])
+
+# Mach semaphores (macOS)
+AC_CHECK_HEADERS_ONCE([mach/semaphore.h])
+
+# vxWorks
+AC_CHECK_HEADERS_ONCE([sockLib.h sysLib.h vxWorks.h sys/times.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
 AC_C_INLINE
 
 # POSIX time
-# Defined in sys/time.h if present.
+# Declared in sys/time.h if present.
 AC_CHECK_FUNCS([getitimer gettimeofday setitimer])
-# Defined in time.h if present.
+# Declared in time.h if present.
 AC_CHECK_FUNCS([clock_gettime ctime_r timer_create timer_delete])
-# Defined in sys/types.h, not present on (e.g.) VxWorks
+# Declared in sys/types.h, not present on (e.g.) VxWorks
 # Used only in doubleToTimeval()
 AC_CHECK_TYPES([suseconds_t])
 
 # Other POSIX specifics
 AC_CHECK_FUNCS([getpid isatty])
-
-# Kernel queues
-AC_CHECK_FUNCS([kqueue kevent kevent64])
 
 # Standard math functions not found on some platforms
 AC_CHECK_FUNCS([ceil floor round sqrt trunc])
@@ -188,37 +228,11 @@ AC_STRUCT_TM
 AC_CHECK_FUNCS([localtime_r])
 ])
 
-# Only needed by threads (and IPC)
-AS_IF([test "x$with_threads" != "xno"],[
-AC_CHECK_FUNCS([pthread_mutexattr_settype])
-])
-
-# FIXME: define PLEXIL_POSIX_TIME_FUNCS macro if appropriate functions found
-
 # Used only in GanttListener
 AS_IF([test "x$enable_gantt" = "xyes"], [
 AC_CHECK_FUNCS([getcwd])
 AC_CHECK_TYPES([pid_t])
 ])
-
-# Used only in IPC, which uses a separate build system
-# AS_IF([test "x$enable_ipc" = "xyes"], [
-# AC_PROG_GCC_TRADITIONAL
-# AC_PROG_LEX
-# AC_PROG_YACC
-# AC_CHECK_LIB([wrap], [hosts_ctl])
-# AC_HEADER_SYS_WAIT
-# AC_CHECK_HEADERS([fcntl.h malloc.h memory.h strings.h sys/file.h sys/ioctl.h sys/param.h sys/timeb.h termios.h])
-# AC_FUNC_FORK
-# AC_FUNC_SELECT_ARGTYPES
-# AC_FUNC_SETPGRP
-# AC_FUNC_SETVBUF_REVERSED
-# AC_FUNC_STRFTIME
-# AC_FUNC_VPRINTF
-# AC_TYPE_SIGNAL
-# AC_CHECK_FUNCS([bzero dup2 gethostname mkdir select strpbrk])
-# AC_STRUCT_TM
-#])
 
 AC_CONFIG_FILES([configure.env
                  Makefile
@@ -229,8 +243,7 @@ AC_CONFIG_FILES([configure.env
                  exec/Makefile
                  third-party/pugixml/src/Makefile
                  xml-parser/Makefile
-                 app-framework/Makefile
-                 interfaces/Launcher/Makefile])
+                 app-framework/Makefile])
 
 # Options that are normally on
 AS_IF([test "x$enable_debug_listener" != "xno"], [

@@ -31,8 +31,10 @@
 
 #include <memory>  // std::move()
 
-#ifdef STDC_HEADERS
+#if defined(HAVE_CSTRING)
 #include <cstring> // memcpy()
+#elif defined(HAVE_STRING_H)
+#include <string.h> // memcpy()
 #endif
 
 namespace PLEXIL

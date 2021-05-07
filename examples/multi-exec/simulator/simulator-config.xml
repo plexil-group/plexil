@@ -1,11 +1,9 @@
 <Interfaces>
- <Adapter AdapterType="OSNativeTime">
-  <LookupNames>time</LookupNames>
- </Adapter>
- <Adapter AdapterType="IpcAdapter" Server="localhost" AllowDuplicateMessages="true">
-  <CommandNames>
-	ReceiveMessage, UpdateLookup,  ReceiveCommand, SendReturnValue, GetParameter
-  </CommandNames>
+ <Adapter AdapterType="Time"/>
+ <Adapter AdapterType="IpcAdapter"
+          TaskName="simulator"
+          Server="localhost"
+          AllowDuplicateMessages="true">
   <ExternalLookups>
     <Lookup name="x" type="Integer" value="1"/>
   </ExternalLookups>

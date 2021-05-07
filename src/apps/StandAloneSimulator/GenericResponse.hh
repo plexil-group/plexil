@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -23,32 +23,36 @@
 * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 #ifndef GENERIC_RESPONSE_HH
 #define GENERIC_RESPONSE_HH
 
-#include "ResponseBase.hh"
+#include "plexil-config.h"
 #include "Value.hh"
-#include <vector>
 
-class GenericResponse : public ResponseBase
+#ifdef HAVE_SYS_TIME_H
+#include <sys/time.h>
+#endif
+
+struct GenericResponse
 {
-public:
-  GenericResponse(const std::vector<PLEXIL::Value>& value) 
-    : m_ReturnValue(value)
+  GenericResponse(std::string const &name_,
+                  PLEXIL::Value const &value_,
+                  timeval const &delay_,
+                  unsigned int nResponses) 
+    : value(value_),
+      name(name_),
+      delay(delay_),
+      numberOfResponses(nResponses)
   {
   }
 
-  virtual ~GenericResponse()
-  {
-  }
+  ~GenericResponse() = default;
 
-  const std::vector<PLEXIL::Value>& getReturnValue() const
-  {
-    return m_ReturnValue;
-  }
-
-private:
-  std::vector<PLEXIL::Value> m_ReturnValue;
+  PLEXIL::Value value;
+  std::string name;
+  timeval delay;
+  unsigned int numberOfResponses;
 };
 
 #endif //GENERIC_RESPONSE_HH

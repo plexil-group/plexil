@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,19 +24,21 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "ArrayImpl.hh"
 #include "Assignable.hh"
 #include "Assignment.hh"
 #include "AssignmentNode.hh"
-#include "Command.hh"
+#include "CommandImpl.hh"
 #include "CommandNode.hh"
 #include "ExpressionFactory.hh"
 #include "parseNode.hh"
+#include "ParserException.hh"
 #include "planLibrary.hh"
 #include "TestSupport.hh"
 #include "Update.hh"
 #include "UpdateNode.hh"
+#include "Variable.hh"
 #include "test/FactoryTestNodeConnector.hh"
-#include "test/TransitionExternalInterface.hh"
 
 #include "pugixml.hpp"
 
@@ -937,7 +939,7 @@ static bool commandNodeXmlParserTest()
     assertTrue_1(!basicCmd->getLocalVariables());
     CommandNode *cnode = dynamic_cast<CommandNode *>(basicCmd);
     assertTrue_1(cnode);
-    Command *cmd = cnode->getCommand();
+    CommandImpl *cmd = cnode->getCommand();
     assertTrue_1(cmd);
     
     finalizeNode(basicCmd, basicCmdXml);
@@ -982,7 +984,7 @@ static bool commandNodeXmlParserTest()
     assertTrue_1(!cmdWithResources->getLocalVariables());
     CommandNode *cnode = dynamic_cast<CommandNode *>(cmdWithResources);
     assertTrue_1(cnode);
-    Command *cmd = cnode->getCommand();
+    CommandImpl *cmd = cnode->getCommand();
     assertTrue_1(cmd);
     
     finalizeNode(cmdWithResources, cmdWithResourcesXml);
@@ -1038,7 +1040,7 @@ static bool commandNodeXmlParserTest()
     assertTrue_1(!cmdWithArgs->getLocalVariables());
     CommandNode *cnode = dynamic_cast<CommandNode *>(cmdWithArgs);
     assertTrue_1(cnode);
-    Command *cmd = cnode->getCommand();
+    CommandImpl *cmd = cnode->getCommand();
     assertTrue_1(cmd);
     
     finalizeNode(cmdWithArgs, cmdWithArgsXml);
@@ -1098,7 +1100,7 @@ static bool commandNodeXmlParserTest()
     assertTrue_1(!cmdWithReturn->getLocalVariables());
     CommandNode *cnode = dynamic_cast<CommandNode *>(cmdWithReturn.get());
     assertTrue_1(cnode);
-    Command *cmd = cnode->getCommand();
+    CommandImpl *cmd = cnode->getCommand();
     assertTrue_1(cmd);
     
     finalizeNode(listNode, listNodeXml);
@@ -1158,7 +1160,7 @@ static bool commandNodeXmlParserTest()
     assertTrue_1(!cmdWithReturn->getLocalVariables());
     CommandNode *cnode = dynamic_cast<CommandNode *>(cmdWithReturn.get());
     assertTrue_1(cnode);
-    Command *cmd = cnode->getCommand();
+    CommandImpl *cmd = cnode->getCommand();
     assertTrue_1(cmd);
     
     finalizeNode(listNode, listNodeXml);
@@ -1229,7 +1231,7 @@ static bool commandNodeXmlParserTest()
     assertTrue_1(!cmdRetRes->getLocalVariables());
     CommandNode *cnode = dynamic_cast<CommandNode *>(cmdRetRes.get());
     assertTrue_1(cnode);
-    Command *cmd = cnode->getCommand();
+    CommandImpl *cmd = cnode->getCommand();
     assertTrue_1(cmd);
     
     finalizeNode(listNode, listNodeXml);
@@ -1313,7 +1315,7 @@ static bool commandNodeXmlParserTest()
     assertTrue_1(!kitchenSink->getLocalVariables());
     CommandNode *cnode = dynamic_cast<CommandNode *>(kitchenSink.get());
     assertTrue_1(cnode);
-    Command *cmd = cnode->getCommand();
+    CommandImpl *cmd = cnode->getCommand();
     assertTrue_1(cmd);
     
     finalizeNode(listNode, listNodeXml);
@@ -1875,7 +1877,6 @@ static bool libraryCallNodeXmlParserTest()
 bool nodeXmlParserTest()
 {
   doc = new xml_document();
-  g_interface = new TransitionExternalInterface;
 
   runTest(emptyNodeXmlParserTest);
   runTest(listNodeXmlParserTest);
@@ -1884,8 +1885,6 @@ bool nodeXmlParserTest()
   runTest(updateNodeXmlParserTest);
   runTest(libraryCallNodeXmlParserTest);
 
-  delete g_interface;
-  g_interface = nullptr;
   delete doc;
   doc = nullptr;
   return true;

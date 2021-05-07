@@ -27,8 +27,7 @@
 #include "bitsetUtils.hh"
 #include "TestSupport.hh"
 
-#include <climits>
-#include <cstdint>
+#include "plexil-stdint.h"
 
 using namespace PLEXIL;
 

@@ -1,10 +1,20 @@
-String Command StartPlan(...); // actually (String planName [, String paramName, Any paramValue]* )
-Command ExitPlan(String planName);
-Command pprint(...);
+// Demonstration plan for PLEXIL Launcher adaapter
 
+// The StartPlan command executes a plan by constructing a wrapper
+// plan which calls the named plan as a library node.
+// It returns the node ID of the library node wrapper.
+String Command StartPlan(...); // actually (String planName [, String paramName, Any paramValue]* )
+
+// The ExitPlan command tells the wrapper plan to exit.
+Command ExitPlan(String planName);
+
+// These lookups allow the launching plan to determine the state
+// of the launched plan.
 String Lookup PlanState(String planName);
 String Lookup PlanOutcome(String planName);
 String Lookup PlanFailureType(String planName);
+
+Command pprint(...);
 
 LauncherDemo:
 {

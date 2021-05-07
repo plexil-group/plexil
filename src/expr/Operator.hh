@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -55,14 +55,6 @@ namespace PLEXIL
      */
     virtual bool isPropagationSource() const;
 
-    // Delegated to each individual operator.
-    // Default method returns false.
-    virtual bool checkArgCount(size_t count) const;
-
-    // Delegated to each individual operator.
-    // Default method returns true.
-    virtual bool checkArgTypes(Function const *ev) const;
-
     // Delegated to OperatorImpl by default
     virtual ValueType valueType() const = 0;
     virtual void *allocateCache() const = 0;
@@ -104,10 +96,10 @@ namespace PLEXIL
   private:
     // unimplemented
     Operator() = delete;
-    Operator(Operator const &) = delete; 
-    Operator(Operator &&) = delete; 
-    Operator& operator=(Operator const &) = delete; 
-    Operator& operator=(Operator &&) = delete; 
+    Operator(Operator const &) = delete;
+    Operator(Operator &&) = delete;
+    Operator& operator=(Operator const &) = delete;
+    Operator& operator=(Operator &&) = delete;
   };
 
 } // namespace PLEXIL

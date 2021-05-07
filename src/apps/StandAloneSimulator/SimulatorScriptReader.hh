@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2008, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,45 +26,30 @@
 #ifndef SIMULATOR_SCRIPT_READER_HH
 #define SIMULATOR_SCRIPT_READER_HH
 
-#include <string>
 #include "simdefs.hh"
 
-class ResponseFactory;
+class Agenda;
+struct ResponseFactory;
 
-/**
- * @brief SimulatorScriptReader initializes the response managers used by the simulator.
- */
+//! class SimulatorScriptReader
+//! Abstract base class for simulator script readers.
 
 class SimulatorScriptReader
 {
 public:
-  SimulatorScriptReader(ResponseManagerMap& map, ResponseFactory& factory);
-  virtual ~SimulatorScriptReader();
-
-  bool readScript(const std::string& fName, bool telemetry=false);
-
-  // Deprecated
-  bool readCommandScript(const std::string& fName);
-  bool readTelemetryScript(const std::string& fName);
-
-private:
-
-  // Deliberately not implemented
-  SimulatorScriptReader();
-  SimulatorScriptReader(const SimulatorScriptReader&);
-  SimulatorScriptReader& operator=(const SimulatorScriptReader&);
-
-  //
-  // Helpers
-  //
-  ResponseMessageManager* ensureResponseMessageManager(const std::string& name,
-						       bool telemetry);
-  virtual ResponseMessageManager* constructResponseMessageManager(const std::string& name,
-								  bool telemetry);
-
-  ResponseManagerMap& m_map;
-  ResponseFactory& m_factory;
+  virtual ~SimulatorScriptReader() = default;
+  virtual bool readScript(const std::string &fName, bool telemetry = false) = 0;
 };
 
+//! Constructs and returns a simulator script reader.
+//! @param map The ResponseManagerMap to populate.
+//! @param agenda The Agenda to populate.
+//! @param factory The ResponseFactory for this particular script.
+//! @return The script reader.
+//! @note The script reader takes ownership of the response factory,
+//!       and deletes it when the reader is deleted.
+SimulatorScriptReader *makeScriptReader(ResponseManagerMap *map,
+                                        Agenda *agenda,
+                                        ResponseFactory *factory);
 
 #endif // SIMULATOR_SCRIPT_READER_HH

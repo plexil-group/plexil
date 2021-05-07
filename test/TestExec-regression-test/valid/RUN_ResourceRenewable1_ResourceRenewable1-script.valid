@@ -15,379 +15,351 @@ ResourceRenewable1{
   }
 }
 
-[PlexilExec:notifyNodeConditionChanged] for node ResourceRenewable1
-[PlexilExec:cycle]==>Start cycle 1
+[Node:notifyChanged] adding ResourceRenewable1 0x7f9df6407c20 to check queue
+[PlexilExec:step] ==>Start cycle 1
 [PlexilExec:step][1:0] Check queue: ResourceRenewable1 
-[PlexilExec:handleConditionsChanged]Node ResourceRenewable1 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'ResourceRenewable1' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'ResourceRenewable1' on the state change queue in position 1
+[PlexilExec:step] Node ResourceRenewable1 0x7f9df6407c20 can transition from INACTIVE to WAITING
+[PlexilExec:step] adding ResourceRenewable1 0x7f9df6407c20 to state change queue
 [PlexilExec:step][1:0] State change queue: ResourceRenewable1 
-[PlexilExec:step][1:0:0] Transitioning node ResourceRenewable1 from INACTIVE to WAITING
-[PlexilExec:notifyNodeConditionChanged] for node ResourceRenewable1
+[PlexilExec:step][1:0:0] Transitioning NodeList node ResourceRenewable1 0x7f9df6407c20 from INACTIVE to WAITING
+[Node:notifyChanged] adding ResourceRenewable1 0x7f9df6407c20 to check queue
 [PlexilExec:step][1:1] Check queue: ResourceRenewable1 
-[PlexilExec:handleConditionsChanged]Node ResourceRenewable1 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'ResourceRenewable1' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'ResourceRenewable1' on the state change queue in position 2
+[PlexilExec:step] Node ResourceRenewable1 0x7f9df6407c20 can transition from WAITING to EXECUTING
+[PlexilExec:step] adding ResourceRenewable1 0x7f9df6407c20 to state change queue
 [PlexilExec:step][1:1] State change queue: ResourceRenewable1 
-[PlexilExec:step][1:1:0] Transitioning node ResourceRenewable1 from WAITING to EXECUTING
-[PlexilExec:notifyNodeConditionChanged] for node ResourceRenewable1
-[PlexilExec:notifyNodeConditionChanged] for node C1
-[PlexilExec:notifyNodeConditionChanged] for node C2
-[PlexilExec:notifyNodeConditionChanged] for node C3
-[PlexilExec:notifyNodeConditionChanged] for node C4
-[PlexilExec:handleNeedsExecution]Storing action for node 'ResourceRenewable1' of type 'NodeList' to be executed.
+[PlexilExec:step][1:1:0] Transitioning NodeList node ResourceRenewable1 0x7f9df6407c20 from WAITING to EXECUTING
+[Node:notifyChanged] adding ResourceRenewable1 0x7f9df6407c20 to check queue
+[Node:notifyChanged] adding C1 0x7f9df6407ef0 to check queue
+[Node:notifyChanged] adding C2 0x7f9df6408350 to check queue
+[Node:notifyChanged] adding C3 0x7f9df6408700 to check queue
+[Node:notifyChanged] adding C4 0x7f9df6408ab0 to check queue
 [PlexilExec:step][1:2] Check queue: ResourceRenewable1 C1 C2 C3 C4 
-[PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'C1' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C1' on the state change queue in position 3
-[PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'C2' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C2' on the state change queue in position 4
-[PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'C3' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 5
-[PlexilExec:handleConditionsChanged]Node C4 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'C4' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C4' on the state change queue in position 6
+[PlexilExec:step] Node C1 0x7f9df6407ef0 can transition from INACTIVE to WAITING
+[PlexilExec:step] adding C1 0x7f9df6407ef0 to state change queue
+[PlexilExec:step] Node C2 0x7f9df6408350 can transition from INACTIVE to WAITING
+[PlexilExec:step] adding C2 0x7f9df6408350 to state change queue
+[PlexilExec:step] Node C3 0x7f9df6408700 can transition from INACTIVE to WAITING
+[PlexilExec:step] adding C3 0x7f9df6408700 to state change queue
+[PlexilExec:step] Node C4 0x7f9df6408ab0 can transition from INACTIVE to WAITING
+[PlexilExec:step] adding C4 0x7f9df6408ab0 to state change queue
 [PlexilExec:step][1:2] State change queue: C1 C2 C3 C4 
-[PlexilExec:step][1:2:0] Transitioning node C1 from INACTIVE to WAITING
-[PlexilExec:notifyNodeConditionChanged] for node ResourceRenewable1
-[PlexilExec:notifyNodeConditionChanged] for node C1
-[PlexilExec:step][1:2:1] Transitioning node C2 from INACTIVE to WAITING
-[PlexilExec:notifyNodeConditionChanged] for node C2
-[PlexilExec:step][1:2:2] Transitioning node C3 from INACTIVE to WAITING
-[PlexilExec:notifyNodeConditionChanged] for node C3
-[PlexilExec:step][1:2:3] Transitioning node C4 from INACTIVE to WAITING
-[PlexilExec:notifyNodeConditionChanged] for node C4
-[PlexilExec:step][1:3] Check queue: ResourceRenewable1 C1 C2 C3 C4 
-[PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'C1' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C1' on the state change queue in position 7
-[PlexilExec:handleConditionsChanged]Node C4 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'C4' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C4' on the state change queue in position 8
+[PlexilExec:step][1:2:0] Transitioning Command node C1 0x7f9df6407ef0 from INACTIVE to WAITING
+[Node:notifyChanged] adding C1 0x7f9df6407ef0 to check queue
+[Node:notifyChanged] adding ResourceRenewable1 0x7f9df6407c20 to check queue
+[PlexilExec:step][1:2:1] Transitioning Command node C2 0x7f9df6408350 from INACTIVE to WAITING
+[Node:notifyChanged] adding C2 0x7f9df6408350 to check queue
+[PlexilExec:step][1:2:2] Transitioning Command node C3 0x7f9df6408700 from INACTIVE to WAITING
+[Node:notifyChanged] adding C3 0x7f9df6408700 to check queue
+[PlexilExec:step][1:2:3] Transitioning Command node C4 0x7f9df6408ab0 from INACTIVE to WAITING
+[Node:notifyChanged] adding C4 0x7f9df6408ab0 to check queue
+[PlexilExec:step][1:3] Check queue: C1 ResourceRenewable1 C2 C3 C4 
+[PlexilExec:step] Node C1 0x7f9df6407ef0 can transition from WAITING to EXECUTING
+[PlexilExec:step] adding C1 0x7f9df6407ef0 to state change queue
+[PlexilExec:step] Node C4 0x7f9df6408ab0 can transition from WAITING to EXECUTING
+[PlexilExec:step] adding C4 0x7f9df6408ab0 to state change queue
 [PlexilExec:step][1:3] State change queue: C1 C4 
-[PlexilExec:step][1:3:0] Transitioning node C1 from WAITING to EXECUTING
-[PlexilExec:notifyNodeConditionChanged] for node ResourceRenewable1
-[PlexilExec:notifyNodeConditionChanged] for node C1
-[PlexilExec:handleNeedsExecution]Storing action for node 'C1' of type 'Command' to be executed.
-[PlexilExec:step][1:3:1] Transitioning node C4 from WAITING to EXECUTING
-[PlexilExec:notifyNodeConditionChanged] for node C4
-[PlexilExec:handleNeedsExecution]Storing action for node 'C4' of type 'Command' to be executed.
-[PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing c1(20) into (Variable Integer returnValue 0x7fe498c06bc0 [a](-1)) with ack (CommandHandleVariable NodeCommandHandle 0x7fe498c06ce8 [a]([unknown_value]))
+[PlexilExec:step][1:3:0] Transitioning Command node C1 0x7f9df6407ef0 from WAITING to EXECUTING
+[Node:notifyChanged] adding C1 0x7f9df6407ef0 to check queue
+[Node:notifyChanged] adding ResourceRenewable1 0x7f9df6407c20 to check queue
+[Node:notifyChanged] adding C3 0x7f9df6408700 to check queue
+[PlexilExec:step][1:3:1] Transitioning Command node C4 0x7f9df6408ab0 from WAITING to EXECUTING
+[Node:notifyChanged] adding C4 0x7f9df6408ab0 to check queue
+[Test:testOutput]Executing c1(20)
 [Test:testOutput]Permission to execute c4 has been denied by the resource arbiter.
-[PlexilExec:cycle]==>End cycle 1
+[PlexilExec:step] ==>End cycle 1
 [PlexilExec:printPlan]
 ResourceRenewable1{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7fe498c07b60 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fe498c07ac0 [i](0))
+ EndCondition: (AllChildrenFinished Boolean ResourceRenewable1 0x7f9df6407db0 [a](false))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean ResourceRenewable1 0x7f9df6407d68 [i](false))
   C1{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7fe498c07d40 [a](0) (Interruptible Boolean 0x7fe498c07ce0 [a](0)) (EQ Boolean 0x7fe498c07c00 [a](0) (Constant Integer 0x7fe498c07bf0 [a](10)) (Variable Integer returnValue 0x7fe498c06bc0 [a](-1))))
-   PostCondition: (EQ Boolean 0x7fe498c07c70 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fe498c06ce8 [a]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x108d31d78 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fe498c06df0 [i](0))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fe498c06d30 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe498c06ce8 [a]([unknown_value]))
-   head_priority: (Variable Integer head_priority 0x7fe498c06c50 [a](20))
-   returnValue: (Variable Integer returnValue 0x7fe498c06bc0 [a](-1))
+   EndCondition: (OR Boolean 0x7f9df6408ff0 [a](false) (Interruptible Boolean C1 0x7f9df6408fa0 [a](false)) (EQ Boolean 0x7f9df6408ed0 [a](false) (Constant Integer 0x7f9df6408f30 [a](10)) (Variable Integer returnValue 0x7f9df64080c0 [a](-1))))
+   PostCondition: (EQ Boolean 0x7f9df6408f40 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f9df6408258 [a]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x104b9ecf8 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7f9df6408210 [i](false))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9df6408298 [a](false))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9df6408258 [a]([unknown_value]))
+   head_priority: (Variable Integer head_priority 0x7f9df6408160 [a](20))
+   returnValue: (Variable Integer returnValue 0x7f9df64080c0 [a](-1))
   }
   C2{
    State: WAITING (0)
-   StartCondition: (EQ Boolean 0x7fe498c07ef0 [a]([unknown_value]) (OutcomeVariable NodeOutcome C3 0x7fe498c07338 [a]([unknown_value])) (NodeOutcomeValue NodeOutcome 0x108d31c88 [a](SUCCESS)))
-   PostCondition: (EQ Boolean 0x7fe498c07f60 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fe498c070f8 [i]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x108d31d78 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fe498c07200 [i](0))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fe498c07140 [i](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe498c070f8 [i]([unknown_value]))
-   v_priority2: (Variable Integer v_priority2 0x7fe498c07060 [i]([unknown_value]))
+   StartCondition: (EQ Boolean 0x7f9df6409190 [a]([unknown_value]) (OutcomeVariable NodeOutcome C3 0x7f9df64087e0 [a]([unknown_value])) (NodeOutcomeValue NodeOutcome 0x104b9ec08 [a](SUCCESS)))
+   PostCondition: (EQ Boolean 0x7f9df64091f0 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f9df6408608 [i]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x104b9ecf8 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7f9df64085c0 [i](false))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9df6408648 [i](false))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9df6408608 [i]([unknown_value]))
+   v_priority2: (Variable Integer v_priority2 0x7f9df6408510 [i]([unknown_value]))
   }
   C3{
    State: WAITING (0)
-   StartCondition: (EQ Boolean 0x7fe498c08120 [a]([unknown_value]) (OutcomeVariable NodeOutcome C1 0x7fe498c06aa8 [a]([unknown_value])) (NodeOutcomeValue NodeOutcome 0x108d31c88 [a](SUCCESS)))
-   PostCondition: (EQ Boolean 0x7fe498c08190 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fe498c07508 [i]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x108d31d78 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fe498c07610 [i](0))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fe498c07550 [i](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe498c07508 [i]([unknown_value]))
-   mem_priority2: (Variable Integer mem_priority2 0x7fe498c07470 [i]([unknown_value]))
+   StartCondition: (EQ Boolean 0x7f9df64093a0 [a]([unknown_value]) (OutcomeVariable NodeOutcome C1 0x7f9df6407fd0 [a]([unknown_value])) (NodeOutcomeValue NodeOutcome 0x104b9ec08 [a](SUCCESS)))
+   PostCondition: (EQ Boolean 0x7f9df6409400 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f9df64089b8 [i]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x104b9ecf8 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7f9df6408970 [i](false))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9df64089f8 [i](false))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9df64089b8 [i]([unknown_value]))
+   mem_priority2: (Variable Integer mem_priority2 0x7f9df64088c0 [i]([unknown_value]))
   }
   C4{
    State: EXECUTING (0)
-   PostCondition: (EQ Boolean 0x7fe498c08350 [i](0) (CommandHandleVariable NodeCommandHandle 0x7fe498c07918 [a](COMMAND_DENIED)) (CommandHandleValue NodeCommandHandle 0x108d31d78 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fe498c07a20 [i](1))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fe498c07960 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe498c07918 [a](COMMAND_DENIED))
-   mem_priority2: (Variable Integer mem_priority2 0x7fe498c07880 [a](30))
+   PostCondition: (EQ Boolean 0x7f9df64095b0 [i](false) (CommandHandleVariable NodeCommandHandle 0x7f9df6408d68 [a](COMMAND_DENIED)) (CommandHandleValue NodeCommandHandle 0x104b9ecf8 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7f9df6408d20 [i](true))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9df6408da8 [a](false))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9df6408d68 [a](COMMAND_DENIED))
+   mem_priority2: (Variable Integer mem_priority2 0x7f9df6408c70 [a](30))
   }
 }
 
 [Test:testOutput]Sending command ACK c1(20) = (string)COMMAND_SENT_TO_SYSTEM
-[PlexilExec:cycle]==>Start cycle 2
-[PlexilExec:step][2:0] Check queue: ResourceRenewable1 C1 C4 
-[PlexilExec:handleConditionsChanged]Node C4 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'C4' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C4' on the state change queue in position 9
+[PlexilExec:step] ==>Start cycle 2
+[PlexilExec:step][2:0] Check queue: C1 ResourceRenewable1 C3 C4 
+[PlexilExec:step] Node C4 0x7f9df6408ab0 can transition from EXECUTING to FINISHING
+[PlexilExec:step] adding C4 0x7f9df6408ab0 to state change queue
 [PlexilExec:step][2:0] State change queue: C4 
-[PlexilExec:step][2:0:0] Transitioning node C4 from EXECUTING to FINISHING
-[PlexilExec:notifyNodeConditionChanged] for node ResourceRenewable1
-[PlexilExec:notifyNodeConditionChanged] for node C4
-[PlexilExec:step][2:1] Check queue: ResourceRenewable1 C4 
-[PlexilExec:handleConditionsChanged]Node C4 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'C4' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C4' on the state change queue in position 10
+[PlexilExec:step][2:0:0] Transitioning Command node C4 0x7f9df6408ab0 from EXECUTING to FINISHING
+[Node:notifyChanged] adding C4 0x7f9df6408ab0 to check queue
+[Node:notifyChanged] adding ResourceRenewable1 0x7f9df6407c20 to check queue
+[PlexilExec:step][2:1] Check queue: C4 ResourceRenewable1 
+[PlexilExec:step] Node C4 0x7f9df6408ab0 can transition from FINISHING to ITERATION_ENDED
+[PlexilExec:step] adding C4 0x7f9df6408ab0 to state change queue
 [PlexilExec:step][2:1] State change queue: C4 
-[PlexilExec:step][2:1:0] Transitioning node C4 from FINISHING to ITERATION_ENDED
-[PlexilExec:notifyNodeConditionChanged] for node ResourceRenewable1
-[PlexilExec:notifyNodeConditionChanged] for node C4
-[PlexilExec:step][2:2] Check queue: ResourceRenewable1 C4 
-[PlexilExec:handleConditionsChanged]Node C4 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'C4' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C4' on the state change queue in position 11
+[PlexilExec:step][2:1:0] Transitioning Command node C4 0x7f9df6408ab0 from FINISHING to ITERATION_ENDED
+[Node:notifyChanged] adding C4 0x7f9df6408ab0 to check queue
+[Node:notifyChanged] adding ResourceRenewable1 0x7f9df6407c20 to check queue
+[PlexilExec:step][2:2] Check queue: C4 ResourceRenewable1 
+[PlexilExec:step] Node C4 0x7f9df6408ab0 can transition from ITERATION_ENDED to FINISHED
+[PlexilExec:step] adding C4 0x7f9df6408ab0 to state change queue
 [PlexilExec:step][2:2] State change queue: C4 
-[PlexilExec:step][2:2:0] Transitioning node C4 from ITERATION_ENDED to FINISHED
-[PlexilExec:notifyNodeConditionChanged] for node ResourceRenewable1
-[PlexilExec:notifyNodeConditionChanged] for node C4
-[PlexilExec:step][2:3] Check queue: ResourceRenewable1 C4 
-[PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[PlexilExec:cycle]==>End cycle 2
+[PlexilExec:step][2:2:0] Transitioning Command node C4 0x7f9df6408ab0 from ITERATION_ENDED to FINISHED
+[Node:notifyChanged] adding C4 0x7f9df6408ab0 to check queue
+[Node:notifyChanged] adding ResourceRenewable1 0x7f9df6407c20 to check queue
+[PlexilExec:step][2:3] Check queue: C4 ResourceRenewable1 
+[PlexilExec:step] ==>End cycle 2
 [PlexilExec:printPlan]
 ResourceRenewable1{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7fe498c07b60 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fe498c07ac0 [i](0))
+ EndCondition: (AllChildrenFinished Boolean ResourceRenewable1 0x7f9df6407db0 [a](false))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean ResourceRenewable1 0x7f9df6407d68 [i](false))
   C1{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7fe498c07d40 [a](0) (Interruptible Boolean 0x7fe498c07ce0 [a](0)) (EQ Boolean 0x7fe498c07c00 [a](0) (Constant Integer 0x7fe498c07bf0 [a](10)) (Variable Integer returnValue 0x7fe498c06bc0 [a](-1))))
-   PostCondition: (EQ Boolean 0x7fe498c07c70 [i](1) (CommandHandleVariable NodeCommandHandle 0x7fe498c06ce8 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x108d31d78 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fe498c06df0 [i](1))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fe498c06d30 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe498c06ce8 [a](COMMAND_SENT_TO_SYSTEM))
-   head_priority: (Variable Integer head_priority 0x7fe498c06c50 [a](20))
-   returnValue: (Variable Integer returnValue 0x7fe498c06bc0 [a](-1))
+   EndCondition: (OR Boolean 0x7f9df6408ff0 [a](false) (Interruptible Boolean C1 0x7f9df6408fa0 [a](false)) (EQ Boolean 0x7f9df6408ed0 [a](false) (Constant Integer 0x7f9df6408f30 [a](10)) (Variable Integer returnValue 0x7f9df64080c0 [a](-1))))
+   PostCondition: (EQ Boolean 0x7f9df6408f40 [i](true) (CommandHandleVariable NodeCommandHandle 0x7f9df6408258 [a](COMMAND_SENT_TO_SYSTEM)) (CommandHandleValue NodeCommandHandle 0x104b9ecf8 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7f9df6408210 [i](true))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9df6408298 [a](false))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9df6408258 [a](COMMAND_SENT_TO_SYSTEM))
+   head_priority: (Variable Integer head_priority 0x7f9df6408160 [a](20))
+   returnValue: (Variable Integer returnValue 0x7f9df64080c0 [a](-1))
   }
   C2{
    State: WAITING (0)
-   StartCondition: (EQ Boolean 0x7fe498c07ef0 [a]([unknown_value]) (OutcomeVariable NodeOutcome C3 0x7fe498c07338 [a]([unknown_value])) (NodeOutcomeValue NodeOutcome 0x108d31c88 [a](SUCCESS)))
-   PostCondition: (EQ Boolean 0x7fe498c07f60 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fe498c070f8 [i]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x108d31d78 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fe498c07200 [i](0))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fe498c07140 [i](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe498c070f8 [i]([unknown_value]))
-   v_priority2: (Variable Integer v_priority2 0x7fe498c07060 [i]([unknown_value]))
+   StartCondition: (EQ Boolean 0x7f9df6409190 [a]([unknown_value]) (OutcomeVariable NodeOutcome C3 0x7f9df64087e0 [a]([unknown_value])) (NodeOutcomeValue NodeOutcome 0x104b9ec08 [a](SUCCESS)))
+   PostCondition: (EQ Boolean 0x7f9df64091f0 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f9df6408608 [i]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x104b9ecf8 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7f9df64085c0 [i](false))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9df6408648 [i](false))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9df6408608 [i]([unknown_value]))
+   v_priority2: (Variable Integer v_priority2 0x7f9df6408510 [i]([unknown_value]))
   }
   C3{
    State: WAITING (0)
-   StartCondition: (EQ Boolean 0x7fe498c08120 [a]([unknown_value]) (OutcomeVariable NodeOutcome C1 0x7fe498c06aa8 [a]([unknown_value])) (NodeOutcomeValue NodeOutcome 0x108d31c88 [a](SUCCESS)))
-   PostCondition: (EQ Boolean 0x7fe498c08190 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fe498c07508 [i]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x108d31d78 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fe498c07610 [i](0))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fe498c07550 [i](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe498c07508 [i]([unknown_value]))
-   mem_priority2: (Variable Integer mem_priority2 0x7fe498c07470 [i]([unknown_value]))
+   StartCondition: (EQ Boolean 0x7f9df64093a0 [a]([unknown_value]) (OutcomeVariable NodeOutcome C1 0x7f9df6407fd0 [a]([unknown_value])) (NodeOutcomeValue NodeOutcome 0x104b9ec08 [a](SUCCESS)))
+   PostCondition: (EQ Boolean 0x7f9df6409400 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f9df64089b8 [i]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x104b9ecf8 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7f9df6408970 [i](false))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9df64089f8 [i](false))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9df64089b8 [i]([unknown_value]))
+   mem_priority2: (Variable Integer mem_priority2 0x7f9df64088c0 [i]([unknown_value]))
   }
   C4{
    State: FINISHED (0)
    Outcome: FAILURE
    Failure type: POST_CONDITION_FAILED
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe498c07918 [i]([unknown_value]))
-   mem_priority2: (Variable Integer mem_priority2 0x7fe498c07880 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9df6408d68 [i]([unknown_value]))
+   mem_priority2: (Variable Integer mem_priority2 0x7f9df6408c70 [i]([unknown_value]))
   }
 }
 
 [Test:testOutput]Sending command result c1(20) = 10
-[PlexilExec:notifyNodeConditionChanged] for node C1
-[PlexilExec:cycle]==>Start cycle 3
+[Node:notifyChanged] adding C1 0x7f9df6407ef0 to check queue
+[PlexilExec:step] ==>Start cycle 3
 [PlexilExec:step][3:0] Check queue: C1 
-[PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'C1' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C1' on the state change queue in position 12
+[PlexilExec:step] Node C1 0x7f9df6407ef0 can transition from EXECUTING to FINISHING
+[PlexilExec:step] adding C1 0x7f9df6407ef0 to state change queue
 [PlexilExec:step][3:0] State change queue: C1 
-[PlexilExec:step][3:0:0] Transitioning node C1 from EXECUTING to FINISHING
-[PlexilExec:notifyNodeConditionChanged] for node ResourceRenewable1
-[PlexilExec:notifyNodeConditionChanged] for node C1
-[PlexilExec:step][3:1] Check queue: ResourceRenewable1 C1 
-[PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'C1' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C1' on the state change queue in position 13
+[PlexilExec:step][3:0:0] Transitioning Command node C1 0x7f9df6407ef0 from EXECUTING to FINISHING
+[Node:notifyChanged] adding C1 0x7f9df6407ef0 to check queue
+[Node:notifyChanged] adding ResourceRenewable1 0x7f9df6407c20 to check queue
+[Node:notifyChanged] adding C3 0x7f9df6408700 to check queue
+[PlexilExec:step][3:1] Check queue: C1 ResourceRenewable1 C3 
+[PlexilExec:step] Node C1 0x7f9df6407ef0 can transition from FINISHING to ITERATION_ENDED
+[PlexilExec:step] adding C1 0x7f9df6407ef0 to state change queue
 [PlexilExec:step][3:1] State change queue: C1 
-[PlexilExec:step][3:1:0] Transitioning node C1 from FINISHING to ITERATION_ENDED
-[PlexilExec:notifyNodeConditionChanged] for node ResourceRenewable1
-[PlexilExec:notifyNodeConditionChanged] for node C1
-[PlexilExec:notifyNodeConditionChanged] for node C3
-[PlexilExec:step][3:2] Check queue: ResourceRenewable1 C1 C3 
-[PlexilExec:handleConditionsChanged]Node C1 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'C1' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C1' on the state change queue in position 14
-[PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'C3' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 15
+[PlexilExec:step][3:1:0] Transitioning Command node C1 0x7f9df6407ef0 from FINISHING to ITERATION_ENDED
+[Node:notifyChanged] adding C1 0x7f9df6407ef0 to check queue
+[Node:notifyChanged] adding ResourceRenewable1 0x7f9df6407c20 to check queue
+[Node:notifyChanged] adding C3 0x7f9df6408700 to check queue
+[PlexilExec:step][3:2] Check queue: C1 ResourceRenewable1 C3 
+[PlexilExec:step] Node C1 0x7f9df6407ef0 can transition from ITERATION_ENDED to FINISHED
+[PlexilExec:step] adding C1 0x7f9df6407ef0 to state change queue
+[PlexilExec:step] Node C3 0x7f9df6408700 can transition from WAITING to EXECUTING
+[PlexilExec:step] adding C3 0x7f9df6408700 to state change queue
 [PlexilExec:step][3:2] State change queue: C1 C3 
-[PlexilExec:step][3:2:0] Transitioning node C1 from ITERATION_ENDED to FINISHED
-[PlexilExec:notifyNodeConditionChanged] for node ResourceRenewable1
-[PlexilExec:notifyNodeConditionChanged] for node C1
-[PlexilExec:step][3:2:1] Transitioning node C3 from WAITING to EXECUTING
-[PlexilExec:notifyNodeConditionChanged] for node C3
-[PlexilExec:handleNeedsExecution]Storing action for node 'C3' of type 'Command' to be executed.
-[PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing c3() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7fe498c07508 [a]([unknown_value]))
-[PlexilExec:cycle]==>End cycle 3
+[PlexilExec:step][3:2:0] Transitioning Command node C1 0x7f9df6407ef0 from ITERATION_ENDED to FINISHED
+[Node:notifyChanged] adding C1 0x7f9df6407ef0 to check queue
+[Node:notifyChanged] adding ResourceRenewable1 0x7f9df6407c20 to check queue
+[Node:notifyChanged] transitioning node C3 0x7f9df6408700 will be rechecked
+[Node:notifyChanged] adding C3 0x7f9df6408700 to check queue
+[PlexilExec:step][3:2:1] Transitioning Command node C3 0x7f9df6408700 from WAITING to EXECUTING
+[Node:notifyChanged] adding C2 0x7f9df6408350 to check queue
+[Test:testOutput]Executing c3()
+[PlexilExec:step] ==>End cycle 3
 [PlexilExec:printPlan]
 ResourceRenewable1{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7fe498c07b60 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fe498c07ac0 [i](0))
+ EndCondition: (AllChildrenFinished Boolean ResourceRenewable1 0x7f9df6407db0 [a](false))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean ResourceRenewable1 0x7f9df6407d68 [i](false))
   C1{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe498c06ce8 [i]([unknown_value]))
-   head_priority: (Variable Integer head_priority 0x7fe498c06c50 [i]([unknown_value]))
-   returnValue: (Variable Integer returnValue 0x7fe498c06bc0 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9df6408258 [i]([unknown_value]))
+   head_priority: (Variable Integer head_priority 0x7f9df6408160 [i]([unknown_value]))
+   returnValue: (Variable Integer returnValue 0x7f9df64080c0 [i]([unknown_value]))
   }
   C2{
    State: WAITING (0)
-   StartCondition: (EQ Boolean 0x7fe498c07ef0 [a]([unknown_value]) (OutcomeVariable NodeOutcome C3 0x7fe498c07338 [a]([unknown_value])) (NodeOutcomeValue NodeOutcome 0x108d31c88 [a](SUCCESS)))
-   PostCondition: (EQ Boolean 0x7fe498c07f60 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fe498c070f8 [i]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x108d31d78 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fe498c07200 [i](0))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fe498c07140 [i](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe498c070f8 [i]([unknown_value]))
-   v_priority2: (Variable Integer v_priority2 0x7fe498c07060 [i]([unknown_value]))
+   StartCondition: (EQ Boolean 0x7f9df6409190 [a]([unknown_value]) (OutcomeVariable NodeOutcome C3 0x7f9df64087e0 [a]([unknown_value])) (NodeOutcomeValue NodeOutcome 0x104b9ec08 [a](SUCCESS)))
+   PostCondition: (EQ Boolean 0x7f9df64091f0 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f9df6408608 [i]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x104b9ecf8 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7f9df64085c0 [i](false))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9df6408648 [i](false))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9df6408608 [i]([unknown_value]))
+   v_priority2: (Variable Integer v_priority2 0x7f9df6408510 [i]([unknown_value]))
   }
   C3{
    State: EXECUTING (0)
-   StartCondition: (EQ Boolean 0x7fe498c08120 [i](1) (OutcomeVariable NodeOutcome C1 0x7fe498c06aa8 [a](SUCCESS)) (NodeOutcomeValue NodeOutcome 0x108d31c88 [a](SUCCESS)))
-   PostCondition: (EQ Boolean 0x7fe498c08190 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fe498c07508 [a]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x108d31d78 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fe498c07610 [i](0))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fe498c07550 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe498c07508 [a]([unknown_value]))
-   mem_priority2: (Variable Integer mem_priority2 0x7fe498c07470 [a](30))
+   StartCondition: (EQ Boolean 0x7f9df64093a0 [i](true) (OutcomeVariable NodeOutcome C1 0x7f9df6407fd0 [a](SUCCESS)) (NodeOutcomeValue NodeOutcome 0x104b9ec08 [a](SUCCESS)))
+   PostCondition: (EQ Boolean 0x7f9df6409400 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f9df64089b8 [a]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x104b9ecf8 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7f9df6408970 [i](false))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9df64089f8 [a](false))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9df64089b8 [a]([unknown_value]))
+   mem_priority2: (Variable Integer mem_priority2 0x7f9df64088c0 [a](30))
   }
   C4{
    State: FINISHED (0)
    Outcome: FAILURE
    Failure type: POST_CONDITION_FAILED
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe498c07918 [i]([unknown_value]))
-   mem_priority2: (Variable Integer mem_priority2 0x7fe498c07880 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9df6408d68 [i]([unknown_value]))
+   mem_priority2: (Variable Integer mem_priority2 0x7f9df6408c70 [i]([unknown_value]))
   }
 }
 
 [Test:testOutput]Sending command ACK c3() = (string)COMMAND_SENT_TO_SYSTEM
-[PlexilExec:cycle]==>Start cycle 4
-[PlexilExec:step][4:0] Check queue: ResourceRenewable1 C1 C3 
-[PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'C3' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 16
+[PlexilExec:step] ==>Start cycle 4
+[PlexilExec:step][4:0] Check queue: C1 ResourceRenewable1 C3 C2 
+[PlexilExec:step] Node C3 0x7f9df6408700 can transition from EXECUTING to FINISHING
+[PlexilExec:step] adding C3 0x7f9df6408700 to state change queue
 [PlexilExec:step][4:0] State change queue: C3 
-[PlexilExec:step][4:0:0] Transitioning node C3 from EXECUTING to FINISHING
-[PlexilExec:notifyNodeConditionChanged] for node ResourceRenewable1
-[PlexilExec:notifyNodeConditionChanged] for node C3
-[PlexilExec:step][4:1] Check queue: ResourceRenewable1 C3 
-[PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'C3' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 17
+[PlexilExec:step][4:0:0] Transitioning Command node C3 0x7f9df6408700 from EXECUTING to FINISHING
+[Node:notifyChanged] adding C3 0x7f9df6408700 to check queue
+[Node:notifyChanged] adding ResourceRenewable1 0x7f9df6407c20 to check queue
+[Node:notifyChanged] adding C2 0x7f9df6408350 to check queue
+[PlexilExec:step][4:1] Check queue: C3 ResourceRenewable1 C2 
+[PlexilExec:step] Node C3 0x7f9df6408700 can transition from FINISHING to ITERATION_ENDED
+[PlexilExec:step] adding C3 0x7f9df6408700 to state change queue
 [PlexilExec:step][4:1] State change queue: C3 
-[PlexilExec:step][4:1:0] Transitioning node C3 from FINISHING to ITERATION_ENDED
-[PlexilExec:notifyNodeConditionChanged] for node ResourceRenewable1
-[PlexilExec:notifyNodeConditionChanged] for node C3
-[PlexilExec:notifyNodeConditionChanged] for node C2
-[PlexilExec:step][4:2] Check queue: ResourceRenewable1 C3 C2 
-[PlexilExec:handleConditionsChanged]Node C3 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'C3' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C3' on the state change queue in position 18
-[PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'C2' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C2' on the state change queue in position 19
+[PlexilExec:step][4:1:0] Transitioning Command node C3 0x7f9df6408700 from FINISHING to ITERATION_ENDED
+[Node:notifyChanged] adding C3 0x7f9df6408700 to check queue
+[Node:notifyChanged] adding ResourceRenewable1 0x7f9df6407c20 to check queue
+[Node:notifyChanged] adding C2 0x7f9df6408350 to check queue
+[PlexilExec:step][4:2] Check queue: C3 ResourceRenewable1 C2 
+[PlexilExec:step] Node C3 0x7f9df6408700 can transition from ITERATION_ENDED to FINISHED
+[PlexilExec:step] adding C3 0x7f9df6408700 to state change queue
+[PlexilExec:step] Node C2 0x7f9df6408350 can transition from WAITING to EXECUTING
+[PlexilExec:step] adding C2 0x7f9df6408350 to state change queue
 [PlexilExec:step][4:2] State change queue: C3 C2 
-[PlexilExec:step][4:2:0] Transitioning node C3 from ITERATION_ENDED to FINISHED
-[PlexilExec:notifyNodeConditionChanged] for node ResourceRenewable1
-[PlexilExec:notifyNodeConditionChanged] for node C3
-[PlexilExec:step][4:2:1] Transitioning node C2 from WAITING to EXECUTING
-[PlexilExec:notifyNodeConditionChanged] for node C2
-[PlexilExec:handleNeedsExecution]Storing action for node 'C2' of type 'Command' to be executed.
-[PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[Test:testOutput]Executing c2() into noId with ack (CommandHandleVariable NodeCommandHandle 0x7fe498c070f8 [a]([unknown_value]))
-[PlexilExec:cycle]==>End cycle 4
+[PlexilExec:step][4:2:0] Transitioning Command node C3 0x7f9df6408700 from ITERATION_ENDED to FINISHED
+[Node:notifyChanged] adding C3 0x7f9df6408700 to check queue
+[Node:notifyChanged] adding ResourceRenewable1 0x7f9df6407c20 to check queue
+[Node:notifyChanged] transitioning node C2 0x7f9df6408350 will be rechecked
+[Node:notifyChanged] adding C2 0x7f9df6408350 to check queue
+[PlexilExec:step][4:2:1] Transitioning Command node C2 0x7f9df6408350 from WAITING to EXECUTING
+[Test:testOutput]Executing c2()
+[PlexilExec:step] ==>End cycle 4
 [PlexilExec:printPlan]
 ResourceRenewable1{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean 0x7fe498c07b60 [a](0))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean 0x7fe498c07ac0 [i](0))
+ EndCondition: (AllChildrenFinished Boolean ResourceRenewable1 0x7f9df6407db0 [a](false))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean ResourceRenewable1 0x7f9df6407d68 [i](false))
   C1{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe498c06ce8 [i]([unknown_value]))
-   head_priority: (Variable Integer head_priority 0x7fe498c06c50 [i]([unknown_value]))
-   returnValue: (Variable Integer returnValue 0x7fe498c06bc0 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9df6408258 [i]([unknown_value]))
+   head_priority: (Variable Integer head_priority 0x7f9df6408160 [i]([unknown_value]))
+   returnValue: (Variable Integer returnValue 0x7f9df64080c0 [i]([unknown_value]))
   }
   C2{
    State: EXECUTING (0)
-   StartCondition: (EQ Boolean 0x7fe498c07ef0 [i](1) (OutcomeVariable NodeOutcome C3 0x7fe498c07338 [a](SUCCESS)) (NodeOutcomeValue NodeOutcome 0x108d31c88 [a](SUCCESS)))
-   PostCondition: (EQ Boolean 0x7fe498c07f60 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7fe498c070f8 [a]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x108d31d78 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7fe498c07200 [i](0))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7fe498c07140 [a](0))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe498c070f8 [a]([unknown_value]))
-   v_priority2: (Variable Integer v_priority2 0x7fe498c07060 [a](25))
+   StartCondition: (EQ Boolean 0x7f9df6409190 [i](true) (OutcomeVariable NodeOutcome C3 0x7f9df64087e0 [a](SUCCESS)) (NodeOutcomeValue NodeOutcome 0x104b9ec08 [a](SUCCESS)))
+   PostCondition: (EQ Boolean 0x7f9df64091f0 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7f9df6408608 [a]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x104b9ecf8 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7f9df64085c0 [i](false))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7f9df6408648 [a](false))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9df6408608 [a]([unknown_value]))
+   v_priority2: (Variable Integer v_priority2 0x7f9df6408510 [a](25))
   }
   C3{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe498c07508 [i]([unknown_value]))
-   mem_priority2: (Variable Integer mem_priority2 0x7fe498c07470 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9df64089b8 [i]([unknown_value]))
+   mem_priority2: (Variable Integer mem_priority2 0x7f9df64088c0 [i]([unknown_value]))
   }
   C4{
    State: FINISHED (0)
    Outcome: FAILURE
    Failure type: POST_CONDITION_FAILED
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe498c07918 [i]([unknown_value]))
-   mem_priority2: (Variable Integer mem_priority2 0x7fe498c07880 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9df6408d68 [i]([unknown_value]))
+   mem_priority2: (Variable Integer mem_priority2 0x7f9df6408c70 [i]([unknown_value]))
   }
 }
 
 [Test:testOutput]Sending command ACK c2() = (string)COMMAND_SENT_TO_SYSTEM
-[PlexilExec:cycle]==>Start cycle 5
-[PlexilExec:step][5:0] Check queue: ResourceRenewable1 C3 C2 
-[PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'C2' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C2' on the state change queue in position 20
+[PlexilExec:step] ==>Start cycle 5
+[PlexilExec:step][5:0] Check queue: C3 ResourceRenewable1 C2 
+[PlexilExec:step] Node C2 0x7f9df6408350 can transition from EXECUTING to FINISHING
+[PlexilExec:step] adding C2 0x7f9df6408350 to state change queue
 [PlexilExec:step][5:0] State change queue: C2 
-[PlexilExec:step][5:0:0] Transitioning node C2 from EXECUTING to FINISHING
-[PlexilExec:notifyNodeConditionChanged] for node ResourceRenewable1
-[PlexilExec:notifyNodeConditionChanged] for node C2
-[PlexilExec:step][5:1] Check queue: ResourceRenewable1 C2 
-[PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'C2' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C2' on the state change queue in position 21
+[PlexilExec:step][5:0:0] Transitioning Command node C2 0x7f9df6408350 from EXECUTING to FINISHING
+[Node:notifyChanged] adding C2 0x7f9df6408350 to check queue
+[Node:notifyChanged] adding ResourceRenewable1 0x7f9df6407c20 to check queue
+[PlexilExec:step][5:1] Check queue: C2 ResourceRenewable1 
+[PlexilExec:step] Node C2 0x7f9df6408350 can transition from FINISHING to ITERATION_ENDED
+[PlexilExec:step] adding C2 0x7f9df6408350 to state change queue
 [PlexilExec:step][5:1] State change queue: C2 
-[PlexilExec:step][5:1:0] Transitioning node C2 from FINISHING to ITERATION_ENDED
-[PlexilExec:notifyNodeConditionChanged] for node ResourceRenewable1
-[PlexilExec:notifyNodeConditionChanged] for node C2
-[PlexilExec:step][5:2] Check queue: ResourceRenewable1 C2 
-[PlexilExec:handleConditionsChanged]Node C2 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'C2' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'C2' on the state change queue in position 22
+[PlexilExec:step][5:1:0] Transitioning Command node C2 0x7f9df6408350 from FINISHING to ITERATION_ENDED
+[Node:notifyChanged] adding C2 0x7f9df6408350 to check queue
+[Node:notifyChanged] adding ResourceRenewable1 0x7f9df6407c20 to check queue
+[PlexilExec:step][5:2] Check queue: C2 ResourceRenewable1 
+[PlexilExec:step] Node C2 0x7f9df6408350 can transition from ITERATION_ENDED to FINISHED
+[PlexilExec:step] adding C2 0x7f9df6408350 to state change queue
 [PlexilExec:step][5:2] State change queue: C2 
-[PlexilExec:step][5:2:0] Transitioning node C2 from ITERATION_ENDED to FINISHED
-[PlexilExec:notifyNodeConditionChanged] for node ResourceRenewable1
-[PlexilExec:notifyNodeConditionChanged] for node C2
-[PlexilExec:step][5:3] Check queue: ResourceRenewable1 C2 
-[PlexilExec:handleConditionsChanged]Node ResourceRenewable1 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'ResourceRenewable1' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'ResourceRenewable1' on the state change queue in position 23
+[PlexilExec:step][5:2:0] Transitioning Command node C2 0x7f9df6408350 from ITERATION_ENDED to FINISHED
+[Node:notifyChanged] adding C2 0x7f9df6408350 to check queue
+[Node:notifyChanged] adding ResourceRenewable1 0x7f9df6407c20 to check queue
+[PlexilExec:step][5:3] Check queue: C2 ResourceRenewable1 
+[PlexilExec:step] Node ResourceRenewable1 0x7f9df6407c20 can transition from EXECUTING to FINISHING
+[PlexilExec:step] adding ResourceRenewable1 0x7f9df6407c20 to state change queue
 [PlexilExec:step][5:3] State change queue: ResourceRenewable1 
-[PlexilExec:step][5:3:0] Transitioning node ResourceRenewable1 from EXECUTING to FINISHING
-[PlexilExec:notifyNodeConditionChanged] for node ResourceRenewable1
+[PlexilExec:step][5:3:0] Transitioning NodeList node ResourceRenewable1 0x7f9df6407c20 from EXECUTING to FINISHING
+[Node:notifyChanged] adding ResourceRenewable1 0x7f9df6407c20 to check queue
 [PlexilExec:step][5:4] Check queue: ResourceRenewable1 
-[PlexilExec:handleConditionsChanged]Node ResourceRenewable1 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'ResourceRenewable1' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'ResourceRenewable1' on the state change queue in position 24
+[PlexilExec:step] Node ResourceRenewable1 0x7f9df6407c20 can transition from FINISHING to ITERATION_ENDED
+[PlexilExec:step] adding ResourceRenewable1 0x7f9df6407c20 to state change queue
 [PlexilExec:step][5:4] State change queue: ResourceRenewable1 
-[PlexilExec:step][5:4:0] Transitioning node ResourceRenewable1 from FINISHING to ITERATION_ENDED
-[PlexilExec:notifyNodeConditionChanged] for node ResourceRenewable1
+[PlexilExec:step][5:4:0] Transitioning NodeList node ResourceRenewable1 0x7f9df6407c20 from FINISHING to ITERATION_ENDED
+[Node:notifyChanged] adding ResourceRenewable1 0x7f9df6407c20 to check queue
 [PlexilExec:step][5:5] Check queue: ResourceRenewable1 
-[PlexilExec:handleConditionsChanged]Node ResourceRenewable1 had a relevant condition change.
-[PlexilExec:handleConditionsChanged]Considering node 'ResourceRenewable1' for state transition.
-[PlexilExec:handleConditionsChanged]Placing node 'ResourceRenewable1' on the state change queue in position 25
+[PlexilExec:step] Node ResourceRenewable1 0x7f9df6407c20 can transition from ITERATION_ENDED to FINISHED
+[PlexilExec:step] adding ResourceRenewable1 0x7f9df6407c20 to state change queue
 [PlexilExec:step][5:5] State change queue: ResourceRenewable1 
-[PlexilExec:step][5:5:0] Transitioning node ResourceRenewable1 from ITERATION_ENDED to FINISHED
-[PlexilExec:performAssignments] performing 0 assignments and 0 retractions
-[PlexilExec:cycle]==>End cycle 5
+[PlexilExec:step][5:5:0] Transitioning NodeList node ResourceRenewable1 0x7f9df6407c20 from ITERATION_ENDED to FINISHED
+[PlexilExec:step] Marking ResourceRenewable1 0x7f9df6407c20 as a finished root node
+[PlexilExec:step] ==>End cycle 5
 [PlexilExec:printPlan]
 ResourceRenewable1{
  State: FINISHED (0)
@@ -395,28 +367,28 @@ ResourceRenewable1{
   C1{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe498c06ce8 [i]([unknown_value]))
-   head_priority: (Variable Integer head_priority 0x7fe498c06c50 [i]([unknown_value]))
-   returnValue: (Variable Integer returnValue 0x7fe498c06bc0 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9df6408258 [i]([unknown_value]))
+   head_priority: (Variable Integer head_priority 0x7f9df6408160 [i]([unknown_value]))
+   returnValue: (Variable Integer returnValue 0x7f9df64080c0 [i]([unknown_value]))
   }
   C2{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe498c070f8 [i]([unknown_value]))
-   v_priority2: (Variable Integer v_priority2 0x7fe498c07060 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9df6408608 [i]([unknown_value]))
+   v_priority2: (Variable Integer v_priority2 0x7f9df6408510 [i]([unknown_value]))
   }
   C3{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe498c07508 [i]([unknown_value]))
-   mem_priority2: (Variable Integer mem_priority2 0x7fe498c07470 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9df64089b8 [i]([unknown_value]))
+   mem_priority2: (Variable Integer mem_priority2 0x7f9df64088c0 [i]([unknown_value]))
   }
   C4{
    State: FINISHED (0)
    Outcome: FAILURE
    Failure type: POST_CONDITION_FAILED
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7fe498c07918 [i]([unknown_value]))
-   mem_priority2: (Variable Integer mem_priority2 0x7fe498c07880 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7f9df6408d68 [i]([unknown_value]))
+   mem_priority2: (Variable Integer mem_priority2 0x7f9df6408c70 [i]([unknown_value]))
   }
 }
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,7 @@ namespace PLEXIL {
   // Forward references
   class Assignable;
   class Mutex;
+  class PlexilExec;
 
   //
   // QueueStatus - Used by PlexilExec and Node classes for queue management
@@ -94,6 +95,16 @@ namespace PLEXIL {
 
     // Make the node active.
     virtual void activateNode() = 0;
+        
+    //
+    // NodeConnector API to expressions
+    //
+
+    /**
+     * @brief Accessor for the NodeId as it was written in the XML.
+     * @return This node's node id.
+     */
+    virtual std::string const &getNodeId() const = 0;
 
     /**
      * @brief Gets the destination state of this node, were it to transition,
@@ -113,7 +124,7 @@ namespace PLEXIL {
      * @brief Commit a pending state transition based on the statuses of various conditions.
      * @param time The time of the transition.
      */
-    virtual void transition(double time = 0.0) = 0; // FIXME - need a better representation
+    virtual void transition(PlexilExec *exec, double time = 0.0) = 0;
 
     /**
      * @brief Accessor for the priority of a node.  The priority is used to resolve resource conflicts.
@@ -123,6 +134,12 @@ namespace PLEXIL {
 
     // ExpressionListener API
     virtual void notifyChanged() = 0;
+
+    //! Notify the node that something has changed.
+    //! @param exec The PlexilExec instance.
+    //! @note This is an optimization for cases where the change is
+    //! the direct result of executive action.
+    virtual void notifyChanged(PlexilExec *exec) = 0; 
 
     /**
      * @brief Gets the current state of this node.
@@ -136,10 +153,8 @@ namespace PLEXIL {
      */
     virtual NodeOutcome getOutcome() const = 0;
 
-    /**
-     * @brief Gets the failure type of this node.
-     * @return the current failure type as an enum value.
-     */
+    //! Gets the failure type of this node.
+    //! @return the current failure type as an enum value.
     virtual FailureType getFailureType() const = 0;
 
     /**
@@ -157,17 +172,18 @@ namespace PLEXIL {
      */
     virtual Node const *getParent() const = 0;
 
-    /**
-     * @brief Gets the mutexes used by this node.
-     * @note May return nullptr.
-     */
-    virtual std::vector<Mutex *> const *getUsingMutexes() const = 0;
+    //! Does this node need to acquire resources before it can execute?
+    //! @return true if resources must be acquired, false otherwise.
+    virtual bool acquiresResources() const = 0;
 
-    /**
-     * @brief Notify that some resource on which we're pending is now available.
-     * @note Used by Mutex and AssignmentNode.
-     */
-    virtual void notifyResourceAvailable() = 0;
+    //! Reserve the resources needed by the node.
+    //! On failure, add self to the resources' wait lists.
+    //! @return true if successful, false if not.
+    virtual bool tryResourceAcquisition() = 0;
+
+    //! Remove the node from the pending queues of any resources
+    //! it was trying to acquire.
+    virtual void releaseResourceReservations() = 0;
 
     //
     // For convenience of PlexilExec queue management

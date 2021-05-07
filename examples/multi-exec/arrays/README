@@ -5,23 +5,8 @@ executive sends commands (command*.ple) to this simulator executive.
 The * in these filenames refers to the string and numeric array variants
 in the actual filenames.
 
-To run this example, first compile the plans:
+Use the convenience script run-arrays in this directory to run these examples:
 
-	plexilc command-numeric-arrays-test.ple
-	plexilc command-string-arrays-test.ple
-	plexilc simulator-numeric-arrays-test.ple
-	plexilc simulator-string-arrays-test.ple
-
-Then start the IPC publish/subscribe server used for inter-executive
-communication:
-
-  ipc
-
-Next, in a different Unix shell, start the desired simulator executive, e.g.
-
-  plexilexec -p simulator-numeric-arrays-test.plx -c simulator-arrays-config.xml
-
-Then start the corresponding commanding executive.  For the above
-simulator this would be:
-
-  plexilexec -p command-numeric-arrays-test.plx -c command-arrays-config.xml
+./run-arrays numeric
+  or
+ ./run-arrays string

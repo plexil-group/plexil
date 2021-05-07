@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tr="extended-plexil-translator">
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <GlobalDeclarations>
     <DeclareMutex>
       <Name>m</Name>
@@ -16,6 +16,9 @@
         </InitialValue>
       </DeclareVariable>
     </VariableDeclarations>
+    <UsingMutex>
+      <Name>m</Name>
+    </UsingMutex>
     <EndCondition>
       <OR>
         <Succeeded>
@@ -36,9 +39,6 @@
         </Succeeded>
       </OR>
     </PostCondition>
-    <UsingMutex>
-      <Name>m</Name>
-    </UsingMutex>
     <NodeBody>
       <NodeList>
         <Node NodeType="Assignment">

@@ -28,7 +28,6 @@
 #include "Constant.hh"
 #include "TestSupport.hh"
 #include "test/TrivialListener.hh"
-#include "UserVariable.hh"
 #include "Value.hh"
 
 using namespace PLEXIL;

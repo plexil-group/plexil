@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,11 +29,15 @@
 
 #include "plexil-config.h"
 
+#if defined(HAVE_CSIGNAL)
+#include <csignal>
+#elif defined(HAVE_SIGNAL_H)
+#include <signal.h>
+#endif
+
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>
 #endif
-
-#include <csignal>
 
 #define TIMING_SERVICE_MAX_N_SIGNALS 8
 
@@ -96,8 +100,10 @@ public:
 private:  
 
   // Deliberately not implemented
-  TimingService(const TimingService&);
-  TimingService& operator=(const TimingService&);
+  TimingService(const TimingService &) = delete;
+  TimingService(TimingService &&) = delete;
+  TimingService& operator=(const TimingService&) = delete;
+  TimingService& operator=(TimingService &&) = delete;
 
   //
   // Member variables

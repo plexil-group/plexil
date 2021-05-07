@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -38,14 +38,14 @@ namespace PLEXIL
 
   // Convenience methods
   template <typename R>
-  bool CommandOperatorImpl<R>::isKnown(Command const *command) const
+  bool CommandOperatorImpl<R>::isKnown(CommandImpl const *command) const
   {
     R dummy;
     return (*this)(dummy, command);
   }
 
   template <typename R>
-  void CommandOperatorImpl<R>::printValue(std::ostream &s, Command const *command) const
+  void CommandOperatorImpl<R>::printValue(std::ostream &s, CommandImpl const *command) const
   {
     R temp;
     if ((*this)(temp, command))
@@ -55,7 +55,7 @@ namespace PLEXIL
   }
 
   template <typename R>
-  Value CommandOperatorImpl<R>::toValue(Command const *command) const
+  Value CommandOperatorImpl<R>::toValue(CommandImpl const *command) const
   {
     R temp;
     if ((*this)(temp, command))
@@ -67,13 +67,13 @@ namespace PLEXIL
   // Array variants unlikely to be used any time soon
 
   // template <typename R>
-  // bool CommandOperatorImpl<ArrayImpl<R> >::calcNative(void *cache, Command const *command) const
+  // bool CommandOperatorImpl<ArrayImpl<R> >::calcNative(void *cache, CommandImpl const *command) const
   // {
   //   return (*this)(*(static_cast<ArrayImpl<R> *>(cache)), command);
   // }
 
   // template <typename R>
-  // void CommandOperatorImpl<ArrayImpl<R> >::printValue(std::ostream &s, void *cache, Command const *command) const
+  // void CommandOperatorImpl<ArrayImpl<R> >::printValue(std::ostream &s, void *cache, CommandImpl const *command) const
   // {
   //   if (calcNative(cache, command))
   //     PLEXIL::printValue(*(static_cast<ArrayImpl<R> const *>(cache)), s);
@@ -82,7 +82,7 @@ namespace PLEXIL
   // }
 
   // template <typename R>
-  // Value CommandOperatorImpl<ArrayImpl<R> >::toValue(void *cache, Command const *command) const
+  // Value CommandOperatorImpl<ArrayImpl<R> >::toValue(void *cache, CommandImpl const *command) const
   // {
   //   bool known = calcNative(cache, command);
   //   if (known)

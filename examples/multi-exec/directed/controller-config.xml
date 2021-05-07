@@ -1,7 +1,5 @@
 <Interfaces>
- <Adapter AdapterType="OSNativeTime">
-  <LookupNames>time</LookupNames>
- </Adapter>
+ <Adapter AdapterType="Time"/>
  <Adapter AdapterType="IpcAdapter" TaskName="controller" Server="localhost" AllowDuplicateMessages="true">
   <DefaultCommandAdapter/>
   <LookupNames>front_engine:Torque, rear_engine:Torque, Torque</LookupNames>

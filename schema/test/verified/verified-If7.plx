@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tr="extended-plexil-translator">
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <GlobalDeclarations>
     <StateDeclaration>
       <Name>flag</Name>
@@ -15,7 +15,7 @@
       <NodeList>
         <Node NodeType="Empty" epx="Then">
           <StartCondition>
-            <LookupNow>
+            <LookupNow epx="Lookup">
               <Name>
                 <StringValue>flag</StringValue>
               </Name>
@@ -23,7 +23,7 @@
           </StartCondition>
           <SkipCondition>
             <NOT>
-              <LookupNow>
+              <LookupNow epx="Lookup">
                 <Name>
                   <StringValue>flag</StringValue>
                 </Name>

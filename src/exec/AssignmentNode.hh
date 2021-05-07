@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -85,27 +85,37 @@ namespace PLEXIL
      * @note Intended for use by the plan parser and unit tests only.
      */
     void setAssignment(Assignment *assn);
+
+    //! Does this node need to acquire resources before it can execute?
+    //! @return true if resources must be acquired, false otherwise.
+    virtual bool acquiresResources() const override
+    {
+      return true; // a variable is a resource which must be acquired
+    }
+
+    //! Remove the node from the pending queues of any resources
+    //! it was trying to acquire.
+    //! @note This is a wrapper around the NodeImpl method.
+    virtual void releaseResourceReservations() override;
     
   protected:
 
     // Specific behaviors for derived classes
-    virtual void specializedHandleExecution() override;
-    virtual void specializedDeactivateExecutable() override;
+    virtual void specializedHandleExecution(PlexilExec *exec) override;
+    virtual void specializedDeactivateExecutable(PlexilExec *exec) override;
 
     virtual bool getDestStateFromExecuting() override;
     virtual bool getDestStateFromFailing() override;
 
-    virtual void transitionFromExecuting() override;
-    virtual void transitionFromFailing() override;
+    virtual void transitionFromExecuting(PlexilExec *exec) override;
+    virtual void transitionFromFailing(PlexilExec *exec) override;
 
     virtual void transitionToExecuting() override;;
-    virtual void transitionToFailing() override;
+    virtual void transitionToFailing(PlexilExec *exec) override;
 
     virtual void transitionToIterationEnded() override;
 
     virtual void transitionToFinished() override;
-
-    virtual void abort() override;
 
   private:
 

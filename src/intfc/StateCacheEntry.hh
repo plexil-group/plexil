@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,95 +27,64 @@
 #ifndef PLEXIL_STATE_CACHE_ENTRY_HH
 #define PLEXIL_STATE_CACHE_ENTRY_HH
 
-#include "ValueType.hh"
+#include "LookupReceiver.hh"
 
 namespace PLEXIL
 {
+  // Forward references
   class CachedValue;
-  class Expression;
   class Lookup;
   class State;
   class Value;
 
-  /**
-   * @class StateCacheEntry
-   * @brief Provides the external API for a state cache entry,
-   *        and value-type-independent state and functionality.
-   */
-  class StateCacheEntry
+  //! @class StateCacheEntry
+  //! Provides the external API for a state cache entry, and
+  //! value-type-independent state and functionality.
+  class StateCacheEntry : public LookupReceiver
   {
   public:
-    StateCacheEntry();
-    StateCacheEntry(StateCacheEntry const &orig);
+    virtual ~StateCacheEntry() = default;
 
-    virtual ~StateCacheEntry();
+    // Callback object for interface implementations
+    LookupReceiver *getLookupReceiver()
+    {
+      return static_cast<LookupReceiver *>(this);
+    }
 
     // Utility
-    ValueType const valueType() const;
-    bool isKnown() const;
+    virtual ValueType const valueType() const = 0;
+    virtual bool isKnown() const = 0;
+
+    // Safety check before deleting entry
+    virtual bool hasRegisteredLookups() const = 0;
 
     // API to Lookup
-    void registerLookup(State const &s, Lookup *l); // calls updateIfStale()
-    virtual void unregisterLookup(State const &s, Lookup *l);
-    void updateThresholds(State const &s);
+    virtual void registerLookup(State const &s, Lookup *l) = 0;
+    virtual void unregisterLookup(State const &s, Lookup *l) = 0;
+    virtual void updateThresholds(State const &s) = 0;
 
     // Read access to the actual value is through the helper object.
-    CachedValue const *cachedValue() const;
+    // Only Lookup and StateCache should use this member function.
+    virtual CachedValue const *cachedValue() const = 0;
 
-    /**
-     * @brief Set the state to unknown.
-     * @note Notifies all lookups of the new status.
-     */
-    void setUnknown();
+    //! Update with the given value and timestamp.
+    //! @param val The new value.
+    //! @param timestamp The cycle count at the time of update.
+    //! @note Optimization for StateCache::lookupReturn()
+    virtual void updateValue(Value const &val, unsigned int timestamp) = 0;
 
-    /**
-     * @brief Update the cache entry with the given new value.
-     * @param val The new value.
-     * @note Notifies all lookups of the new value.
-     * @note The caller is responsible for deleting the object pointed to upon return.
-     */
-    void update(Boolean const &val);
-    void update(Integer const &val);
-    void update(Real const &val);
-    void update(String const &val);
-    void updatePtr(String const *valPtr);
-    void updatePtr(BooleanArray const *valPtr);
-    void updatePtr(IntegerArray const *valPtr);
-    void updatePtr(RealArray const *valPtr);
-    void updatePtr(StringArray const *valPtr);
-
-    // For convenience of TestExternalInterface, others
-    void update(Value const &val);
-
-  private:
-    // Assign disallowed
-    StateCacheEntry &operator=(StateCacheEntry const &);
-
-    // Internal functions
-
-    /**
-     * @brief Notify all subscribers of a change in value.
-     */
-    void notify() const;
-
-    // Return true if entry type is compatible with requested, false if not.
-    bool ensureCachedValue(ValueType v = UNKNOWN_TYPE);
-
-    //
-    // Helpers
-    //
-
-    // Updates thresholds after any change in lookups.
-    // Returns true if thresholds still exist, false if none.
-    bool integerUpdateThresholds(State const &s);
-    bool realUpdateThresholds(State const &s);
-
-    // Member data
-    std::vector<Lookup *> m_lookups;
-    CachedValue *m_value;
-    CachedValue *m_lowThreshold;
-    CachedValue *m_highThreshold;
+    //! Update the cache entry with the given new value.
+    //! @param valPtr The new value.
+    //! @note Notifies all lookups of the new value.
+    //! @note The caller is responsible for deleting the object pointed to upon return.
+    virtual void updatePtr(String const *valPtr) = 0;
+    virtual void updatePtr(BooleanArray const *valPtr) = 0;
+    virtual void updatePtr(IntegerArray const *valPtr) = 0;
+    virtual void updatePtr(RealArray const *valPtr) = 0;
+    virtual void updatePtr(StringArray const *valPtr) = 0;
   };
+
+  StateCacheEntry *makeStateCacheEntry();
 
 } // namespace PLEXIL
 

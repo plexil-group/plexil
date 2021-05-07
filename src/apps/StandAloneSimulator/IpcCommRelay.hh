@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,19 +28,9 @@
 #define IPC_COMM_RELAY_HH
 
 #include "CommRelayBase.hh"
-#include "ipc-data-formats.h"
-#include "IpcFacade.hh"
-
-#include <ipc.h>
+#include "IpcFacade.hh" // includes ipc.h, ipc-data-formats.h
 
 #include <map>
-#include <string>
-#include <vector>
-
-#include <pthread.h>
-
-// forward references
-class ResponseMessage;
 
 class IpcCommRelay : public CommRelayBase
 {
@@ -49,26 +39,33 @@ public:
   /**
    * @brief Constructor. Opens the connection and spawns a listener thread.
    */
-  IpcCommRelay(const std::string& id, const std::string& centralhost = "localhost:1381");
+  IpcCommRelay(const std::string& id);
 
   /**
    * @brief Destructor. Shuts down the listener thread and closes the connection.
    */
-  ~IpcCommRelay();
+  virtual ~IpcCommRelay() = default;
+
+  //! Start IPC.
+  //! @param centralhost The location of the IPC 'central' server.
+  //! @return True if succeeded, false if not.
+  bool initialize(const std::string& centralhost = "localhost:1381");
 
   /**
    * @brief Send a response from the sim back to the UE.
    */
-  void sendResponse(const ResponseMessage* respMsg);
+  virtual void sendResponse(const ResponseMessage* respMsg);
 
 private:
 
   //
   // Deliberately unimplemented
   //
-  IpcCommRelay();
-  IpcCommRelay(const IpcCommRelay&);
-  IpcCommRelay& operator=(const IpcCommRelay&);
+  IpcCommRelay() = delete;
+  IpcCommRelay(const IpcCommRelay &) = delete;
+  IpcCommRelay(IpcCommRelay &&) = delete;
+  IpcCommRelay& operator=(const IpcCommRelay &) = delete;
+  IpcCommRelay& operator=(IpcCommRelay &&) = delete;
 
   //
   // Implementation methods
@@ -77,19 +74,19 @@ private:
   /**
    * @brief Send a command to the simulator
    */
-  void processCommand(const std::vector<const PlexilMsgBase*>& msgs);
+  void processCommand(const std::vector<PlexilMsgBase*>& msgs);
 
   /**
    * @brief Deal with a LookupNow request
    */
-  void processLookupNow(const std::vector<const PlexilMsgBase*>& msgs);
+  void processLookupNow(const std::vector<PlexilMsgBase*>& msgs);
 
   //* brief Class to receive messages from Ipc
   class MessageListener : public PLEXIL::IpcMessageListener  {
   public:
     MessageListener(IpcCommRelay&);
     ~MessageListener();
-    void ReceiveMessage(const std::vector<const PlexilMsgBase*>& msgs);
+    void ReceiveMessage(const std::vector<PlexilMsgBase*>& msgs);
   private:
     IpcCommRelay& m_adapter;
   };
@@ -102,7 +99,7 @@ private:
   typedef std::pair<std::string, uint32_t> IpcMessageId;
 
   //* brief Cache of not-yet-complete incoming message sequences
-  typedef std::map<IpcMessageId, std::vector<const PlexilMsgBase*> > IncompleteMessageMap;
+  typedef std::map<IpcMessageId, std::vector<PlexilMsgBase*> > IncompleteMessageMap;
 
   //* @brief State name to unique ID map
   typedef std::map<std::string, IpcMessageId> NameUniqueIDMap;

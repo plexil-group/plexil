@@ -1,0 +1,14 @@
+repeat1:
+Concurrence
+  {
+    Integer count = 0;
+
+    StartCondition true;
+    EndCondition NodeFinished(Inc);
+
+  Inc:
+    {
+      RepeatCondition count < 4;
+      count = 1 + count;
+    }
+  }

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,7 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
 
 public class UpdateNode extends PlexilTreeNode
 {
@@ -52,6 +52,7 @@ public class UpdateNode extends PlexilTreeNode
 		return new UpdateNode(this);
 	}
 
+    @Override
 	public void check(NodeContext context, CompilerState state)
 	{
 		// ? TODO: check that tags are unique?
@@ -61,26 +62,27 @@ public class UpdateNode extends PlexilTreeNode
 		}
 	}
 
+    @Override
 	protected void constructXML()
 	{
-		super.constructXML();
+		super.constructXMLBase();
 		m_xml.setAttribute("NodeType", "Update");
 
         // construct node body
-        IXMLElement nodeBody = new XMLElement("NodeBody");
-        m_xml.addChild(nodeBody);
+        Element nodeBody = CompilerState.newElement("NodeBody");
+        m_xml.appendChild(nodeBody);
 
 		// construct update
-        IXMLElement update = new XMLElement("Update");
-        nodeBody.addChild(update);
+        Element update = CompilerState.newElement("Update");
+        nodeBody.appendChild(update);
 
 		for (int i = 0; i < this.getChildCount(); i += 2) {
-			IXMLElement pair = new XMLElement("Pair");
-			IXMLElement name = new XMLElement("Name");
-			name.setContent(this.getChild(i).getText());
-			pair.addChild(name);
-			pair.addChild(this.getChild(i + 1).getXML());
-			update.addChild(pair);
+			Element pair = CompilerState.newElement("Pair");
+			Element name = CompilerState.newElement("Name");
+			name.appendChild(CompilerState.newTextNode(this.getChild(i).getText()));
+			pair.appendChild(name);
+			pair.appendChild(this.getChild(i + 1).getXML());
+			update.appendChild(pair);
 		}
 	}
 

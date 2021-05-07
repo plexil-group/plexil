@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,8 +40,6 @@
 extern "C" {
 #endif
 
-#include <stddef.h> // for NULL
-    
   /**
    * @brief Dynamically load the shared library containing the module name, using the library name if provided.
    * @param moduleName The name of the module

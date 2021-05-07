@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,8 +26,6 @@
 
 #include "NodeConstantExpressions.hh"
 
-#include "Error.hh"
-
 #define DEFINE_EXPRESSION_CONSTANT(TYPE, NAME, VALUE)\
   Expression *NAME() { static TYPE sl_ ## NAME(VALUE); return &sl_ ## NAME; }
 
@@ -39,10 +37,6 @@ namespace PLEXIL
 
   NodeStateConstant::NodeStateConstant(NodeState value)
     : Constant<NodeState>(value)
-  {
-  }
-
-  NodeStateConstant::~NodeStateConstant()
   {
   }
 
@@ -69,10 +63,6 @@ namespace PLEXIL
   {
   }
 
-  NodeOutcomeConstant::~NodeOutcomeConstant()
-  {
-  }
-
   char const *NodeOutcomeConstant::exprName() const
   {
     return "NodeOutcomeValue";
@@ -91,10 +81,6 @@ namespace PLEXIL
 
   FailureTypeConstant::FailureTypeConstant(FailureType value)
     : Constant<FailureType>(value)
-  {
-  }
-
-  FailureTypeConstant::~FailureTypeConstant()
   {
   }
 
@@ -118,10 +104,6 @@ namespace PLEXIL
 
   CommandHandleConstant::CommandHandleConstant(CommandHandleValue value)
     : Constant<CommandHandleValue>(value)
-  {
-  }
-
-  CommandHandleConstant::~CommandHandleConstant()
   {
   }
 

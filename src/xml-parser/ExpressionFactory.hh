@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,7 @@
 #ifndef EXPRESSION_FACTORY_HH
 #define EXPRESSION_FACTORY_HH
 
-#include "Expression.hh"
-#include "ParserException.hh"
+#include "ValueType.hh"
 
 // Forward declaration
 namespace pugi
@@ -39,6 +38,7 @@ namespace pugi
 namespace PLEXIL
 {
   // Forward declarations
+  class Expression;
   class NodeConnector;
 
   /**
@@ -53,7 +53,9 @@ namespace PLEXIL
     virtual ~ExpressionFactory() = default;
 
     // Default method returns UNKNOWN_TYPE, as a convenience.
-    virtual ValueType check(char const *nodeId, pugi::xml_node const expr) const;
+    virtual ValueType check(char const *nodeId,
+                            pugi::xml_node const expr,
+                            ValueType desiredType = UNKNOWN_TYPE) const;
 
     virtual Expression *allocate(pugi::xml_node const expr,
                                  NodeConnector *node,

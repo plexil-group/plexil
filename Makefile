@@ -1,6 +1,6 @@
 # Top level Makefile for Plexil
 
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,14 +25,21 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-MY_PLEXIL_HOME := $(shell pwd)
-ifneq ($(PLEXIL_HOME),)
-ifneq ($(PLEXIL_HOME),$(MY_PLEXIL_HOME))
-$(error Environment variable PLEXIL_HOME is in error. It must be set to $(MY_PLEXIL_HOME) before proceeding)
+SHELL = /bin/sh
+
+# Check environment
+# N.B.: dir leaves a trailing /
+MAKEFILE_DIR := $(realpath $(join $(dir $(firstword $(MAKEFILE_LIST))),.))
+
+ifeq ($(PLEXIL_HOME),)
+PLEXIL_HOME := $(MAKEFILE_DIR)
+else
+ifneq ($(PLEXIL_HOME),$(MAKEFILE_DIR))
+$(error Environment variable PLEXIL_HOME is in error. It must be set to $(MAKEFILE_DIR) before proceeding)
 endif
 endif
 
-export PLEXIL_HOME := $(MY_PLEXIL_HOME)
+export PLEXIL_HOME
 
 include makeinclude/standard-defs.make
 
@@ -41,44 +48,13 @@ include makeinclude/standard-defs.make
 #
 
 # TODO? test for existence
-AUTOCONF ?= autoconf
-AUTOMAKE ?= automake
-AUTORECONF ?= autoreconf
-ifeq ($(LIBTOOLIZE),)
-# Check whether libtoolize or glibtoolize is installed
-ifneq ($(shell which libtoolize),)
-LIBTOOLIZE := libtoolize
-else
-ifneq ($(shell which glibtoolize),)
-LIBTOOLIZE := glibtoolize
-else
-$(error Unable to locate GNU 'libtoolize' utility)
-endif
-endif
-endif
-
-
-# Configuration options for src/configure
-CONF_BUILD_OPTS := --enable-debug-listener
-
-# TODO figure out what to do with these
-CONF_MODULE_OPTS := --enable-udp --enable-ipc --enable-sas --enable-test-exec
-
-# For developer use
-# Comment out when released
-CONF_MODULE_OPTS += --enable-module-tests
-
-ifneq ($(PLEXIL_SHARED),)
-CONF_BUILD_OPTS += --enable-shared --disable-static
-else
-CONF_BUILD_OPTS += --disable-shared --enable-static
-endif
+AUTORECONF := autoreconf
 
 # Primary target
 plexil-default: tools
 
 # The whole shooting match
-all: universalExec TestExec IpcAdapter UdpAdapter plexil-compiler plexilscript checker plexilsim pv robosim sample
+everything: universalExec TestExec IpcAdapter UdpAdapter plexil-compiler plexilscript checker plexilsim pv robosim sample checkpoint
 
 # Just the tools without the examples
 tools: universalExec TestExec IpcAdapter UdpAdapter plexil-compiler plexilscript checker plexilsim pv
@@ -90,28 +66,40 @@ essentials: universalExec TestExec IpcAdapter UdpAdapter plexil-compiler plexils
 # Standalone targets
 #
 
-checker:
+checker: checker/global-decl-checker.jar
+
+checker/global-decl-checker.jar:
 	(cd checker && ant jar)
 
-pv:
+pv: viewers/pv/luv.jar
+
+viewers/pv/luv.jar:
 	(cd viewers/pv && ant jar)
 
-plexil-compiler:
-	$(MAKE) -C compilers/plexil
+plexil-compiler: jars/PlexilCompiler.jar
 
-plexilscript:
+jars/PlexilCompiler.jar:
+	(cd compilers/plexil && ant install)
+
+plexilscript: jars/plexilscript.jar
+
+jars/plexilscript.jar:
 	(cd compilers/plexilscript && ant install)
+
+.PHONY: checker/global-decl-checker.jar viewers/pv/luv.jar
+.PHONY: jars/PlexilCompiler.jar jars/plexilscript.jar
 
 #
 # Targets which depend on the Automake targets below
 #
+checkpoint: utils
+	$(MAKE) -C examples/checkpoint
 
 robosim: ipc utils
 	$(MAKE) -C examples/robosim
 
 sample: universalExec
 	$(MAKE) -C examples/sample-app
-	$(MAKE) -C examples/sample-app1
 
 #
 # Targets under the Automake build system
@@ -182,61 +170,55 @@ most-build: src/Makefile
 most-install: most-build src/Makefile
 	$(MAKE) -C src install
 
-# Be sure to inherit compiler options from makeinclude directory
-src/Makefile: src/configure src/Makefile.am makeinclude/standard-defs.make makeinclude/platform-defs.make makeinclude/platform-$(TARGET_OS).make
-	cd ./src && ./configure --prefix="$(PLEXIL_HOME)" \
- CC="$(CC)" CFLAGS="$(CFLAGS)" CXX="$(CXX)" CXXFLAGS="$(CXXFLAGS)" \
- $(CONF_BUILD_OPTS) $(CONF_MODULE_OPTS)
-
+# At bootstrap time, values of these variables come from makeinclude/standard-defs.make
+src/Makefile: src/configure
+	cd ./src && ./configure --prefix="$(PREFIX)" --exec-prefix="$(EXEC_PREFIX)" \
+ --bindir="$(BINDIR)" --includedir="$(INCLUDEDIR)" --libdir="$(LIBDIR)" \
+ CC="$(CC)" CXX="$(CXX)" \
+ CPPFLAGS="$(INITIAL_CPPFLAGS)" CFLAGS="$(INITIAL_CFLAGS)" CXXFLAGS="$(INITIAL_CXXFLAGS)" \
+ --disable-static --enable-gantt --enable-ipc --enable-sas --enable-test-exec --enable-udp
 
 #
 # Bootstrapping autobuild files
 #
 
-src/m4:
-	cd src && $(LIBTOOLIZE) -fc
+# Must recreate configure if any of the Makefile.am files changes
+MAKEFILE_AMS = $(wildcard src/**/Makefile.am)
 
-src/configure: src/m4 src/configure.ac Makefile
-	cd ./src && $(AUTORECONF) -f -i
+# Create m4 directory - some older versions of autotools won't do it for us
+src/configure: src/configure.ac $(MAKEFILE_AMS)
+	cd ./src && mkdir -p m4 && $(AUTORECONF) -f -i
 
 #
 # End Automake targets
 #
 
-clean:
-	-$(MAKE) -C compilers/plexil $@
-	-$(MAKE) -C examples/robosim $@
-	-$(MAKE) -C examples/sample-app $@
-	-$(MAKE) -C src $@
-	(cd checker && ant $@)
-	(cd compilers/plexilscript && ant $@)
-	(cd jars && $(RM) -f plexilscript.jar)	
-	(cd viewers/pv && ant $@)
-	-$(RM) lib/lib* bin/*
+clean:: clean-examples
+	-@$(MAKE) -C src $@ > /dev/null 2>&1
+	-@$(MAKE) -C compilers/plexil $@ > /dev/null 2>&1
+	@(cd compilers/plexilscript && ant $@)
+	@(cd checker && ant $@)
+	@(cd jars && $(RM) plexilscript.jar)
+	@(cd viewers/pv && ant $@)
+	@$(RM) lib/lib* bin/* include/*
+	@$(RM) examples/checkpoint/saves/*.xml
 	@ echo Done.
 
-# Clean up files generated by configure
-# Use this before generating a distribution tarball
-distclean: | clean
-	(cd src && $(RM) -f */Makefile)
-	(cd src/apps && $(RM) -f */Makefile)
-	(cd src/interfaces && $(RM) -f */Makefile)
-	(cd src/third-party/ipc && $(RM) Makefile)
-	(cd src/third-party/pugixml/src && $(RM) Makefile)
-	(cd src && $(RM) -f Makefile config.log config.status plexil-config.h)
+clean-examples:
+#	-@$(MAKE) -C examples $@
 
-# Clean up all of autotools
-squeaky-clean: | distclean
-# Files generated by autoconf
-	(cd src && $(RM) -f */Makefile.in)
-	(cd src/apps && $(RM) -f */Makefile.in)
-	(cd src/interfaces && $(RM) -f */Makefile.in)
-	(cd src/third-party/ipc && $(RM) Makefile.in)
-	(cd src/third-party/pugixml/src && $(RM) Makefile.in)
-	(cd src && $(RM) -f Makefile.in configure plexil-config.h.in)
-# Autotools itself
-	(cd src && $(RM) -rf aclocal.m4 autom4te.cache compile config.guess \
- config.sub depcomp install-sh libtool ltmain.sh m4 missing stamp-h1)
+# Clean up after autotools
+distclean squeaky-clean: | clean
+	@(cd src && $(RM) */Makefile */Makefile.in)
+	@(cd src/apps && $(RM) */Makefile */Makefile.in)
+	@(cd src/interfaces && $(RM) */Makefile */Makefile.in)
+	@(cd src/third-party/ipc && $(RM) Makefile Makefile.in)
+	@(cd src/third-party/pugixml/src && $(RM) Makefile Makefile.in)
+	@(cd src && $(RM) Makefile Makefile.in aclocal.m4 \
+ compile configure configure.env config.guess config.status config.sub \
+ cppcheck.sh depcomp INSTALL install-sh libtool ltmain.sh missing \
+ plexil-config.h plexil-config.h.in stamp-h1)
+	@(cd src && $(RM) -rf m4 autom4te.cache)
 
 # *** TODO: release target(s) ***
 

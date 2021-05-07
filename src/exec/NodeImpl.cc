@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,29 +26,32 @@
 
 #include "NodeImpl.hh"
 
-#include "Alias.hh"
 #include "Debug.hh"
 #include "Error.hh"
-#include "ExpressionConstants.hh"
-#include "ExternalInterface.hh"
 #include "Mutex.hh"
 #include "NodeConstants.hh"
 #include "NodeTimepointValue.hh"
-#include "PlexilExec.hh"
 #include "NodeVariableMap.hh"
-#include "SimpleMap.hh"
+#include "PlanError.hh"
+#include "PlexilExec.hh"
+#include "StateCache.hh" // currentTime()
 #include "UserVariable.hh"
-#include "lifecycle-utils.h"
-#include "map-utils.hh"
 
-#include <algorithm> // for std::sort
+#include <algorithm> // std::sort
 
-#ifdef STDC_HEADERS
-#include <cfloat>    // for DBL_MAX
-#include <cstring>   // strcmp(), strnlen()
+#if defined(HAVE_CFLOAT)
+#include <cfloat>    // DBL_MAX
+#elif defined(HAVE_FLOAT_H)
+#include <float.h>   // DBL_MAX
 #endif
 
-#include <iomanip>   // for std::setprecision
+#if defined(HAVE_CSTRING)
+#include <cstring>   // strcmp(), strnlen()
+#elif defined(HAVE_STRING_H)
+#include <string.h>  // strcmp(), strnlen()
+#endif
+
+#include <iomanip>   // std::setprecision
 #include <sstream>
 
 namespace PLEXIL
@@ -289,7 +292,7 @@ namespace PLEXIL
     debugMsg("NodeImpl:NodeImpl", " common initialization");
 
     // Initialize transition trace
-    logTransition(g_interface->currentTime(), (NodeState) m_state);
+    logTransition(StateCache::currentTime(), (NodeState) m_state);
   }
 
   void NodeImpl::allocateVariables(size_t n)
@@ -574,20 +577,23 @@ namespace PLEXIL
     return sl_emptyNodeVec;
   }
 
-  /**
-   * @brief Notifies the node that one of its conditions has changed.
-   * @note Renamed from conditionChanged.
-   */
-
-  // In addition to expressions to which this node listens, can be called by
-  // ListNodeImpl::setState(), NodeImpl::setState().
-
+  //! Notifies the node that one of its conditions has changed.
+  //! @note This method signature is part of the ExpressionListener API.
   void NodeImpl::notifyChanged()
+  {
+    notifyChanged(g_exec);
+  }
+  
+  //! Notify the node that its conditions may have changed.
+  //! @param exec The PlexilExec instance.
+  //! @note This method signature can be called for notifications
+  //! resulting from action by the executive.
+  void NodeImpl::notifyChanged(PlexilExec *exec)
   {
     switch (m_queueStatus) {
     case QUEUE_NONE:              // add to check queue
       m_queueStatus = QUEUE_CHECK;
-      g_exec->addCandidateNode(this);
+      exec->addCandidateNode(this);
       debugMsg("Node:notifyChanged",
                " adding " << m_nodeId << ' ' << this << " to check queue");
       return;
@@ -632,6 +638,80 @@ namespace PLEXIL
       errorMsg("NodeImpl::notifyChanged, node "
                << m_nodeId << ' ' << this << ": invalid queue state");
       return;
+    }
+  }
+
+  
+  //! Does this node need to acquire resources before it can execute?
+  //! @return true if resources must be acquired, false otherwise.
+  //! @note AssignmentNode overrides this method.
+  bool NodeImpl::acquiresResources() const
+  {
+    return (m_usingMutexes && !m_usingMutexes->empty());
+  }
+
+  //! Reserve the resource(s)
+  //! If resource(s) busy, place node on resource(s)'s pending queues.
+  bool NodeImpl::tryResourceAcquisition()
+  {
+    bool success = true;
+    if (m_usingMutexes) {
+      for (Mutex *m : *m_usingMutexes) {
+        success = m->acquire(this);
+        if (!success) {
+          // Check for recursive acquisition on failure
+          Node const *holder = dynamic_cast<Node const *>(m->getHolder());
+          Node const *ancestor = this->getParent();
+          while (ancestor) {
+            checkPlanError(holder != ancestor,
+                           "Node " << m_nodeId
+                           << ": Attempt to acquire mutex " << m->getName()
+                           << " already held by ancestor " << ancestor->getNodeId());
+            ancestor = ancestor->getParent();
+          }
+          break; // on failure
+        }
+      }
+    }
+
+    // Assignment variable next
+    if (this->getType() == NodeType_Assignment) {
+      Variable *var = this->getAssignmentVariable()->getBaseVariable();
+      if (success) {
+        // Try to acquire the variable
+        success = var->acquire(this);
+      }
+      else {
+        // Acquiring other resources failed, so just queue up
+        var->addWaitingNode(this);
+      }
+    }
+      
+    debugMsg("Node:tryResourceAcquisition",
+             ' ' << m_nodeId << ' ' << this
+             << (success ? " succeeded" : " failed"));
+
+    if (!success) {
+      // If we couldn't get all the resources, release the resources we got
+      if (m_usingMutexes) {
+        for (Mutex *m : *m_usingMutexes) {
+          if (this == dynamic_cast<Node const *>(m->getHolder()))
+            m->release(this);
+          m->addWaitingNode(this); // no harm if already there
+        }
+      }
+    }
+    return success;
+  }
+
+  //! Remove the node from the pending queues of any resources
+  //! it was trying to acquire.
+  //! @note AssignmentNode wraps this method.
+  void NodeImpl::releaseResourceReservations()
+  {
+    if (m_usingMutexes) {
+      for (Mutex *m : *m_usingMutexes)
+        m->removeWaitingNode(this);
     }
   }
 
@@ -711,7 +791,7 @@ namespace PLEXIL
   // State transition logic
   //
 
-  void NodeImpl::transition(double time) 
+  void NodeImpl::transition(PlexilExec *exec, double time) 
   {
     // Fail silently
     if (m_nextState == m_state)
@@ -722,8 +802,8 @@ namespace PLEXIL
              << " to " << nodeStateName(m_nextState)
              << " at " << std::setprecision(15) << time);
     
-    transitionFrom();
-    transitionTo(time);
+    transitionFrom(exec);
+    transitionTo(exec, time);
 
     // Clear pending-transition variables
     m_nextState = NO_NODE_STATE;
@@ -744,7 +824,7 @@ namespace PLEXIL
   }
 
   // Common method 
-  void NodeImpl::transitionFrom()
+  void NodeImpl::transitionFrom(PlexilExec *exec)
   {
     switch (m_state) {
     case INACTIVE_STATE:
@@ -756,11 +836,11 @@ namespace PLEXIL
       break;
 
     case EXECUTING_STATE:
-      transitionFromExecuting();
+      transitionFromExecuting(exec);
       break;
 
     case FINISHING_STATE:
-      transitionFromFinishing();
+      transitionFromFinishing(exec);
       break;
 
     case FINISHED_STATE:
@@ -768,7 +848,7 @@ namespace PLEXIL
       break;
 
     case FAILING_STATE:
-      transitionFromFailing();
+      transitionFromFailing(exec);
       break;
 
     case ITERATION_ENDED_STATE:
@@ -781,7 +861,7 @@ namespace PLEXIL
   }
 
   // Common method 
-  void NodeImpl::transitionTo(double time)
+  void NodeImpl::transitionTo(PlexilExec *exec, double time)
   {
     switch (m_nextState) {
     case INACTIVE_STATE:
@@ -805,7 +885,7 @@ namespace PLEXIL
       break;
 
     case FAILING_STATE:
-      transitionToFailing();
+      transitionToFailing(exec);
       break;
 
     case ITERATION_ENDED_STATE:
@@ -816,14 +896,14 @@ namespace PLEXIL
       errorMsg("NodeImpl::transitionTo: Invalid destination state " << m_nextState);
     }
 
-    setState((NodeState) m_nextState, time);
+    setState(exec, (NodeState) m_nextState, time);
     if (m_nextOutcome != NO_OUTCOME) {
       setNodeOutcome((NodeOutcome) m_nextOutcome);
       if (m_nextFailureType != NO_FAILURE) 
         setNodeFailureType((FailureType) m_nextFailureType);
     }
     if (m_nextState == EXECUTING_STATE)
-      execute();
+      execute(exec);
   }
 
   //
@@ -1193,7 +1273,7 @@ namespace PLEXIL
   }
 
   // Empty node method
-  void NodeImpl::transitionFromExecuting()
+  void NodeImpl::transitionFromExecuting(PlexilExec *exec)
   {
     deactivateExitCondition();
     deactivateInvariantCondition();
@@ -1215,7 +1295,7 @@ namespace PLEXIL
       break;
     }
 
-    deactivateExecutable();
+    deactivateExecutable(exec);
   }
 
   //
@@ -1235,7 +1315,7 @@ namespace PLEXIL
     // Release any mutexes held by this node
     if (m_usingMutexes && m_state != WAITING_STATE) {
       for (Mutex *m : *m_usingMutexes)
-        m->release();
+        m->release(this);
     }
     activateRepeatCondition();
   }
@@ -1348,9 +1428,14 @@ namespace PLEXIL
   // Legal successor states: INACTIVE
 
   // Default method
-  // Overridden by AssignmentNode
+  // Wrapped by AssignmentNode
   void NodeImpl::transitionToFinished()
   {
+    // If transitioning from FAILING,, Release any mutexes held by this node
+    if (m_usingMutexes && m_state == WAITING_STATE) {
+      for (Mutex *m : *m_usingMutexes)
+        m->release(this);
+    }
   }
 
   // Common method
@@ -1400,7 +1485,7 @@ namespace PLEXIL
   }
 
   // Default method
-  void NodeImpl::transitionFromFinishing()
+  void NodeImpl::transitionFromFinishing(PlexilExec * /* exec */)
   {
     errorMsg("No transition from FINISHING state defined for this node");
   }
@@ -1415,7 +1500,7 @@ namespace PLEXIL
   // Legal successor states: n/a
 
   // Default method
-  void NodeImpl::transitionToFailing()
+  void NodeImpl::transitionToFailing(PlexilExec * /* exec */)
   {
     errorMsg("No transition to FAILING state defined for this node");
   }
@@ -1429,7 +1514,7 @@ namespace PLEXIL
   }
 
   // Default method
-  void NodeImpl::transitionFromFailing()
+  void NodeImpl::transitionFromFailing(PlexilExec * /* exec */)
   {
     errorMsg("No transition from FAILING state defined for this node");
   }
@@ -1444,18 +1529,19 @@ namespace PLEXIL
 
   // Some transition handlers call this twice.
   // Called from NodeImpl::transitionTo(), ListNodeImpl::setState() (wrapper method)
-  void NodeImpl::setState(NodeState newValue, double tym) // FIXME
+  void NodeImpl::setState(PlexilExec *exec, NodeState newValue, double tym)
   {
     if (newValue == m_state)
       return;
+    assertTrue_1(exec);
     logTransition(tym, newValue);
     m_state = newValue;
     if (m_state == FINISHED_STATE && !m_parent)
       // Mark this node as ready to be deleted -
       // with no parent, it cannot be reset, therefore cannot transition again.
-      g_exec->markRootNodeFinished(this); // puts node on exec's finished queue
+      exec->markRootNodeFinished(this); // puts node on exec's finished queue
     else
-      notifyChanged(); // check for potential of additional transitions
+      notifyChanged(exec); // check for potential of additional transitions
   }
 
   //
@@ -1485,6 +1571,32 @@ namespace PLEXIL
         tp->setValue(tym);
       tp = tp->next();
     }
+  }
+
+  /**
+   * @brief Gets the time at which this node entered the given state.
+   * @param state The state.
+   * @return Time value as a double.
+   * @note Used by GanttListener and PlanDebugListener.
+   */
+  double NodeImpl::getStateStartTime(NodeState state) const
+  {
+    if (state == (NodeState) m_state)
+      return m_currentStateStartTime;
+
+    // Search for the desired state
+    double result = -DBL_MAX; // default value if not found
+    NodeTimepointValue *tp = m_timepoints.get();
+    while (tp) {
+      if (tp->state() == state && !tp->isEnd()) {
+        tp->getValue(result);
+        return result;
+      }
+      tp = tp->next();
+    }
+
+    // Not found
+    return result;
   }
 
   double NodeImpl::getCurrentStateStartTime() const
@@ -1616,9 +1728,12 @@ namespace PLEXIL
     }
 
     // Search global mutexes
-    // TODO
+    result = getGlobalMutex(name);
+    if (result) {
+      debugMsg("Node:findMutex", " returning global mutex " << name);
+      return result;
+    }
 
-    // Fall through
     debugMsg("Node:findMutex", ' ' << name << " not found");
     return nullptr;
   }
@@ -1780,16 +1895,16 @@ namespace PLEXIL
     }
   }
 
-  void NodeImpl::execute() 
+  void NodeImpl::execute(PlexilExec *exec)
   {
     debugMsg("Node:execute",
              " Executing " << nodeTypeString(this->getType())
              << " node " << m_nodeId << ' ' << this);
-    specializedHandleExecution();
+    specializedHandleExecution(exec);
   }
 
   // default method
-  void NodeImpl::specializedHandleExecution()
+  void NodeImpl::specializedHandleExecution(PlexilExec * /* exec */)
   {
   }
 
@@ -1802,20 +1917,14 @@ namespace PLEXIL
     m_failureType = NO_FAILURE;
   }
 
-  // Default method
-  void NodeImpl::abort() 
+  void NodeImpl::deactivateExecutable(PlexilExec *exec) 
   {
-    errorMsg("Abort illegal for node type " << getType());
-  }
-
-  void NodeImpl::deactivateExecutable() 
-  {
-    specializedDeactivateExecutable();
+    specializedDeactivateExecutable(exec);
     deactivateLocalVariables();
   }
 
   // Default method
-  void NodeImpl::specializedDeactivateExecutable()
+  void NodeImpl::specializedDeactivateExecutable(PlexilExec * /* exec */)
   {
   }
 
@@ -1829,6 +1938,7 @@ namespace PLEXIL
   void NodeImpl::print(std::ostream& stream, const unsigned int indent) const
   {
     std::string indentStr(indent, ' ');
+
     stream << indentStr << m_nodeId << "{\n";
     stream << indentStr << " State: " << nodeStateName(m_state) <<
       " (" << getCurrentStateStartTime() << ")\n";

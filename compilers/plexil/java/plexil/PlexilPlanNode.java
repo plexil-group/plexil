@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,8 +28,6 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
-
 public class PlexilPlanNode extends PlexilTreeNode
 {
     public PlexilPlanNode(int ttype)
@@ -53,17 +51,14 @@ public class PlexilPlanNode extends PlexilTreeNode
     /**
      * @brief Construct the XML representing this part of the parse tree, and store it in m_xml.
      */
-
     @Override
     protected void constructXML()
     {
         super.constructXML();
-        for (int i = 0; i < this.getChildCount(); i++) {
-            // Allow for declarations to return null.
-            IXMLElement childXML = this.getChild(i).getXML();
-            if (childXML != null)
-                m_xml.addChild(childXML);
-        }
+
+        // Add namespace, etc.
+        // Maybe later - breaks validation
+        // m_xml.setAttribute("xmlns", "http://plexil.sourceforge.net/");
     }
 
     /**
@@ -76,7 +71,6 @@ public class PlexilPlanNode extends PlexilTreeNode
     {
         return "PlexilPlan";
     }
-
 
     /**
      * @brief Add new source locator attributes to m_xml, or replace the existing ones.
@@ -92,7 +86,5 @@ public class PlexilPlanNode extends PlexilTreeNode
                 m_xml.setAttribute("FileName", fname);
         }
     }
-
-
 
 }

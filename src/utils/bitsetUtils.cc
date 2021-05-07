@@ -25,8 +25,14 @@
 */
 
 #include <bitset>
+
+#include "plexil-stdint.h" // UINT32_MAX
+
+#if defined(HAVE_CLIMITS)
 #include <climits>
-#include <cstdint>
+#elif defined(HAVE_LIMITS_H)
+#include <limits.h>
+#endif
 
 namespace PLEXIL
 {

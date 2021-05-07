@@ -1,7 +1,10 @@
 <Interfaces>
-  <Adapter AdapterType="OSNativeTime" />
+  <Adapter AdapterType="Time" />
   <Adapter AdapterType="Utility"/>
-  <Adapter AdapterType="IpcAdapter" Server="localhost" AllowDuplicateMessages="true">
+  <Adapter AdapterType="IpcAdapter"
+           Server="localhost"
+           TaskName="sim"
+           AllowDuplicateMessages="true">
     <ExternalLookups>
       <Lookup name="x" type="Integer" value="1"/>
     </ExternalLookups>

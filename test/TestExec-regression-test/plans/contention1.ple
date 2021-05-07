@@ -1,0 +1,24 @@
+contention1:
+Concurrence
+{
+  Comment "Illustrates a bug (?) in resource contention.
+This plan succeeds, as desired, but not if the list nodes 
+wrapping A and B are removed.";
+
+  Integer foo;
+ A:
+  Concurrence
+    {
+    AA:
+      foo = 1;
+    }
+
+ B:
+  Concurrence
+    {
+      StartCondition NodeFinished(A);
+
+    BB:
+      foo = 1;
+    }
+}

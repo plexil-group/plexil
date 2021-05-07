@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,15 +27,15 @@
 #include "CommandNode.hh"
 
 #include "BooleanOperators.hh"
-#include "Command.hh"
-#include "Comparisons.hh"
+#include "CommandImpl.hh"
+#include "Constant.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExpressionConstants.hh"
-#include "ExternalInterface.hh"
 #include "Function.hh"
 #include "NodeFunction.hh"
 #include "NodeOperatorImpl.hh"
+#include "PlexilExec.hh"
 
 namespace PLEXIL
 {
@@ -107,7 +107,7 @@ namespace PLEXIL
                            NodeState state,
                            NodeImpl *parent)
     : NodeImpl(type, name, state, parent),
-      m_command(new Command(name))
+      m_command(new CommandImpl(name))
   {
     // Set up dummy command for unit test
     initDummyCommand();
@@ -171,7 +171,7 @@ namespace PLEXIL
     m_cleanedBody = true;
   }
 
-  void CommandNode::setCommand(Command *cmd)
+  void CommandNode::setCommand(CommandImpl *cmd)
   {
     assertTrue_1(cmd);
     m_command.reset(cmd);
@@ -306,7 +306,7 @@ namespace PLEXIL
     return true;
   }
 
-  void CommandNode::transitionFromExecuting()
+  void CommandNode::transitionFromExecuting(PlexilExec * /* exec */)
   {
     switch (m_nextState) {
 
@@ -437,7 +437,7 @@ namespace PLEXIL
     return false;
   }
 
-  void CommandNode::transitionFromFinishing()
+  void CommandNode::transitionFromFinishing(PlexilExec *exec)
   {
     switch (m_nextState) {
     case FAILING_STATE:
@@ -446,7 +446,7 @@ namespace PLEXIL
 
     case ITERATION_ENDED_STATE:
       activateAncestorEndCondition();
-      deactivateExecutable();
+      deactivateExecutable(exec);
       break;
 
     default:
@@ -469,10 +469,10 @@ namespace PLEXIL
   // Conditions active: AbortComplete
   // Legal successor states: FINISHED, ITERATION_ENDED
 
-  void CommandNode::transitionToFailing()
+  void CommandNode::transitionToFailing(PlexilExec *exec)
   {
     activateAbortCompleteCondition();
-    abort();
+    exec->enqueueAbortCommand(m_command.get());
   }
 
   bool CommandNode::getDestStateFromFailing()
@@ -512,10 +512,10 @@ namespace PLEXIL
     return false;
   }
 
-  void CommandNode::transitionFromFailing()
+  void CommandNode::transitionFromFailing(PlexilExec *exec)
   {
     deactivateAbortCompleteCondition();
-    deactivateExecutable();
+    deactivateExecutable(exec);
 
     switch (m_nextState) {
 
@@ -535,23 +535,19 @@ namespace PLEXIL
     }
   }
 
-  void CommandNode::specializedHandleExecution()
+  void CommandNode::specializedHandleExecution(PlexilExec *exec)
   {
     assertTrue_1(m_command);
     m_command->activate();
-    m_command->execute();
+    m_command->fixValues();
+    m_command->fixResourceValues();
+    exec->enqueueCommand(m_command.get());
   }
 
-  void CommandNode::abort()
+  void CommandNode::specializedDeactivateExecutable(PlexilExec *exec)
   {
     assertTrue_1(m_command);
-    m_command->abort();
-  }
-
-  void CommandNode::specializedDeactivateExecutable()
-  {
-    assertTrue_1(m_command);
-    m_command->deactivate();
+    m_command->deactivate(exec->getArbiter());
   }
 
   // Unit test utility

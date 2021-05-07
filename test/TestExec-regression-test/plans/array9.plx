@@ -11,8 +11,10 @@
         <Type>Integer</Type>
         <MaxSize>3</MaxSize>
         <InitialValue>
-          <IntegerValue>1</IntegerValue>
-          <IntegerValue>2</IntegerValue>
+          <ArrayValue Type="Integer">
+            <IntegerValue>1</IntegerValue>
+            <IntegerValue>2</IntegerValue>
+          </ArrayValue>
         </InitialValue>
       </DeclareArray>
 
@@ -53,9 +55,11 @@
               <Type>Integer</Type>
               <MaxSize>3</MaxSize>
               <InitialValue>
-                <IntegerValue>4</IntegerValue>
-                <IntegerValue>5</IntegerValue>
-                <IntegerValue>6</IntegerValue>
+                <ArrayValue Type="Integer">
+                  <IntegerValue>4</IntegerValue>
+                  <IntegerValue>5</IntegerValue>
+                  <IntegerValue>6</IntegerValue>
+                </ArrayValue>
               </InitialValue>
             </DeclareArray>
           </VariableDeclarations>

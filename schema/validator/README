@@ -1,0 +1,40 @@
+This directory contains a simple Python application built around the
+'xmlschema' package:
+
+https://github.com/sissaschool/xmlschema
+
+'xmlschema' implements an XML Schema 1.1 validator.  This is by far
+the easiest such validator to use.
+
+'xmlschema' is available through the Python Package Index at pypi.org.
+
+Requirements
+------------
+
+ - Python 3.5 or newer
+ - pip for the installed Python
+ - Internet access to pypi.org
+ - Writable directory and < 20 MB to install Python virtual
+   environment
+
+Installation
+------------
+
+1. Run setup.sh in this directory.
+
+Usage
+-----
+
+Usage: validate [OPTIONS] [INFILES]...
+
+  Validate XML files against a schema.
+
+Options:
+  -s, --silent   Don't generate output, only set exit status
+  -v, --verbose  Generate extra output
+  --schema PATH  Schema file to validate against
+  --cache        Use cache if schema is a local file
+  --help         Show this message and exit.
+
+Return status is 0 if all files were valid, 1 if one or more failed
+validation, 2 if some other error occurred.

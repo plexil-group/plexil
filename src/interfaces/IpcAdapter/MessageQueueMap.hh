@@ -38,6 +38,7 @@
 
 #include <list>
 #include <map>
+#include <memory>
 #include <mutex>
 #include <queue>
 
@@ -135,7 +136,8 @@ namespace PLEXIL
     void updateQueue(PairingQueue* queue);
 
     //* @brief Map holding all message queues
-    std::map<std::string, PairingQueue*> m_map;
+    using QueueMap = std::map<std::string, std::unique_ptr<PairingQueue>>;
+    QueueMap m_map;
 
     //* @brief Semaphore for return values from LookupNow
     std::mutex m_mutex;

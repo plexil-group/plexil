@@ -24,7 +24,6 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ArrayImpl.hh"
 #include "createExpression.hh"
 #include "Expression.hh"
 #include "NodeConnector.hh"

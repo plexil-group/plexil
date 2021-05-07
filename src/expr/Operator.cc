@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,8 @@
 #include "PlanError.hh"
 #include "PlexilTypeTraits.hh"
 
+#include <vector>
+
 namespace PLEXIL
 {
 
@@ -49,16 +51,6 @@ namespace PLEXIL
   bool Operator::isPropagationSource() const
   {
     return false;
-  }
-
-  bool Operator::checkArgCount(size_t /* count */) const
-  {
-    return false;
-  }
-
-  bool Operator::checkArgTypes(Function const * /* func */) const
-  {
-    return true;
   }
 
 #define DEFINE_OPERATOR_DEFAULT_METHODS(_rtype_) \

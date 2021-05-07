@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,10 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
+import plexil.xml.DOMUtils;
 
 public class AssignmentNode extends PlexilTreeNode
 {
@@ -138,48 +141,43 @@ public class AssignmentNode extends PlexilTreeNode
         }
     }
 
+    @Override
     protected void constructXML()
     {
         PlexilTreeNode lhs = this.getChild(0);
         ExpressionNode rhs = (ExpressionNode) this.getChild(1);
         if (rhs.getType() == PlexilLexer.COMMAND) {
             // This is really a Command node, 
-            // so insert LHS into RHS's XML in the appropriate place
+            // so find Name element and insert LHS in front of it
             m_xml = rhs.getXML();
-            IXMLElement body = m_xml.getFirstChildNamed("NodeBody");
-            XMLElement command = (XMLElement) body.getChildAtIndex(0);
-            // Find Name element and insert LHS in front of it
-            for (int i = 0; i < command.getChildrenCount(); i++) {
-                IXMLElement child = command.getChildAtIndex(i);
-                if (child.getName().equals("Name")) {
-                    command.insertChild(lhs.getXML(), i);
-                    break;
-                }
-            }
+            Element body = DOMUtils.getFirstElementNamed(m_xml, "NodeBody");
+            Element command = (Element) body.getFirstChild();
+            Element tmp = DOMUtils.getFirstElementNamed(command, "Name");
+            command.insertBefore(lhs.getXML(), tmp);
 
             // set Command element source location to the loc'n of the LHS
             command.setAttribute("LineNo", String.valueOf(lhs.getLine()));
             command.setAttribute("ColNo", String.valueOf(lhs.getCharPositionInLine()));
         }
         else {
-            super.constructXML();
+            super.constructXMLBase();
             m_xml.setAttribute("NodeType", "Assignment");
 
-            IXMLElement assign = new XMLElement("Assignment");
+            Element assign = CompilerState.newElement("Assignment");
             // set source location to the loc'n of the LHS
             assign.setAttribute("LineNo", String.valueOf(lhs.getLine()));
             assign.setAttribute("ColNo", String.valueOf(lhs.getCharPositionInLine()));
 
-            assign.addChild(lhs.getXML());
+            assign.appendChild(lhs.getXML());
 
-            IXMLElement rhsXML = new XMLElement(rhs.assignmentRHSElementName());
-            rhsXML.addChild(rhs.getXML());
-            assign.addChild(rhsXML);
+            Element rhsXML = CompilerState.newElement(rhs.assignmentRHSElementName());
+            rhsXML.appendChild(rhs.getXML());
+            assign.appendChild(rhsXML);
 
-            IXMLElement body = new XMLElement("NodeBody");
-            body.addChild(assign);
+            Element body = CompilerState.newElement("NodeBody");
+            body.appendChild(assign);
 
-            m_xml.addChild(body);
+            m_xml.appendChild(body);
         }
     }
 

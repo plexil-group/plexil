@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,6 +30,6 @@ EXECUTABLE	:= RoboSimSimulator
 SRC		:= RoboSimResponseFactory.cc RoboSimSimulator.cc
 INC		:= $(wildcard *.hh)
 
-LIBS += IpcUtils ipc PlexilExpr PlexilValue PlexilUtils standalonesimulator $(PTHREAD_LIB)
+EXTRA_LIBS += IpcUtils ipc standalonesimulator $(PTHREAD_LIB)
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make

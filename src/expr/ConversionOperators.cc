@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,13 +27,17 @@
 #include "ConversionOperators.hh"
 
 #include "plexil-config.h"
-#include "Function.hh"
 
-#ifdef HAVE_MATH_H
-#include <cmath>
-#endif
+#include "Function.hh"
+#include "PlanError.hh"
 
 #include <limits>
+
+#if defined(HAVE_CMATH)
+#include <cmath>
+#elif defined(HAVE_MATH_H)
+#include <math.h>
+#endif
 
 namespace PLEXIL
 {
@@ -61,24 +65,6 @@ namespace PLEXIL
   ConversionOperator<NUM>::ConversionOperator(std::string const &name)
     : OperatorImpl<NUM>(name)
   {
-  }
-
-  template <typename NUM>
-  ConversionOperator<NUM>::~ConversionOperator()
-  {
-  }
-
-  template <typename NUM>
-  bool ConversionOperator<NUM>::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
-  template <typename NUM>
-  bool ConversionOperator<NUM>::checkArgTypes(Function const *ev) const
-  {
-    ValueType typ = (*ev)[0]->valueType();
-    return isNumericType(typ) || typ == UNKNOWN_TYPE;
   }
 
   template <typename NUM>
@@ -132,11 +118,6 @@ namespace PLEXIL
   }
 
   template <typename NUM>
-  Ceiling<NUM>::~Ceiling()
-  {
-  }
-
-  template <typename NUM>
   bool Ceiling<NUM>::calcInternal(Real &result,
                                   Expression const *arg) const
   {
@@ -154,11 +135,6 @@ namespace PLEXIL
   template <typename NUM>
   Floor<NUM>::Floor()
     : ConversionOperator<NUM>("FLOOR")
-  {
-  }
-
-  template <typename NUM>
-  Floor<NUM>::~Floor()
   {
   }
 
@@ -184,11 +160,6 @@ namespace PLEXIL
   }
 
   template <typename NUM>
-  Round<NUM>::~Round()
-  {
-  }
-
-  template <typename NUM>
   bool Round<NUM>::calcInternal(Real &result,
                                 Expression const *arg) const
   {
@@ -206,11 +177,6 @@ namespace PLEXIL
   template <typename NUM>
   Truncate<NUM>::Truncate()
     : ConversionOperator<NUM>("TRUNC")
-  {
-  }
-
-  template <typename NUM>
-  Truncate<NUM>::~Truncate()
   {
   }
 
@@ -236,21 +202,6 @@ namespace PLEXIL
   RealToInteger::RealToInteger()
     : OperatorImpl<Integer>("REAL_TO_INT")
   {
-  }
-
-  RealToInteger::~RealToInteger()
-  {
-  }
-
-  bool RealToInteger::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
-  bool RealToInteger::checkArgTypes(Function const *func) const
-  {
-    ValueType typ = (*func)[0]->valueType();
-    return isNumericType(typ) || typ == UNKNOWN_TYPE;
   }
 
   bool RealToInteger::calc(Integer & result,

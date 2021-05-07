@@ -1,0 +1,111 @@
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+*  All rights reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions are met:
+*     * Redistributions of source code must retain the above copyright
+*       notice, this list of conditions and the following disclaimer.
+*     * Redistributions in binary form must reproduce the above copyright
+*       notice, this list of conditions and the following disclaimer in the
+*       documentation and/or other materials provided with the distribution.
+*     * Neither the name of the Universities Space Research Association nor the
+*       names of its contributors may be used to endorse or promote products
+*       derived from this software without specific prior written permission.
+*
+* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+Command pprint(...);
+
+Integer Lookup NumberOfTotalBoots;
+Boolean Lookup IsBootOK(...);
+Real Lookup TimeOfBoot(...);
+Real Lookup TimeOfLastSave(...);
+Boolean Lookup CheckpointState(...);
+Real Lookup CheckpointTime(...);
+String Lookup CheckpointInfo(...);
+
+Integer Lookup NumberOfAccessibleBoots;
+Integer Lookup NumberOfUnhandledBoots;
+Boolean Lookup DidCrash;
+Integer Lookup CheckpointWhen(...);
+
+
+Command set_checkpoint(...);
+Boolean Command set_boot_ok(...);
+Boolean Command flush_checkpoints();
+String Command ToString(...);
+
+
+Real Lookup time;
+
+PanoramaCrashTest:
+{
+  Integer pictures = 0;
+  // Allows us to "crash", since we have OKOnExit=false in the config, any exit will be treated as a crash unless we specifically setOK(0)
+  Boolean crashMe = false;
+  Integer total_boots;
+  
+  InvariantCondition !crashMe;
+
+  // Guarantees we have a record of this boot
+  SynchronousCommand flush_checkpoints();
+
+  total_boots = Lookup(NumberOfTotalBoots);
+  // Handle previous crashes
+  CrashChecker:{
+    SkipCondition !Lookup(DidCrash);
+    pprint("Previously crashed, handling...");
+    pprint("We have booted up ",total_boots," times");
+    pprint("Of these, ",Lookup(NumberOfAccessibleBoots)," are accessible and ",Lookup(NumberOfUnhandledBoots)," are unhandled");
+    pprint("Last known save at ",Lookup(TimeOfLastSave(1))); // Time of last save in the previous boot
+    pprint("Current run began at ",Lookup(TimeOfBoot(0)));
+    
+    for(Integer i=1; i<Lookup(NumberOfAccessibleBoots); i+1){
+      if(!Lookup(IsBootOK(i))){
+	pprint("Handling boot ",i);
+	set_boot_ok(i);
+      }
+    }
+  }
+  // Take panorama, crash on third photo 
+  while (pictures<10) 
+  {
+    String pictures_s;
+    String checkpoint_name;
+    Integer checkpoint_boot;
+    pictures_s = ToString(pictures);
+    checkpoint_name = "photo_" + pictures_s;
+    checkpoint_boot = Lookup(CheckpointWhen(checkpoint_name));
+    pprint("Taking photo ",pictures);
+    // Crashes, but third time's the charm
+    if(pictures==2 && total_boots<3){
+      pprint("Crashed...");
+      crashMe = true;
+    }
+    if(!isKnown(checkpoint_boot)){
+      pprint("Photo ",pictures," was never taken");
+    }
+    else{
+      pprint("Photo ",pictures, " taken in boot ",checkpoint_boot);
+      pprint("Checkpoint state: ",Lookup(CheckpointState(checkpoint_name,checkpoint_boot)));
+      pprint("Checkpoint time: ",Lookup(CheckpointTime(checkpoint_name,checkpoint_boot)));
+      pprint("Checkpoint info: ",Lookup(CheckpointInfo(checkpoint_name,checkpoint_boot)));
+    }
+    set_checkpoint(checkpoint_name,"SomeInfo");
+    pictures = pictures+1;
+  }
+  
+  SynchronousCommand set_boot_ok(0);
+  SynchronousCommand flush_checkpoints(); // Guarantees every received Checkpoint/set_boot_ok command has been
+                              // saved to disk
+}

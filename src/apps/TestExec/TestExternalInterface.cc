@@ -28,13 +28,15 @@
 
 #include "Assignable.hh"
 #include "Command.hh"
+#include "commandUtils.hh"
 #include "Debug.hh"
 #include "Error.hh"
+#include "LookupReceiver.hh"
 #include "NodeImpl.hh"
 #include "NodeConstants.hh"
 #include "ParserException.hh"
 #include "PlexilExec.hh"
-#include "StateCacheEntry.hh"
+#include "StateCache.hh"
 #include "Update.hh"
 #include "parsePlan.hh"
 #include "plan-utils.hh"
@@ -64,16 +66,11 @@ namespace PLEXIL
   static State parseState(pugi::xml_node const elt);
   static Value parseStateValue(pugi::xml_node const stateXml);
 
-
   TestExternalInterface::TestExternalInterface()
-    : ExternalInterface()
+    : Dispatcher()
   {
     // Set a default time of 0
     m_states.insert(std::pair<State, Value>(State::timeState(), Value(0.0)));
-  }
-
-  TestExternalInterface::~TestExternalInterface()
-  {
   }
 
   void TestExternalInterface::run(pugi::xml_node const input)
@@ -139,14 +136,14 @@ namespace PLEXIL
          
       // step the exec forward
       if (true /* g_exec->processQueue() */ ) // *** FIXME ***
-        g_exec->step(currentTime());
+        g_exec->step(StateCache::currentTime());
 
       scriptElement = scriptElement.next_sibling();
     }
     // Script is complete
     // Continue stepping the Exec til quiescent
     while (g_exec->needsStep()) {
-      g_exec->step(currentTime());
+      g_exec->step(StateCache::currentTime());
     }
   }
 
@@ -161,14 +158,14 @@ namespace PLEXIL
           State st = parseState(state);
           Value value = parseStateValue(state);
           debugMsg("Test:testOutput",
-                   "Creating initial state " << getText(st, value));
+                   "Creating initial state " << st << " = " << value);
           m_states[st] = value;
-          this->lookupReturn(st, value);
+          StateCache::instance().lookupReturn(st, value);
           state = state.next_sibling();
         }
       }
     }
-    g_exec->step(currentTime());
+    g_exec->step(StateCache::currentTime());
   }
 
   void TestExternalInterface::handleState(pugi::xml_node const elt)
@@ -178,7 +175,7 @@ namespace PLEXIL
     debugMsg("Test:testOutput",
              "Processing event: " << st << " = " << value);
     m_states[st] = value;
-    this->lookupReturn(st, value);
+    StateCache::instance().lookupReturn(st, value);
   }
 
   void TestExternalInterface::handleCommand(pugi::xml_node const elt)
@@ -191,7 +188,7 @@ namespace PLEXIL
       m_executingCommands.find(command);
     checkError(it != m_executingCommands.end(),
                "No currently executing command " << getText(command));
-    this->commandReturn(it->second, value);
+    commandReturn(it->second, value);
     m_executingCommands.erase(it);
   }
 
@@ -209,14 +206,19 @@ namespace PLEXIL
     StateCommandMap::iterator it = m_commandAcks.find(command);
     assertTrueMsg(it != m_commandAcks.end(), 
                   "No command waiting for acknowledgement " << getText(command));
-
-    this->commandHandleReturn(it->second, handle);
+    commandHandleReturn(it->second, handle);
   }
 
   void TestExternalInterface::handleCommandAbort(pugi::xml_node const elt)
   {
     State command = parseCommand(elt);
     Value value = parseResult(elt);
+    assertTrueMsg(value.valueType() == BOOLEAN_TYPE,
+                  "CommmandAbort value must be Boolean");
+    Boolean ack;
+    assertTrueMsg(value.getValue(ack),
+                  "CommmandAbort value must not be unknown");
+    
     debugMsg("Test:testOutput",
              "Sending abort ACK " << getText(command, value));
     StateCommandMap::iterator it = 
@@ -225,7 +227,7 @@ namespace PLEXIL
                   "No abort waiting for acknowledgement " << getText(command));
     debugMsg("Test:testOutput",
              "Acknowledging abort into " << it->second);
-    this->commandAbortAcknowledge(it->second, true);
+    commandAbortAcknowledge(it->second, ack);
     m_abortingCommands.erase(it);
   }
 
@@ -236,7 +238,7 @@ namespace PLEXIL
     std::map<std::string, Update*>::iterator it = m_waitingUpdates.find(name);
     checkError(it != m_waitingUpdates.end(),
                "No update from node " << name << " waiting for acknowledgement.");
-    this->acknowledgeUpdate(it->second, true);
+    it->second->acknowledge(true);
     m_waitingUpdates.erase(it);
   }
 
@@ -497,7 +499,7 @@ namespace PLEXIL
   }
 
   void TestExternalInterface::lookupNow(State const &state,
-                                        StateCacheEntry &cacheEntry)
+                                        LookupReceiver *rcvr)
   {
     debugMsg("Test:testOutput", "Looking up immediately " << state);
     StateMap::const_iterator it = m_states.find(state);
@@ -507,25 +509,8 @@ namespace PLEXIL
     }
     const Value& value = it->second;
     debugMsg("Test:testOutput", "Returning value " << value);
-    cacheEntry.update(value);
+    rcvr->update(value);
   }
-
-  void TestExternalInterface::subscribe(const State& state)
-  {
-    debugMsg("Test:testOutput",
-             "Registering change lookup for " << state);
-
-    //ignore source, because we don't care about bandwidth here
-    StateMap::iterator it = m_states.find(state);
-    if (it == m_states.end()) {
-      std::pair<State, Value> p = 
-        std::make_pair(state, Value());
-      m_states.insert(p);
-    }
-  }
-
-  void TestExternalInterface::unsubscribe(const State& /* state */)
-  {}
 
   void TestExternalInterface::setThresholds(const State& /* state */,
                                             Real /* highThreshold */,
@@ -537,39 +522,38 @@ namespace PLEXIL
                                             Integer /* lowThreshold */)
   {}
 
+  void TestExternalInterface::clearThresholds(const State & /* state */)
+  {}
+
   void TestExternalInterface::executeCommand(Command *cmd)
   {
     State const& command = cmd->getCommand();
-    Assignable *dest = cmd->getDest();
-    Expression *ack = cmd->getAck();
-    debugMsg("Test:testOutput", "Executing " << command <<
-             " into " <<
-             (dest ? dest->toString() : std::string("noId")) <<
-             " with ack " << ack->toString());
-    if (dest)
-      m_executingCommands[command] = cmd;
+
+    debugMsg("Test:testOutput", "Executing " << command);
 
     // Special handling of the utility commands (a bit of a hack!):
     std::string const & cmdName = command.name();
     if (cmdName == "print") {
       print(command.parameters());
-      this->commandHandleReturn(cmd, COMMAND_SUCCESS);
+      commandHandleReturn(cmd, COMMAND_SUCCESS);
     }
     else if (cmdName == "pprint") {
       pprint(command.parameters());
-      this->commandHandleReturn(cmd, COMMAND_SUCCESS);
+      commandHandleReturn(cmd, COMMAND_SUCCESS);
     }
     else if (cmdName == "printToString") {
-      this->commandReturn(cmd, printToString(command.parameters()));
-      this->commandHandleReturn(cmd, COMMAND_SUCCESS);
+      commandReturn(cmd, printToString(command.parameters()));
+      commandHandleReturn(cmd, COMMAND_SUCCESS);
     }
     else if (cmdName == "pprintToString") {
-      this->commandReturn(cmd, pprintToString(command.parameters()));
-      this->commandHandleReturn(cmd, COMMAND_SUCCESS);
+      commandReturn(cmd, pprintToString(command.parameters()));
+      commandHandleReturn(cmd, COMMAND_SUCCESS);
     }
     else {
       // Usual case - set up for scripted ack value
       m_commandAcks[command] = cmd;
+      if (cmd->isReturnExpected())
+        m_executingCommands[command] = cmd;
     }
   }
 
@@ -578,14 +562,13 @@ namespace PLEXIL
    */
   void TestExternalInterface::reportCommandArbitrationFailure(Command *cmd)
   {
-    this->commandHandleReturn(cmd, COMMAND_DENIED);
+    commandHandleReturn(cmd, COMMAND_DENIED);
   }
 
   /**
    * @brief Abort one command in execution.
    * @param cmd The command.
    */
-
   void TestExternalInterface::invokeAbort(Command *cmd)
   {
     assertTrue_1(cmd);
@@ -629,10 +612,4 @@ namespace PLEXIL
     return retval.str();
   }
 
-  Real TestExternalInterface::currentTime()
-  {
-    Real result = 0; // default if unknown
-    m_states[State::timeState()].getValue(result);
-    return result;
-  }
 }

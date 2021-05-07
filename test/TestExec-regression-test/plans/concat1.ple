@@ -1,0 +1,9 @@
+concat1:
+{
+  String foo;
+  String bar = "world";
+
+  PostCondition "helloworld" == foo;
+
+  foo = "hello" + bar;
+}

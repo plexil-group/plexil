@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -53,8 +53,6 @@
 
 #ifdef NO_DEBUG_MESSAGE_SUPPORT
 
-// Dummies
-
 #define debugMsg(marker, data)
 #define condDebugMsg(cond, marker, data)
 #define debugStmt(marker, stmt)
@@ -62,9 +60,9 @@
 #define SHOW(thing)
 #define MARK
 
-namespace PLEXIL
-{
+namespace PLEXIL {
 
+// Dummies
 inline bool setDebugOutputStream(std::ostream & /* os */)
 {
   return true;

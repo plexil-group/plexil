@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,5 +25,17 @@
 
 # Conditionalizing make variables by platform
 
-TARGET_OS ?= $(shell uname -s)
+# Get the relevant system info
+OSNAME		:= $(shell uname -s)
+OSVERSION	:= $(shell uname -r)
+ARCH		:= $(shell uname -m)
+
+#$(info OSNAME is $(OSNAME), OSVERSION is $(OSVERSION), ARCH is $(ARCH))
+
+ifdef TARGET_OS
+# Cross compiling for some other platform
 include $(PLEXIL_HOME)/makeinclude/platform-$(TARGET_OS).make
+else
+# Native compilation
+include $(PLEXIL_HOME)/makeinclude/platform-$(OSNAME).make
+endif

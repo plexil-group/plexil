@@ -1,0 +1,8 @@
+Command foot_in_mouth;
+
+resource2:
+{
+  Resource Name = "Foot", Priority = 1;
+  Resource Name = "Mouth", Priority = 1;
+  foot_in_mouth();
+}

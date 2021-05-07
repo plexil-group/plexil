@@ -31,7 +31,7 @@
 // Place to define all constants used in nodes
 //
 
-#include <cstdint> // uint8_t
+#include "plexil-stdint.h" // uint8_t
 #include <string>
 
 namespace PLEXIL {

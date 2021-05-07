@@ -26,8 +26,6 @@
 
 #include "ValueType.hh"
 
-#include <plexil-config.h>
-
 #include "ArrayImpl.hh"
 #include "CommandHandle.hh"
 #include "Error.hh"
@@ -38,18 +36,35 @@
 // TEMP DEBUG
 #include "Debug.hh"
 
-#include <cerrno>
-#include <cmath>   // for HUGE_VAL
-
-#ifdef STDC_HEADERS
-#include <cstdlib> // for strtod(), strtol()
-#include <cstring> // strlen(), strcmp() etc.
-#endif
-
 #include <iomanip>
 #include <iostream>
 #include <limits>
 #include <sstream>
+
+#if defined(HAVE_CERRNO)
+#include <cerrno>
+#elif defined(HAVE_ERRNO_H)
+#include <errno.h>
+#endif
+
+#if defined(HAVE_CMATH)
+#include <cmath>   // HUGE_VAL
+#elif defined(HAVE_MATH_H)
+#include <math.h>   // HUGE_VAL
+#endif
+
+#if defined(HAVE_CSTDLIB)
+#include <cstdlib> // strtod(), strtol()
+#elif defined(HAVE_STDLIB_H)
+#include <stdlib.h> // strtod(), strtol()
+#endif
+
+#if defined(HAVE_CSTRING)
+#include <cstring> // strlen(), strcmp() etc.
+#elif defined(HAVE_STRING_H)
+#include <string.h> // strlen(), strcmp() etc.
+#endif
+
 
 namespace PLEXIL
 {

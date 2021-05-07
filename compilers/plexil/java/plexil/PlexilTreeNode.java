@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,11 +28,11 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
 
 public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
 {
-    protected XMLElement m_xml = null;
+    protected Element m_xml = null;
 
     //
     // Constructors
@@ -110,7 +110,7 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
      * @brief Establish local bindings and do initial self checks.
      * @note This default method does nothing. Derived classes should override it.
      */
-    public void earlyCheckSelf(NodeContext context, CompilerState state)
+    protected void earlyCheckSelf(NodeContext context, CompilerState state)
     {
     }
 
@@ -118,7 +118,7 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
      * @brief Establish bindings and do initial checks of this node's children.
      * @note Derived classes should override this as applicable.
      */
-    public void earlyCheckChildren(NodeContext context, CompilerState state)
+    protected void earlyCheckChildren(NodeContext context, CompilerState state)
     {
         for (int i = 0; i < this.getChildCount(); i++)
             this.getChild(i).earlyCheck(context, state);
@@ -137,21 +137,21 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
      * @brief Perform a semantic check of this node's requirements.
      * @note This is a default method. Derived classes should implement their own. 
      */
-    public void checkSelf(NodeContext context, CompilerState state)
+    protected void checkSelf(NodeContext context, CompilerState state)
     {
     }
 
     /**
      * @brief Perform semantic checks on the node's children.
      */
-    public void checkChildren(NodeContext context, CompilerState state)
+    protected void checkChildren(NodeContext context, CompilerState state)
     {
         for (int i = 0; i < this.getChildCount(); i++)
             this.getChild(i).check(context, state);
     }
 	
-    //* Returns the NanoXML representation of this part of the parse tree.
-    public XMLElement getXML()
+    //* Returns the DOM representation of this part of the parse tree.
+    public Element getXML()
     {
         if (m_xml == null)
             constructXML();
@@ -160,16 +160,25 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
 
     /**
      * @brief Construct the XML representing this part of the parse tree, and store it in m_xml.
-     * @note This is a base method. Derived classes should extend or override it as required.
+     * @note This is a default method. Derived classes should extend or override it as required.
      */
     protected void constructXML()
     {
         constructXMLBase();
+        for (int i = 0; i < this.getChildCount(); i++) {
+            Element childXml = this.getChild(i).getXML();
+            if (childXml != null)
+                m_xml.appendChild(childXml);
+        }
     }
 
+    /**
+     * @brief Construct the XML element representing this part of the parse tree, and store it in m_xml.
+     * @note This is a default method. Derived classes should extend or override it as required.
+     */
     protected void constructXMLBase()
     {
-        m_xml = new XMLElement(this.getXMLElementName());
+        m_xml = CompilerState.newElement(this.getXMLElementName());
         this.addSourceLocatorAttributes();
     }
 
@@ -180,7 +189,7 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
      */
     protected String getXMLElementName()
     {
-        return this.getToken().getText();
+        return this.getText();
     }
 
     /**

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,17 +32,13 @@
 namespace PLEXIL
 {
 
-  class BooleanNot : public OperatorImpl<bool>
+  class BooleanNot : public OperatorImpl<Boolean>
   {
   public:
     BooleanNot();
-    ~BooleanNot();
+    virtual ~BooleanNot() = default;
 
-    bool checkArgCount(size_t count) const;
-
-    bool checkArgTypes(Function const *ev) const;
-
-    bool operator()(bool &result, Expression const *arg) const;
+    bool operator()(Boolean &result, Expression const *arg) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(BooleanNot, bool)
 
@@ -51,19 +47,15 @@ namespace PLEXIL
     BooleanNot &operator=(const BooleanNot &);
   };
 
-  class BooleanOr : public OperatorImpl<bool>
+  class BooleanOr : public OperatorImpl<Boolean>
   {
   public:
     BooleanOr();
-    ~BooleanOr();
+    virtual ~BooleanOr() = default;
 
-    bool checkArgCount(size_t count) const;
-
-    bool checkArgTypes(Function const *ev) const;
-
-    bool operator()(bool &result, Expression const *arg) const;
-    bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
-    bool operator()(bool &result, Function const &args) const;
+    bool operator()(Boolean &result, Expression const *arg) const;
+    bool operator()(Boolean &result, Expression const *argA, Expression const *argB) const;
+    bool operator()(Boolean &result, Function const &args) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(BooleanOr, bool)
 
@@ -72,19 +64,15 @@ namespace PLEXIL
     BooleanOr &operator=(const BooleanOr &);
   };
 
-  class BooleanAnd : public OperatorImpl<bool>
+  class BooleanAnd : public OperatorImpl<Boolean>
   {
   public:
     BooleanAnd();
-    ~BooleanAnd();
+    virtual ~BooleanAnd() = default;
 
-    bool checkArgCount(size_t count) const;
-
-    bool checkArgTypes(Function const *ev) const;
-
-    bool operator()(bool &result, Expression const *arg) const;
-    bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
-    bool operator()(bool &result, Function const &args) const;
+    bool operator()(Boolean &result, Expression const *arg) const;
+    bool operator()(Boolean &result, Expression const *argA, Expression const *argB) const;
+    bool operator()(Boolean &result, Function const &args) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(BooleanAnd, bool)
 
@@ -93,19 +81,15 @@ namespace PLEXIL
     BooleanAnd &operator=(const BooleanAnd &);
   };
 
-  class BooleanXor : public OperatorImpl<bool>
+  class BooleanXor : public OperatorImpl<Boolean>
   {
   public:
     BooleanXor();
-    ~BooleanXor();
+    virtual ~BooleanXor() = default;
 
-    bool checkArgCount(size_t count) const;
-
-    bool checkArgTypes(Function const *ev) const;
-
-    bool operator()(bool &result, Expression const *arg) const;
-    bool operator()(bool &result, Expression const *argA, Expression const *argB) const;
-    bool operator()(bool &result, Function const &args) const;
+    bool operator()(Boolean &result, Expression const *arg) const;
+    bool operator()(Boolean &result, Expression const *argA, Expression const *argB) const;
+    bool operator()(Boolean &result, Function const &args) const;
 
     DECLARE_OPERATOR_STATIC_INSTANCE(BooleanXor, bool)
 

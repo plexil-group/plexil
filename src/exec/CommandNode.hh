@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,12 +28,11 @@
 #define COMMAND_NODE_HH
 
 #include "NodeImpl.hh"
-#include "Constant.hh"
 
 namespace PLEXIL
 {
   // Forward reference
-  class Command;
+  class CommandImpl;
 
   class CommandNode final : public NodeImpl
   {
@@ -68,28 +67,25 @@ namespace PLEXIL
       return NodeType_Command;
     }
 
-    // Called from the transition handler
-    virtual void abort() override;
-
     /**
      * @brief Get the node's command.
      */
-    Command const *getCommand() const { return m_command.get(); }
-    Command *getCommand() { return m_command.get(); }
+    CommandImpl const *getCommand() const { return m_command.get(); }
+    CommandImpl *getCommand() { return m_command.get(); }
 
     /**
      * @brief Set the command.
      * @param cmd The command.
      * @note Should only be used by plan parser and unit test.
      */
-    void setCommand(Command *cmd);
+    void setCommand(CommandImpl *cmd);
 
   protected:
 
     // Specific behaviors for derived classes
     virtual void specializedCreateConditionWrappers() override;
-    virtual void specializedHandleExecution() override;
-    virtual void specializedDeactivateExecutable() override;
+    virtual void specializedHandleExecution(PlexilExec *exec) override;
+    virtual void specializedDeactivateExecutable(PlexilExec *exec) override;
 
     virtual bool getDestStateFromExecuting() override;
     virtual bool getDestStateFromFinishing() override;
@@ -97,11 +93,11 @@ namespace PLEXIL
 
     virtual void transitionToExecuting() override;
     virtual void transitionToFinishing() override;
-    virtual void transitionToFailing() override;
+    virtual void transitionToFailing(PlexilExec *exec) override;
     
-    virtual void transitionFromExecuting() override;
-    virtual void transitionFromFinishing() override;
-    virtual void transitionFromFailing() override;
+    virtual void transitionFromExecuting(PlexilExec *exec) override;
+    virtual void transitionFromFinishing(PlexilExec *exec) override;
+    virtual void transitionFromFailing(PlexilExec *exec) override;
 
     virtual void printCommandHandle(std::ostream& stream, const unsigned int indent) const override;
 
@@ -112,7 +108,7 @@ namespace PLEXIL
     // Unit test support
     void initDummyCommand(); // unit test variant
 
-    std::unique_ptr<Command> m_command; /*<! The command to be performed. */
+    std::unique_ptr<CommandImpl> m_command; /*<! The command to be performed. */
   };
 
 }

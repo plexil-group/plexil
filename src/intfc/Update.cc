@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,6 @@
 #include "Update.hh"
 #include "Debug.hh"
 #include "Error.hh"
-#include "ExternalInterface.hh"
-#include "NodeConnector.hh"
 
 namespace PLEXIL
 {
@@ -122,13 +120,6 @@ namespace PLEXIL
       tmp = tmp->next;
     }
     m_ack.activate(); // resets to false
-  }
-
-  void Update::execute()
-  {
-    assertTrue_1(m_ack.isActive());
-    fixValues();
-    g_interface->enqueueUpdate(this);
   }
 
   void Update::acknowledge(bool ack)

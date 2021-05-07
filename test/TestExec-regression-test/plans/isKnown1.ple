@@ -1,0 +1,20 @@
+isKnown1:
+Concurrence
+  {
+    Boolean test;
+
+    PostCondition isKnown(two.state);
+
+  two:
+    {
+      StartCondition isKnown(test);
+    }
+
+  one:
+    test = true;
+
+  three:
+    {
+      StartCondition isKnown(two.outcome);
+    }
+  }

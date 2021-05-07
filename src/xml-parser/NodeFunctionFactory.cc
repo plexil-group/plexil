@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,7 @@
 #include "NodeFunctionFactory.hh"
 
 #include "Error.hh"
+#include "ExpressionFactory.hh"
 #include "NodeFunction.hh"
 #include "NodeImpl.hh"
 #include "NodeOperator.hh"
@@ -38,45 +39,64 @@
 namespace PLEXIL
 {
 
-  NodeFunctionFactory::NodeFunctionFactory(NodeOperator const *op, std::string const &name)
-    : ExpressionFactory(name),
-      m_op(op)
+  // Base class
+  class NodeFunctionFactory : public ExpressionFactory
   {
-  }
+  public:
+    NodeFunctionFactory(NodeOperator const *op, std::string const &name)
+      : ExpressionFactory(name),
+        m_op(op)
+    {
+    }
 
-  NodeFunctionFactory::~NodeFunctionFactory()
+    virtual ~NodeFunctionFactory() = default;
+
+    ValueType check(char const *nodeId, pugi::xml_node expr, ValueType desiredType) const
+    {
+      assertTrueMsg(m_op, "NodeFunctionFactory::check: no operator for " << m_name);
+      size_t n = std::distance(expr.begin(), expr.end());
+      checkParserExceptionWithLocation(n == 1,
+                                       expr,
+                                       "Node \"" << nodeId
+                                       << "\": Wrong number of operands for operator "
+                                       << m_op->getName());
+
+      // KLUDGE: We presume there is only one argument, a node reference.
+      // Check argument
+      checkNodeReference(expr.first_child());
+      return m_op->valueType();
+    }
+
+    Expression *allocate(pugi::xml_node const expr,
+                         NodeConnector *node,
+                         bool & wasCreated,
+                         ValueType returnType) const
+    {
+      NodeImpl *impl = dynamic_cast<NodeImpl *>(node);
+      assertTrueMsg(impl,
+                    "NodeFunctionFactory: internal error: node argument is not a NodeImpl");
+      NodeImpl *refNode = parseNodeReference(expr.first_child(), impl);
+      assertTrueMsg(refNode,
+                    expr.name() << ": Internal error: no node matching node reference");
+      wasCreated = true;
+      return new NodeFunction(m_op, refNode);
+    }
+
+  private:
+    // Unimplemented
+    NodeFunctionFactory() = delete;
+    NodeFunctionFactory(NodeFunctionFactory const &) = delete;
+    NodeFunctionFactory(NodeFunctionFactory &&) = delete;
+    NodeFunctionFactory &operator=(NodeFunctionFactory const &) = delete;
+    NodeFunctionFactory &operator=(NodeFunctionFactory &&) = delete;
+
+    NodeOperator const *m_op;
+  };
+
+  ExpressionFactory *
+  makeNodeFunctionFactory(NodeOperator const *op, std::string const &name)
   {
-  }
-
-  ValueType NodeFunctionFactory::check(char const *nodeId, pugi::xml_node expr) const
-  {
-    assertTrueMsg(m_op, "NodeFunctionFactory::check: no operator for " << m_name);
-    size_t n = std::distance(expr.begin(), expr.end());
-    checkParserExceptionWithLocation(n == 1,
-                                     expr,
-                                     "Node \"" << nodeId
-                                     << "\": Wrong number of operands for operator "
-                                     << m_op->getName());
-
-    // KLUDGE: We presume there is only one argument, a node reference.
-    // Check argument
-    checkNodeReference(expr.first_child());
-    return m_op->valueType();
-  }
-
-  Expression *NodeFunctionFactory::allocate(pugi::xml_node const expr,
-                                            NodeConnector *node,
-                                            bool &wasCreated,
-                                            ValueType returnType) const
-  {
-    NodeImpl *impl = dynamic_cast<NodeImpl *>(node);
-    assertTrueMsg(impl,
-                  "NodeFunctionFactory: internal error: node argument is not a NodeImpl");
-    NodeImpl *refNode = parseNodeReference(expr.first_child(), impl);
-    assertTrueMsg(refNode,
-                  expr.name() << ": Internal error: no node matching node reference");
-    wasCreated = true;
-    return new NodeFunction(m_op, refNode);
+    return new NodeFunctionFactory(op, name);
   }
 
 }

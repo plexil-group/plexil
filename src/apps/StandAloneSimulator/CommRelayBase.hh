@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,8 +28,8 @@
 
 #include <string>
 
+struct ResponseMessage;
 class Simulator;
-class ResponseMessage;
 
 class CommRelayBase
 {
@@ -39,14 +39,13 @@ public:
   {
   }
 
-  virtual ~CommRelayBase()
-  {
-  }
+  virtual ~CommRelayBase() = default;
 
   void registerSimulator(Simulator* sim)
   {
     m_Simulator = sim;
   }
+
   virtual void sendResponse(const ResponseMessage* respMsg) = 0;
 
 protected:
@@ -56,7 +55,8 @@ protected:
 
 private:
 
-  // Disallow copy, assign, move
+  // Disallow default, copy, move, assign
+  CommRelayBase() = delete;
   CommRelayBase(CommRelayBase const &) = delete;
   CommRelayBase(CommRelayBase &&) = delete;
   CommRelayBase &operator=(CommRelayBase const &) = delete;

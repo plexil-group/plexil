@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,31 +27,14 @@
 #ifndef PLEXIL_USER_VARIABLE_FACTORY_HH
 #define PLEXIL_USER_VARIABLE_FACTORY_HH
 
-#include "ExpressionFactory.hh"
-#include "ParserException.hh"
+#include <string>
 
 namespace PLEXIL
 {
+  // Forward reference
+  class ExpressionFactory;
 
-  class UserVariableFactory : public ExpressionFactory
-  {
-  public:
-    UserVariableFactory(std::string const &name);
-    ~UserVariableFactory();
-
-    ValueType check(char const *nodeId, pugi::xml_node const expr) const;
-
-    Expression *allocate(pugi::xml_node const expr,
-                         NodeConnector *node,
-                         bool &wasCreated,
-                         ValueType returnType) const;
-
-  private:
-    // Default, copy, assign all prohibited
-    UserVariableFactory();
-    UserVariableFactory(UserVariableFactory const &);
-    UserVariableFactory & operator=(UserVariableFactory const &);
-  };
+  ExpressionFactory * makeUserVariableFactory(std::string const &name);
 
 } // namespace PLEXIL
 

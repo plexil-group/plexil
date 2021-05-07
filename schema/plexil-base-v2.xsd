@@ -3,7 +3,7 @@
 <!DOCTYPE schema PUBLIC "-//W3C//DTD XMLSCHEMA 200102//EN" "http://www.w3.org/2001/XMLSchema.dtd" >
 
 <!--
-* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -725,6 +725,7 @@ element.  It is used as an included schema only.
       <xs:enumeration value="COMMAND_SUCCESS"/>
       <xs:enumeration value="COMMAND_ABORTED"/>
       <xs:enumeration value="COMMAND_ABORT_FAILED"/>
+      <xs:enumeration value="COMMAND_INTERFACE_ERROR"/>
     </xs:restriction>
   </xs:simpleType>
 

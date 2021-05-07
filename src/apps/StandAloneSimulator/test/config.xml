@@ -1,0 +1,7 @@
+<Interfaces>
+ <Adapter AdapterType="Utility"/>
+ <Adapter AdapterType="Time" />
+ <Adapter AdapterType="IpcAdapter" Server="localhost" AllowDuplicateMessages="true">
+  <DefaultAdapter/>
+ </Adapter>
+</Interfaces>

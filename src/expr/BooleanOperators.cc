@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,22 +35,7 @@ namespace PLEXIL
   {
   }
 
-  BooleanNot::~BooleanNot()
-  {
-  }
-
-  bool BooleanNot::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
-  bool BooleanNot::checkArgTypes(Function const *func) const
-  {
-    ValueType typ = (*func)[0]->valueType();
-    return typ == BOOLEAN_TYPE || typ == UNKNOWN_TYPE;
-  }
-
-  bool BooleanNot::operator()(bool &result, Expression const *arg) const
+  bool BooleanNot::operator()(Boolean &result, Expression const *arg) const
   {
     bool temp;
     if (!arg->getValue(temp))
@@ -64,26 +49,12 @@ namespace PLEXIL
   {
   }
 
-  BooleanOr::~BooleanOr()
-  {
-  }
-
-  bool BooleanOr::checkArgCount(size_t count) const
-  {
-    return count > 0;
-  }
-
-  bool BooleanOr::checkArgTypes(Function const *func) const
-  {
-    return func->allSameTypeOrUnknown(BOOLEAN_TYPE);
-  }
-
-  bool BooleanOr::operator()(bool &result, Expression const *arg) const
+  bool BooleanOr::operator()(Boolean &result, Expression const *arg) const
   {
     return arg->getValue(result);
   }
 
-  bool BooleanOr::operator()(bool &result, Expression const *argA, Expression const *argB) const
+  bool BooleanOr::operator()(Boolean &result, Expression const *argA, Expression const *argB) const
   {
     bool temp;
     if (argA->getValue(temp)) {
@@ -105,7 +76,7 @@ namespace PLEXIL
     return false;
   }
 
-  bool BooleanOr::operator()(bool &result, Function const &args) const
+  bool BooleanOr::operator()(Boolean &result, Function const &args) const
   {
     size_t const n = args.size();
     bool anyKnown = false;
@@ -134,26 +105,12 @@ namespace PLEXIL
   {
   }
 
-  BooleanAnd::~BooleanAnd()
-  {
-  }
-
-  bool BooleanAnd::checkArgCount(size_t count) const
-  {
-    return count > 0;
-  }
-
-  bool BooleanAnd::checkArgTypes(Function const *func) const
-  {
-    return func->allSameTypeOrUnknown(BOOLEAN_TYPE);
-  }
-
-  bool BooleanAnd::operator()(bool &result, Expression const *arg) const
+  bool BooleanAnd::operator()(Boolean &result, Expression const *arg) const
   {
     return arg->getValue(result);
   }
 
-  bool BooleanAnd::operator()(bool &result, Expression const *argA, Expression const *argB) const
+  bool BooleanAnd::operator()(Boolean &result, Expression const *argA, Expression const *argB) const
   {
     bool temp;
     if (argA->getValue(temp)) {
@@ -176,7 +133,7 @@ namespace PLEXIL
     return false; // cannot be known
   }
 
-  bool BooleanAnd::operator()(bool &result, Function const &args) const
+  bool BooleanAnd::operator()(Boolean &result, Function const &args) const
   {
     size_t const n = args.size();
     bool allKnown = true;
@@ -202,26 +159,12 @@ namespace PLEXIL
   {
   }
 
-  BooleanXor::~BooleanXor()
-  {
-  }
-
-  bool BooleanXor::checkArgCount(size_t count) const
-  {
-    return count > 0;
-  }
-
-  bool BooleanXor::checkArgTypes(Function const *func) const
-  {
-    return func->allSameTypeOrUnknown(BOOLEAN_TYPE);
-  }
-
-  bool BooleanXor::operator()(bool &result, Expression const *arg) const
+  bool BooleanXor::operator()(Boolean &result, Expression const *arg) const
   {
     return arg->getValue(result);
   }
 
-  bool BooleanXor::operator()(bool &result, Expression const *argA, Expression const *argB) const
+  bool BooleanXor::operator()(Boolean &result, Expression const *argA, Expression const *argB) const
   {
     bool temp1, temp2;
     if (!argA->getValue(temp1))
@@ -232,7 +175,7 @@ namespace PLEXIL
     return true;
   }
 
-  bool BooleanXor::operator()(bool &result, Function const &args) const
+  bool BooleanXor::operator()(Boolean &result, Function const &args) const
   {
     size_t const n = args.size();
     bool temp1 = false;

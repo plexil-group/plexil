@@ -34,6 +34,10 @@
 namespace PLEXIL
 {
 
+  // Explicit instantiation of templates used in this class
+  // template class std::unique_ptr<Array>;
+  // template class std::unique_ptr<String>;
+
   //
   // Constructors
   //

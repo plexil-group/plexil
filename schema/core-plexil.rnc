@@ -1,4 +1,4 @@
-# * Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# * Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 # *  All rights reserved.
 # *
 # * Redistribution and use in source and binary forms, with or without
@@ -31,17 +31,38 @@ namespace rng = "http://relaxng.org/ns/structure/1.0"
 
 include "plexil-base.rnc"
 # Elements
-Action = Node
+ActionGroup = Node
+# NodeId is required in Core Plexil.
+NodeType =
+  (NodeId
+   & Assume?
+   & Desire?
+   & Expect?
+   & VariableDeclarations?
+   & Interface?
+   & UsingMutex?
+   & StartCondition?
+   & RepeatCondition?
+   & PreCondition?
+   & PostCondition?
+   & InvariantCondition?
+   & EndCondition?
+   & ExitCondition?
+   & SkipCondition?
+   & Comment?
+   & element Priority { xsd:nonNegativeInteger }?
+   & NodeBody?),
+  NodeAttributes
 BooleanExpression =
-  LogicalOperator
+  BooleanVariable
+  | BooleanValue
+  | LogicalOperator
   | Equality
   | NumericComparison
   | KnownTest
   | NodeStatePredicate
   | NodeOutcomePredicate
   | NodeFailurePredicate
-  | BooleanVariable
-  | BooleanValue
 DeclaredVariable =
   IntegerVariable
   | RealVariable

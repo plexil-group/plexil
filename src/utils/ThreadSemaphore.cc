@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,8 +24,17 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "plexil-config.h"
+
 #include "ThreadSemaphore.hh"
 #include "Error.hh"
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h> // POSIX configuration
+#endif
+
+// Uncomment for debugging.
+//#define PLEXIL_SEMAPHORE_DEBUG
 
 #ifdef PLEXIL_SEMAPHORE_DEBUG
 // debug case
@@ -36,116 +45,208 @@
 #define myDebugMsg(label, msg)
 #endif
 
+namespace PLEXIL
+{
 
-#ifdef PLEXIL_USE_MACH_SEMAPHORES
-#include <mach/mach_init.h> // for mach_task_self()
+  // Forward reference
+  static ThreadSemaphoreImpl *makeSemImpl();
+
+  ThreadSemaphore::ThreadSemaphore()
+    : m_impl(makeSemImpl())
+  {
+  }
+
+  int ThreadSemaphore::wait()
+  {
+    return m_impl->wait();
+  }
+
+  int ThreadSemaphore::post()
+  {
+    return m_impl->post();
+  }
+
+} // namespace PLEXIL
+
+//
+// Implementation details here
+//
+
+//
+// Does this platform support POSIX thread semaphores?
+//
+
+#if defined(_POSIX_SEMAPHORES) && _POSIX_SEMAPHORES >= 0
+#if defined(HAVE_SEMAPHORE_H)
+#define PLEXIL_USE_POSIX_SEMAPHORES
+#endif
+#elif defined(__MACH__)
+#if defined(HAVE_MACH_SEMAPHORE_H)
+#define PLEXIL_USE_MACH_SEMAPHORES // e.g. Mac OS X
+#endif
+#endif
+
+#if !defined(PLEXIL_USE_POSIX_SEMAPHORES) && !defined(PLEXIL_USE_MACH_SEMAPHORES) 
+#error "ThreadSemaphore is unimplemented for this platform. Contact PLEXIL support."
+#endif
+  
+#ifdef PLEXIL_USE_POSIX_SEMAPHORES
+
+//
+// POSIX implementation
+//
+
+#include <semaphore.h>
+#if defined(HAVE_CERRNO)
+#include <cerrno>
+#elif defined(HAVE_ERRNO_H)
+#include <errno.h>
 #endif
 
 namespace PLEXIL
 {
-
-#ifdef PLEXIL_USE_POSIX_SEMAPHORES
-
-  //
-  // POSIX implementation
-  //
-
-  ThreadSemaphore::ThreadSemaphore()
+  class PosixSemaphore final : public ThreadSemaphoreImpl
   {
-    int status = sem_init(&m_posix_sem, 0, 0);
-    assertTrueMsg(status != -1,
-		  "ThreadSemaphore (POSIX) constructor: sem_init failed, errno = "
-		  << errno);
-	myDebugMsg("ThreadSemaphore:ThreadSemaphore", " @ " << this);
-  }
+  public:
+    PosixSemaphore()
+    {
+      int status = sem_init(&m_posix_sem, 0, 0);
+      assertTrueMsg(status != -1,
+                    "ThreadSemaphore (POSIX) constructor: sem_init failed, errno = "
+                    << errno);
+      myDebugMsg("ThreadSemaphore:ThreadSemaphore", " @ " << this);
+    }
 
-  ThreadSemaphore::~ThreadSemaphore()
-  {
-    int status = sem_destroy(&m_posix_sem);
-    assertTrueMsg(status != -1,
-		  "ThreadSemaphore (POSIX) destructor: sem_destroy failed, errno = "
-		  << errno);
-	myDebugMsg("ThreadSemaphore:~ThreadSemaphore", " @ " << this);
-  }
+    ~PosixSemaphore()
+    {
+      int status = sem_destroy(&m_posix_sem);
+      assertTrueMsg(status != -1,
+                    "ThreadSemaphore (POSIX) destructor: sem_destroy failed, errno = "
+                    << errno);
+      myDebugMsg("ThreadSemaphore:~ThreadSemaphore", " @ " << this);
+    }
 
-  int ThreadSemaphore::wait()
-  {
-	myDebugMsg("ThreadSemaphore:wait", " on " << this);
-    int status;
+    int wait()
+    {
+      myDebugMsg("ThreadSemaphore:wait", " on " << this);
+      int status;
 
-    // If the wait fails due to a signal, ignore the error (EINTR).
-    // If the error is not EINTR, stop the thread.
-    while (((status = sem_wait(&m_posix_sem)) == -1) && (errno == EINTR))
-      continue;
+      // If the wait fails due to a signal, ignore the error (EINTR).
+      // If the error is not EINTR, stop the thread.
+      while (((status = sem_wait(&m_posix_sem)) == -1) && (errno == EINTR))
+        continue;
     
-    if (status == -1) {
-	  myDebugMsg("ThreadSemaphore:wait", " failed on " << this << ", errno = " << errno);
-      return errno;
-	}
-	myDebugMsg("ThreadSemaphore:wait", " complete on " << this);
-    return 0;
+      if (status == -1) {
+        myDebugMsg("ThreadSemaphore:wait", " failed on " << this << ", errno = " << errno);
+        return errno;
+      }
+      myDebugMsg("ThreadSemaphore:wait", " complete on " << this);
+      return 0;
+    }
+
+    virtual int post()
+    {
+      int status = sem_post(&m_posix_sem);
+      if (status == -1)
+        return errno;
+      else return 0;
+    }
+
+  private:
+    sem_t m_posix_sem;
+  };
+
+  ThreadSemaphoreImpl *makeSemImpl()
+  {
+    return new PosixSemaphore();
   }
 
-  int ThreadSemaphore::post()
-  {
-    int status = sem_post(&m_posix_sem);
-    if (status == -1)
-      return errno;
-    else return 0;
-  }
+} // namespace PLEXIL
 
 #endif // PLEXIL_USE_POSIX_SEMAPHORES
 
 #ifdef PLEXIL_USE_MACH_SEMAPHORES
+
   //
-  // MACH implementation
+  // Mach implementation
   //
 
-  ThreadSemaphore::ThreadSemaphore()
-	: m_mach_owning_task(mach_task_self())
-  {
-    kern_return_t status = 
-      semaphore_create(m_mach_owning_task,
-		       &m_mach_sem,
-		       SYNC_POLICY_FIFO,
-		       0);
-    assertTrueMsg(status == KERN_SUCCESS,
-		  "ThreadSemaphore (MACH) constructor: semaphore_create failed, status = "
-		  << status);
-	myDebugMsg("ThreadSemaphore:ThreadSemaphore", " @ " << this << ", Mach semaphore " << m_mach_sem);
-  }
+#include <mach/kern_return.h>  // for KERN_ABORTED
+#include <mach/mach_types.h>   // for semaphore_t, task_t
+#include <mach/mach_init.h>    // mach_task_self()
+#include <mach/semaphore.h>    // semaphore_signal(), semaphore_wait(), SYNC_POLICY_FIFO
+#include <mach/task.h>         // semaphore_create(), semaphore_destroy()
 
-  ThreadSemaphore::~ThreadSemaphore()
-  {
-	myDebugMsg("ThreadSemaphore:~ThreadSemaphore", " @ " << this << ", Mach semaphore " << m_mach_sem);
-    kern_return_t status = 
-      semaphore_destroy(m_mach_owning_task,
-			m_mach_sem);
-    assertTrueMsg(status == KERN_SUCCESS,
-		  "ThreadSemaphore (MACH) destructor: semaphore_destroy failed, status = "
-		  << status);
-  }
+namespace PLEXIL
+{
 
-  // *** N.B. There's a problem here relative to the POSIX version.
-  // POSIX uniquely identifies when the sem_wait() call is interrupted by a signal, 
-  // and isn't documented to unblock when (e.g.) pthread_cancel() is called.
-  // Mach has a catch-all KERN_ABORTED return value for both cases.
-  int ThreadSemaphore::wait()
+  class MachSemaphore final : public ThreadSemaphoreImpl
   {
-	myDebugMsg("ThreadSemaphore:wait", " on " << this << ", Mach semaphore " << m_mach_sem);
-    kern_return_t status = semaphore_wait(m_mach_sem);
-	myDebugMsg("ThreadSemaphore:wait",
-               " complete on " << this << ", Mach semaphore "
-               << m_mach_sem << ", status = " << status);
-    return status;
-  }
+  public:
+    MachSemaphore()
+      : m_mach_owning_task(mach_task_self())
+    {
+      kern_return_t status = 
+        semaphore_create(m_mach_owning_task,
+                         &m_mach_sem,
+                         SYNC_POLICY_FIFO,
+                         0);
+      assertTrueMsg(status == KERN_SUCCESS,
+                    "MachSemaphore constructor: semaphore_create failed, status = "
+                    << status);
+      myDebugMsg("MachSemaphore",
+                 " constructor, @ " << this << " proxy for " << m_mach_sem);
+    }
 
-  int ThreadSemaphore::post()
+    ~MachSemaphore()
+    {
+      myDebugMsg("MachSemaphore",
+                 " destructor, @ " << this << " proxy for " << m_mach_sem);
+      kern_return_t status = 
+        semaphore_destroy(m_mach_owning_task, m_mach_sem);
+      assertTrueMsg(status == KERN_SUCCESS,
+                    "MachSemaphore destructor: semaphore_destroy failed, status = "
+                    << status);
+    }
+
+    // *** N.B. There's a problem here relative to the POSIX version.
+    // POSIX uniquely identifies when the sem_wait() call is interrupted
+    // by a signal, and isn't documented to unblock when (e.g.)
+    // pthread_cancel() is called.  Mach has a catch-all KERN_ABORTED
+    // return value for both cases.
+    //
+    // This becomes a problem when waiting on a semaphore which is
+    // posted to from a signal handler.
+    int wait()
+    {
+      myDebugMsg("MachSemaphore:wait",
+                 ' ' << this << " proxy for " << m_mach_sem);
+      kern_return_t status = KERN_SUCCESS;
+      do {
+        status = semaphore_wait(m_mach_sem);
+        myDebugMsg("MachSemaphore:wait",
+                   ' ' << this << " semaphore_wait returned " << status);
+      } while (status == KERN_ABORTED);
+      myDebugMsg("MachSemaphore:wait", " returning " << status);
+      return status;
+    }
+
+    int post()
+    {
+      myDebugMsg("MachSemaphore:post", " to " << this << " proxy for " << m_mach_sem);
+      return (int) semaphore_signal(m_mach_sem);
+    }
+
+  private:
+    semaphore_t m_mach_sem;
+    task_t m_mach_owning_task;
+  };
+
+  ThreadSemaphoreImpl *makeSemImpl()
   {
-	myDebugMsg("ThreadSemaphore:post", " to " << this << ", Mach semaphore " << m_mach_sem);
-    return (int) semaphore_signal(m_mach_sem);
+    return new MachSemaphore();
   }
-
-#endif // PLEXIL_USE_MACH_SEMAPHORES
 
 } // namespace PLEXIL
+
+#endif // PLEXIL_USE_MACH_SEMAPHORES

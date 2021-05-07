@@ -27,6 +27,8 @@
 #ifndef PLEXIL_MUTEX_HH
 #define PLEXIL_MUTEX_HH
 
+#include "Reservable.hh"
+
 #include <iosfwd>
 #include <string>
 #include <vector>
@@ -37,57 +39,24 @@ namespace PLEXIL
   // Forward references
   //
 
-  class Node;
-
-  class Mutex
+  class Mutex final : public Reservable
   {
   public:
 
+    //! Public constructor.
+    //! @param name Name of the mutex.
     Mutex(char const *name);
 
-    ~Mutex();
+    //! Virtual destructor.
+    virtual ~Mutex() = default;
 
-    /**
-     * @brief Attempt to acquire this mutex for the named node.
-     * @param acquirer The node wishing to acquire the mutex.
-     * @return true if successful, false if the mutex is already held.
-     */
-
-    bool acquire(Node *acquirer);
-
-    /**
-     * @brief Release the mutex so another node can use it.
-     */
-
-    void release();
-
-    /**
-     * @brief Get the name of this mutex.
-     * @return Const reference to the name string.
-     */
+    //! Get the name of this mutex.
+    //! @return Const reference to the name string.
     std::string const &getName() const;
 
-    /**
-     * @brief Report which node owns this mutex.
-     * @return Pointer to the node; may be null.
-     */
-    Node const *getHolder() const;
-
-    /**
-     * @brief Add a node to the list of nodes waiting on the mutex.
-     * @param node Pointer to the node.
-     */
-    void addWaitingNode(Node *node);
-
-    /**
-     * @brief Remove a node from the list of nodes waiting on the mutex.
-     * @param node Pointer to the node.
-     */
-    void removeWaitingNode(Node *node);
-
-    /**
-     * @brief Print the node's name and state.
-     */
+    //! Print the mutex's name and state.
+    //! @param stream Stream to print to.
+    //! @param indent Number of spaces to indent from the left margin.
     void print(std::ostream &stream, const unsigned int indent = 0) const;
 
   private:
@@ -100,8 +69,6 @@ namespace PLEXIL
     Mutex &operator=(Mutex &&) = delete;
 
     std::string const m_name;
-    std::vector<Node *> m_waiters;
-    Node const *m_holder;
   };
 
   std::ostream& operator<<(std::ostream &stream, Mutex const &m);

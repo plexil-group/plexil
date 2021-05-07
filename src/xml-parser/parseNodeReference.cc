@@ -27,14 +27,15 @@
 #include "parseNodeReference.hh"
 
 #include "NodeImpl.hh"
-#include "ParserException.hh"
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
 
 #include "pugixml.hpp"
 
-#ifdef STDC_HEADERS
+#if defined(HAVE_CSTRING)
 #include <cstring>
+#elif defined(HAVE_STRING_H)
+#include <string.h>
 #endif
 
 namespace PLEXIL
@@ -236,6 +237,10 @@ namespace PLEXIL
   {
     // search for node ID
     char const *name = nodeRef.child_value();
+    if (!*name) {
+      // Caller didn't call checkNodeReference() first
+      errorMsg("parseNodeId: Internal error: empty name for NodeId");
+    }
     NodeImpl *result = findLocalNodeId(name, node);
     if (result)
       return result;

@@ -16,44 +16,50 @@ Build:
    You should be able to re-run 'configure' and 'make' successfully at
    this point.
 
- * The following subsystems in the src directory are built by default: 
-     - the Universal Executive
-     - the Test Executive
-     - IPC and IPC Adapter
-     - UDP Adapter
-     - GANTT listener
-     - Plexil Simulator
-
-   The following are not built by default:
-     - module tests
-
    See the "Advanced builds" section in the README file for
    instructions on how to use the 'configure' script to select the
    particular subsystems and applications you need.
 
+ * If CMake is used in place of the GNU autotools, CMake 3.6 or newer
+   is required.
+
  * The Plexil example plans and applications (found in
-   plexil-4/examples) are NOT compiled by default. Plans (.ple files)
-   must be compiled manually (with plexilc) to produce .plx files. The
-   application directories (examples/sample-app and examples/robosim)
-   must be built by typing 'make'.
+   plexil-4/examples) are NOT compiled by default.  Plans (.ple or
+   .plp files) must be compiled manually (with plexilc) to produce
+   .plx files.  The application directories (examples/sample-app and
+   examples/robosim) must be built by typing 'make'.
 
 Custom builds:
 
+ * Building from a git clone now requires the GNU 'gperf' perfect hash
+   utility.  The tarball download comes with the gperf-generated code
+   already generated.
+
  * The default installation location for PLEXIL libraries and
-   executables under the GNU autotools is /usr/local. The installation
-   locations can be specified with the '--prefix=', '--bindir=',
-   '--libdir=', and '--includedir=' options to 'configure'. We
-   suggest installing these files in the PLEXIL installation
-   directory itself. E.g.:
+   executables under the GNU autotools is /usr/local.  The
+   installation locations can be specified with the '--prefix=',
+   '--bindir=', '--libdir=', and '--includedir=' options to
+   'configure'.  We suggest installing these files in the PLEXIL
+   installation directory itself. E.g.:
 
  cd $PLEXIL_HOME/src
  ./configure --prefix=$PLEXIL_HOME [... more options ...]
 
+ * Likewise, CMake defaults to /usr/local as its installation prefix.
+   Use the '-DCMAKE_INSTALL_PREFIX=/another/directory' option on the
+   'cmake' command line to install to a different location.
+
+ * In-tree CMake builds are possible, but are not recommended.
+
  * By default, the GNU autotools build both dynamic and static
    libraries. This consumes time and disk space. Unless your
-   application specifically requires static libraries, we recommend
-   that you build only the dynamic (shared) libraries. This is done by
-   supplying the '--disable-static' option to 'configure'.
+   application specifically requires both, we recommend that you build
+   only the libraries you need. This is done by supplying the
+   '--disable-static' or '--disable-dynamic' option to 'configure'.
+
+ * CMake defaults to building dynamic libraries. To build static
+   libraries, specify the '-DBUILD_SHARED_LIBS=OFF' option on the
+   'cmake' command line.
 
 PLEXIL executive and interfaces:
 
@@ -67,13 +73,20 @@ Standard Plexil language:
 
 Plexil Viewer: 
 
- * The Plexil Viewer has been completely reimplemented for release
-   4.5. Many old bugs have been squashed, but it is likely many new
-   ones have been introduced. We encourage users to report any
-   problems to plexil-support@sourceforge.net.
+ * Support for the PLEXIL Viewer has been lacking in recent years.  As
+   a result a number of bugs and glitches have not been fixed.  We
+   hope to have resources to spend on it soon, and welcome fixes and
+   enhancements from the PLEXIL community.  Note that PLEXIL is still
+   in strong use in its command line form.
+
+ * The viewer may not quit from the Plexil Viewer Console window,
+   using the Viewer/Exit selection or the red Apple window button.
+   These cause the application to hang, and you must kill its
+   process, e.g. enter 'ps -eaf | grep java' and then 'kill -9 <pid>'
+   where <pid> is the process number.
 
 Plexil compiler ('plexilc'): 
 
- * File extensions included in the '-o' option are ignored:
-   Extended and Core Plexil files are always written with the
-   ".epx" and ".plx" extensions, respectively.
+ * File extensions included in the '-o' option are ignored: Extended
+   and Core Plexil files are always written with the ".epx" and ".plx"
+   extensions, respectively.

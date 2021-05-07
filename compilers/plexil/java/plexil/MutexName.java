@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,7 @@
 
 package plexil;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
 
 public class MutexName extends PlexilName
 {
@@ -43,12 +43,12 @@ public class MutexName extends PlexilName
         return m_context;
     }
 
-    public IXMLElement makeDeclarationXML()
+    public Element makeDeclarationXML()
     {
-        IXMLElement nameElt = new XMLElement("Name");
-        nameElt.setContent(getName());
-        IXMLElement result = new XMLElement("DeclareMutex");
-        result.addChild(nameElt);
+        Element nameElt = CompilerState.newElement("Name");
+        nameElt.appendChild(CompilerState.newTextNode(getName()));
+        Element result = CompilerState.newElement("DeclareMutex");
+        result.appendChild(nameElt);
         if (m_declaration != null) {
             result.setAttribute("LineNo",
                                 String.valueOf(m_declaration.getLine()));
@@ -59,10 +59,10 @@ public class MutexName extends PlexilName
     }
 
     // TODO: add null/empty string checks
-    public IXMLElement asReference()
+    public Element asReference()
     {
-        IXMLElement result = new XMLElement("Name");
-        result.setContent(getName());
+        Element result = CompilerState.newElement("Name");
+        result.appendChild(CompilerState.newTextNode(getName()));
         return result;
     }
 }

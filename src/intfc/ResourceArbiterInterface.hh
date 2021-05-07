@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,16 +32,14 @@
 
 namespace PLEXIL 
 {
-  class Command;
+  class CommandImpl;
 
   template <typename T> class LinkedQueue;
 
   class ResourceArbiterInterface
   {
   public:
-    virtual ~ResourceArbiterInterface()
-    {
-    }
+    virtual ~ResourceArbiterInterface() = default;
 
     // Public API
     virtual bool readResourceHierarchyFile(const std::string& fName) = 0;
@@ -56,11 +54,11 @@ namespace PLEXIL
     // @param rejectCmds LinkedQueue reference provided by the caller to receive rejected commands.
     //
 
-    virtual void arbitrateCommands(LinkedQueue<Command> &cmds,
-                                   LinkedQueue<Command> &acceptCmds,
-                                   LinkedQueue<Command> &rejectCmds) = 0;
+    virtual void arbitrateCommands(LinkedQueue<CommandImpl> &cmds,
+                                   LinkedQueue<CommandImpl> &acceptCmds,
+                                   LinkedQueue<CommandImpl> &rejectCmds) = 0;
 
-    virtual void releaseResourcesForCommand(Command *cmd) = 0;
+    virtual void releaseResourcesForCommand(CommandImpl *cmd) = 0;
   };
 
   extern ResourceArbiterInterface *makeResourceArbiter();

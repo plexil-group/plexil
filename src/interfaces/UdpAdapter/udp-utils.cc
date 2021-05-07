@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,22 +26,26 @@
 
 #include "udp-utils.hh"
 
+#include "Error.hh" // assertTrue_1()
 
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>        // htonl(), htons(), ntohl(), ntohs()
 #endif
 
-#ifdef STDC_HEADERS
+#if defined(HAVE_CERRNO)
 #include <cerrno>
+#elif defined(HAVE_ERRNO_H)
+#include <errno.h>
+#endif
+
+#if defined(HAVE_CSTRING)
+#include <cstring>            // memset()
+#elif defined(HAVE_STRING_H)
 #include <cstring>            // memset()
 #endif
 
 #ifdef HAVE_NETDB_H
 #include <netdb.h>            // gethostbyname (OBSOLETE)
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
 #endif
 
 #ifdef HAVE_SYS_SOCKET_H
@@ -163,164 +167,80 @@ namespace PLEXIL
     printf(")\n");
   }
 
-  int send_message_bind(int local_port, const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug)
+  //! Get an IPv4 address for the given host name.
+  //! @param host Name of the host, in a format suitable for gethostbyname().
+  //! @param debug Print debug information if true.
+  //! @return An IPv4 address for the host, in network byte order;
+  //          0 if not found or error.
+  in_addr_t parse_hostname(const char *host, bool debug)
   {
-    if (debug)
-      printf("  send_message_bind(%d, %s, %d, buffer, %zu) called\n",
-	     local_port, peer_host, peer_port, size);
-    // Set the local port
-    struct sockaddr_in local_addr = {};
-    memset((char *) &local_addr, 0, sizeof(local_addr));
-    local_addr.sin_family = AF_INET;
-    local_addr.sin_addr.s_addr = INADDR_ANY;
-    local_addr.sin_port = htons(local_port);
-    // Set the peer port
-    struct sockaddr_in peer_addr = {};
-    memset((char *) &peer_addr, 0, sizeof(peer_addr));
-    peer_addr.sin_port = htons(peer_port);
-    peer_addr.sin_family = AF_INET;
+    // Hostname cannot be null or empty
+    assertTrue_1(host && *host);
 
     // handle either "localhost" or "127.0.0.1" addresses
-    hostent *host_ip = gethostbyname(peer_host);
+    hostent *host_ip = gethostbyname(host);
     if (!host_ip) {
-      perror("send_message_bind: gethostbyname failed");
-      return -1;
+      perror("parse_hostname: gethostbyname failed");
+      return 0;
     }
 
-    in_addr *network_ip_address = (in_addr*)host_ip->h_addr;
-    std::string ip_addr = inet_ntoa(*network_ip_address);
-    if (debug) printf("  send_message_bind: peer_host==%s, ip_addr==%s\n", peer_host, ip_addr.c_str());
+    if (host_ip->h_addrtype != AF_INET) {
+      printf("parse_hostname: No IPv4 address found for %s\n", host);
+      return 0;
+    }
 
-    if (!inet_aton(ip_addr.c_str(), (struct in_addr *)&peer_addr.sin_addr.s_addr))
-      {
-        perror("inet_aton() returned -1 (peer_host bad IP address format?)");
-        return -1;
-      }
+    struct in_addr *network_ip_address = (struct in_addr *) host_ip->h_addr;
+    if (debug) {
+      std::string ip_addr = inet_ntoa(*network_ip_address);
+      printf("  parse_hostname: peer_host==%s, ip_addr==%s\n", host, ip_addr.c_str());
+    }
 
-    int sock = socket(local_addr.sin_family, SOCK_DGRAM, 0);
-    if (sock == -1)
-      {
-        perror("socket() returned -1");
-        return -1;
-      }
+    return network_ip_address->s_addr;
+  }
 
-    int bind_err = bind(sock, (struct sockaddr *) &local_addr, sizeof(local_addr));
-    if (bind_err < 0)
-      {
-        //char buf[50];
-        //sprintf(buf, "send_message_bind: bind() returned -1 for %d", local_port);
-        //perror(buf);
-        perror("send_message_bind: bind() returned -1");
-        return -1;
-      }
-
-    ssize_t bytes_sent = 0;
-    bytes_sent = sendto(sock, buffer, size, 0, (struct sockaddr*) &peer_addr, sizeof(peer_addr));
-    if (debug) printf("  send_message_bind: sent %ld bytes to %s:%d\n", (long) bytes_sent, peer_host, peer_port);
-    close(sock);
-    return bytes_sent;
+  //! Prepare an IPv4 sockaddr struct.
+  //! @param sockaddr Pointer to the struct to be initialized.
+  //! @param ip_addr The IPv4 address, in network byte order.
+  //! @param port The port number.
+  void init_sockaddr_in(struct sockaddr_in *sa, in_addr_t ip_addr, in_port_t port)
+  {
+    memset((char *) sa, 0, sizeof(struct sockaddr_in));
+    sa->sin_family = AF_INET;
+    sa->sin_addr.s_addr = ip_addr;
+    sa->sin_port = htons(port);
   }
 
   int send_message_connect(const char* peer_host, int peer_port, const char* buffer, size_t size, bool debug)
   {
-    struct sockaddr_in peer_addr = {};
-    memset((char *) &peer_addr, 0, sizeof(peer_addr));
-    peer_addr.sin_port = htons(peer_port);
-    peer_addr.sin_family = AF_INET;
-
-    // handle either "localhost" or "127.0.0.1" addresses
-    hostent *host_ip = gethostbyname(peer_host);
-    if (!host_ip) {
-      perror("send_message_connect: gethostbyname failed");
+    in_addr_t peer_ip = parse_hostname(peer_host, debug);
+    if (!peer_ip) {
+      perror("send_message_connect: parse_hostname failed");
       return -1;
     }
 
-    in_addr *network_ip_address = (in_addr*)host_ip->h_addr;
-    std::string ip_addr = inet_ntoa(*network_ip_address);
-
-    if (!inet_aton(ip_addr.c_str(), (struct in_addr *)&peer_addr.sin_addr.s_addr))
-      {
-        perror("inet_aton() returned -1 (peer_host bad IP address format?)");
-        return -1;
-      }
+    struct sockaddr_in peer_addr = {};
+    init_sockaddr_in(&peer_addr, peer_ip, peer_port);
 
     int sock = socket(peer_addr.sin_family, SOCK_DGRAM, 0);
-    if (sock == -1)
-      {
-        perror("socket() returned -1");
-        return -1;
-      }
+    if (sock == -1) {
+      perror("socket() returned -1");
+      return -1;
+    }
 
     int connect_err = connect(sock, (struct sockaddr *)&peer_addr, sizeof(peer_addr));
-    if (connect_err < 0)
-      {
-        perror("connect() returned -1");
-        return -1;
-      }
+    if (connect_err < 0) {
+      perror("connect() returned -1");
+      return -1;
+    }
 
     ssize_t bytes_sent = 0;
     bytes_sent = send(sock, buffer, size, 0);
-    if (debug) printf("  send_message_connect: sent %ld bytes to %s:%d\n", (long)bytes_sent, peer_host, peer_port);
+    if (debug)
+      printf("  send_message_connect: sent %ld bytes to %s:%d\n", (long)bytes_sent, peer_host, peer_port);
     close(sock);
     return bytes_sent;
   }
 
-  int wait_for_input_on_thread(udp_thread_params* params)
-  {
-    int status;
-    status = wait_for_input(params->local_port, params->buffer, params->size, params->sock, params->debug);
-    return status;
-  }
-
-  int wait_for_input(int local_port, unsigned char* buffer, size_t size, int sock, bool debug)
-  {
-    if (debug)
-      printf("  wait_for_input(%d, buffer, %zu, %d) called\n", local_port, size, sock);
-    // Set up an appropriate local address (port)
-    struct sockaddr_in local_addr = {};
-    memset((char *) &local_addr, 0, sizeof(local_addr));
-    local_addr.sin_family = AF_INET;
-    local_addr.sin_addr.s_addr = INADDR_ANY;
-    local_addr.sin_port = htons(local_port);
-    // Set up the storage for the peer address
-    struct sockaddr_in peer_addr = {};
-    memset((char *) &peer_addr, 0, sizeof(peer_addr));
-    // Since the socket must be closed by the thread which spawned this thread, socket creating has
-    // moved up to UdpAdapter::startUdpMessageReceiver
-    // int sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    // if (sock < 0) { perror("socket() returned -1"); return sock; }
-
-    // Bind to the socket
-    int bind_err = bind(sock, (struct sockaddr *) &local_addr, sizeof(local_addr));
-    if (bind_err < 0) {
-      char buf[50];
-      sprintf(buf, "wait_for_input: bind() returned -1 for %d", local_port);
-      perror(buf);
-      close(sock);
-      return bind_err;
-    }
-
-    // Wait for input to become available and then read from the socket
-    if (debug)
-       printf("  wait_for_input calling recvfrom %s:%d on file %d\n",
-	      inet_ntoa(peer_addr.sin_addr), ntohs(peer_addr.sin_port), sock);
-
-    socklen_t slen = sizeof(struct sockaddr_in);
-    ssize_t bytes_read = recvfrom(sock, buffer, size, 0, (struct sockaddr *) &peer_addr, &slen);
-    if (bytes_read < 0) {
-      char buf[80];
-      sprintf(buf, "wait_for_input: recvfrom(%d) returned -1, errno %d", sock, errno);
-      perror(buf);
-      close(sock);
-      return bytes_read;
-    }
-    if (debug)
-      printf("  wait_for_input(%d, buffer, %zu) received %zd bytes from %s:%d\n",
-	     local_port, size, bytes_read,
-	     inet_ntoa(peer_addr.sin_addr), ntohs(peer_addr.sin_port));
-    close(sock);
-    return 0;
-  }
 }
 
 // EOF

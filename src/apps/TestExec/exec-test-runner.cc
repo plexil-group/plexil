@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@
 #include "planLibrary.hh"
 #include "PlexilExec.hh"
 #include "PlexilSchema.hh"
+#include "ResourceArbiterInterface.hh"
 #include "TestExternalInterface.hh"
 
 #ifdef HAVE_DEBUG_LISTENER
@@ -49,8 +50,10 @@
 #include <fstream>
 #include <string>
 
-#ifdef STDC_HEADERS
+#if defined(HAVE_CSTRING)
 #include <cstring>
+#elif defined(HAVE_STRING_H)
+#include <string.h>
 #endif
 
 using std::endl;
@@ -87,8 +90,8 @@ int run(int argc, char** argv)
                         [+r]                     (don't read resource data)\n");
 
 #ifdef HAVE_LUV_LISTENER
-  string luvHost = LuvListener::LUV_DEFAULT_HOSTNAME();
-  int luvPort = LuvListener::LUV_DEFAULT_PORT();
+  string luvHost = LUV_DEFAULT_HOSTNAME;
+  int luvPort = LUV_DEFAULT_PORT;
   bool luvRequest = false;
   bool luvBlock = false;
   usage += "                        [-v [-h <viewer-hostname>] [-n <viewer-portnumber>] [-b] ]\n";
@@ -284,36 +287,36 @@ int run(int argc, char** argv)
   // create external interface
 
   TestExternalInterface intf;
-  g_interface = &intf;
-  if (useResourceFile) {
-    g_interface->readResourceFile(resourceFile);
-  }
+  g_dispatcher = &intf;
 
   // create the exec
 
   g_exec = makePlexilExec();
+  g_exec->setDispatcher(g_dispatcher);
   ExecListenerHub hub;
   g_exec->setExecListener(&hub);
+  if (useResourceFile) {
+    g_exec->getArbiter()->readResourceHierarchyFile(resourceFile);
+  }
 
 
 #ifdef HAVE_DEBUG_LISTENER
   // add the debug listener
-  hub.addListener(new PlanDebugListener());
+  hub.addListener(makePlanDebugListener());
 #endif
 
 #ifdef HAVE_LUV_LISTENER
   // if a Plexil Viewer is to be attached
   if (luvRequest) {
     // create and add luv listener
-    LuvListener* ll = 
-      new LuvListener(luvHost, luvPort, luvBlock);
-    if (ll->isConnected()) {
+    LuvListener* ll = makeLuvListener(luvHost.c_str(), luvPort, luvBlock);
+    if (ll->start()) {
       hub.addListener(ll);
     }
     else {
-      warn("WARNING: Unable to connect to Plexil Viewer: " << endl
-           << "  address: " << luvHost << ":" << luvPort << endl
-           << "Execution will continue without the viewer.");
+      warn("WARNING: Unable to connect to Plexil Viewer at "
+           << luvHost << ":" << luvPort
+           << "\nExecution will continue without the viewer.");
       delete ll;
     }
   }
@@ -336,7 +339,7 @@ int run(int argc, char** argv)
         // Clean up
         delete g_exec;
         g_exec = nullptr;
-        g_interface = nullptr;
+        g_dispatcher = nullptr;
 
         return 1;
       }
@@ -347,7 +350,7 @@ int run(int argc, char** argv)
       // Clean up
       delete g_exec;
       g_exec = nullptr;
-      g_interface = nullptr;
+      g_dispatcher = nullptr;
 
       return 1;
     }
@@ -370,7 +373,7 @@ int run(int argc, char** argv)
       // Clean up
       delete g_exec;
       g_exec = nullptr;
-      g_interface = nullptr;
+      g_dispatcher = nullptr;
 
       return 1;
     }
@@ -388,7 +391,7 @@ int run(int argc, char** argv)
       // Clean up
       delete g_exec;
       g_exec = nullptr;
-      g_interface = nullptr;
+      g_dispatcher = nullptr;
 
       return 1;
     }
@@ -400,7 +403,7 @@ int run(int argc, char** argv)
       // Clean up
       delete g_exec;
       g_exec = nullptr;
-      g_interface = nullptr;
+      g_dispatcher = nullptr;
 
       return 1;
     }
@@ -422,7 +425,7 @@ int run(int argc, char** argv)
       // Clean up
       delete g_exec;
       g_exec = nullptr;
-      g_interface = nullptr;
+      g_dispatcher = nullptr;
       
       return 1;
     }
@@ -438,7 +441,7 @@ int run(int argc, char** argv)
       // Clean up
       delete g_exec;
       g_exec = nullptr;
-      g_interface = nullptr;
+      g_dispatcher = nullptr;
 
       return 1;
     }
@@ -451,7 +454,7 @@ int run(int argc, char** argv)
 
   delete g_exec;
   g_exec = nullptr;
-  g_interface = nullptr;
+  g_dispatcher = nullptr;
 
   return 0;
 }

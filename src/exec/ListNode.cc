@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,12 +29,8 @@
 #include "BooleanOperators.hh"
 #include "Debug.hh"
 #include "Error.hh"
-#include "ExprVec.hh"
 #include "Function.hh"
 #include "NodeOperatorImpl.hh"
-#include "UserVariable.hh"
-
-#include <algorithm> // for find_if
 
 namespace PLEXIL
 {
@@ -385,27 +381,28 @@ namespace PLEXIL
     m_children.emplace_back(NodeImplPtr(node));
   }
 
-  /**
-   * @brief Sets the state variable to the new state.
-   * @param newValue The new node state.
-   * @note This method notifies the children of a change in the parent node's state.
-   */
-  void ListNode::setState(NodeState newValue, double tym)
+  //! Sets the state variable to the new state.
+  //! @param exec The PlexilExec instance.
+  //! @param newValue The new node state.
+  //! @param tym Time of the transition.
+  //! @note This wrapper method notifies the children of a change in
+  //! the parent node's state.
+  void ListNode::setState(PlexilExec *exec, NodeState newValue, double tym)
   {
-    NodeImpl::setState(newValue, tym);
+    NodeImpl::setState(exec, newValue, tym);
     // Notify the children if the new state is one that they care about.
     switch (newValue) {
     case WAITING_STATE:
       for (NodeImplPtr &child : m_children)
         if (child->getState() == FINISHED_STATE)
-          child->notifyChanged();
+          child->notifyChanged(exec);
       break;
 
     case EXECUTING_STATE:
     case FINISHED_STATE:
       for (NodeImplPtr &child : m_children)
         if (child->getState() == INACTIVE_STATE)
-          child->notifyChanged();
+          child->notifyChanged(exec);
       break;
 
     default:
@@ -430,10 +427,10 @@ namespace PLEXIL
 
   void ListNode::transitionToExecuting()
   {
+    // From WAITING, AncestorExit, AncestorInvariant, Exit are active
     activateLocalVariables();
 
     activateInvariantCondition();
-    activateExitCondition();
     activateEndCondition();
 
     // These conditions are for the children.
@@ -531,7 +528,7 @@ namespace PLEXIL
     return true;
   }
 
-  void ListNode::transitionFromExecuting()
+  void ListNode::transitionFromExecuting(PlexilExec * /* exec */)
   {
     deactivateEndCondition();
     switch (m_nextState) {
@@ -668,7 +665,7 @@ namespace PLEXIL
     return false;
   }
 
-  void ListNode::transitionFromFinishing()
+  void ListNode::transitionFromFinishing(PlexilExec *exec)
   {
     deactivateExitCondition();
     deactivateInvariantCondition();
@@ -686,7 +683,7 @@ namespace PLEXIL
         m_conditions[ancestorEndIdx]->deactivate();
       // Local conditions
       deactivateActionCompleteCondition();
-      deactivateExecutable();
+      deactivateExecutable(exec);
       activateAncestorEndCondition();
       break;
 
@@ -709,7 +706,7 @@ namespace PLEXIL
   // Conditions active: ActionComplete
   // Legal successor states: FINISHED, ITERATION_ENDED
 
-  void ListNode::transitionToFailing()
+  void ListNode::transitionToFailing(PlexilExec * /* exec */)
   {
     // From EXECUTING: ActionComplete active (see transitionFromExecuting() above)
     // From FINISHING: ActionComplete active
@@ -756,7 +753,7 @@ namespace PLEXIL
     return false;
   }
 
-  void ListNode::transitionFromFailing()
+  void ListNode::transitionFromFailing(PlexilExec *exec)
   {
     // N.B. These are conditions for the children.
     if (m_conditions[ancestorExitIdx])
@@ -767,7 +764,7 @@ namespace PLEXIL
       m_conditions[ancestorEndIdx]->deactivate();
 
     deactivateActionCompleteCondition();
-    deactivateExecutable();
+    deactivateExecutable(exec);
 
     switch (m_nextState) {
 

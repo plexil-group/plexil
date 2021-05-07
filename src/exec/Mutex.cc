@@ -38,66 +38,14 @@ namespace PLEXIL
 {
 
   Mutex::Mutex(char const *name)
-    : m_name(name),
-      m_waiters(),
-      m_holder(nullptr)
+    : Reservable(),
+      m_name(name)
   {
-  }
-
-  Mutex::~Mutex()
-  {
-  }
-
-  bool Mutex::acquire(Node *acquirer)
-  {
-    assertTrue_2(acquirer, "Mutex::acquire: null argument!");
-    if (m_holder) {
-      debugMsg("Mutex:acquire",
-               ' ' << m_name << " node "
-               << acquirer->getNodeId() << ' ' << acquirer
-               << " failed; mutex held by node " << m_holder->getNodeId()
-               << ' ' << m_holder);
-      addWaitingNode(acquirer);
-      return false;
-    }
-    m_holder = acquirer;
-    std::remove(m_waiters.begin(), m_waiters.end(), acquirer);
-    debugMsg("Mutex:acquire",
-             ' ' << m_name << " node "
-             << acquirer->getNodeId() << ' ' << acquirer << " succeeded");
-    return true;
-  }
-
-  void Mutex::release()
-  {
-    assertTrue_2(m_holder, "Releasing mutex which was not held");
-    debugMsg("Mutex:release",
-             ' ' << m_name << " by node "
-             << m_holder->getNodeId() << ' ' << m_holder);
-    m_holder = nullptr;
-    for (Node *n : m_waiters)
-      n->notifyResourceAvailable();
   }
 
   std::string const &Mutex::getName() const
   {
     return m_name;
-  }
-
-  Node const *Mutex::getHolder() const
-  {
-    return m_holder;
-  }
-
-  void Mutex::addWaitingNode(Node *node)
-  {
-    if (std::find(m_waiters.begin(), m_waiters.end(), node) == m_waiters.end())
-      m_waiters.push_back(node);
-  }
-
-  void Mutex::removeWaitingNode(Node *node)
-  {
-    std::remove(m_waiters.begin(), m_waiters.end(), node);
   }
 
   void Mutex::print(std::ostream &stream, const unsigned int indent) const

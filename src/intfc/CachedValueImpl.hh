@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ namespace PLEXIL
   {
   public:
     VoidCachedValue();
-    ~VoidCachedValue() = default;
+    virtual ~VoidCachedValue() = default;
 
     CachedValue &operator=(CachedValue const &other);
 
@@ -141,7 +141,7 @@ namespace PLEXIL
   public:
     CachedValueImpl();
     CachedValueImpl(CachedValueImpl<T> const &);
-    ~CachedValueImpl() = default;
+    virtual ~CachedValueImpl() = default;
 
     CachedValue &operator=(CachedValue const &other);
 
@@ -208,7 +208,7 @@ namespace PLEXIL
   public:
     CachedValueImpl();
     CachedValueImpl(CachedValueImpl<Integer> const &);
-    ~CachedValueImpl() = default;
+    virtual ~CachedValueImpl() = default;
 
     CachedValue &operator=(CachedValue const &other);
 
@@ -242,7 +242,7 @@ namespace PLEXIL
   public:
     CachedValueImpl();
     CachedValueImpl(CachedValueImpl<Real> const &);
-    ~CachedValueImpl() = default;
+    virtual ~CachedValueImpl() = default;
 
     CachedValue &operator=(CachedValue const &other);
 
@@ -276,7 +276,7 @@ namespace PLEXIL
   public:
     CachedValueImpl();
     CachedValueImpl(CachedValueImpl<String> const &);
-    ~CachedValueImpl() = default;
+    virtual ~CachedValueImpl() = default;
 
     CachedValue &operator=(CachedValue const &other);
 
@@ -311,7 +311,7 @@ namespace PLEXIL
   public:
     CachedValueImpl();
     CachedValueImpl(CachedValueImpl<ArrayImpl<T> > const &);
-    ~CachedValueImpl() = default;
+    virtual ~CachedValueImpl() = default;
 
     CachedValue &operator=(CachedValue const &other);
 

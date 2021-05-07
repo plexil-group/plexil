@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@ import java.util.Vector;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
 
 public class IfNode extends PlexilTreeNode
 {
@@ -110,6 +110,7 @@ public class IfNode extends PlexilTreeNode
      * @brief Semantic check.
      * @note Uses separate contexts for then and else bodies.
      */
+    @Override
     public void check(NodeContext parentContext, CompilerState myState)
     {
         checkSelf(parentContext, myState);
@@ -131,7 +132,8 @@ public class IfNode extends PlexilTreeNode
         }
     }
 
-    public void checkSelf(NodeContext context, CompilerState myState)
+    @Override
+    protected void checkSelf(NodeContext context, CompilerState myState)
     {
         // Assert Boolean type on tests
         if (!((ExpressionNode) getChild(0)).assumeType(PlexilDataType.BOOLEAN_TYPE, myState)) {
@@ -149,26 +151,24 @@ public class IfNode extends PlexilTreeNode
                                           "ElseIf test expression is not Boolean",
                                           Severity.ERROR);
                 }
-                else {
-                    // final else clause
-                }
             }
         }
     }
 
+    @Override
     protected void constructXML()
     {
-        super.constructXML(); // constructs "If" element
+        super.constructXMLBase(); // constructs "If" element
 
         // Insert if-condition
-        IXMLElement condition = new XMLElement("Condition");
-        condition.addChild(getChild(0).getXML());
-        m_xml.addChild(condition);
+        Element condition = CompilerState.newElement("Condition");
+        condition.appendChild(getChild(0).getXML());
+        m_xml.appendChild(condition);
 
         // Insert then clause
-        IXMLElement consequent = new XMLElement("Then");
-        consequent.addChild(getChild(1).getXML());
-        m_xml.addChild(consequent);
+        Element consequent = CompilerState.newElement("Then");
+        consequent.appendChild(getChild(1).getXML());
+        m_xml.appendChild(consequent);
 
         int nkids = getChildCount();
         if (nkids == 2)
@@ -178,20 +178,20 @@ public class IfNode extends PlexilTreeNode
         for (; i < nkids; i += 2) {
             if (nkids - i > 1) {
                 // Insert ElseIf clause(s)
-                IXMLElement elseIfClause = new XMLElement("ElseIf");
-                IXMLElement elseIfCondition = new XMLElement("Condition");
-                elseIfCondition.addChild(getChild(i).getXML());
-                elseIfClause.addChild(elseIfCondition);
-                IXMLElement elseIfConsequent = new XMLElement("Then");
-                elseIfConsequent.addChild(getChild(i + 1).getXML());
-                elseIfClause.addChild(elseIfConsequent);
-                m_xml.addChild(elseIfClause);
+                Element elseIfClause = CompilerState.newElement("ElseIf");
+                Element elseIfCondition = CompilerState.newElement("Condition");
+                elseIfCondition.appendChild(getChild(i).getXML());
+                elseIfClause.appendChild(elseIfCondition);
+                Element elseIfConsequent = CompilerState.newElement("Then");
+                elseIfConsequent.appendChild(getChild(i + 1).getXML());
+                elseIfClause.appendChild(elseIfConsequent);
+                m_xml.appendChild(elseIfClause);
             }
             else {
                 // insert final Else clause
-                IXMLElement elseClause = new XMLElement("Else");
-                elseClause.addChild(getChild(i).getXML());
-                m_xml.addChild(elseClause);
+                Element elseClause = CompilerState.newElement("Else");
+                elseClause.appendChild(getChild(i).getXML());
+                m_xml.appendChild(elseClause);
             }
         }
     }

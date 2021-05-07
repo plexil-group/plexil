@@ -1,0 +1,7 @@
+library6:
+{
+  InOut String x;
+  In String y;
+
+  x = y;
+}

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,6 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExecListenerBase.hh"
-#include "PlexilExec.hh" // g_exec, getExecListener()
 
 namespace PLEXIL
 {
@@ -140,22 +139,20 @@ namespace PLEXIL
     m_dest->deactivate();
   }
 
-  void Assignment::execute()
+  void Assignment::execute(ExecListenerBase *listener)
   {
     debugMsg("Test:testOutput", " Assigning " << m_value << " to " << m_dest->toString());
     m_dest->setValue(m_value);
     m_ack.setValue(true);
-    ExecListenerBase *listener = g_exec->getExecListener();
     if (listener)
       listener->notifyOfAssignment(m_dest, m_dest->getName(), m_value);
   }
 
-  void Assignment::retract()
+  void Assignment::retract(ExecListenerBase *listener)
   {
     debugMsg("Test:testOutput", " Restoring previous value of " << m_dest->toString());
     m_dest->restoreSavedValue();
     m_abortComplete.setValue(true);
-    ExecListenerBase *listener = g_exec->getExecListener();
     if (listener)
       listener->notifyOfAssignment(m_dest,
                                    m_dest->getName(),

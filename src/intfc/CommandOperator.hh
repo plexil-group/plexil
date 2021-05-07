@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,14 +27,13 @@
 #ifndef PLEXIL_COMMAND_OPERATOR_HH
 #define PLEXIL_COMMAND_OPERATOR_HH
 
+#include "Listenable.hh" // ListenableUnaryOperator
 #include "ValueType.hh"
 
 namespace PLEXIL
 {
   // Forward references
-  class ExpressionListener;
-  class ListenableUnaryOperator;
-  class Command;
+  class CommandImpl;
   class Value;
 
   // TODO:
@@ -44,9 +43,7 @@ namespace PLEXIL
   class CommandOperator
   {
   public:
-    virtual ~CommandOperator()
-    {
-    }
+    virtual ~CommandOperator() = default;
 
     std::string const &getName() const
     {
@@ -59,26 +56,26 @@ namespace PLEXIL
     virtual void deleteCache(void *Ptr) const = 0;
 
     // Default methods assert
-    virtual bool operator()(Boolean &result, Command const *arg) const;
+    virtual bool operator()(Boolean &result, CommandImpl const *arg) const;
     // Only Boolean operators implemented to date
-    // virtual bool operator()(uint16_t &result, Command const *arg) const;
-    // virtual bool operator()(Integer &result, Command const *command) const;
-    // virtual bool operator()(Real &result, Command const *command) const;
-    // virtual bool operator()(String &result, Command const *command) const;
+    // virtual bool operator()(uint16_t &result, CommandImpl const *arg) const;
+    // virtual bool operator()(Integer &result, CommandImpl const *command) const;
+    // virtual bool operator()(Real &result, CommandImpl const *command) const;
+    // virtual bool operator()(String &result, CommandImpl const *command) const;
 
     // Not needed yet
-    // virtual bool operator()(Array &result, Command const *command) const;
-    // virtual bool operator()(BooleanArray &result, Command const *command) const;
-    // virtual bool operator()(IntegerArray &result, Command const *command) const;
-    // virtual bool operator()(RealArray &result, Command const *command) const;
-    // virtual bool operator()(StringArray &result, Command const *command) const;
+    // virtual bool operator()(Array &result, CommandImpl const *command) const;
+    // virtual bool operator()(BooleanArray &result, CommandImpl const *command) const;
+    // virtual bool operator()(IntegerArray &result, CommandImpl const *command) const;
+    // virtual bool operator()(RealArray &result, CommandImpl const *command) const;
+    // virtual bool operator()(StringArray &result, CommandImpl const *command) const;
 
-    virtual bool isKnown(Command const *command) const = 0;
-    virtual void printValue(std::ostream &s, Command const *command) const = 0;
-    virtual Value toValue(Command const *command) const = 0;
+    virtual bool isKnown(CommandImpl const *command) const = 0;
+    virtual void printValue(std::ostream &s, CommandImpl const *command) const = 0;
+    virtual Value toValue(CommandImpl const *command) const = 0;
 
     // Helper for notification network
-    virtual void doPropagationSources(Command *command,
+    virtual void doPropagationSources(CommandImpl *command,
                                       ListenableUnaryOperator const &oper) const = 0;
 
   protected:
@@ -91,9 +88,9 @@ namespace PLEXIL
 
   private:
     // unimplemented
-    CommandOperator();
-    CommandOperator(CommandOperator const &);
-    CommandOperator &operator=(CommandOperator const &);
+    CommandOperator() = delete;
+    CommandOperator(CommandOperator const &) = delete;
+    CommandOperator(CommandOperator &&) = delete;
   };
 
 } // namespace PLEXIL

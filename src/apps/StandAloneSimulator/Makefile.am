@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -23,32 +23,32 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-AUTOMAKE_OPTIONS = subdir-objects
-
 lib_LTLIBRARIES = libstandalonesimulator.la
-
-libstandalonesimulator_la_CPPFLAGS = $(AM_CPPFLAGS) \
- -I@top_srcdir@/interfaces/IpcUtils \
- -I@top_srcdir@/third-party/ipc/src -I@top_srcdir@/value -I@top_srcdir@/utils
-
-include_HEADERS = CommRelayBase.hh GenericResponse.hh IpcCommRelay.hh \
- ResponseBase.hh ResponseFactory.hh ResponseMessage.hh ResponseMessageManager.hh Simulator.hh \
- SimulatorScriptReader.hh TelemetryResponseManager.hh TimingService.hh simdefs.hh
-
-libstandalonesimulator_la_SOURCES = IpcCommRelay.cc \
- ResponseBase.cc ResponseFactory.cc ResponseMessage.cc ResponseMessageManager.cc \
- Simulator.cc SimulatorScriptReader.cc TelemetryResponseManager.cc TimingService.cc
 
 bin_PROGRAMS = simulator
 
-noinst_HEADERS = PlexilSimulator/PlexilSimResponseFactory.hh
+libstandalonesimulator_la_CPPFLAGS = $(AM_CPPFLAGS) \
+ -I$(top_srcdir)/interfaces/IpcUtils \
+ -I$(top_srcdir)/third-party/ipc/src -I$(top_srcdir)/value -I$(top_srcdir)/utils
 
-simulator_SOURCES = PlexilSimulator/PlexilSimResponseFactory.cc \
- PlexilSimulator/PlexilSimulator.cc
+include_HEADERS = Agenda.hh CommRelayBase.hh CommandResponseManager.hh \
+ GenericResponse.hh IpcCommRelay.hh LineInStream.hh ResponseFactory.hh \
+ ResponseMessage.hh Simulator.hh SimulatorScriptReader.hh TimingService.hh \
+ parseType.hh simdefs.hh
+
+libstandalonesimulator_la_SOURCES = Agenda.cc CommandResponseManager.cc \
+ IpcCommRelay.cc LineInStream.cc ResponseFactory.cc Simulator.cc \
+ SimulatorScriptReader.cc TimingService.cc
+
 simulator_CPPFLAGS = $(libstandalonesimulator_la_CPPFLAGS)
 
-simulator_LDADD = libstandalonesimulator.la \
- @top_srcdir@/interfaces/IpcUtils/libIpcUtils.la \
- @top_srcdir@/value/libPlexilValue.la @top_srcdir@/utils/libPlexilUtils.la
+simulator_SOURCES = PlexilSimulator.cc PlexilSimResponseFactory.cc
 
-simulator_LDFLAGS = -L@libdir@ -lipc
+simulator_LDADD = libstandalonesimulator.la \
+ $(top_builddir)/interfaces/IpcUtils/libIpcUtils.la \
+ $(top_builddir)/value/libPlexilValue.la $(top_builddir)/utils/libPlexilUtils.la
+
+simulator_LDFLAGS = -L$(libdir) -lipc
+
+# Private headers for either the library or the app
+noinst_HEADERS = PlexilSimResponseFactory.hh

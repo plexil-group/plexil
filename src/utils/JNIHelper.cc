@@ -28,7 +28,11 @@
 #include "Debug.hh"
 #include "Error.hh"
 
+#if defined(HAVE_CASSERT)
 #include <cassert>
+#elif defined(HAVE_ASSERT_H)
+#include <assert.h>
+#endif
 
 // Initialization for the static instance pointer
 JNIHelper* JNIHelper::s_instance = nullptr;

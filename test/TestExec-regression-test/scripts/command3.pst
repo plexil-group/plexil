@@ -2,7 +2,7 @@
 // command3
 
 script {
-  command     get-string () = "fred" : string;
-  command-ack get-string () = "COMMAND_SUCCESS" : string;
+  command     get_string () = "fred" : string;
+  command-ack get_string () = "COMMAND_SUCCESS" : string;
 }
 

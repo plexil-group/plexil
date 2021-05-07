@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,351 +24,286 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "LuvListener.hh"
-#include "LuvFormat.hh"
+#include "plexil-stdint.h" // uint16_t; includes plexil-config.h
 
+#include "ClientSocket.h"
 #include "Debug.hh"
 #include "ExecListenerFactory.hh"
 #include "Expression.hh"
+#include "LuvFormat.hh"
+#include "LuvListener.hh"
 #include "Node.hh"
-
-#include "ClientSocket.h"
 #include "SocketException.h"
 
 #include <sstream>
+#include <string>
 
-#ifdef STDC_HEADERS
+#if defined(HAVE_CSTDLIB)
 #include <cstdlib>
-#include <cstring> // strdup()
+#elif defined(HAVE_STDLIB_H)
+#include <stdlib.h>
+#endif
+
+#if defined(HAVE_CSTRING)
+#include <cstring>  // strdup()
+#elif defined(HAVE_STRING_H)
+#include <string.h> // strdup()
 #endif
 
 namespace PLEXIL
 {
 
-  /**
-   * @brief Constructor from configuration XML.
-   */
-  LuvListener::LuvListener(pugi::xml_node const xml)
-	: ExecListener(xml),
-	  m_socket(nullptr),
-	  m_host(nullptr),
-	  m_port(0),
-	  m_block(false),
-	  m_ignoreConnectFailure(true)
-  {
-    // Parse XML
-    char const *hostname = xml.attribute(LUV_HOSTNAME_ATTR()).value();
-    if (hostname && *hostname)
-      m_host = strdup(hostname);
-    else
-      m_host = strdup(LUV_DEFAULT_HOSTNAME());
-
-    pugi::xml_attribute portattr = xml.attribute(LUV_PORT_ATTR());
-    if (portattr)
-      m_port = portattr.as_uint(0);
-    if (!m_port)
-      m_port = LUV_DEFAULT_PORT();
-    
-    pugi::xml_attribute blockattr = xml.attribute(LUV_BLOCKING_ATTR());
-    if (blockattr)
-      m_block = blockattr.as_bool(false);
-  }
-
-  //* Constructor from TestExec.
-  LuvListener::LuvListener(const std::string& host, 
-						   const uint16_t port, 
-						   const bool block,
-						   const bool ignoreConnectionFailure)
-	: ExecListener(),
-	  m_socket(nullptr),
-	  m_host(strdup(host.c_str())),
-	  m_port(port),
-	  m_block(block),
-	  m_ignoreConnectFailure(ignoreConnectionFailure)
-  {
-	// open the socket
-	openSocket(m_port, m_host, m_ignoreConnectFailure);
-  }
-
-  //* Destructor.
-  LuvListener::~LuvListener()
-  {
-	closeSocket();
-    free((void *) m_host);
-  }
-
-  /**
-   * @brief Perform listener-specific initialization.
-   * @return true if successful, false otherwise.
-   */
-  bool LuvListener::initialize()
-  {
-    // parse XML to find host, port, blocking flag
-    pugi::xml_node const xml = this->getXml();
-	if (xml.empty())
-	  // Have to presume that things were constructed correctly
-	  return true;
-
-	pugi::xml_attribute hostAttr = xml.attribute(LUV_HOSTNAME_ATTR());
-    if (hostAttr.empty()) {
-	  debugMsg("LuvListener:initialize",
-			   " no " << LUV_HOSTNAME_ATTR()
-			   << " attribute found, using default host " << LUV_DEFAULT_HOSTNAME());
-	  m_host = LUV_DEFAULT_HOSTNAME();
-	}
-	else {
-	  // FIXME: add sanity check?
-	  m_host = hostAttr.value();
-	}
-
-
-	pugi::xml_attribute portAttr = xml.attribute(LUV_PORT_ATTR());
-    if (portAttr.empty()) {
-	  debugMsg("LuvListener:initialize",
-			   " no " << LUV_PORT_ATTR()
-			   << " attribute found, using default port " << LUV_DEFAULT_PORT());
-	  m_port = LUV_DEFAULT_PORT();
-	}
-    else {
-	  // Should range check here
-	  // *** NYI ***
-	  m_port = (uint16_t) portAttr.as_uint();
-	}
-
-	pugi::xml_attribute blockAttr = xml.attribute(LUV_BLOCKING_ATTR());
-    if (blockAttr.empty()) {
-	  debugMsg("LuvListener:initialize",
-			   " no " << LUV_BLOCKING_ATTR()
-			   << " attribute found, using default \"false\"");
-	  m_block = false;
-	}
-    else {
-	  m_block = blockAttr.as_bool();
-	}
-
-	pugi::xml_attribute ignoreFailAttr = xml.attribute(IGNORE_CONNECT_FAILURE_ATTR());
-    if (ignoreFailAttr.empty()) {
-	  debugMsg("LuvListener:initialize",
-			   " no " << IGNORE_CONNECT_FAILURE_ATTR()
-			   << " attribute found, using default \"true\"");
-	  m_ignoreConnectFailure = true;
-	}
-    else {
-	  m_ignoreConnectFailure = ignoreFailAttr.as_bool();
-	}
-
-    return true; 
-  }
-
-  /**
-   * @brief Perform listener-specific startup.
-   * @return true if successful, false otherwise.
-   */
-  bool LuvListener::start() 
-  { 
-    return openSocket(m_port, m_host, m_ignoreConnectFailure); 
-  }
-
-  /**
-   * @brief Perform listener-specific actions to stop.
-   * @return true if successful, false otherwise.
-   */
-  bool LuvListener::stop() 
-  {
-    return true; 
-  }
-
-  /**
-   * @brief Perform listener-specific actions to reset to initialized state.
-   * @return true if successful, false otherwise.
-   */
-  bool LuvListener::reset() 
-  {
-	this->closeSocket();
-    return true; 
-  }
-
-  /**
-   * @brief Perform listener-specific actions to shut down.
-   * @return true if successful, false otherwise.
-   */
-  bool LuvListener::shutdown() 
-  { 
-	this->closeSocket();
-    return true; 
-  }
-
   //
-  // Public class member functions
+  // Local constants
   //
 
-  /**
-   * @brief Construct the appropriate configuration XML for the desired settings.
-   * @param block true if the Exec should block until the user steps forward, false otherwise.
-   * @param hostname The host name where the Luv instance is running.
-   * @param port The port number for the Luv instance.
-   */
-  pugi::xml_document* LuvListener::constructConfigurationXml(const bool& block,
-															 const char* hostname,
-															 const unsigned int port)
+  // Configuration XML constants
+  // Shared between LuvListenerImpl and public helper function
+  static constexpr char const LUV_HOSTNAME_ATTR[] = "HostName";
+  static constexpr char const LUV_PORT_ATTR[] = "Port";
+  static constexpr char const LUV_BLOCKING_ATTR[] = "Blocking";
+
+  static constexpr char const IGNORE_CONNECT_FAILURE_ATTR[] = "IgnoreConnectFailure";
+
+  //! @class LuvListenerImpl
+  //! Implements the LuvListener public API.
+  class LuvListenerImpl final : public LuvListener
   {
-	pugi::xml_document* result = new pugi::xml_document();
-	pugi::xml_node toplevel = result->append_child("Listener");
-    toplevel.append_attribute("ListenerType").set_value("LuvListener");
-    toplevel.append_attribute(LUV_BLOCKING_ATTR()).set_value(block);
-    toplevel.append_attribute(LUV_HOSTNAME_ATTR()).set_value(hostname);
-    toplevel.append_attribute(LUV_PORT_ATTR()).set_value(port);
-    return result;
-  }
+  public:
 
+    /**
+     * @brief Constructor from configuration XML.
+     */
+    LuvListenerImpl(pugi::xml_node const xml)
+      : LuvListener(xml), 
+        m_socket(nullptr),
+        m_host(LUV_DEFAULT_HOSTNAME),
+        m_port(LUV_DEFAULT_PORT),
+        m_block(false),
+        m_ignoreConnectFailure(true)
+    {
+      // Parse options provided via XML
+      char const *hostname = xml.attribute(LUV_HOSTNAME_ATTR).value();
+      if (hostname && *hostname)
+        m_host = hostname;
 
-  /**
-   * @brief Notify that a node has changed state.
-   * @param prevState The old state.
-   * @param transition Const reference to the transition record.
-   */
-  void 
-  LuvListener::implementNotifyNodeTransition(NodeTransition const &trans) const 
-  {
-    debugMsg("LuvListener:implementNotifyNodeTransition",
-             " for " << trans.node->getNodeId());
-	if (m_socket) {
-	  std::ostringstream s;
-	  LuvFormat::formatTransition(s, trans);
-	  sendMessage(s.str());
-	}
-  }
+      m_port = xml.attribute(LUV_PORT_ATTR).as_uint(m_port);
+      m_block = xml.attribute(LUV_BLOCKING_ATTR).as_bool(m_block);
+      m_ignoreConnectFailure =
+        xml.attribute(IGNORE_CONNECT_FAILURE_ATTR).as_bool(m_ignoreConnectFailure);
 
+      // Report what we found
+      debugMsg("LuvListener",
+               "  host " << m_host
+               << ", port " << m_port
+               << ", " << (m_block ? "" : "don't ") << "block, "
+               << (m_ignoreConnectFailure ? "" : "don't ") << " ignore connection failure");
+    }
 
-  /**
-   * @brief Notify that a plan has been received by the Exec.
-   * @param plan The intermediate representation of the plan.
-   * @param parent The name of the parent node under which this plan will be inserted.
-   */
-  void
-  LuvListener::implementNotifyAddPlan(pugi::xml_node const plan) const 
-  {
-    debugMsg("LuvListener:implementNotifyAddPlan", " entered");
-	if (m_socket) {
-      sendPlanInfo();
+    //* Destructor.
+    virtual ~LuvListenerImpl()
+    {
+      closeSocket();
+    }
+
+    /**
+     * @brief Perform listener-specific startup.
+     * @return true if successful, false otherwise.
+     */
+    virtual bool start() override
+    { 
+      return openSocket(m_port, m_host.c_str(), m_ignoreConnectFailure); 
+    }
+
+    /**
+     * @brief Perform listener-specific actions to stop.
+     */
+    virtual void stop() override
+    {
+      closeSocket();
+    }
+
+    //
+    // Public class member functions
+    //
+
+    /**
+     * @brief Notify that a node has changed state.
+     * @param prevState The old state.
+     * @param transition Const reference to the transition record.
+     */
+    virtual void
+    implementNotifyNodeTransition(NodeTransition const &trans) const override
+    {
+      debugMsg("LuvListener:implementNotifyNodeTransition",
+               " for " << trans.node->getNodeId());
+      if (m_socket) {
+        std::ostringstream s;
+        LuvFormat::formatTransition(s, trans);
+        sendMessage(s.str());
+      }
+    }
+
+    /**
+     * @brief Notify that a plan has been received by the Exec.
+     * @param plan The XML representation of the plan.
+     */
+    virtual void
+    implementNotifyAddPlan(pugi::xml_node const plan) const override
+    {
+      debugMsg("LuvListener:implementNotifyAddPlan", " entered");
+      if (m_socket) {
+        sendPlanInfo();
+        std::ostringstream s;
+        LuvFormat::formatPlan(s, plan);
+        sendMessage(s.str());
+      }
+    }
+
+    /**
+     * @brief Notify that a library node has been received by the Exec.
+     * @param libNode The XML representation of the library node.
+     */
+    virtual void
+    implementNotifyAddLibrary(pugi::xml_node const libNode) const override
+    {
+      if (m_socket) {
+        sendPlanInfo();
+        std::ostringstream s;
+        LuvFormat::formatLibrary(s, libNode);
+        sendMessage(s.str());
+      }
+    }
+
+    /**
+     * @brief Notify that a variable assignment has been performed.
+     * @param dest The Expression being assigned to.
+     * @param destName A string naming the destination.
+     * @param value The value (in internal Exec representation) being assigned.
+     */
+    virtual void 
+    implementNotifyAssignment(Expression const *dest,
+                              std::string const &destName,
+                              Value const &value) const override
+    {
+      if (m_socket) {
+        std::ostringstream s;
+        LuvFormat::formatAssignment(s, dest, destName, value);
+        sendMessage(s.str());
+      }
+    }
+
+    //* Report whether the listener is connected to the viewer.
+    virtual bool isConnected() override
+    {
+      return m_socket != nullptr;
+    }
+
+  private:
+
+    //
+    // Implementation details
+    //
+
+    /**
+     * @brief Open the socket connection to the viewer.
+     * @param port The IP port to which we are connecting.
+     * @param host The hostname to which we are connecting.
+     * @param ignoreFailure If true, failure is silently ignored.
+     * @return False if the connection fails and ignoreFailure is false, true otherwise.
+     */
+    virtual bool openSocket(uint16_t port, 
+                            const char* host, 
+                            bool ignoreFailure) 
+    {
+      try {
+        debugMsg("LuvListener:start",
+                 " opening client socket to host " << host << ", port " << port);
+        m_socket = new ClientSocket(std::string(host), port);
+      }    
+      catch (const SocketException &e) {
+        debugMsg("LuvListener:start",
+                 " socket error: " << e.description());
+        delete m_socket;
+        m_socket = nullptr;
+        return ignoreFailure;
+      }
+
+      // Success!
+      return true; 
+    }
+
+    //* Close the socket.
+    void closeSocket()
+    {
+      delete m_socket;
+      m_socket = nullptr;
+    }
+
+    //* Send a plan info header to the viewer.
+    void sendPlanInfo() const
+    {
       std::ostringstream s;
-      LuvFormat::formatPlan(s, plan);
+      LuvFormat::formatPlanInfo(s, m_block);
       sendMessage(s.str());
-	}
-  }
+    }
 
-  /**
-   * @brief Notify that a library node has been received by the Exec.
-   * @param libNode The intermediate representation of the plan.
-   * @note The default method is deprecated and will go away in a future release.
-   */
-  void
-  LuvListener::implementNotifyAddLibrary(pugi::xml_node const libNode) const 
-  {
-	if (m_socket) {
-	  sendPlanInfo();
-      std::ostringstream s;
-      LuvFormat::formatLibrary(s, libNode);
-      sendMessage(s.str());
-	}
-  }
+    //* Send the message to the viewer.
+    void sendMessage(const std::string& msg) const
+    {
+      debugMsg("LuvListener:sendMessage", " sending:\n" << msg);
+      *m_socket << msg << LUV_END_OF_MESSAGE;
+      waitForAck();
+    }
 
-  /**
-   * @brief Notify that a variable assignment has been performed.
-   * @param dest The Expression being assigned to.
-   * @param destName A string naming the destination.
-   * @param value The value (in internal Exec representation) being assigned.
-   */
-  void 
-  LuvListener::implementNotifyAssignment(Expression const *dest,
-										 std::string const &destName,
-										 Value const &value) const
-  {
-	if (m_socket) {
-	  std::ostringstream s;
-	  LuvFormat::formatAssignment(s, dest, destName, value);
-	  sendMessage(s.str());
-	}
-  }
-
-
-
-  /**
-   * @brief Open the socket connection to the viewer.
-   * @param port The IP port to which we are connecting.
-   * @param host The hostname to which we are connecting.
-   * @param ignoreFailure If true, failure is silently ignored.
-   * @return False if the connection fails and ignoreFailure is false, true otherwise.
-   */
-  bool
-  LuvListener::openSocket(uint16_t port, 
-						  const char* host, 
-						  bool ignoreFailure) 
-  {
-	try {
-	  debugMsg("LuvListener:start",
-			   " opening client socket to host " << host << ", port " << port);
-	  m_socket = new ClientSocket(std::string(host), port);
-	}    
-	catch (const SocketException &e) {
-	  debugMsg("LuvListener:start",
-			   " socket error: " << e.description());
-	  delete m_socket;
-	  m_socket = nullptr;
-	  return ignoreFailure;
-	}
-
-	// Success!
-    return true; 
-  }
-
-
-  //* Close the socket.
-  void LuvListener::closeSocket()
-  {
-	delete m_socket;
-	m_socket = nullptr;
-  }
-
-  //* Report whether the listener is connected to the viewer.
-  bool LuvListener::isConnected()
-  {
-	return m_socket != nullptr;
-  }
-
-  //* Send a plan info header to the viewer.
-  void LuvListener::sendPlanInfo() const
-  {
-	std::ostringstream s;
-	LuvFormat::formatPlanInfo(s, m_block);
-	sendMessage(s.str());
-  }
-
-  //* Send the message to the viewer.
-  void LuvListener::sendMessage(const std::string& msg) const
-  {
-	debugMsg("LuvListener:sendMessage", " sending:\n" << msg);
-    *m_socket << msg << LUV_END_OF_MESSAGE();
-    waitForAck();
-  }
-
-  //* Wait for acknowledgement from the viewer.
-  void LuvListener::waitForAck() const
-  {
-    debugMsg("LuvListener:waitForAck", " entered");
-    if (m_block) {
+    //* Wait for acknowledgement from the viewer.
+    void waitForAck() const
+    {
+      debugMsg("LuvListener:waitForAck", " entered");
+      if (m_block) {
         std::string buffer;
 		do
           *m_socket >> buffer;
-        while (buffer[0] != LUV_END_OF_MESSAGE());
+        while (buffer[0] != LUV_END_OF_MESSAGE);
       }
-    debugMsg("LuvListener:waitForAck", " exited");
-  }
+      debugMsg("LuvListener:waitForAck", " exited");
+    }
+
+    //
+    // Constants
+    //
+
+	//
+	// Member variables
+	//
+    Socket* m_socket;
+    std::string m_host;
+	uint16_t m_port;
+    bool m_block;
+    bool m_ignoreConnectFailure;
+  };
   
-  extern "C"
-  void initLuvListener()
+  //! Construct a LuvListener instance with the desired settings.
+  //! @param hostname The host name where the Luv instance is running.
+  //! @param port The port number for the Luv instance.
+  //! @param block true if the Exec should block until the user steps forward, false otherwise.
+  LuvListener *makeLuvListener(const char* hostname,
+                               unsigned int port,
+                               bool block)
   {
-    REGISTER_EXEC_LISTENER(LuvListener, "LuvListener");
+    pugi::xml_document doc;
+    pugi::xml_node toplevel = doc.append_child("Listener");
+    toplevel.append_attribute("ListenerType").set_value("LuvListener");
+    toplevel.append_attribute(LUV_HOSTNAME_ATTR).set_value(hostname);
+    toplevel.append_attribute(LUV_PORT_ATTR).set_value(port);
+    toplevel.append_attribute(LUV_BLOCKING_ATTR).set_value(block);
+    return new LuvListenerImpl(toplevel);
   }
 
+} // namespace PLEXIL
+
+extern "C"
+void initLuvListener()
+{
+  REGISTER_EXEC_LISTENER(PLEXIL::LuvListenerImpl, "LuvListener");
 }

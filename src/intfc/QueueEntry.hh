@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@ namespace PLEXIL
 {
   // Forward declarations
   class Command;
+  struct Message;
   class NodeImpl;
   class State;
   class Update;
@@ -45,36 +46,57 @@ namespace PLEXIL
     Q_COMMAND_ABORT,
     Q_UPDATE_ACK,
     Q_ADD_PLAN,
-    // Q_ADD_LIBRARY, // no longer supported
+    Q_RECEIVE_MSG,
+    Q_ACCEPT_MSG,
+    Q_RELEASE_MSG_HANDLE,
+    Q_MSG_QUEUE_EMPTY,
     Q_MARK,
 
     Q_INVALID
   };
 
-  struct QueueEntry
+  struct QueueEntry final
   {
     QueueEntry *next;
     union {
       Command *command;
-      Update *update;
-      State *state;
+      Message *message;
       NodeImpl *plan;
+      State *state;
+      Update *update;
       unsigned int sequence;
     };
     Value value;
     QueueEntryType type;
 
+    QueueEntry();
+    QueueEntry(QueueEntry const &) = default;
+    QueueEntry(QueueEntry &&) = default;
+    QueueEntry &operator=(QueueEntry const &) = default;
+    QueueEntry &operator=(QueueEntry &&) = default;
+
+    ~QueueEntry() = default;
+
     void reset();
 
     void initForLookup(State const &st, Value const &val);
+    void initForLookup(State const &st, Value &&val);
+    void initForLookup(State &&st, Value const &val);
+    void initForLookup(State &&st, Value &&val);
 
     void initForCommandAck(Command *cmd, CommandHandleValue val);
     void initForCommandReturn(Command *cmd, Value const &val);
+    void initForCommandReturn(Command *cmd, Value &&val);
     void initForCommandAbort(Command *cmd, bool ack);
 
     void initForUpdateAck(Update *upd, bool ack);
 
     void initForAddPlan(NodeImpl *p);
+
+    void initForReceiveMessage(Message *msg);
+    void initForAcceptMessage(Message *msg, std::string const &handle);
+    void initForReleaseMessageHandle(std::string const &handle);
+    void initForMessageQueueEmpty();
 
     void initForMark(unsigned int seq);
 

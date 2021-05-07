@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tr="extended-plexil-translator">
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Node NodeType="Command">
     <NodeId>root</NodeId>
     <StartCondition>
-      <LookupOnChange>
+      <LookupOnChange epx="Lookup">
         <Name>
           <StringValue>Foo</StringValue>
         </Name>
@@ -16,7 +16,7 @@
       </LookupOnChange>
     </StartCondition>
     <InvariantCondition>
-      <LookupNow>
+      <LookupNow epx="Lookup">
         <Name>
           <StringValue>Bar</StringValue>
         </Name>
@@ -28,19 +28,19 @@
     <NodeBody>
       <Command>
         <Name>
-          <LookupNow>
+          <LookupNow epx="Lookup">
             <Name>
               <StringValue>CommandName</StringValue>
             </Name>
           </LookupNow>
         </Name>
         <Arguments>
-          <LookupNow>
+          <LookupNow epx="Lookup">
             <Name>
               <StringValue>CommandArg1</StringValue>
             </Name>
           </LookupNow>
-          <LookupNow>
+          <LookupNow epx="Lookup">
             <Name>
               <StringValue>CommandArg2</StringValue>
             </Name>

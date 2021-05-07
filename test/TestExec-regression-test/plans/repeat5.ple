@@ -1,0 +1,11 @@
+Boolean Lookup continue;
+Command foo;
+
+repeat5:
+Concurrence
+  {
+    RepeatCondition LookupOnChange(continue);
+
+    command:
+      foo();
+  }

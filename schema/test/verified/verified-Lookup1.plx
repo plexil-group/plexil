@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tr="extended-plexil-translator">
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Node NodeType="Empty">
     <NodeId>root</NodeId>
     <StartCondition>
-      <LookupOnChange>
+      <LookupOnChange epx="Lookup">
         <Name>
           <StringValue>Foo</StringValue>
         </Name>
@@ -16,7 +16,7 @@
       </LookupOnChange>
     </StartCondition>
     <PostCondition>
-      <LookupNow>
+      <LookupNow epx="Lookup">
         <Name>
           <StringValue>Bar</StringValue>
         </Name>

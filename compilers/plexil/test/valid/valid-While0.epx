@@ -1,0 +1,1 @@
+<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/While0.ple"><While ColNo="0" LineNo="1"><NodeId>While0</NodeId><Condition><BooleanValue>true</BooleanValue></Condition><Action><Node ColNo="11" LineNo="2" NodeType="Empty"><NodeId>BLOCK__0</NodeId></Node></Action></While></PlexilPlan>

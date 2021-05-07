@@ -28,6 +28,8 @@
 #define MY_OPENGL_HH
 
 #ifdef __APPLE__
+#define GL_SILENCE_DEPRECATION
+
 #include <OpenGL/gl.h>
 #include <OpenGL/glu.h>
 #include <GLUT/glut.h>

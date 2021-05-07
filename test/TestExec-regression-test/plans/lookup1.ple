@@ -1,0 +1,10 @@
+Integer Lookup foo;
+
+lookup1:
+{
+  Integer x;
+
+  StartCondition isKnown(LookupNow(foo));
+
+  x = LookupOnChange(foo);
+}

@@ -1,7 +1,7 @@
-#! /bin/sh
+#! /bin/sh -e
 # Environment setup for TestExec regression tests
 
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -26,6 +26,26 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+# This will be the name of the script which sourced this file, but that's OK
+TEST_DIR="$( cd "$(dirname "$(command -v "$0")")" && pwd -P )"
+
+if [ -z "$PLEXIL_HOME" ]
+then
+    # Attempt to guess location of this script (but don't try too hard)
+    if [ "TestExec-regression-test" = "$(basename "$TEST_DIR")" ]
+    then
+        PLEXIL_HOME="$(cd "${TEST_DIR}/../.." && pwd -P)"
+        export PLEXIL_HOME
+    else
+        echo 'Error: Please set environment variable PLEXIL_HOME' >&2
+        echo "to the full pathname of your 'plexil' or 'trunk' directory." >&2
+        exit 1
+    fi
+fi
+
+# Set path
+PATH="$TEST_DIR":"$PATH"
+
 # Defining library path redundantly for both Mac and Linux
 
 # Linux
@@ -34,8 +54,6 @@ LD_LIBRARY_PATH="$PLEXIL_HOME"/lib
 # Mac
 DYLD_LIBRARY_PATH="$LD_LIBRARY_PATH"
 export LD_LIBRARY_PATH DYLD_LIBRARY_PATH
-
-TEST_DIR="$PLEXIL_HOME"/test/TestExec-regression-test
 
 EMPTY_SCRIPT=scripts/empty.psx
 REGRESSION_PL=regression.pl

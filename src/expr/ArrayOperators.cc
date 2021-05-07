@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,26 +36,11 @@ namespace PLEXIL
   //
 
   ArraySize::ArraySize()
-    : OperatorImpl<int32_t>("ArraySize")
-  {
-  }
-  
-  ArraySize::~ArraySize()
+    : OperatorImpl<Integer>("ArraySize")
   {
   }
 
-  bool ArraySize::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
-  bool ArraySize::checkArgTypes(Function const *func) const
-  {
-    ValueType typ = (*func)[0]->valueType();
-    return isArrayType(typ) || typ == UNKNOWN_TYPE;
-  }
-
-  bool ArraySize::operator()(int32_t &result, Expression const *arg) const
+  bool ArraySize::operator()(Integer &result, Expression const *arg) const
   {
     Array const *ary;
     if (!arg->getValuePointer(ary))
@@ -69,26 +54,11 @@ namespace PLEXIL
   //
 
   ArrayMaxSize::ArrayMaxSize()
-    : OperatorImpl<int32_t>("ArrayMaxSize")
-  {
-  }
-  
-  ArrayMaxSize::~ArrayMaxSize()
+    : OperatorImpl<Integer>("ArrayMaxSize")
   {
   }
 
-  bool ArrayMaxSize::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
-  bool ArrayMaxSize::checkArgTypes(Function const *func) const
-  {
-    ValueType typ = (*func)[0]->valueType();
-    return isArrayType(typ) || typ == UNKNOWN_TYPE;
-  }
-
-  bool ArrayMaxSize::operator()(int32_t &result, Expression const *arg) const
+  bool ArrayMaxSize::operator()(Integer &result, Expression const *arg) const
   {
     // *** TODO: Reimplement as Expression metadata query, not expression value query ***
     Array const *ary;
@@ -103,26 +73,11 @@ namespace PLEXIL
   //
 
   AllElementsKnown::AllElementsKnown()
-    : OperatorImpl<bool>("ALL_KNOWN")
+    : OperatorImpl<Boolean>("ALL_KNOWN")
   {
   }
 
-  AllElementsKnown::~AllElementsKnown()
-  {
-  }
-
-  bool AllElementsKnown::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
-  bool AllElementsKnown::checkArgTypes(Function const *func) const
-  {
-    ValueType typ = (*func)[0]->valueType();
-    return isArrayType(typ) || typ == UNKNOWN_TYPE;
-  }
-
-  bool AllElementsKnown::operator()(bool &result, Expression const *arg) const
+  bool AllElementsKnown::operator()(Boolean &result, Expression const *arg) const
   {
     Array const *ary;
     if (!arg->getValuePointer(ary))
@@ -136,26 +91,11 @@ namespace PLEXIL
   //
 
   AnyElementsKnown::AnyElementsKnown()
-    : OperatorImpl<bool>("ANY_KNOWN")
+    : OperatorImpl<Boolean>("ANY_KNOWN")
   {
   }
 
-  AnyElementsKnown::~AnyElementsKnown()
-  {
-  }
-
-  bool AnyElementsKnown::checkArgCount(size_t count) const
-  {
-    return count == 1;
-  }
-
-  bool AnyElementsKnown::checkArgTypes(Function const *func) const
-  {
-    ValueType typ = (*func)[0]->valueType();
-    return isArrayType(typ) || typ == UNKNOWN_TYPE;
-  }
-
-  bool AnyElementsKnown::operator()(bool &result, Expression const *arg) const
+  bool AnyElementsKnown::operator()(Boolean &result, Expression const *arg) const
   {
     Array const *ary;
     if (!arg->getValuePointer(ary))

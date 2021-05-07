@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -286,7 +286,6 @@ namespace PLEXIL
     }
 
     Symbol *addMutex(char const *name)
-      throw (ParserException)
     {
       std::string const namestr(name);
       SymbolMap::const_iterator it =

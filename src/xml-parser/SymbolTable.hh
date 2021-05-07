@@ -27,10 +27,9 @@
 #ifndef PLEXIL_SYMBOL_TABLE_HH
 #define PLEXIL_SYMBOL_TABLE_HH
 
-#include "ParserException.hh"
+#include "plexil-stdint.h"
 #include "ValueType.hh"
 
-#include <cstdint>
 #include <map>
 #include <string>
 #include <vector>

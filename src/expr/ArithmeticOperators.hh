@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -37,8 +37,7 @@ namespace PLEXIL
   {
   public:
     Addition();
-    ~Addition();
-    bool checkArgCount(size_t count) const;
+    virtual ~Addition() = default;
     bool calc(NUM &result, Expression const *arg) const;
     bool calc(NUM &result, Expression const *arg0, Expression const *arg1) const;
     bool calc(NUM &result, Function const &args) const;
@@ -54,8 +53,7 @@ namespace PLEXIL
   {
   public:
     Subtraction();
-    ~Subtraction();
-    bool checkArgCount(size_t count) const;
+    virtual ~Subtraction() = default;
     bool calc(NUM &result, Expression const *arg) const;
     bool calc(NUM &result, Expression const *arg0, Expression const *arg1) const;
     bool calc(NUM &result, Function const &args) const;
@@ -71,8 +69,7 @@ namespace PLEXIL
   {
   public:
     Multiplication();
-    ~Multiplication();
-    bool checkArgCount(size_t count) const;
+    virtual ~Multiplication() = default;
     bool calc(NUM &result, Expression const *arg) const;
     bool calc(NUM &result, Expression const *arg0, Expression const *arg1) const;
     bool calc(NUM &result, Function const &args) const;
@@ -88,8 +85,7 @@ namespace PLEXIL
   {
   public:
     Division();
-    ~Division();
-    bool checkArgCount(size_t count) const;
+    virtual ~Division() = default;
     bool calc(NUM &result, Expression const *arg0, Expression const *arg1) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Division<NUM>, NUM);
 
@@ -103,8 +99,7 @@ namespace PLEXIL
   {
   public:
     Modulo();
-    ~Modulo();
-    bool checkArgCount(size_t count) const;
+    virtual ~Modulo() = default;
     bool calc(NUM &result, Expression const *arg0, Expression const *arg1) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Modulo<NUM>, NUM);
 
@@ -118,8 +113,7 @@ namespace PLEXIL
   {
   public:
     Minimum();
-    ~Minimum();
-    bool checkArgCount(size_t count) const;
+    virtual ~Minimum() = default;
     bool calc(NUM &result, Expression const *arg) const;
     bool calc(NUM &result, Expression const *arg0, Expression const *arg1) const;
     bool calc(NUM &result, Function const &args) const;
@@ -135,8 +129,7 @@ namespace PLEXIL
   {
   public:
     Maximum();
-    ~Maximum();
-    bool checkArgCount(size_t count) const;
+    virtual ~Maximum() = default;
     bool calc(NUM &result, Expression const *arg) const;
     bool calc(NUM &result, Expression const *arg0, Expression const *arg1) const;
     bool calc(NUM &result, Function const &args) const;
@@ -156,8 +149,7 @@ namespace PLEXIL
   {
   public:
     AbsoluteValue();
-    ~AbsoluteValue();
-    bool checkArgCount(size_t count) const;
+    virtual ~AbsoluteValue() = default;
     bool calc(NUM &result, Expression const *arg) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(AbsoluteValue<NUM>, NUM);
 
@@ -172,9 +164,7 @@ namespace PLEXIL
   {
   public:
     SquareRoot();
-    ~SquareRoot();
-    bool checkArgCount(size_t count) const;
-    bool checkArgTypes(Function const *ev) const;
+    virtual ~SquareRoot() = default;
     bool calc(NUM &result, Expression const *arg) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(SquareRoot<NUM>, NUM);
 

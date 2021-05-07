@@ -1,0 +1,10 @@
+empty4:
+Concurrence
+{
+  EndCondition NodeFinished(foo);
+
+ foo:
+  {
+    StartCondition true;
+  }
+}

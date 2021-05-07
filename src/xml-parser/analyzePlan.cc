@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,23 +24,24 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Debug.hh"
+#include "DebugMessage.hh"
 #include "Error.hh"
 #include "NodeImpl.hh"
 #include "lifecycle-utils.h"
 #include "parsePlan.hh"
+#include "ParserException.hh"
 #include "planLibrary.hh"
 #include "pugixml.hpp"
-#include "test/TransitionExternalInterface.hh"
 
 #include <fstream>
-#include <iomanip>
 #include <iostream>
 #include <map>
 #include <string>
 
-#ifdef STDC_HEADERS
-#include <cstring> // strcmp()
+#if defined(HAVE_CSTRING)
+#include <cstring>  // strcmp()
+#elif defined(HAVE_STRING_H)
+#include <string.h> // strcmp()
 #endif
 
 using PLEXIL::Expression;
@@ -409,12 +410,9 @@ int main(int argc, char *argv[])
   try {
     // Initialize infrastructure
     PLEXIL::Error::doThrowExceptions();
-    PLEXIL::TransitionExternalInterface intfc;
-    PLEXIL::g_interface = &intfc;
 
     loadAndAnalyzePlan(planFile);
 
-    PLEXIL::g_interface = nullptr;
     plexilRunFinalizers();
   }
   catch (PLEXIL::ParserException const &e) {

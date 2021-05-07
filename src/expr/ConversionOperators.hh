@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -38,10 +38,7 @@ namespace PLEXIL
   class ConversionOperator : public OperatorImpl<NUM>
   {
   public:
-    virtual ~ConversionOperator();
-
-    virtual bool checkArgCount(size_t count) const;
-    virtual bool checkArgTypes(Function const *ev) const;
+    virtual ~ConversionOperator() = default;
 
     // Overrides
     virtual bool operator()(NUM &result, Expression const *arg0, Expression const *arg1) const;
@@ -55,9 +52,11 @@ namespace PLEXIL
 
   private:
     // Unimplemented
-    ConversionOperator();
-    ConversionOperator(ConversionOperator const &);
-    ConversionOperator &operator=(ConversionOperator const &);
+    ConversionOperator() = delete;
+    ConversionOperator(ConversionOperator const &) = delete;
+    ConversionOperator(ConversionOperator &&) = delete;
+    ConversionOperator &operator=(ConversionOperator const &) = delete;
+    ConversionOperator &operator=(ConversionOperator &&) = delete;
   };
 
   //
@@ -69,13 +68,15 @@ namespace PLEXIL
   {
   public:
     Ceiling();
-    ~Ceiling();
+    virtual ~Ceiling() = default;
     virtual bool calcInternal(Real &result, Expression const *arg) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Ceiling, NUM);
 
   private:
-    Ceiling(const Ceiling &);
-    Ceiling &operator=(const Ceiling &);
+    Ceiling(const Ceiling &) = delete;
+    Ceiling(Ceiling &&) = delete;
+    Ceiling &operator=(const Ceiling &) = delete;
+    Ceiling &operator=(Ceiling &&) = delete;
   };
 
   template <typename NUM>
@@ -83,13 +84,15 @@ namespace PLEXIL
   {
   public:
     Floor();
-    ~Floor();
+    virtual ~Floor() = default;
     virtual bool calcInternal(Real &result, Expression const *arg) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Floor, NUM);
 
   private:
-    Floor(const Floor &);
-    Floor &operator=(const Floor &);
+    Floor(const Floor &) = delete;
+    Floor(Floor &&) = delete;
+    Floor &operator=(const Floor &) = delete;
+    Floor &operator=(Floor &&) = delete;
   };
 
   template <typename NUM>
@@ -97,13 +100,15 @@ namespace PLEXIL
   {
   public:
     Round();
-    ~Round();
+    virtual ~Round() = default;
     virtual bool calcInternal(Real &result, Expression const *arg) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Round, NUM);
 
   private:
-    Round(const Round &);
-    Round &operator=(const Round &);
+    Round(const Round &) = delete;
+    Round(Round &&) = delete;
+    Round &operator=(const Round &) = delete;
+    Round &operator=(Round &&) = delete;
   };
 
   template <typename NUM>
@@ -111,28 +116,30 @@ namespace PLEXIL
   {
   public:
     Truncate();
-    ~Truncate();
+    virtual ~Truncate() = default;
     virtual bool calcInternal(Real &result, Expression const *arg) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(Truncate, NUM);
 
   private:
-    Truncate(const Truncate &);
-    Truncate &operator=(const Truncate &);
+    Truncate(const Truncate &) = delete;
+    Truncate(Truncate &&) = delete;
+    Truncate &operator=(const Truncate &) = delete;
+    Truncate &operator=(Truncate &&) = delete;
   };
 
   class RealToInteger : public OperatorImpl<Integer>
   {
   public:
     RealToInteger();
-    ~RealToInteger();
-    virtual bool checkArgCount(size_t count) const;
-    bool checkArgTypes(Function const *ev) const;
+    virtual ~RealToInteger() = default;
     bool calc(Integer &result, Expression const *arg) const;
     DECLARE_OPERATOR_STATIC_INSTANCE(RealToInteger, Integer);
 
   private:
-    RealToInteger(const RealToInteger &);
-    RealToInteger &operator=(const RealToInteger &);
+    RealToInteger(const RealToInteger &) = delete;
+    RealToInteger(RealToInteger &&) = delete;
+    RealToInteger &operator=(const RealToInteger &) = delete;
+    RealToInteger &operator=(RealToInteger &&) = delete;
   };
 
 }

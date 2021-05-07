@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@ import java.util.Vector;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
 
 public class OnCommandNode extends PlexilTreeNode
 {
@@ -123,7 +123,7 @@ public class OnCommandNode extends PlexilTreeNode
 		getBody().check(m_context, state);
 	}
 
-    public void checkSelf(NodeContext context, CompilerState state)
+    protected void checkSelf(NodeContext context, CompilerState state)
     {
 		// Coerce name expression to string
         ExpressionNode nameExp = (ExpressionNode) this.getChild(0);
@@ -135,13 +135,14 @@ public class OnCommandNode extends PlexilTreeNode
 		}
     }
 
-    public void constructXML()
+    @Override
+    protected void constructXML()
     {
-        super.constructXML();
+        super.constructXMLBase();
 
         // Construct the name element, but don't output it yet.
-        IXMLElement name = new XMLElement ("Name");
-		name.addChild(this.getChild(0).getXML());
+        Element name = CompilerState.newElement ("Name");
+		name.appendChild(this.getChild(0).getXML());
 
         // Second child: parameters (optional), or action
         ParameterSpecNode parms = getParameters();
@@ -149,18 +150,18 @@ public class OnCommandNode extends PlexilTreeNode
         if (parms == null
 			|| (parmSpecs = parms.getParameterVector()) == null) {
 			// No parameter declarations
-            m_xml.addChild(name);
-            m_xml.addChild(getBody().getXML());
+            m_xml.appendChild(name);
+            m_xml.appendChild(getBody().getXML());
         } 
 		else {
             // Parameters are output first, followed by name
-			IXMLElement decls = new XMLElement("VariableDeclarations");
+			Element decls = CompilerState.newElement("VariableDeclarations");
 			for (VariableName vn : parmSpecs) {
-				decls.addChild(vn.makeDeclarationXML());
+				decls.appendChild(vn.makeDeclarationXML());
 			}
-            m_xml.addChild(decls);
-            m_xml.addChild(name);
-            m_xml.addChild(getBody().getXML());
+            m_xml.appendChild(decls);
+            m_xml.appendChild(name);
+            m_xml.appendChild(getBody().getXML());
         }
     }
 
@@ -179,4 +180,3 @@ public class OnCommandNode extends PlexilTreeNode
 	}
 
 }
-

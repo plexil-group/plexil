@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,34 +31,11 @@
 
 namespace PLEXIL
 {
-  // Provides output from execution useful for debugging a Plexil plan.
-
-  class PlanDebugListener : public ExecListener
-  {
-  public:
-
-    PlanDebugListener();
-    PlanDebugListener(pugi::xml_node const xml);
-    virtual ~PlanDebugListener() = default;
-
-    // These methods have no special function.
-    virtual bool initialize() override { return true; }
-    virtual bool start() override { return true; }
-    virtual bool stop() override { return true; }
-    virtual bool reset() override { return true; }
-    virtual bool shutdown() override { return true; }
-
-    // Capture and report about useful node state transitions.
-    void implementNotifyNodeTransition(NodeTransition const &transition) const override;
-
-  private:
-    // Disallow copy, and assignment
-    PlanDebugListener(PlanDebugListener const &) = delete;
-    PlanDebugListener(PlanDebugListener &&) = delete;
-
-    PlanDebugListener &operator=(PlanDebugListener const &) = delete;
-    PlanDebugListener &operator=(PlanDebugListener &&) = delete;
-  };
+  // Convenience constructor for TestExec
+  ExecListener *makePlanDebugListener();
 }
+
+extern "C"
+void initPlanDebugListener();
 
 #endif // PLEXIL_PLAN_DEBUG_LISTENER_HH

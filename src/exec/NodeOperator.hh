@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,14 +27,12 @@
 #ifndef PLEXIL_NODE_OPERATOR_HH
 #define PLEXIL_NODE_OPERATOR_HH
 
-#include "ArrayFwd.hh"
+#include "Listenable.hh" // ListenableUnaryOperator
 #include "ValueType.hh"
 
 namespace PLEXIL
 {
   // Forward references
-  class ExpressionListener;
-  class ListenableUnaryOperator;
   class NodeImpl;
   class Value;
 

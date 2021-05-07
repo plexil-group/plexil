@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,11 +35,7 @@ namespace PLEXIL
   class StringConcat : public OperatorImpl<String>
   {
   public:
-    ~StringConcat();
-
-    bool checkArgCount(size_t count) const;
-
-    bool checkArgTypes(Function const *ev) const;
+    virtual ~StringConcat() = default;
 
     bool operator()(String &result) const;
 
@@ -57,18 +53,16 @@ namespace PLEXIL
     StringConcat();
 
     // Disallow copy, assignment
-    StringConcat(const StringConcat &other);
-    StringConcat &operator=(const StringConcat& other);
+    StringConcat(const StringConcat &) = delete;
+    StringConcat(StringConcat &&) = delete;
+    StringConcat &operator=(const StringConcat &) = delete;
+    StringConcat &operator=(StringConcat &&) = delete;
   };
 
   class StringLength : public OperatorImpl<Integer>
   {
   public:
-    ~StringLength();
-
-    bool checkArgCount(size_t count) const;
-
-    bool checkArgTypes(Function const *ev) const;
+    virtual ~StringLength() = default;
 
     bool operator()(Integer &result, Expression const *arg) const;
 
@@ -78,8 +72,10 @@ namespace PLEXIL
     StringLength();
 
     // Disallow copy, assignment
-    StringLength(const StringLength &other);
-    StringLength &operator=(const StringLength& other);
+    StringLength(const StringLength &) = delete;
+    StringLength(StringLength &&) = delete;
+    StringLength &operator=(const StringLength &) = delete;
+    StringLength &operator=(StringLength &&) = delete;
   };
 
   // more to come

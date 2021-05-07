@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,10 +24,10 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "PlanDebugListener.hh"
 
 #include "Debug.hh"
 #include "Error.hh"
+#include "ExecListener.hh"
 #include "ExecListenerFactory.hh"
 #include "NodeImpl.hh"
 #include "NodeTransition.hh"
@@ -38,44 +38,55 @@
 
 namespace PLEXIL
 {
-  PlanDebugListener::PlanDebugListener ()
-    : ExecListener()
+
+  //! @class PlanDebugListener
+  //! Provides output from execution useful for debugging a PLEXIL plan.
+  class PlanDebugListener final : public ExecListener
   {
+  public:
+    PlanDebugListener() = default;
+
+    PlanDebugListener (pugi::xml_node const xml)
+      : ExecListener(xml)
+    {
+    }
+
+    virtual ~PlanDebugListener() = default;
+
+    // For now, use the DebugMsg facilities (really intended for debugging the
+    // *executive* and not plans) to display messages of interest.  Later, a more
+    // structured approach including listener filters and a different user
+    // interface may be in order.
+
+    virtual void 
+    implementNotifyNodeTransition(NodeTransition const &trans) const override
+    {
+      NodeImpl *node = dynamic_cast<NodeImpl *>(trans.node);
+      assertTrueMsg(node,
+                    "PlanDebugListener:implementNotifyNodeTransition: not a node");
+      condDebugMsg((trans.newState == FINISHED_STATE),
+                   "Node:clock",
+                   " Node '" << node->getNodeId() <<
+                   "' finished at " << std::fixed << std::setprecision(6) <<
+                   node->getCurrentStateStartTime() << " (" <<
+                   outcomeName(node->getOutcome()) << ")");
+      condDebugMsg((trans.newState == EXECUTING_STATE),
+                   "Node:clock",
+                   " Node '" << node->getNodeId() <<
+                   "' started at " << std::fixed << std::setprecision(6) <<
+                   node->getCurrentStateStartTime());
+    }
+  };
+
+  ExecListener *makePlanDebugListener()
+  {
+    return new PlanDebugListener();
   }
 
-  PlanDebugListener::PlanDebugListener (pugi::xml_node const xml)
-    : ExecListener(xml)
-  {
-  }
-
-  // For now, use the DebugMsg facilities (really intended for debugging the
-  // *executive* and not plans) to display messages of interest.  Later, a more
-  // structured approach including listener filters and a different user
-  // interface may be in order.
-
-  void PlanDebugListener::
-  implementNotifyNodeTransition(NodeTransition const &trans) const
-  {
-    NodeImpl *node = dynamic_cast<NodeImpl *>(trans.node);
-    assertTrueMsg(node,
-                  "PlanDebugListener:implementNotifyNodeTransition: not a node");
-    condDebugMsg((trans.newState == FINISHED_STATE),
-                 "Node:clock",
-                 "Node '" << node->getNodeId() <<
-                 "' finished at " << std::setprecision(15) <<
-                 node->getCurrentStateStartTime() << " (" <<
-                 node->getOutcome() << ")");
-    condDebugMsg((trans.newState == EXECUTING_STATE),
-                 "Node:clock",
-                 "Node '" << node->getNodeId() <<
-                 "' started at " << std::setprecision(15) <<
-                 node->getCurrentStateStartTime());
-  }
+} // namespace PLEXIL
   
-  extern "C"
-  void initPlanDebugListener()
-  {
-    REGISTER_EXEC_LISTENER(PlanDebugListener, "PlanDebugListener");
-  }
-
+extern "C"
+void initPlanDebugListener()
+{
+  REGISTER_EXEC_LISTENER(PLEXIL::PlanDebugListener, "PlanDebugListener");
 }

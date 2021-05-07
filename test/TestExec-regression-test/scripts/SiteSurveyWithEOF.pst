@@ -8,6 +8,10 @@ script {
   state plan_paused      () = 0 : bool;
   command     get_next_inspection_point () = 0 : int;
   command-ack get_next_inspection_point () = "COMMAND_SUCCESS" : string;
+  delay;
+  delay;
+  delay;
+  // Cycle 10
   command move_to_waypoint
     ("UNKNOWN" : string,
      "UNKNOWN" : string,
@@ -32,14 +36,24 @@ script {
      "UNKNOWN" : real,
      "UNKNOWN" : real)
     = "COMMAND_SUCCESS" : string;
+  delay;
+  delay;
+  delay;
+  // cycle 15
   command     acquire () = 0 : int;
   command-ack acquire () = "COMMAND_SUCCESS" : string;
+  delay;
   update-ack SendUpdate;
   state waypoint_x () = 2.0 : real;
+  // cycle 20
   state waypoint_y () = 2.0 : real;
   state inspect_waypoint () = 1 : int;
-  command get_next_inspection_point () = 0 : int;
-  command get_next_inspection_point () = "COMMAND_SUCCESS" : string;
+  command     get_next_inspection_point () = 0 : int;
+  command-ack get_next_inspection_point () = "COMMAND_SUCCESS" : string;
+  delay;
+  // cycle 25
+  delay;
+  delay;
   command move_to_waypoint
     ("UNKNOWN" : string,
      "UNKNOWN" : string,
@@ -64,13 +78,22 @@ script {
      "UNKNOWN" : real,
      "UNKNOWN" : real)
     = "COMMAND_SUCCESS" : string;
+  delay;
+  // cycle 30
+  delay;
   update-ack SendUpdate;
   state waypoint_x () = 4.0 : real;
   state waypoint_y () = 4.0 : real;
   state inspect_waypoint () = 1 : int;
-  command get_next_inspection_point () = 0 : int;
-  command get_next_inspection_point () = "COMMAND_SUCCESS" : string;
+  // cycle 35
+  command     get_next_inspection_point () = 0 : int;
+  command-ack get_next_inspection_point () = "COMMAND_SUCCESS" : string;
+  delay;
+  delay;
+  delay;
+  // cycle 40
   state plan_paused () = 1 : bool;
+  delay;
   command-abort move_to_waypoint
     ("UNKNOWN" : string,
      "UNKNOWN" : string,
@@ -82,14 +105,22 @@ script {
      "UNKNOWN" : real,
      "UNKNOWN" : real,
      "UNKNOWN" : real)
-    = 1 : int;
+    = 1 : bool;
+  delay;
+  delay;
+  // cycle 45
   update-ack SendUpdate;
   state plan_paused      () = 0 : bool;
   state waypoint_x       () = 5.0 : real;
   state waypoint_y       () = 5.0 : real;
   state inspect_waypoint () = 1 : int;
-  command get_next_inspection_point () = 0 : int;
-  command get_next_inspection_point () = "COMMAND_SUCCESS" : string;
+  // cycle 50
+  command     get_next_inspection_point () = 0 : int;
+  command-ack get_next_inspection_point () = "COMMAND_SUCCESS" : string;
+  delay;
+  delay;
+  delay;
+  // cycle 55
   command-ack move_to_waypoint
     ("UNKNOWN" : string,
      "UNKNOWN" : string,
@@ -114,10 +145,16 @@ script {
      "UNKNOWN" : real,
      "UNKNOWN" : real)
     = 0 : int;
+  delay;
+  delay;
   update-ack SendUpdate;
+  // cycle 60
   state inspect_waypoint () = 0 : int;
-  command get_next_inspection_point () = 0 : int;
-  command get_next_inspection_point () = "COMMAND_SUCCESS" : string;
+  command     get_next_inspection_point () = 0 : int;
+  command-ack get_next_inspection_point () = "COMMAND_SUCCESS" : string;
+  delay;
+  delay;
+  // cycle 65
   update-ack SignalEndOfPlan;
 }
 

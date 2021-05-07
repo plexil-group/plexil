@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@ import java.util.TreeSet;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
 
 public class WhileNode extends PlexilTreeNode
 {
@@ -62,6 +62,7 @@ public class WhileNode extends PlexilTreeNode
     /**
      * @brief Prepare for the semantic check.
      */
+    @Override
     public void earlyCheck(NodeContext parentContext, CompilerState state)
     {
         earlyCheckSelf(parentContext, state);
@@ -69,7 +70,8 @@ public class WhileNode extends PlexilTreeNode
         this.getChild(1).earlyCheck(m_bodyContext, state); // body
     }
 
-    public void earlyCheckSelf(NodeContext parentContext, CompilerState state)
+    @Override
+    protected void earlyCheckSelf(NodeContext parentContext, CompilerState state)
     {
         // See if we have a node ID
         String nodeId = null;
@@ -92,6 +94,7 @@ public class WhileNode extends PlexilTreeNode
      * @brief Semantic check.
      * @note Uses separate context for body.
      */
+    @Override
     public void check(NodeContext parentContext, CompilerState state)
     {
         checkSelf(parentContext, state);
@@ -99,7 +102,8 @@ public class WhileNode extends PlexilTreeNode
         this.getChild(1).check(m_bodyContext, state); // body
     }
 
-    public void checkSelf(NodeContext context, CompilerState state)
+    @Override
+    protected void checkSelf(NodeContext context, CompilerState state)
     {
         ExpressionNode whileTest = (ExpressionNode) this.getChild(0);
         if (!whileTest.assumeType(PlexilDataType.BOOLEAN_TYPE, state)) {
@@ -109,16 +113,17 @@ public class WhileNode extends PlexilTreeNode
         }
     }
 
+    @Override
     protected void constructXML()
     {
-        super.constructXML();
-        IXMLElement condition = new XMLElement("Condition");
-        m_xml.addChild(condition);
-        condition.addChild(this.getChild(0).getXML());
+        super.constructXMLBase();
+        Element condition = CompilerState.newElement("Condition");
+        m_xml.appendChild(condition);
+        condition.appendChild(this.getChild(0).getXML());
 
-        IXMLElement action = new XMLElement("Action");
-        m_xml.addChild(action);
-        action.addChild(this.getChild(1).getXML());
+        Element action = CompilerState.newElement("Action");
+        m_xml.appendChild(action);
+        action.appendChild(this.getChild(1).getXML());
     }
 
     protected String getXMLElementName() { return "While"; }

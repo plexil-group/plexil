@@ -29,7 +29,7 @@
 
 // Forward declarations for array types
 
-#include <cstdint> // int32_t
+#include "plexil-stdint.h" // int32_t
 #include <string>
 
 namespace PLEXIL

@@ -29,271 +29,54 @@
 
 #include "Expression.hh"
 #include "Propagator.hh"
-#include "State.hh"
 
 namespace PLEXIL
 {
 
   // Forward references
-  class CachedValue;
+  class Expression;
   class ExprVec;
-  class StateCacheEntry;
-  class ThresholdCache; // local to LookupOnChange
 
-  // OPEN QUESTIONS -
-  // - Registry for Lookup, Command param/return types
+  //!
+  // @class Lookup
+  // @brief Abstract base class representing the public Lookup API
   //
-  // FORMERLY OPEN QUESTIONS -
-  // - Local cache for last value? (Yes, for now; revisit when we can profile)
-
-  //
-  // Lookup use cases
-  //
-  // LookupNow
-  //  - external i/f queried on demand synchronously
-  //  - may be active for more than one Exec cycle, so updates possible
-  //
-  // LookupOnChange
-  //  - grab from external i/f or state cache at initial activation
-  //  - data updates triggered by interface
-  //  - frequently active for many Exec cycles
-  //
-
   class Lookup :
     public Expression,
     public Propagator
   {
   public:
-    Lookup(Expression *stateName,
-           bool stateNameIsGarbage,
-           ValueType declaredType,
-           ExprVec *paramVec = nullptr);
 
-    virtual ~Lookup();
 
-    // Standard Expression API
-    virtual bool isAssignable() const override;
-    virtual const char *exprName() const override;
-    virtual void printValue(std::ostream &s) const override;
-    virtual void printSubexpressions(std::ostream &s) const override;
-
-    // Wrappers
-    virtual void addListener(ExpressionListener *l) override;
-    virtual void removeListener(ExpressionListener *l) override;
-
-    /**
-     * @brief Query whether this expression is a source of change events.
-     * @return True if the value may change independently of any subexpressions, false otherwise.
-     */
-    virtual bool isPropagationSource() const override;
-
+    //!
+    // @brief Get this lookup's high and low thresholds.
+    // @param high Place to store the high threshold value.
+    // @param low Place to store the low threshold value.
+    // @return True if this lookup has active thresholds, false otherwise.
     //
-    // Value access
+    virtual bool getThresholds(Integer &high, Integer &low) const = 0;
+    virtual bool getThresholds(Real &high, Real &low) const = 0;
+
+    //!
+    // @brief Notify this Lookup that its value has been updated.
     //
+    virtual void valueChanged() = 0;
 
-    virtual ValueType valueType() const override;
-
-    // Delegated to the StateCacheEntry in every case
-    virtual bool isKnown() const override;
-
-    /**
-     * @brief Retrieve the value of this Expression.
-     * @param The appropriately typed place to put the result.
-     * @return True if known, false if unknown or invalid.
-     * @note The expression value is not copied if the return value is false.
-     */
-
-    // Local macro
-#define DECLARE_LOOKUP_GET_VALUE_METHOD(_rtype_) \
-    virtual bool getValue(_rtype_ &result) const override;
-
-    DECLARE_LOOKUP_GET_VALUE_METHOD(Boolean)
-    DECLARE_LOOKUP_GET_VALUE_METHOD(Integer)
-    DECLARE_LOOKUP_GET_VALUE_METHOD(Real)
-    DECLARE_LOOKUP_GET_VALUE_METHOD(String)
-
-    // Uncomment if any of these are ever required
-    // Falls back to Expression::getValue(_rtype_) methods
-    // DECLARE_LOOKUP_GET_VALUE_METHOD(NodeState)
-    // DECLARE_LOOKUP_GET_VALUE_METHOD(NodeOutcome)
-    // DECLARE_LOOKUP_GET_VALUE_METHOD(FailureType)
-    // DECLARE_LOOKUP_GET_VALUE_METHOD(CommandHandleValue)
-
-#undef DECLARE_LOOKUP_GET_VALUE_METHOD
-
-    /**
-     * @brief Retrieve a pointer to the (const) value of this Expression.
-     * @param ptr Reference to the pointer variable to receive the result.
-     * @return True if known, false if unknown or invalid.
-     * @note The pointer is not copied if the return value is false.
-     */
-
-    // Local macro
-#define DECLARE_LOOKUP_GET_VALUE_POINTER_METHOD(_rtype_) \
-    virtual bool getValuePointer(_rtype_ const *&ptr) const override;
-
-    DECLARE_LOOKUP_GET_VALUE_POINTER_METHOD(String)
-    DECLARE_LOOKUP_GET_VALUE_POINTER_METHOD(Array)
-    DECLARE_LOOKUP_GET_VALUE_POINTER_METHOD(BooleanArray)
-    DECLARE_LOOKUP_GET_VALUE_POINTER_METHOD(IntegerArray)
-    DECLARE_LOOKUP_GET_VALUE_POINTER_METHOD(RealArray)
-    DECLARE_LOOKUP_GET_VALUE_POINTER_METHOD(StringArray)
-
-#undef DECLARE_LOOKUP_GET_VALUE_POINTER_METHOD
-
-    /**
-     * @brief Get the value of this expression as a Value instance.
-     * @return The Value instance.
-     */
-    virtual Value toValue() const override;
-
-    //
-    // API to external interface
-    //
-
-    /**
-     * @brief Notify this Lookup that its value has been updated.
-     */
-    virtual void valueChanged();
-
-    /**
-     * @brief Get this lookup's high and low thresholds.
-     * @param high Place to store the high threshold value.
-     * @param low Place to store the low threshold value.
-     * @return True if this lookup has active thresholds, false otherwise.
-     * @note The base class method always returns false.
-     */
-    virtual bool getThresholds(Integer &high, Integer &low);
-    virtual bool getThresholds(Real &high, Real &low);
-
-    // Utility
-
-    /**
-     * @brief Get the state for this Lookup, if known.
-     * @param result The place to store the State.
-     * @return True if fully known, false if not.
-     */
-    bool getState(State &result) const; 
-
-  protected:
-
-    //
-    // NotifierImpl API
-    // 
-
-    virtual void handleActivate() override;
-    virtual void handleDeactivate() override;
-    virtual void handleChange() override;
-
-    virtual void doSubexprs(ListenableUnaryOperator const &f) override;
-
-    // Behavior that needs to be augmented for LookupOnChange
-    virtual void invalidateOldState(); // called before updating state to new value
-
-    // Shared behavior needed by LookupOnChange
-    bool handleChangeInternal();
-    void ensureRegistered();
-    void unregister();
-
-    // Member variables shared with implementation classes
-    State m_cachedState;
-    Expression *m_stateName;
-    ExprVec *m_paramVec;
-    StateCacheEntry* m_entry; // TODO opportunity to use refcounted ptr?
-    ValueType m_declaredType;
-    bool m_known;
-    bool m_stateKnown;
-    bool m_stateIsConstant; // allows early caching of state value
-    bool m_stateNameIsGarbage;
-    bool m_isRegistered;
-
-  private:
-    // Unimplemented
-    Lookup() = delete;
-    Lookup(Lookup const &) = delete;
-    Lookup(Lookup &&) = delete;
-    Lookup &operator=(Lookup const &) = delete;
-    Lookup &operator=(Lookup &&) = delete;
   };
 
-  class LookupOnChange final : public Lookup
-  {
-  public:
-    LookupOnChange(Expression *stateName,
-                   bool stateNameIsGarbage,
-                   ValueType declaredType,
-                   Expression *tolerance,
-                   bool toleranceIsGarbage = false,
-                   ExprVec *paramVec = nullptr);
+  // Construct a Lookup expression.
+  Expression *makeLookup(Expression *stateName,
+                         bool stateNameIsGarbage,
+                         ValueType declaredType,
+                         ExprVec *paramVec);
 
-    ~LookupOnChange();
-
-    virtual const char *exprName() const override;
-
-    // Wrappers around Lookup methods
-    virtual void valueChanged() override;
-
-    virtual bool getThresholds(Integer &high, Integer &low) override;
-    virtual bool getThresholds(Real &high, Real &low) override;
-
-    // Wrappers
-    virtual void addListener(ExpressionListener *l) override;
-    virtual void removeListener(ExpressionListener *l) override;
-
-    /**
-     * @brief Retrieve the value of this Expression.
-     * @param The appropriately typed place to put the result.
-     * @return True if known, false if unknown or invalid.
-     * @note The expression value is not copied if the return value is false.
-     */
-
-    // Local macro
-#define DECLARE_CHANGE_LOOKUP_GET_VALUE_METHOD(_rtype_)  \
-    virtual bool getValue(_rtype_ &result) const override;
-
-    DECLARE_CHANGE_LOOKUP_GET_VALUE_METHOD(Integer)
-    DECLARE_CHANGE_LOOKUP_GET_VALUE_METHOD(Real)
-
-#undef DECLARE_CHANGE_LOOKUP_GET_VALUE_METHOD
-
-    /**
-     * @brief Get the value of this expression as a Value instance.
-     * @return The Value instance.
-     */
-    virtual Value toValue() const override;
-
-  protected:
-
-    //
-    // NotifierImpl API
-    //
-
-    virtual void handleActivate() override;
-    virtual void handleDeactivate() override;
-    virtual void handleChange() override;
-
-    virtual void doSubexprs(ListenableUnaryOperator const &f) override;
-
-  private:
-    // Prohibit default constructor, copy, assign
-    LookupOnChange() = delete;
-    LookupOnChange(LookupOnChange const &) = delete;
-    LookupOnChange(LookupOnChange &&) = delete;
-    LookupOnChange &operator=(LookupOnChange const &) = delete;
-    LookupOnChange &operator=(LookupOnChange &&) = delete;
-
-    // Wrapper for base class method
-    virtual void invalidateOldState() override;
-
-    // Internal helper
-    bool updateInternal(bool valueChanged);
-
-    // Unique member data
-    ThresholdCache *m_thresholds;
-    CachedValue *m_cachedValue;
-    Expression *m_tolerance;
-    bool m_toleranceIsGarbage;
-  };
+  // Construct a LookupOnChange expression.
+  Expression *makeLookupOnChange(Expression *stateName,
+                                 bool stateNameIsGarbage,
+                                 ValueType declaredType,
+                                 Expression *tolerance,
+                                 bool toleranceIsGarbage,
+                                 ExprVec *paramVec);
 
 } // namespace PLEXIL
 

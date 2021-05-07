@@ -1,3 +1,12 @@
+Real Lookup r1;
+Real Lookup r2;
+Integer Lookup i1;
+Integer Lookup i2;
+String Lookup s1;
+String Lookup s2;
+Boolean Lookup b1;
+Boolean Lookup b2;
+
 String Command get_string ();
 Integer Command get_int ();
 Real Command get_real ();

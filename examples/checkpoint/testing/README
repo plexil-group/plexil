@@ -1,0 +1,43 @@
+This directory contains an automated fuzz-like test for the Checkpoint system
+It is not yet compatible with MacOS
+
+Run the test with
+
+./hypervisor.sh n
+
+where n is the number of tests to run. This will create a number  processes
+equal to the number of CPUS, each of which will run n tests.
+This is the primary way to run the test.
+
+
+To run a single thread of tests, run
+
+./run_tests.sh x n
+
+where n is the number of tests to run and x is any integer (used as an identifier by hypervisor.sh)
+
+
+Description
+-----------
+
+single_test.sh runs plans/Test1.ple, which exercises the Checkpoint system.
+Test1 is deliberately killed at some point in its execution to simulate a crash.
+Then plans/Test2.ple is run, which describes what Test1 had saved to disk.
+
+These results are passed into ParseTests.cc, which analyzes the outputs
+of the two plan executions and determines if there is a discrepancy
+between what Test1 said it did and what it actually did.
+
+
+run_tests.sh runs single_test.sh a user-specified number of times in its
+own isolated saves directory, called saves-x, created in the testing directory
+and then deleted at the end of the script.
+
+It randomly determines the time at which single_test.sh should crash Test1 (which may be not at all) then executes and single_test.sh.
+This occurs a user-specified number of times
+
+
+hypervisor.sh runs CPUS copies of run_tests.sh at a time in separate
+saves directories and concatenates the log files.
+
+It is the primary way to run the test.

@@ -32,7 +32,6 @@
 //
 
 #include "GetValueImpl.hh"
-#include "NodeConstants.hh"
 
 namespace PLEXIL {
 

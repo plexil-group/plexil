@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -37,10 +37,6 @@ namespace PLEXIL {
   {
   }
 
-  Propagator::~Propagator()
-  {
-  }
-
   //
   // Expression listener graph construction and teardown
   // 
@@ -58,79 +54,44 @@ namespace PLEXIL {
   //
   // We only add listeners to expressions that are propagation sources,
   // whether they are leaves or interior nodes of the tree.
-
   //
-  // Internal helper for addListener() method
-  //
-  
-  class AddListenerHelper : public ListenableUnaryOperator
-  {
-  public:
-    AddListenerHelper(ExpressionListener *listener)
-      : l(listener)
-    {
-    }
-
-    virtual ~AddListenerHelper()
-    {
-    }
-
-    virtual void operator()(Listenable *exp) const
-    {
-      if (exp->isPropagationSource())
-        // This expression can independently generate notifications,
-        // so add requested listener here
-        exp->addListener(l);
-      else 
-        // Recurse through subexpressions
-        exp->doSubexprs(*this);
-    }
-
-  private:
-    ExpressionListener *l;
-  };
 
   // Should only be called on expression root and internal nodes that are propagation sources.
   void Propagator::addListener(ExpressionListener *ptr)
   {
-    if (!hasListeners())
-      doSubexprs(AddListenerHelper(this));
+    // If ptr is our first listener, add this as a listener to subexpressions
+    if (!hasListeners()) {
+      ListenableUnaryOperator addListenerHelper =
+        [this, &addListenerHelper](Listenable *exp) -> void
+        {
+          if (exp->isPropagationSource())
+            // This object can independently generate notifications,
+            // so add requested listener here
+            exp->addListener(this);
+          else
+            // Recurse through subexpressions
+            exp->doSubexprs(addListenerHelper);
+        };
+      doSubexprs(addListenerHelper);
+    }
     Notifier::addListener(ptr);
   }
-
-  //
-  // Internal helper for removeListener() method
-  //
-
-  class RemoveListenerHelper : public ListenableUnaryOperator
-  {
-  public:
-    RemoveListenerHelper(ExpressionListener *listener)
-      : l(listener)
-    {
-    }
-
-    virtual ~RemoveListenerHelper()
-    {
-    }
-
-    virtual void operator()(Listenable *exp) const
-    {
-      if (exp->isPropagationSource())
-        exp->removeListener(l);
-      else
-        exp->doSubexprs(*this);
-    }
-
-  private:
-    ExpressionListener *l;
-  };
 
   void Propagator::removeListener(ExpressionListener *ptr)
   {
     Notifier::removeListener(ptr);
-    if (!hasListeners())
-      doSubexprs(RemoveListenerHelper(this));
+    // If ptr was our last listener, remove this from subexpressions
+    if (!hasListeners()) {
+      ListenableUnaryOperator removeListenerHelper =
+        [this, &removeListenerHelper](Listenable *exp) -> void
+        {
+          if (exp->isPropagationSource())
+            exp->removeListener(this);
+          else
+            exp->doSubexprs(removeListenerHelper);
+        };
+      doSubexprs(removeListenerHelper);
+    }
   }
 
   void Propagator::notifyChanged()

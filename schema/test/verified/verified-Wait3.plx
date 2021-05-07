@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tr="extended-plexil-translator">
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Node NodeType="NodeList" epx="Sequence">
-    <NodeId>ep2cp_Sequence_d1e3</NodeId>
+    <NodeId generated="1">ep2cp_Sequence_d13e3</NodeId>
     <VariableDeclarations>
       <DeclareVariable>
         <Name>x</Name>
@@ -36,7 +36,7 @@
                   <RealVariable>x</RealVariable>
                 </ADD>
                 <NodeTimepointValue>
-                  <NodeId>Wait1</NodeId>
+                  <NodeRef dir="self"/>
                   <NodeStateValue>EXECUTING</NodeStateValue>
                   <Timepoint>START</Timepoint>
                 </NodeTimepointValue>
@@ -60,7 +60,7 @@
                 <Tolerance>
                   <ABS>
                     <SUB>
-                      <LookupOnChange>
+                      <LookupOnChange epx="Lookup">
                         <Name>
                           <StringValue>x</StringValue>
                         </Name>
@@ -73,7 +73,7 @@
               <ADD>
                 <ABS>
                   <SUB>
-                    <LookupOnChange>
+                    <LookupOnChange epx="Lookup">
                       <Name>
                         <StringValue>x</StringValue>
                       </Name>
@@ -82,7 +82,7 @@
                   </SUB>
                 </ABS>
                 <NodeTimepointValue>
-                  <NodeId>Wait2</NodeId>
+                  <NodeRef dir="self"/>
                   <NodeStateValue>EXECUTING</NodeStateValue>
                   <Timepoint>START</Timepoint>
                 </NodeTimepointValue>

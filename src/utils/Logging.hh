@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,7 @@
 #ifndef LOGGING_HH
 #define LOGGING_HH
 
-class Logging final {
-public:
+struct Logging final {
   enum LogType {
     LOG_ERROR         = 0,  
     WARNING           = 1,  

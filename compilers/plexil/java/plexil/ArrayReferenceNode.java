@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,7 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
 
 public class ArrayReferenceNode extends VariableNode
 {
@@ -104,12 +104,12 @@ public class ArrayReferenceNode extends VariableNode
         this.constructXMLBase();
 
         // Construct array expression
-        m_xml.addChild(this.getChild(0).getXML());
+        m_xml.appendChild(this.getChild(0).getXML());
 
         // Construct index
-        IXMLElement idx = new XMLElement("Index");
-        idx.addChild(this.getChild(1).getXML());
-        m_xml.addChild(idx);
+        Element idx = CompilerState.newElement("Index");
+        idx.appendChild(this.getChild(1).getXML());
+        m_xml.appendChild(idx);
     }
 
     @Override

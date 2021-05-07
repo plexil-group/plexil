@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -79,7 +79,10 @@ DURATION_KYWD = 'Duration';
 UPDATE_KYWD = 'Update';
 REQUEST_KYWD = 'Request';
 LIBRARY_CALL_KYWD = 'LibraryCall';
+// LibraryAction is a synonym for LibraryNode
+// and will be phased out
 LIBRARY_ACTION_KYWD = 'LibraryAction';
+LIBRARY_NODE_KYWD = 'LibraryNode';
 
 // node variables
 STATE_KYWD = 'state';
@@ -103,12 +106,15 @@ SKIPPED_OUTCOME_KYWD = 'SKIPPED';
 INTERRUPTED_OUTCOME_KYWD = 'INTERRUPTED';
 
 // command handle values
-COMMAND_ACCEPTED_KYWD     = 'COMMAND_ACCEPTED';
-COMMAND_DENIED_KYWD       = 'COMMAND_DENIED';
-COMMAND_FAILED_KYWD       = 'COMMAND_FAILED';
-COMMAND_RCVD_KYWD         = 'COMMAND_RCVD_BY_SYSTEM';
-COMMAND_SENT_KYWD         = 'COMMAND_SENT_TO_SYSTEM';
-COMMAND_SUCCESS_KYWD      = 'COMMAND_SUCCESS';
+COMMAND_ABORTED_KYWD         = 'COMMAND_ABORTED';
+COMMAND_ABORT_FAILED_KYWD    = 'COMMAND_ABORT_FAILED';
+COMMAND_ACCEPTED_KYWD        = 'COMMAND_ACCEPTED';
+COMMAND_DENIED_KYWD          = 'COMMAND_DENIED';
+COMMAND_FAILED_KYWD          = 'COMMAND_FAILED';
+COMMAND_INTERFACE_ERROR_KYWD = 'COMMAND_INTERFACE_ERROR';
+COMMAND_RCVD_KYWD            = 'COMMAND_RCVD_BY_SYSTEM';
+COMMAND_SENT_KYWD            = 'COMMAND_SENT_TO_SYSTEM';
+COMMAND_SUCCESS_KYWD         = 'COMMAND_SUCCESS';
 
 // failure values
 PRE_CONDITION_FAILED_KYWD = 'PRE_CONDITION_FAILED';
@@ -188,6 +194,7 @@ CHECKED_SEQUENCE_KYWD = 'CheckedSequence';
 SEQUENCE_KYWD = 'Sequence';
 WAIT_KYWD = 'Wait';
 
+DO_KYWD = 'do';
 ELSE_KYWD = 'else';
 ELSEIF_KYWD = 'elseif';
 ENDIF_KYWD = 'endif';
@@ -324,7 +331,7 @@ options { k=5; } // handles initial ambiguity for array typed decls
  :
     commandDeclaration
   | lookupDeclaration
-  | libraryActionDeclaration
+  | libraryNodeDeclaration
   | mutexDeclaration
  ;
 
@@ -409,15 +416,15 @@ baseTypeName :
   | DURATION_KYWD
   ;
 
-libraryActionDeclaration
-@init { m_paraphrases.push("in library action declaration"); }
+libraryNodeDeclaration
+@init { m_paraphrases.push("in library node declaration"); }
 @after { m_paraphrases.pop(); }
  :
-    LIBRARY_ACTION_KYWD^ NCNAME libraryInterfaceSpec? SEMICOLON!
+    (LIBRARY_ACTION_KYWD | LIBRARY_NODE_KYWD)^ NCNAME libraryInterfaceSpec? SEMICOLON!
 ;
 
 libraryInterfaceSpec
-@init { m_paraphrases.push("in library action interface declaration"); }
+@init { m_paraphrases.push("in library node interface declaration"); }
 @after { m_paraphrases.pop(); }
  :
     LPAREN ( libraryParamSpec ( COMMA libraryParamSpec )* )? RPAREN
@@ -454,6 +461,7 @@ baseAction :
      | forAction
      | onCommandAction
      | onMessageAction
+     | doAction
      | whileAction
      | block
      | simpleAction
@@ -506,6 +514,7 @@ consequent :
  forAction
  | onCommandAction
  | onMessageAction
+ | doAction
  | whileAction
  | block
  | simpleAction
@@ -530,6 +539,13 @@ whileAction
 @after { m_paraphrases.pop(); }
  :
     WHILE_KYWD^ expression action
+ ;
+
+doAction
+@init { m_paraphrases.push("in \"do\" statement"); }
+@after { m_paraphrases.pop(); }
+ :
+    DO_KYWD^ action WHILE_KYWD! expression SEMICOLON!
  ;
 
 synchCmd
@@ -806,7 +822,7 @@ pair : NCNAME EQUALS! expression ;
 //
 
 libraryCall
-@init { m_paraphrases.push("in library action call"); }
+@init { m_paraphrases.push("in library node call"); }
 @after { m_paraphrases.pop(); }
  :
   LIBRARY_CALL_KYWD^ libraryNodeIdRef ( aliasSpecs )? SEMICOLON! ;
@@ -1070,9 +1086,12 @@ nodeCommandHandle : nodeCommandHandleVariable | nodeCommandHandleKywd ;
 nodeCommandHandleVariable : nodeReference PERIOD! COMMAND_HANDLE_KYWD<NodeVariableNode>^ ;
 
 nodeCommandHandleKywd :
-    COMMAND_ACCEPTED_KYWD
+    COMMAND_ABORTED_KYWD
+  | COMMAND_ABORT_FAILED_KYWD
+  | COMMAND_ACCEPTED_KYWD
   | COMMAND_DENIED_KYWD
   | COMMAND_FAILED_KYWD
+  | COMMAND_INTERFACE_ERROR_KYWD
   | COMMAND_RCVD_KYWD
   | COMMAND_SENT_KYWD
   | COMMAND_SUCCESS_KYWD
@@ -1193,16 +1212,22 @@ STRING: '"' (Escape|~('"'|'\\'))* '"'
       ;
 fragment Escape:
   '\\'
-  ('n' | 't' | 'b' | 'f' |'\n' | '\r' | '"' | '\'' | '\\' | UnicodeEscape | OctalEscape);
+  ('b' | 'f' | 'n' | 't' | '\n' | '\r' | '"' | '\'' | '\\'
+       | UnicodeEscape | UnicodeLongEscape | HexEscape | OctalEscape);
 
 fragment UnicodeEscape: 
   'u' HexDigit HexDigit HexDigit HexDigit;
 
-fragment OctalEscape: 
-  QuadDigit ( OctalDigit OctalDigit? )?
-  | OctalDigit OctalDigit? ;
+fragment UnicodeLongEscape: 
+  'U' HexDigit HexDigit HexDigit HexDigit HexDigit HexDigit HexDigit HexDigit;
 
-fragment QuadDigit: ('0'..'3') ;
+fragment HexEscape: 
+  'x' (HexDigit)+ ;
+
+fragment OctalEscape: 
+  ('0'..'3') ( OctalDigit OctalDigit? )?
+  | ('4'..'7') OctalDigit? ;
+
 fragment OctalDigit: ('0'..'7') ;
 fragment Digit: ('0'..'9') ;
 fragment HexDigit: (Digit|'A'..'F'|'a'..'f') ;

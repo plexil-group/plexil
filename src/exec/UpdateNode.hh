@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -85,18 +85,16 @@ namespace PLEXIL
 
     // Specific behaviors for derived classes
     virtual void specializedCreateConditionWrappers() override;
-    virtual void specializedHandleExecution() override;
-    virtual void specializedDeactivateExecutable() override;
+    virtual void specializedHandleExecution(PlexilExec *exec) override;
+    virtual void specializedDeactivateExecutable(PlexilExec *exec) override;
 
     virtual bool getDestStateFromExecuting() override;
     virtual bool getDestStateFromFailing() override;
 
-    virtual void transitionToFailing() override;
+    virtual void transitionFromExecuting(PlexilExec *exec) override;
+    virtual void transitionFromFailing(PlexilExec *exec) override;
 
-    virtual void transitionFromExecuting() override;
-    virtual void transitionFromFailing() override;
-
-    virtual void abort() override;
+    virtual void transitionToFailing(PlexilExec *exec) override;
 
     virtual void cleanUpNodeBody() override;
 

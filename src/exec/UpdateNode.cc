@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,8 +30,8 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExpressionConstants.hh"
-#include "ExternalInterface.hh"
 #include "Function.hh"
+#include "PlexilExec.hh"
 #include "Update.hh"
 
 namespace PLEXIL
@@ -140,11 +140,12 @@ namespace PLEXIL
   // Conditions active: AncestorExit, AncestorInvariant, End, Exit, Invariant, Post
   // Legal successor states: FAILING, ITERATION_ENDED
 
-  void UpdateNode::specializedHandleExecution()
+  void UpdateNode::specializedHandleExecution(PlexilExec *exec)
   {
     assertTrue_1(m_update);
     m_update->activate();
-    m_update->execute();
+    m_update->fixValues();
+    exec->enqueueUpdate(m_update.get());
   }
 
   bool UpdateNode::getDestStateFromExecuting()
@@ -243,7 +244,7 @@ namespace PLEXIL
     return true;
   }
 
-  void UpdateNode::transitionFromExecuting()
+  void UpdateNode::transitionFromExecuting(PlexilExec *exec)
   {
     deactivateExitCondition();
     deactivateInvariantCondition();
@@ -259,7 +260,7 @@ namespace PLEXIL
       break;
 
     case ITERATION_ENDED_STATE:
-      deactivateExecutable();
+      deactivateExecutable(exec);
       activateAncestorEndCondition();
       break;
 
@@ -278,10 +279,8 @@ namespace PLEXIL
   // Legal successor states: FINISHED, ITERATION_ENDED
 
   // *** N.B. Since abort is a no-op, monitors ActionComplete instead of AbortComplete! ***
-
-  void UpdateNode::transitionToFailing()
+  void UpdateNode::transitionToFailing(PlexilExec * /* exec */)
   {
-    abort(); // no-op for now
   }
 
   bool UpdateNode::getDestStateFromFailing()
@@ -320,10 +319,10 @@ namespace PLEXIL
     return false;
   }
 
-  void UpdateNode::transitionFromFailing()
+  void UpdateNode::transitionFromFailing(PlexilExec *exec)
   {
     deactivateActionCompleteCondition();
-    deactivateExecutable();
+    deactivateExecutable(exec);
 
     switch (m_nextState) {
 
@@ -344,13 +343,9 @@ namespace PLEXIL
   }
 
 
-  void UpdateNode::specializedDeactivateExecutable()
+  void UpdateNode::specializedDeactivateExecutable(PlexilExec * /* exec */)
   {
     m_update->deactivate();
-  }
-
-  void UpdateNode::abort()
-  {
   }
 
 }

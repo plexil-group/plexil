@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,8 +26,7 @@
 
 #include "ExecListener.hh"
 
-#include "Debug.hh"
-#include "Error.hh"
+#include "Error.hh" // warn()
 #include "ExecListenerFilterFactory.hh"
 #include "Expression.hh"
 #include "InterfaceSchema.hh"
@@ -36,20 +35,11 @@ namespace PLEXIL
 {
 
   /**
-   * @brief Default constructor.
-   */
-  ExecListener::ExecListener()
-    : m_filter(),
-      m_xml()
-  {
-  }
-
-  /**
    * @brief Constructor from configuration XML.
    */
   ExecListener::ExecListener(pugi::xml_node const xml)
     : m_filter(),
-      m_xml()
+      m_xml(xml)
   {
   }
 
@@ -160,7 +150,7 @@ namespace PLEXIL
   /**
    * @brief Perform listener-specific initialization.
    * @return true if successful, false otherwise.
-   * @note Default method provided as a convenience for backward compatibility.
+   * @note Default method provided as a convenience.
    */
   bool ExecListener::initialize()
   {
@@ -172,7 +162,7 @@ namespace PLEXIL
   /**
    * @brief Perform listener-specific startup.
    * @return true if successful, false otherwise.
-   * @note Default method provided as a convenience for backward compatibility.
+   * @note Default method provided as a convenience.
    */
   bool ExecListener::start() 
   { 
@@ -182,31 +172,10 @@ namespace PLEXIL
   /**
    * @brief Perform listener-specific actions to stop.
    * @return true if successful, false otherwise.
-   * @note Default method provided as a convenience for backward compatibility.
+   * @note Default method provided as a convenience.
    */
-  bool ExecListener::stop() 
+  void ExecListener::stop() 
   {
-    return true; 
-  }
-
-  /**
-   * @brief Perform listener-specific actions to reset to initialized state.
-   * @return true if successful, false otherwise.
-   * @note Default method provided as a convenience for backward compatibility.
-   */
-  bool ExecListener::reset() 
-  {
-    return true; 
-  }
-
-  /**
-   * @brief Perform listener-specific actions to shut down.
-   * @return true if successful, false otherwise.
-   * @note Default method provided as a convenience for backward compatibility.
-   */
-  bool ExecListener::shutdown() 
-  { 
-    return true; 
   }
 
   /**
@@ -222,7 +191,6 @@ namespace PLEXIL
   // Default methods to be overridden by derived classes
   //
 
-
   /**
    * @brief Notify that nodes have changed state.
    * @param transitions Const reference to vector of node state transition info.
@@ -231,7 +199,6 @@ namespace PLEXIL
    */
   void ExecListener::implementNotifyNodeTransitions(const std::vector<NodeTransition>& transitions) const
   {
-    debugMsg("ExecListener:implementNotifyNodeTransitions", " default method called");
     if (!m_filter) {
       for (NodeTransition const &transition : transitions)
         this->implementNotifyNodeTransition(transition);
@@ -251,7 +218,6 @@ namespace PLEXIL
   void
   ExecListener::implementNotifyNodeTransition(NodeTransition const & /* transition */) const
   {
-    debugMsg("ExecListener:implementNotifyNodeTransition", " default method called");
   }
 
   /**
@@ -262,7 +228,6 @@ namespace PLEXIL
    */
   void ExecListener::implementNotifyAddPlan(pugi::xml_node const /* plan */) const
   {
-    debugMsg("ExecListener:implementNotifyAddPlan", " default method called");
   }
 
   /**
@@ -272,7 +237,6 @@ namespace PLEXIL
    */
   void ExecListener::implementNotifyAddLibrary(pugi::xml_node const /* libNode */) const
   {
-    debugMsg("ExecListener:implementNotifyAddLibrary", " default method called");
   }
 
   /**
@@ -285,7 +249,6 @@ namespace PLEXIL
                                                const std::string& /* destName */,
                                                const Value& /* value */) const
   {
-    debugMsg("ExecListener:implementNotifyAssignment", " default method called");
   }
 
 }

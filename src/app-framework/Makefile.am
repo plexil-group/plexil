@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -23,6 +23,8 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+AUTOMAKE_OPTIONS = subdir-objects
+
 lib_LTLIBRARIES = libPlexilAppFramework.la
 
 libPlexilAppFramework_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/xml-parser \
@@ -30,36 +32,60 @@ libPlexilAppFramework_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/xml-parser \
  -I@top_srcdir@/exec -I@top_srcdir@/intfc -I@top_srcdir@/expr \
  -I@top_srcdir@/value -I@top_srcdir@/utils
 
+# These additional headers are only required if the build is statically linked.
+if STATIC_LIB_OPT
+
 if DEBUG_LISTENER_OPT
   libPlexilAppFramework_la_CPPFLAGS += -I@top_srcdir@/interfaces/PlanDebugListener
+endif
+
+if GANTT_OPT
+  libPlexilAppFramework_la_CPPFLAGS += -I@top_srcdir@/interfaces/GanttListener
+endif
+
+if IPC_OPT
+  libPlexilAppFramework_la_CPPFLAGS += -I@top_srcdir@/interfaces/IpcAdapter
+endif
+
+if UDP_OPT
+  libPlexilAppFramework_la_CPPFLAGS += -I@top_srcdir@/interfaces/UdpAdapter
 endif
 
 if VIEWER_OPT
   libPlexilAppFramework_la_CPPFLAGS += -I@top_srcdir@/interfaces/LuvListener
 endif
 
+endif # STATIC_LIB_OPT
+
 include_HEADERS = AdapterConfiguration.hh AdapterExecInterface.hh \
- AdapterFactory.hh DummyAdapter.hh ExecApplication.hh ExecListener.hh \
+ AdapterFactory.hh Configuration.hh ExecApplication.hh ExecListener.hh \
  ExecListenerFactory.hh ExecListenerFilter.hh ExecListenerFilterFactory.hh \
- ExecListenerHub.hh InterfaceAdapter.hh InterfaceManager.hh ListenerFilters.hh \
- PlexilListener.hh SerializedInputQueue.hh SimpleInputQueue.hh UtilityAdapter.hh
+ ExecListenerHub.hh InterfaceAdapter.hh InterfaceManager.hh \
+ ListenerFilters.hh MessageAdapter.hh SerializedInputQueue.hh \
+ SimpleInputQueue.hh Timebase.hh TimebaseFactory.hh
+
+# Internal use only
+noinst_HEADERS = Launcher.h TimeAdapter.h UtilityAdapter.h
 
 libPlexilAppFramework_la_SOURCES = AdapterConfiguration.cc \
- AdapterExecInterface.cc AdapterFactory.cc DummyAdapter.cc ExecApplication.cc \
- ExecListener.cc ExecListenerFactory.cc ExecListenerFilter.cc \
- ExecListenerFilterFactory.cc ExecListenerHub.cc InterfaceAdapter.cc \
- InterfaceManager.cc ListenerFilters.cc SerializedInputQueue.cc \
- SimpleInputQueue.cc UtilityAdapter.cc
-
-if UNIX_TIME_OPT
-include_HEADERS += TimeAdapter.hh
-libPlexilAppFramework_la_SOURCES += TimeAdapterImpl.cc PosixTimeAdapter.cc \
- DarwinTimeAdapter.cc
-endif
+ AdapterFactory.cc CommandHandler.cc \
+ Configuration.cc ExecApplication.cc ExecListener.cc ExecListenerFactory.cc \
+ ExecListenerFilter.cc ExecListenerFilterFactory.cc ExecListenerHub.cc \
+ InterfaceManager.cc Launcher.cc ListenerFilters.cc LookupHandler.cc \
+ MessageAdapter.cc SerializedInputQueue.cc SimpleInputQueue.cc TimeAdapter.cc \
+ Timebase.cc TimebaseFactory.cc UtilityAdapter.cc
 
 # Libraries to link against
-libPlexilAppFramework_la_LIBADD = @top_srcdir@/xml-parser/libPlexilXmlParser.la \
- @top_srcdir@/third-party/pugixml/src/libpugixml.la @top_srcdir@/exec/libPlexilExec.la \
- @top_srcdir@/intfc/libPlexilIntfc.la @top_srcdir@/expr/libPlexilExpr.la \
- @top_srcdir@/value/libPlexilValue.la @top_srcdir@/utils/libPlexilUtils.la
+libPlexilAppFramework_la_LIBADD = @top_builddir@/xml-parser/libPlexilXmlParser.la \
+ @top_builddir@/third-party/pugixml/src/libpugixml.la @top_builddir@/exec/libPlexilExec.la \
+ @top_builddir@/intfc/libPlexilIntfc.la @top_builddir@/expr/libPlexilExpr.la \
+ @top_builddir@/value/libPlexilValue.la @top_builddir@/utils/libPlexilUtils.la
 
+if MODULE_TESTS_OPT
+  bin_PROGRAMS = test/timebase-test
+  test_timebase_test_SOURCES = test/timebase-test.cc Timebase.cc TimebaseFactory.cc
+  test_timebase_test_CPPFLAGS = $(libPlexilAppFramework_la_CPPFLAGS)
+  test_timebase_test_LDADD = @top_builddir@/third-party/pugixml/src/libpugixml.la \
+ @top_builddir@/intfc/libPlexilIntfc.la @top_builddir@/expr/libPlexilExpr.la \
+ @top_builddir@/value/libPlexilValue.la @top_builddir@/utils/libPlexilUtils.la
+endif

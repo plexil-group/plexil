@@ -27,9 +27,15 @@
 #ifndef LINKED_QUEUE_HH
 #define LINKED_QUEUE_HH
 
+#include "plexil-config.h"
+
 #include "Error.hh"
 
+#if defined(HAVE_CSTDDEF)
 #include <cstddef> // size_t
+#elif defined(HAVE_STDDEF_H)
+#include <stddef.h> // size_t
+#endif
 
 namespace
 {
@@ -40,7 +46,6 @@ namespace
 
 namespace PLEXIL
 {
-
   //*
   // @class LinkedQueue
   // @brief Simple unidirectional linked-list queue implementation.
@@ -54,7 +59,7 @@ namespace PLEXIL
     template <typename> friend class LinkedQueueIterator;
     template <typename> friend class LinkedQueueConstIterator;
 
-  protected:
+  protected: // for use by PriorityQueue
 
     T *m_head;
     T *m_tail;
@@ -404,6 +409,7 @@ namespace PLEXIL
    * @brief A variant of LinkedQueue that stores its entries in nondecreasing sorted order
    *        as determined by Compare.
    * @note Compare must implement a strict less-than comparison.
+   * @note Callers should not use push() member function!!
    */
 
   template <typename T, typename Compare = std::less<T> >
@@ -426,7 +432,7 @@ namespace PLEXIL
     {
       if (!this->m_head) {
         // Is empty - trivial case
-        push(item);
+        LinkedQueue<T>::push(item);
         return;
       }
 
@@ -476,17 +482,13 @@ namespace PLEXIL
     }
 
   private:
-
-    // For internal use only
-    inline void push(T *item)
-    {
-      LinkedQueue<T>::push(item);
-    }
       
     PriorityQueue(PriorityQueue const &) = delete;
     PriorityQueue(PriorityQueue &&) = delete;
     PriorityQueue &operator=(PriorityQueue const &) = delete;
     PriorityQueue &operator=(PriorityQueue &&) = delete;
+
+    void push(T *); // callers should not use this base class member function
   };
 
 }

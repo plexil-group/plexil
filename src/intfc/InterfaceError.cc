@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,13 @@
 #include "InterfaceError.hh"
 
 #include "Logging.hh"
+#include "plexil-config.h"
 
+#if defined(HAVE_CASSERT)
 #include <cassert>
+#elif defined(HAVE_ASSERT_H)
+#include <assert.h>
+#endif
 
 namespace PLEXIL
 {
@@ -71,10 +76,6 @@ namespace PLEXIL
   {
     Error::operator=(other);
     return *this;
-  }
-
-  InterfaceError::~InterfaceError() PLEXIL_NOEXCEPT
-  {
   }
 
   bool InterfaceError::operator==(const InterfaceError &other)

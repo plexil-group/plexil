@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,10 +29,11 @@ lib_LTLIBRARIES = libPlexilUtils.la
 
 libPlexilUtils_la_CPPFLAGS = $(AM_CPPFLAGS)
 
-include_HEADERS = ConstantMacros.hh Debug.hh DynamicLoader.h Error.hh \
+include_HEADERS = Debug.hh DynamicLoader.h Error.hh \
  LinkedQueue.hh Logging.hh ParserException.hh PlanError.hh SimpleMap.hh \
- TestSupport.hh bitsetUtils.hh lifecycle-utils.h map-utils.hh \
- stricmp.h timespec-utils.hh timeval-utils.hh utils_main_page.hh
+ SimpleSet.hh TestSupport.hh bitsetUtils.hh lifecycle-utils.h map-utils.hh \
+ plexil-inttypes.h plexil-stdint.h stricmp.h timespec-utils.hh \
+ timeval-utils.hh utils_main_page.hh
 
 libPlexilUtils_la_SOURCES = DynamicLoader.cc Error.cc Logging.cc \
  ParserException.cc PlanError.cc bitsetUtils.cc lifecycle-utils.c \
@@ -45,8 +46,8 @@ if JNI_OPT
 endif
 
 if THREADS_OPT
-  include_HEADERS += ThreadSemaphore.hh ThreadSpawn.hh
-  libPlexilUtils_la_SOURCES += ThreadSemaphore.cc ThreadSpawn.cc
+  include_HEADERS += ThreadSemaphore.hh
+  libPlexilUtils_la_SOURCES += ThreadSemaphore.cc
 endif
 
 if DEBUG_LOGGING_OPT
@@ -58,7 +59,8 @@ if MODULE_TESTS_OPT
   bin_PROGRAMS = test/utils-module-tests
   noinst_HEADERS = test/TestData.hh test/util-test-module.hh
   test_utils_module_tests_SOURCES = test/bitsetUtilsTest.cc test/LinkedQueueTest.cc \
- test/SimpleMapTest.cc test/TestData.cc test/util-test-module.cc test/module-tests.cc
+ test/SimpleMapTest.cc test/SimpleSetTest.cc test/TestData.cc test/util-test-module.cc \
+ test/module-tests.cc
   test_utils_module_tests_CPPFLAGS = $(libPlexilUtils_la_CPPFLAGS)
   test_utils_module_tests_LDADD = libPlexilUtils.la
 if JNI_OPT

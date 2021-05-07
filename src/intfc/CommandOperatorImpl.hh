@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -39,9 +39,7 @@ namespace PLEXIL
   class CommandOperatorImpl : public CommandOperator
   {
   public:
-    virtual ~CommandOperatorImpl()
-    {
-    }
+    virtual ~CommandOperatorImpl() = default;
 
     // Default methods, based on R
     ValueType valueType() const;
@@ -56,9 +54,9 @@ namespace PLEXIL
     {
     }
 
-    bool isKnown(Command const *command) const;
-    void printValue(std::ostream &s, Command const *command) const;
-    Value toValue(Command const *command) const;
+    bool isKnown(CommandImpl const *command) const;
+    void printValue(std::ostream &s, CommandImpl const *command) const;
+    Value toValue(CommandImpl const *command) const;
 
   protected:
 

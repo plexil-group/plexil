@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,7 +32,7 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExpressionConstants.hh"
-#include "PlexilExec.hh" // g_exec
+#include "PlexilExec.hh"
 #include "UserVariable.hh"
 
 namespace PLEXIL
@@ -114,6 +114,13 @@ namespace PLEXIL
   Assignable *AssignmentNode::getAssignmentVariable() const
   {
     return m_assignment->getDest();
+  }
+
+  // Wrapper around NodeImpl method
+  void AssignmentNode::releaseResourceReservations()
+  {
+    getAssignmentVariable()->getBaseVariable()->removeWaitingNode(this);
+    NodeImpl::releaseResourceReservations();
   }
 
   //
@@ -246,17 +253,17 @@ namespace PLEXIL
     return true;
   }
 
-  void AssignmentNode::specializedHandleExecution()
+  void AssignmentNode::specializedHandleExecution(PlexilExec *exec)
   {
     // Perform assignment
-    assertTrueMsg(m_assignment,
-                  "AssignmentNode::execute(): Assignment is null");
+    assertTrue_2(m_assignment,
+                 "AssignmentNode::execute(): Assignment is null");
     m_assignment->activate();
     m_assignment->fixValue();
-    g_exec->enqueueAssignment(m_assignment.get());
+    exec->enqueueAssignment(m_assignment.get());
   }
 
-  void AssignmentNode::transitionFromExecuting()
+  void AssignmentNode::transitionFromExecuting(PlexilExec *exec)
   {
     deactivateExitCondition();
     deactivateInvariantCondition();
@@ -271,7 +278,7 @@ namespace PLEXIL
 
     case ITERATION_ENDED_STATE:
       activateAncestorEndCondition();
-      deactivateExecutable();
+      deactivateExecutable(exec);
       break;
 
     default:
@@ -290,10 +297,11 @@ namespace PLEXIL
   // Conditions active: AbortComplete
   // Legal successor states: FINISHED, ITERATION_ENDED
 
-  void AssignmentNode::transitionToFailing()
+  void AssignmentNode::transitionToFailing(PlexilExec *exec)
   {
     activateAbortCompleteCondition();
-    abort();
+    debugMsg("Node:abort", "Aborting node " << m_nodeId << ' ' << this);
+    exec->enqueueAssignmentForRetraction(m_assignment.get());
   }
 
   bool AssignmentNode::getDestStateFromFailing()
@@ -334,10 +342,10 @@ namespace PLEXIL
     return true;
   }
 
-  void AssignmentNode::transitionFromFailing()
+  void AssignmentNode::transitionFromFailing(PlexilExec *exec)
   {
     deactivateAbortCompleteCondition();
-    deactivateExecutable();
+    deactivateExecutable(exec);
 
     switch (m_nextState) {
 
@@ -369,11 +377,8 @@ namespace PLEXIL
   void AssignmentNode::transitionToIterationEnded() 
   {
     if (m_state != WAITING_STATE) { 
-      // Notify any nodes waiting on the assignment variable
-      Assignable *var = getAssignmentVariable()->getBaseVariable();
-      var->release();
-      for (Node *n : *var->getWaitingNodes())
-        n->notifyResourceAvailable();
+      // Release the assignment variable for other users.
+      getAssignmentVariable()->getBaseVariable()->release(this);
     }
     NodeImpl::transitionToIterationEnded();
   }
@@ -387,24 +392,18 @@ namespace PLEXIL
   // Conditions active:
   // Legal successor states: INACTIVE
 
+  // This is a wrapper method.
+
   void AssignmentNode::transitionToFinished()
   {
     if (m_state == FAILING_STATE) {
-      // Notify any nodes waiting on the assignment variable
-      Assignable *var = getAssignmentVariable()->getBaseVariable();
-      var->release();
-      for (Node *n : *var->getWaitingNodes())
-        n->notifyResourceAvailable();
+      // Release the assignment variable for other users.
+      getAssignmentVariable()->getBaseVariable()->release(this);
     }
-  }
-    
-  void AssignmentNode::abort()
-  {
-    debugMsg("Node:abort", "Aborting node " << m_nodeId << ' ' << this);
-    g_exec->enqueueAssignmentForRetraction(m_assignment.get());
+    NodeImpl::transitionToFinished();
   }
 
-  void AssignmentNode::specializedDeactivateExecutable() 
+  void AssignmentNode::specializedDeactivateExecutable(PlexilExec * /* exec */) 
   {
     if (m_assignment)
       m_assignment->deactivate();

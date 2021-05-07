@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,7 @@ namespace PLEXIL {
     /**
      * @brief Destructor.
      */
-    virtual ~Constant();
+    virtual ~Constant() = default;
 
     /**
      * @brief Return a print name for the expression type.
@@ -138,7 +138,7 @@ namespace PLEXIL {
     /**
      * @brief Destructor.
      */
-    virtual ~Constant();
+    virtual ~Constant() = default;
 
     /**
      * @brief Return a print name for the expression type.
@@ -209,7 +209,7 @@ namespace PLEXIL {
     /**
      * @brief Destructor.
      */
-    virtual ~Constant();
+    virtual ~Constant() = default;
 
     /**
      * @brief Return a print name for the expression type.

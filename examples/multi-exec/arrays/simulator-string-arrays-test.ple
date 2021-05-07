@@ -1,7 +1,8 @@
 // This plan emulates a simulator that handles:
 //   The command 'GetName()', which returns an array of strings
 
-Command SendReturnValue (String[2]);
+// SendReturnValue has to be kludged because OnCommand modifies the call 
+Command SendReturnValue(...);
 Command pprint(...);
 
 Interface: Concurrence

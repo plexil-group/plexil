@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -34,7 +34,7 @@
 namespace PLEXIL
 {
   // Forward reference
-  class Command;
+  class CommandImpl;
 
   class CommandHandleVariable final :
     public GetValueImpl<CommandHandleValue>,
@@ -44,12 +44,12 @@ namespace PLEXIL
     /**
      * @brief Constructor.
      */
-    CommandHandleVariable(Command const &cmd);
+    CommandHandleVariable(CommandImpl const &cmd);
 
     /**
      * @brief Destructor.
      */
-    ~CommandHandleVariable();
+    virtual ~CommandHandleVariable();
 
     // Listenable API
     virtual bool isPropagationSource() const;
@@ -91,7 +91,7 @@ namespace PLEXIL
     CommandHandleVariable(const CommandHandleVariable &);
     CommandHandleVariable &operator=(const CommandHandleVariable &);
 
-    Command const & m_command;
+    CommandImpl const &m_command;
     char const *m_name;
   };
 

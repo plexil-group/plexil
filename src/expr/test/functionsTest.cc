@@ -27,7 +27,7 @@
 #include "ArithmeticOperators.hh"
 #include "CachedFunction.hh"
 #include "Constant.hh"
-#include "ExpressionConstants.hh"
+#include "ExpressionConstants.hh" // INT_ONE_EXP()
 #include "Function.hh"
 #include "TestSupport.hh"
 #include "test/TrivialListener.hh"

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tr="extended-plexil-translator">
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Node NodeType="NodeList" epx="Concurrence">
-    <NodeId>ep2cp_Concurrence_d1e3</NodeId>
+    <NodeId generated="1">ep2cp_Concurrence_d13e3</NodeId>
     <NodeBody>
       <NodeList>
         <Node NodeType="NodeList" epx="SynchronousCommand" FileName="foo.ple" LineNo="104" ColNo="1">
@@ -9,11 +9,11 @@
           <NodeBody>
             <NodeList>
               <Node NodeType="NodeList" epx="aux">
-                <NodeId>ep2cp_SynchronousCommandAux</NodeId>
+                <NodeId generated="1">ep2cp_SynchronousCommandAux</NodeId>
                 <NodeBody>
                   <NodeList>
                     <Node NodeType="Command" epx="aux">
-                      <NodeId>ep2cp_SynchronousCommandCommand</NodeId>
+                      <NodeId generated="1">ep2cp_SynchronousCommandCommand</NodeId>
                       <EndCondition>
                         <OR>
                           <EQInternal>
@@ -69,11 +69,11 @@
           <NodeBody>
             <NodeList>
               <Node NodeType="NodeList" epx="aux">
-                <NodeId>ep2cp_SynchronousCommandAux</NodeId>
+                <NodeId generated="1">ep2cp_SynchronousCommandAux</NodeId>
                 <NodeBody>
                   <NodeList>
                     <Node NodeType="Command" epx="aux">
-                      <NodeId>ep2cp_SynchronousCommandCommand</NodeId>
+                      <NodeId generated="1">ep2cp_SynchronousCommandCommand</NodeId>
                       <EndCondition>
                         <OR>
                           <EQInternal>

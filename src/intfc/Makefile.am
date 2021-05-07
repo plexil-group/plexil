@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,25 +30,29 @@ lib_LTLIBRARIES = libPlexilIntfc.la
 libPlexilIntfc_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/expr \
  -I@top_srcdir@/value -I@top_srcdir@/utils
 
-include_HEADERS = CachedValue.hh CachedValueImpl.hh Command.hh \
- CommandFunction.hh CommandHandleVariable.hh ExprVec.hh \
- ExternalInterface.hh InputQueue.hh InterfaceError.hh Lookup.hh \
- NodeConnector.hh QueueEntry.hh ResourceArbiterInterface.hh State.hh \
- StateCacheEntry.hh StateCacheMap.hh Update.hh
+# Exposed APIs
+include_HEADERS = Command.hh CommandFunction.hh CommandHandleVariable.hh \
+ CommandImpl.hh commandUtils.hh Dispatcher.hh ExprVec.hh InputQueue.hh \
+ InterfaceError.hh Lookup.hh LookupReceiver.hh Message.hh \
+ QueueEntry.hh ResourceArbiterInterface.hh State.hh StateCache.hh Update.hh
 
-libPlexilIntfc_la_SOURCES = CachedValue.cc CachedValueImpl.cc Command.cc \
- CommandFunction.cc CommandHandleVariable.cc CommandOperator.cc \
- CommandOperatorImpl.cc ExprVec.cc ExternalInterface.cc InterfaceError.cc \
- Lookup.cc QueueEntry.cc ResourceArbiterInterface.cc State.cc \
- StateCacheEntry.cc StateCacheMap.cc Update.cc
+# Implementation details which don't need to be advertised
+noinst_HEADERS = CachedValue.hh CachedValueImpl.hh CommandOperator.hh \
+ StateCacheEntry.hh
+
+libPlexilIntfc_la_SOURCES = CachedValue.cc CachedValueImpl.cc \
+ CommandFunction.cc CommandHandleVariable.cc CommandImpl.cc CommandOperator.cc \
+ CommandOperatorImpl.cc commandUtils.cc Dispatcher.cc ExprVec.cc \
+ InterfaceError.cc Lookup.cc QueueEntry.cc ResourceArbiterInterface.cc \
+ State.cc StateCacheEntry.cc StateCache.cc Update.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/intfc-module-tests
-  noinst_HEADERS =
   test_intfc_module_tests_SOURCES = @top_srcdir@/expr/test/TrivialListener.cc \
  test/lookupsTest.cc test/serializeTest.cc test/stateTest.cc \
  test/intfc-test-module.cc
   test_intfc_module_tests_CPPFLAGS = $(libPlexilIntfc_la_CPPFLAGS)
-  test_intfc_module_tests_LDADD = libPlexilIntfc.la @top_srcdir@/expr/libPlexilExpr.la \
- @top_srcdir@/value/libPlexilValue.la @top_srcdir@/utils/libPlexilUtils.la
+  test_intfc_module_tests_LDADD = libPlexilIntfc.la \
+ @top_builddir@/expr/libPlexilExpr.la @top_builddir@/value/libPlexilValue.la \
+ @top_builddir@/utils/libPlexilUtils.la
 endif

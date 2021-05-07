@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,8 @@
 #ifndef PLEXIL_TEST_EXTERNAL_INTERFACE_HH
 #define PLEXIL_TEST_EXTERNAL_INTERFACE_HH
 
-#include "ExternalInterface.hh"
+#include "Dispatcher.hh"
+#include "State.hh"
 
 #include <iostream>
 #include <map>
@@ -42,33 +43,33 @@ namespace pugi
 namespace PLEXIL 
 {
 
-  class TestExternalInterface : public ExternalInterface 
+  class TestExternalInterface final :
+    public Dispatcher
   {
   public:
     TestExternalInterface();
-    ~TestExternalInterface();
+    virtual ~TestExternalInterface() = default;
 
     void run(pugi::xml_node const input);
 
-    virtual void lookupNow(State const &state, StateCacheEntry &cacheEntry) override;
+    //
+    // Dispatcher API
+    //
+
+    virtual void lookupNow(State const &state, LookupReceiver *rcvr);
 
     // LookupOnChange
-    virtual void subscribe(const State& state) override;
-    virtual void unsubscribe(const State& state) override;
-    virtual void setThresholds(const State& state, Real hi, Real lo) override;
-    virtual void setThresholds(const State& state, Integer hi, Integer lo) override;
-
-    virtual Real currentTime() override;
-
-  protected:
+    virtual void setThresholds(const State& state, Real hi, Real lo);
+    virtual void setThresholds(const State& state, Integer hi, Integer lo);
+    virtual void clearThresholds(const State& state);
 
     // Commands
-    virtual void executeCommand(Command *cmd) override;
-    virtual void reportCommandArbitrationFailure(Command *cmd) override;
-    virtual void invokeAbort(Command *cmd) override;
+    virtual void executeCommand(Command *cmd);
+    virtual void reportCommandArbitrationFailure(Command *cmd);
+    virtual void invokeAbort(Command *cmd);
 
     // Updates
-    virtual void executeUpdate(Update * update) override;
+    virtual void executeUpdate(Update * update);
 
   private:
     

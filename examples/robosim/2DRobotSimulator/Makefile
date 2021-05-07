@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,20 +25,18 @@
 
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
-
 # Platform-dependent configuration
 
-ifeq (Darwin,$(TARGET_OS))
+ifeq (Darwin,$(OSNAME))
 OPENGL_EXTRA_FLAGS	:= -framework OpenGL -framework GLUT
-CPPFLAGS            += -DGL_SILENCE_DEPRECATION
 endif
 
-ifeq (Linux,$(TARGET_OS))
+ifeq (Linux,$(OSNAME))
 OPENGL_LIB_PATH := /usr/X11R6/lib
 OPENGL_LIBS	:= GL GLU glut Xi Xmu
 endif
 
-ifeq (FreeBSD,$(TARGET_OS))
+ifeq (FreeBSD,$(OSNAME))
 OPENGL_LIB_PATH := /usr/local/lib
 OPENGL_LIBS	:= GL GLU glut Xi Xmu
 INCLUDES += -I/usr/local/include
@@ -48,7 +46,7 @@ EXECUTABLE := robotSimulator
 
 # External dependencies
 LIB_PATH	+= $(OPENGL_LIB_PATH)
-LIBS		+= IpcUtils ipc PlexilUtils PlexilValue $(PTHREAD_LIB) $(OPENGL_LIBS)
+EXTRA_LIBS	+= IpcUtils ipc $(PTHREAD_LIB) $(OPENGL_LIBS)
 EXTRA_FLAGS	+= $(OPENGL_EXTRA_FLAGS)
 
 SRC		:= $(wildcard *.cc)

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,9 +33,6 @@
 
 namespace PLEXIL
 {
-  // forward reference
-  class ExprVec;
-
   class ListNode : public NodeImpl
   {
   public:
@@ -98,12 +95,13 @@ namespace PLEXIL
     // For initialization and parsing.
     virtual NodeVariableMap const *getChildVariableMap() const override;
 
-    /**
-     * @brief Sets the state variable to the new state.
-     * @param newValue The new node state.
-     * @note This method notifies the children of a change in the parent node's state.
-     */
-    virtual void setState(NodeState newValue, double tym) override; // FIXME
+    //! Sets the state variable to the new state.
+    //! @param exec The PlexilExec instance.
+    //! @param newValue The new node state.
+    //! @param tym Time of the transition.
+    //! @note This wrapper method notifies the children of a change in
+    //! the parent node's state.
+    virtual void setState(PlexilExec *exec, NodeState newValue, double tym) override;
 
   protected:
 
@@ -118,13 +116,13 @@ namespace PLEXIL
     virtual bool getDestStateFromFailing() override;
     virtual bool getDestStateFromFinishing() override;
 
-    virtual void transitionFromExecuting() override;
-    virtual void transitionFromFinishing() override;
-    virtual void transitionFromFailing() override;
+    virtual void transitionFromExecuting(PlexilExec *exec) override;
+    virtual void transitionFromFinishing(PlexilExec *exec) override;
+    virtual void transitionFromFailing(PlexilExec *exec) override;
 
     virtual void transitionToExecuting() override;
     virtual void transitionToFinishing() override;
-    virtual void transitionToFailing() override;
+    virtual void transitionToFailing(PlexilExec *exec) override;
 
     NodeFunction m_actionCompleteFn;
     NodeFunction m_allFinishedFn;

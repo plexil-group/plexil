@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,8 @@
 #include "ArrayVariableReferenceFactory.hh"
 
 #include "Error.hh"
+#include "Expression.hh"
+#include "ExpressionFactory.hh"
 #include "NodeConnector.hh"
 #include "parser-utils.hh"
 
@@ -34,44 +36,61 @@
 
 namespace PLEXIL
 {
-  ArrayVariableReferenceFactory::ArrayVariableReferenceFactory(const std::string& name)
-    : ExpressionFactory(name)
-  {
-  }
 
-  ArrayVariableReferenceFactory::~ArrayVariableReferenceFactory()
+  class ArrayVariableReferenceFactory : public ExpressionFactory
   {
-  }
+  public:
+    ArrayVariableReferenceFactory(const std::string& name)
+      : ExpressionFactory(name)
+    {
+    }
 
-  ValueType ArrayVariableReferenceFactory::check(char const *nodeId, pugi::xml_node expr) const
+    virtual ~ArrayVariableReferenceFactory() = default;
+
+    ValueType check(char const *nodeId, pugi::xml_node expr, ValueType desiredType) const
+    {
+      checkNotEmpty(expr);
+      char const *varName = expr.child_value();
+      checkParserExceptionWithLocation(*varName,
+                                       expr,
+                                       "Node \"" << nodeId
+                                       << "\": Empty or malformed " << expr.name() << " element");
+
+      // TODO: determine type from context
+      return UNKNOWN_TYPE;
+    }
+
+    Expression *allocate(pugi::xml_node const expr,
+                         NodeConnector *node,
+                         bool & wasCreated,
+                         ValueType /* desiredType */) const
+    {
+      assertTrue_1(node); // internal error
+      char const *varName = expr.child_value();
+      Expression *result = node->findVariable(varName);
+      checkParserExceptionWithLocation(result,
+                                       expr,
+                                       "No variable named " << varName << " accessible in this context");
+      checkParserExceptionWithLocation(isArrayType(result->valueType()),
+                                       expr,
+                                       "Variable " << varName << " is not an array variable");
+      wasCreated = false;
+      return result;
+    }
+
+  private:
+    // Default, copy, assign all prohibited
+    ArrayVariableReferenceFactory() = delete;
+    ArrayVariableReferenceFactory(const ArrayVariableReferenceFactory &) = delete;
+    ArrayVariableReferenceFactory(ArrayVariableReferenceFactory &&) = delete;
+    ArrayVariableReferenceFactory &operator=(const ArrayVariableReferenceFactory &) = delete;
+    ArrayVariableReferenceFactory &operator=(ArrayVariableReferenceFactory &&) = delete;
+  };
+
+  ExpressionFactory *
+  makeArrayVariableReferenceFactory(const std::string& name)
   {
-    checkNotEmpty(expr);
-    char const *varName = expr.child_value();
-    checkParserExceptionWithLocation(*varName,
-                                     expr,
-                                     "Node \"" << nodeId
-                                     << "\": Empty or malformed " << expr.name() << " element");
-
-    // TODO: determine type from context
-    return UNKNOWN_TYPE;
-  }
-
-  Expression *ArrayVariableReferenceFactory::allocate(pugi::xml_node const expr,
-                                                      NodeConnector *node,
-                                                      bool & wasCreated,
-                                                      ValueType /* returnType */) const
-  {
-    assertTrue_1(node); // internal error
-    char const *varName = expr.child_value();
-    Expression *result = node->findVariable(varName);
-    checkParserExceptionWithLocation(result,
-                                     expr,
-                                     "No variable named " << varName << " accessible in this context");
-    checkParserExceptionWithLocation(isArrayType(result->valueType()),
-                                     expr,
-                                     "Variable " << varName << " is not an array variable");
-    wasCreated = false;
-    return result;
+    return new ArrayVariableReferenceFactory(name);
   }
 
 }

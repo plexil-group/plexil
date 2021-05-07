@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,18 +28,21 @@
 
 #include "Assignable.hh"
 #include "Assignment.hh"
+#include "CommandImpl.hh"
 #include "Debug.hh"
+#include "Dispatcher.hh"
+#include "Error.hh"
 #include "ExecListenerBase.hh"
-#include "ExternalInterface.hh"
 #include "LinkedQueue.hh"
 #include "Mutex.hh"
 #include "Node.hh"
 #include "NodeConstants.hh"
-#include "PlanError.hh"
+#include "ResourceArbiterInterface.hh"
+#include "StateCache.hh"
+#include "Update.hh"
+#include "Variable.hh"
 
-#include "lifecycle-utils.h"
-
-#include <algorithm> // std::find
+#include <algorithm> // std::remove_if()
 
 namespace PLEXIL 
 {
@@ -78,8 +81,15 @@ namespace PLEXIL
     LinkedQueue<Assignment> m_assignmentsToExecute;
     LinkedQueue<Assignment> m_assignmentsToRetract;
 
+    LinkedQueue<CommandImpl> m_commandsToExecute;
+    LinkedQueue<CommandImpl> m_commandsToAbort;
+
+    LinkedQueue<Update> m_updatesToExecute;
+
     std::list<NodePtr> m_plan; /*<! The root of the plan.*/
     std::vector<NodeTransition> m_transitionsToPublish;
+    std::unique_ptr<ResourceArbiterInterface> m_arbiter;
+    Dispatcher *m_dispatcher;
     ExecListenerBase *m_listener;
     bool m_finishedRootNodesDeleted; /*<! True if at least one finished plan has been deleted */
 
@@ -97,8 +107,12 @@ namespace PLEXIL
         m_pendingQueue(),
         m_assignmentsToExecute(),
         m_assignmentsToRetract(),
+        m_commandsToExecute(),
+        m_commandsToAbort(),
         m_plan(),
-        m_listener(nullptr),
+        m_arbiter(makeResourceArbiter()),
+        m_dispatcher(),
+        m_listener(),
         m_finishedRootNodesDeleted(false)
     {}
 
@@ -110,6 +124,18 @@ namespace PLEXIL
       m_pendingQueue.clear();
       m_assignmentsToExecute.clear();
       m_assignmentsToRetract.clear();
+      m_commandsToExecute.clear();
+      m_commandsToAbort.clear();
+    }
+
+    virtual ResourceArbiterInterface *getArbiter() override
+    {
+      return m_arbiter.get();
+    }
+
+    virtual void setDispatcher(Dispatcher *intf) override
+    {
+      m_dispatcher = intf;
     }
 
     virtual void setExecListener(ExecListenerBase *l) override
@@ -135,7 +161,7 @@ namespace PLEXIL
       m_plan.emplace_back(NodePtr(root));
       debugMsg("PlexilExec:addPlan",
                "Added plan: \n" << root->toString());
-      root->notifyChanged(); // make sure root is considered first
+      root->notifyChanged(this); // make sure root is considered first
       root->activateNode();
       return true;
     }
@@ -149,13 +175,26 @@ namespace PLEXIL
     {
       bool result = m_finishedRootNodesDeleted; // return value in the event no plan is active
 
+      debugMsg("PlexilExec:allPlansFinished", ' ' << m_plan.size() << " plans");
       for (NodePtr const &root : m_plan) {
-        if (root->getState() == FINISHED_STATE)
-          result = true;
+        if (root->getState() != FINISHED_STATE) {
+          // Some node is not finished
+          debugMsg("PlexilExec:allPlansFinished", " return false");
+          return false;
+        }
         else
-          return false; // some node is not finished
+          result = true;
       }
+      debugMsg("PlexilExec:allPlansFinished",
+               " return " << (result ? "true" : "false"));
       return result;
+    }
+
+    virtual void markRootNodeFinished(Node *node) override
+    {
+      checkError(node,
+                 "PlexilExec::markRootNodeFinished: node pointer is invalid");
+      addFinishedRootNode(node);
     }
 
     virtual void deleteFinishedPlans() override
@@ -165,11 +204,12 @@ namespace PLEXIL
         m_finishedRootNodes.pop();
         debugMsg("PlexilExec:deleteFinishedPlans",
                  " deleting node " << node->getNodeId() << ' ' << node);
-        std::remove_if(m_plan.begin(), m_plan.end(),
-                       [node] (NodePtr const &n) -> bool
-                       { return node == n.get(); });
+        m_plan.remove_if([node] (NodePtr const &n) -> bool
+                         { return node == n.get(); });
       }
       m_finishedRootNodesDeleted = true;
+      debugMsg("PlexilExec:deleteFinishedPlans",
+               " now " << m_plan.size() << " root nodes");
     }
 
     virtual bool needsStep() const override
@@ -189,7 +229,7 @@ namespace PLEXIL
 #ifndef NO_DEBUG_MESSAGE_SUPPORT 
       // Only used in debugMsg calls
       unsigned int stepCount = 0;
-      unsigned int cycleNum = g_interface->getCycleCount();
+      unsigned int cycleNum = StateCache::instance().getCycleCount();
 #endif
 
       debugMsg("PlexilExec:step", " ==>Start cycle " << cycleNum);
@@ -238,7 +278,6 @@ namespace PLEXIL
               addPendingNode(candidate);
             }
           }
-          // else false alarm, wait for next notification
         }
 
         // See if any on the pending queue are eligible
@@ -272,19 +311,22 @@ namespace PLEXIL
           m_transitionsToPublish.reserve(m_stateChangeQueue.size());
 
         // Transition the nodes
+        // Transition may put node on m_candidateQueue or m_finishedRootNodes
         while (!m_stateChangeQueue.empty()) {
           Node *node = getStateChangeNode();
+          NodeState oldState = node->getState(); // for listener
           debugMsg("PlexilExec:step",
                    "[" << cycleNum << ":" << stepCount << ":" << microStepCount <<
                    "] Transitioning " << nodeTypeString(node->getType())
                    << " node " << node->getNodeId() << ' ' << node
                    << " from " << nodeStateName(node->getState())
                    << " to " << nodeStateName(node->getNextState()));
-          node->transition(startTime); // may put node on m_candidateQueue or m_finishedRootNodes
+          node->transition(this, startTime);
           if (m_listener)
+            // After transition, old state is lost, so use cached state
             m_transitionsToPublish.emplace_back(NodeTransition(node,
-                                                               node->getState(),
-                                                               node->getNextState()));
+                                                               oldState,
+                                                               node->getState()));
 #ifndef NO_DEBUG_MESSAGE_SUPPORT 
           ++microStepCount;
 #endif
@@ -305,13 +347,14 @@ namespace PLEXIL
       }
       while (m_assignmentsToExecute.empty()
              && m_assignmentsToRetract.empty()
-             && g_interface->outboundQueueEmpty()
+             && m_commandsToExecute.empty()
+             && m_commandsToAbort.empty()
              && !m_candidateQueue.empty());
       // END QUIESCENCE LOOP
       // Perform side effects
-      g_interface->incrementCycleCount();
+      StateCache::instance().incrementCycleCount();
       performAssignments();
-      g_interface->executeOutboundQueue();
+      executeOutboundQueue();
       if (m_listener)
         m_listener->stepComplete(cycleNum);
 
@@ -346,11 +389,28 @@ namespace PLEXIL
       m_assignmentsToRetract.push(assign);
     }
 
-    virtual void markRootNodeFinished(Node *node) override
+    /**
+     * @brief Schedule this command for execution.
+     */
+    virtual void enqueueCommand(CommandImpl *cmd) override
     {
-      checkError(node,
-                 "PlexilExec::markRootNodeFinished: node pointer is invalid");
-      addFinishedRootNode(node);
+      m_commandsToExecute.push(cmd);
+    };
+
+    /**
+     * @brief Schedule this command to be aborted.
+     */
+    virtual void enqueueAbortCommand(CommandImpl *cmd) override
+    {
+      m_commandsToAbort.push(cmd);
+    };
+
+    /**
+     * @brief Schedule this update for execution.
+     */
+    virtual void enqueueUpdate(Update *update) override
+    {
+      m_updatesToExecute.push(update);
     }
 
   private:
@@ -385,11 +445,7 @@ namespace PLEXIL
     {
       if (node->getNextState() != EXECUTING_STATE)
         return false;
-      if (node->getType() == NodeType_Assignment)
-        return true;
-      if (node->getUsingMutexes())
-        return true;
-      return false;
+      return node->acquiresResources();
     }
 
     //! @brief Check whether a node on the pending queue should attempt to acquire resources.
@@ -399,6 +455,7 @@ namespace PLEXIL
     bool resourceCheckEligible(Node *node)
     {
       switch (node->getQueueStatus()) {
+
       case QUEUE_PENDING_CHECK:
         // Resource(s) not released, so not eligible,
         // and node may not be eligible to execute any more
@@ -412,7 +469,8 @@ namespace PLEXIL
           removePendingNode(node);
           addStateChangeNode(node);
         }
-        // else still transitioning to EXECUTING, but resources not available
+        // else still eligible to transition to EXECUTING,
+        // but resources not available
         node->setQueueStatus(QUEUE_PENDING);
         return false;
 
@@ -452,49 +510,6 @@ namespace PLEXIL
       }
     }      
 
-    // Reserve the resource(s)
-    // If resource(s) busy, leave node on pending queue
-    void tryResourceAcquisition(Node *node)
-    {
-      // Mutexes first
-      std::vector<Mutex *> const *uses = node->getUsingMutexes();
-      bool success = true;
-      if (uses) {
-        for (Mutex *m : *uses)
-          if (success)
-            success = m->acquire(node) && success;
-      }
-
-      // Variables next
-      if (success && node->getType() == NodeType_Assignment) {
-        // Try to reserve the variable
-        // Calls addWaitingNode() on failure
-        success = node->getAssignmentVariable()->getBaseVariable()->reserve(node);
-      }
-
-      debugMsg("PlexilExec:tryResourceAcquisition",
-               ' ' << (success ? "succeeded" : "failed")
-               << " for " << node->getNodeId() << ' ' << node);
-
-      if (success) {
-        // Node can transition now
-        removePendingNode(node);
-        addStateChangeNode(node);
-      }
-      else {
-        // If we couldn't get all the resources, release the mutexes we got
-        // and set pending status
-        if (uses) {
-          for (Mutex *m : *uses) {
-            if (node == m->getHolder())
-              m->release();
-            m->addWaitingNode(node);
-          }
-        }
-        node->setQueueStatus(QUEUE_PENDING);
-      }
-    }
-
     // Only called if pending queue not empty
     void resolveResourceConflicts()
     {
@@ -504,8 +519,8 @@ namespace PLEXIL
         // Gather nodes at same priority 
         int32_t thisPriority = priorityHead->getPriority();
 
-        debugMsg("PlexilExec:resolveResourceConflicts",
-                 " processing nodes at priority " << thisPriority);
+        debugMsg("PlexilExec:step",
+                 " processing resource reservations at priority " << thisPriority);
 
         Node *temp = priorityHead;
         do {
@@ -519,20 +534,24 @@ namespace PLEXIL
         // or pointing to node with higher (numerical) priority
         priorityHead = temp; // for next iteration
 
-        debugMsg("PlexilExec:resolveResourceConflicts",
+        debugMsg("PlexilExec:step",
                  ' ' << priorityNodes.size() << " nodes eligible to acquire resources");
 
-        // Check assignment variable conflicts at same priority here - 
-        // or just let them happen in order they were enqueued,
-        // as the variable becomes available.
-
-        // if (priorityNodes.size() > 1) {
-        // }
-
-        // Try to acquire the resources.
-        // If successful, transition the nodes.
-        for (Node *n : priorityNodes)
-          tryResourceAcquisition(n);
+        // Let each node try to acquire its resources.
+        // Transition the ones that succeed.
+        for (Node *n : priorityNodes) {
+          if (n->tryResourceAcquisition()) {
+            // Node can transition now
+            debugMsg("PlexilExec:resolveResourceConflicts",
+                     ' ' << n->getNodeId() << " succeeded");
+            removePendingNode(n);
+            addStateChangeNode(n);
+          }
+          else {
+            // Can't get resources, so mark that node has been checked
+            n->setQueueStatus(QUEUE_PENDING);
+          }
+        }
 
         // Done with this batch
         priorityNodes.clear();
@@ -546,13 +565,54 @@ namespace PLEXIL
                    << m_assignmentsToExecute.size() <<  " assignments and "
                    << m_assignmentsToRetract.size() << " retractions");
       for (Assignment *assn : m_assignmentsToExecute)
-        assn->execute();
+        assn->execute(m_listener);
       m_assignmentsToExecute.clear();
       for (Assignment *assn : m_assignmentsToRetract)
-        assn->retract();
+        assn->retract(m_listener);
       m_assignmentsToRetract.clear();
     }
 
+    void executeOutboundQueue()
+    {
+      assertTrue_2(m_dispatcher,
+                   "PlexilExec: attempt to execute without an ExternalInterface!");
+
+      if (m_arbiter) {
+        // Arbitrate commands to be executed
+        LinkedQueue<CommandImpl> accepted, rejected;
+        m_arbiter->arbitrateCommands(m_commandsToExecute, accepted, rejected);
+        // Execute the ones which can be executed
+        while (CommandImpl *cmd = accepted.front()) {
+          accepted.pop();
+          m_dispatcher->executeCommand(cmd);
+        }
+        // ... and reject the rest
+        while (CommandImpl *cmd = rejected.front()) {
+          rejected.pop();
+          debugMsg("Test:testOutput", 
+                   "Permission to execute " << cmd->getName()
+                   << " has been denied by the resource arbiter."); // legacy message
+          m_dispatcher->reportCommandArbitrationFailure(cmd);
+        }
+      }
+      else {
+        // Execute them all
+        while (CommandImpl *cmd = m_commandsToExecute.front()) {
+          m_commandsToExecute.pop();
+          m_dispatcher->executeCommand(cmd);
+        }
+      }
+      
+      while (CommandImpl *cmd = m_commandsToAbort.front()) {
+        m_commandsToAbort.pop();
+        m_dispatcher->invokeAbort(cmd);
+      }
+
+      while (Update *upd = m_updatesToExecute.front()) {
+        m_updatesToExecute.pop();
+        m_dispatcher->executeUpdate(upd);
+      }
+    }
 
     //
     // Internal queue management
@@ -583,7 +643,7 @@ namespace PLEXIL
       m_stateChangeQueue.pop();
       result->setQueueStatus(QUEUE_NONE);
       if (was == QUEUE_TRANSITION_CHECK)
-        result->notifyChanged();
+        result->notifyChanged(this);
       return result;
     }
       
@@ -647,12 +707,7 @@ namespace PLEXIL
     {
       m_pendingQueue.remove(node);
       node->setQueueStatus(QUEUE_NONE);
-      std::vector<Mutex *> const *uses = node->getUsingMutexes();
-      if (uses)
-        for (Mutex *m : *uses)
-          m->removeWaitingNode(node);
-      if (node->getType() == NodeType_Assignment)
-        node->getAssignmentVariable()->removeWaitingNode(node);
+      node->releaseResourceReservations();
     }
 
     Node *getFinishedRootNode() {

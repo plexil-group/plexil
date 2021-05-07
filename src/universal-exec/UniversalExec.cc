@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -24,28 +24,35 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "AdapterConfiguration.hh" 
+#include "Debug.hh"
 #include "ExecApplication.hh"
-#include "ExternalInterface.hh"
 #include "InterfaceManager.hh"
 #include "InterfaceSchema.hh"
-#include "TimeAdapter.hh"
-#include "AdapterFactory.hh"
-#include "Debug.hh"
-#include "Node.hh"
 #include "lifecycle-utils.h"
+#include "PlexilExec.hh"
+#include "ResourceArbiterInterface.hh"
 
 #ifdef HAVE_LUV_LISTENER
 #include "LuvListener.hh"
 #endif
 
-#include <cstring>
+#include "pugixml.hpp"
+
 #include <fstream>
+
+#if defined(HAVE_CSTRING)
+#include <cstring>
+#elif defined(HAVE_STRING_H)
+#include <string.h>
+#endif
 
 using namespace PLEXIL;
 
 int main_internal(int argc, char** argv)
 {
-  std::string planName("error");
+  unsigned int const PUGI_PARSE_OPTIONS = pugi::parse_default | pugi::parse_ws_pcdata_single;
+  std::string planName;
   std::string debugConfig("Debug.cfg");
   std::string interfaceConfig("interface-config.xml");
   std::string resourceFile("resource.data");
@@ -59,15 +66,15 @@ int main_internal(int argc, char** argv)
                     [-c <interface_config_file>] (default ./interface-config.xml)\n\
                     [-d <debug_config_file>]     (default ./Debug.cfg)\n\
                     [+d]                         (disable debug messages)\n");
-  bool luvRequest = false;
 
 #ifdef HAVE_LUV_LISTENER
-  std::string luvHost = PLEXIL::LuvListener::LUV_DEFAULT_HOSTNAME();
-  int luvPort = PLEXIL::LuvListener::LUV_DEFAULT_PORT();
+  std::string luvHost = LUV_DEFAULT_HOSTNAME;
+  int luvPort = LUV_DEFAULT_PORT;
   bool luvBlock = false;
   usage += "                    [-v [-h <luv_hostname>] [-n <luv_portnumber>] [-b] ]\n";
 #endif
 
+  bool luvRequest = false;
   bool debugConfigSupplied = false;
   bool useDebugConfig = true;
   bool resourceFileSupplied = false;
@@ -218,7 +225,8 @@ int main_internal(int argc, char** argv)
   pugi::xml_document configDoc;
   if (!interfaceConfig.empty()) {
     std::cout << "Reading interface configuration from " << interfaceConfig << std::endl;
-	pugi::xml_parse_result parseResult = configDoc.load_file(interfaceConfig.c_str());
+	pugi::xml_parse_result parseResult =
+      configDoc.load_file(interfaceConfig.c_str(), PUGI_PARSE_OPTIONS);
     if (parseResult.status != pugi::status_ok) {
       std::cout << "WARNING: unable to load interface configuration file " 
                 << interfaceConfig 
@@ -236,7 +244,7 @@ int main_internal(int argc, char** argv)
 	configElt = configDoc.append_child(PLEXIL::InterfaceSchema::INTERFACES_TAG);
 	// Add a time adapter
 	pugi::xml_node timeElt = configElt.append_child(PLEXIL::InterfaceSchema::ADAPTER_TAG);
-	timeElt.append_attribute("AdapterType").set_value("OSNativeTime");
+	timeElt.append_attribute("AdapterType").set_value("Time");
   }
   else {
 	configElt = configDoc.child(PLEXIL::InterfaceSchema::INTERFACES_TAG);
@@ -249,7 +257,7 @@ int main_internal(int argc, char** argv)
   }
 
 #ifdef HAVE_LUV_LISTENER
-  // if a luv viewer is to be attached,
+  // if a PLEXIL Viewer is to be attached from the command line,
   // command line arguments must override config file
   if (luvRequest) {
     pugi::xml_node existing =
@@ -258,26 +266,28 @@ int main_internal(int argc, char** argv)
                                         "LuvListener");
     if (existing)
       configElt.remove_child(existing);
-
-	pugi::xml_document* luvConfig = 
-	  PLEXIL::LuvListener::constructConfigurationXml(luvBlock,
-													 luvHost.c_str(), 
-													 luvPort);	
-	configElt.append_copy(luvConfig->document_element());
-	delete luvConfig;
   }
 #endif
 
   // construct the application
-  PLEXIL::ExecApplication _app;
+  std::unique_ptr<PLEXIL::ExecApplication> _app(makeExecApplication());
+
+#ifdef HAVE_LUV_LISTENER
+  // Construct interface to the PLEXIL Viewer if requested on the command line
+  if (luvRequest) {
+    _app->configuration()->addExecListener(makeLuvListener(luvHost.c_str(),
+                                                           luvPort,
+                                                           luvBlock));
+  }
+#endif
 
   // initialize it
   std::cout << "Initializing application" << std::endl;
   if (useResourceFile) {
-    g_interface->readResourceFile(resourceFile);
+    _app->exec()->getArbiter()->readResourceHierarchyFile(resourceFile);
   }
 
-  if (!_app.initialize(configElt)) {
+  if (!_app->initialize(configElt)) {
       std::cout << "ERROR: unable to initialize application"
                 << std::endl;
       return 1;
@@ -285,19 +295,30 @@ int main_internal(int argc, char** argv)
 
   // add library path
   if (!libraryPath.empty())
-	_app.addLibraryPath(libraryPath);
+	_app->addLibraryPath(libraryPath);
+
+  // if specified on command line, load Plexil libraries
+  for (std::vector<std::string>::const_iterator libraryName = libraryNames.begin();
+       libraryName != libraryNames.end();
+       ++libraryName) {
+	std::cout << "Loading library node from file '" << *libraryName << "'" << std::endl;
+    if (!_app->loadLibrary(*libraryName)) {
+      std::cout << "ERROR: unable to load library " << *libraryName << std::endl;
+      return 1;
+    }
+  }
 
   // start interfaces
   std::cout << "Starting interfaces" << std::endl;
-  if (!_app.startInterfaces()) {
+  if (!_app->startInterfaces()) {
       std::cout << "ERROR: unable to start interfaces"
                 << std::endl;
       return 1;
-    }
+  }
 
   // start the application
   std::cout << "Starting the exec" << std::endl;
-  if (!_app.run()) {
+  if (!_app->run()) {
 	std::cout << "ERROR: Failed to start Exec" << std::endl;
 	return 1;
   }
@@ -305,53 +326,37 @@ int main_internal(int argc, char** argv)
   // Below this point, must be careful to shut down gracefully
   bool error = false;
 
-  // if specified on command line, load Plexil libraries
-  for (std::vector<std::string>::const_iterator libraryName = libraryNames.begin();
-       libraryName != libraryNames.end();
-       ++libraryName) {
-	std::cout << "Loading library node from file '" << *libraryName << "'" << std::endl;
-    if (!_app.loadLibrary(*libraryName)) {
-      std::cout << "ERROR: unable to load library " << *libraryName << std::endl;
-	  error = true;
-    }
+  if (planName.empty()) {
+    // No plan provided, wait for one to arrive
+    // TODO: add SIGINT handler here
+    _app->waitForShutdown();
   }
-
-  // load the plan
-  if (!error && planName != "error") {
+  else {
+    // load the given plan
 	pugi::xml_document plan;
-	pugi::xml_parse_result parseResult = plan.load_file(planName.c_str());
+	pugi::xml_parse_result parseResult =
+      plan.load_file(planName.c_str(), PUGI_PARSE_OPTIONS);
     if (parseResult.status != pugi::status_ok) {
       std::cout << "Error parsing plan " << planName
 				<< " (offset " << parseResult.offset << "): "
                 << parseResult.description() << std::endl;
 	  error = true;
     }
-    else if (!_app.addPlan(&plan)) {
+    else if (!_app->addPlan(&plan)) {
 	  std::cout << "Unable to load plan '" << planName << "', exiting" << std::endl;
 	  error = true;
 	}
+    if (!error) {
+      // Tell the exec to run it
+      _app->notifyAndWaitForCompletion();
+      // ... then wait for it to finish.
+      _app->waitForPlanFinished();
+    }
+    // clean up
+    _app->stop();
+    std::cout << "Plan complete, Exec exited with"
+              << (error ? " " : "out ") << "errors" << std::endl;
   }
-
-  if (!error) {
-    _app.notifyExec();
-	_app.waitForPlanFinished();
-  }
-
-  std::cout << "UniversalExec " << planName << " finished, cleaning up" << std::endl;
-
-  // clean up
-  if (!_app.stop()) {
-	std::cout << "ERROR: failed to stop Exec" << std::endl;
-	return 1;
-  }
-
-  if (!_app.shutdown()) {
-	std::cout << "ERROR: failed to shut down Exec" << std::endl;
-	return 1;
-  }
-
-  std::cout << "Plan complete, Exec exited with"
-            << (error ? " " : "out ") << "errors" << std::endl;
   return (error ? 1 : 0);
 }
 

@@ -1,0 +1,518 @@
+# * Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+# *  All rights reserved.
+# *
+# * Redistribution and use in source and binary forms, with or without
+# * modification, are permitted provided that the following conditions are met:
+# *     * Redistributions of source code must retain the above copyright
+# *       notice, this list of conditions and the following disclaimer.
+# *     * Redistributions in binary form must reproduce the above copyright
+# *       notice, this list of conditions and the following disclaimer in the
+# *       documentation and/or other materials provided with the distribution.
+# *     * Neither the name of the Universities Space Research Association nor the
+# *       names of its contributors may be used to endorse or promote products
+# *       derived from this software without specific prior written permission.
+# *
+# * THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+# * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# * DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+# * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+# * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+# * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+# * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+# * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+# Common elements that are included in several PLEXIL schemas.
+# NOTE: this is an incomplete schema, as it doesn't define the "Name"
+# element.  It is used as an included schema only.
+
+default namespace = ""
+namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
+namespace rng = "http://relaxng.org/ns/structure/1.0"
+namespace xsi = "http://www.w3.org/2001/XMLSchema-instance"
+
+# Source locator attributes for many elements
+attr_FileName = attribute FileName { xsd:string }?
+attr_LineNo = attribute LineNo { xsd:integer }?
+attr_ColNo = attribute ColNo { xsd:integer }?
+SourceLocators = attr_FileName, attr_LineNo, attr_ColNo
+# This is the sole root element allowed!
+start = starting_PlexilPlan
+starting_PlexilPlan =
+  element PlexilPlan {
+    GlobalDeclarations?,
+    Action,
+    # Plexil v1 doesn't have this
+    attribute version { xsd:decimal },
+    SourceLocators,
+    # Attempt to imitate rncfix
+    attribute * { text }
+  }
+# This is overridden in Extended Plexil
+Action = BasicNodes
+node-reference = (NodeId | NodeRef), SourceLocators
+NodeId = element NodeId { xsd:NCName }
+NodeRef =
+  element NodeRef {
+    NCNameOrEmpty,
+    attribute dir { "parent" | "sibling" | "child" | "self" }?
+  }
+GlobalDeclarations =
+  element GlobalDeclarations {
+    (CommandDeclaration?
+     | StateDeclaration?
+     | DeclareMutex?
+     | LibraryNode?
+     | # nuke this?
+       element TimeScalingUnitsSubunits { xsd:integer }?)+,
+    SourceLocators
+  }
+CommandDeclaration =
+  element CommandDeclaration {
+    ParameterSpec?,
+    Resource*,
+    attribute Name { xsd:NCName },
+    attribute Type { ParameterTypeValues }?,
+    attribute MaxSize { xsd:nonNegativeInteger }?,
+    SourceLocators
+  }
+StateDeclaration =
+  element StateDeclaration {
+    ParameterSpec?,
+    attribute Name { xsd:NCName },
+    attribute Type { ParameterTypeValues },
+    attribute MaxSize { xsd:nonNegativeInteger }?,
+    SourceLocators
+  }
+LibraryNode =
+  element LibraryNode {
+    Interface*,
+    attribute Name { xsd:NCName },
+    SourceLocators
+  }
+ParameterSpec =
+  Parameter*,
+  element AnyParameters { empty }?
+Parameter =
+  element Parameter {
+    attribute Name { xsd:NCName }?,
+    attribute Type { ParameterTypeValues },
+    # MaxSize only valid if an array type
+    attribute MaxSize { xsd:nonNegativeInteger }?
+  }
+# Both global and local declarations share this syntax
+DeclareMutex =
+  element DeclareMutex {
+    attribute Name { xsd:NCName }?,
+    SourceLocators
+  }
+NCNameOrEmpty = xsd:NCName | ("")
+BasicNodes =
+  EmptyNode
+  | Assignment
+  | CommandNode
+  | LibraryCall
+  | ListNode
+  | UpdateNode
+node-base =
+  element Comment { xsd:string }?,
+  Conditions?,
+  # Aliases for expressions external to this node
+  Interface*,
+  # Variable declarations
+  VariableDeclaration*,
+  UsingMutex?,
+  attribute Priority { xsd:nonNegativeInteger }?,
+  attribute NodeId { xsd:NMTOKEN },
+  # The epx attribute indicates a node that is a translation of an
+  # Extended Plexil construct (i.e. macro).  Its value is the type of
+  # this construct, or 'aux' indicating it is an auxilliary generated
+  # node.
+  attribute epx { xsd:NMTOKEN }?,
+  SourceLocators
+EmptyNode = element EmptyNode { node-base }
+Assignment =
+  element Assignment { node-base, DeclaredVariable, Expression }
+CommandNode = element CommandNode { node-base, Command }
+UpdateNode = element UpdateNode { node-base, Update }
+# Used several places in Extended Plexil schema
+sequence-type = node-base, Action*
+ListNode = element ListNode { sequence-type }
+Conditions =
+  # Note that these are always evaluated in WAITING state,
+  # before the node's variables are bound
+  SkipCondition
+  | StartCondition
+  | PreCondition
+  | # EndCondition is only evaluated in EXECUTING state
+    EndCondition
+  | # At present ExitCondition can be evaluated in
+    # WAITING, EXECUTING, FINISHING states
+    # This should be fixed!!
+    ExitCondition
+  | # InvariantCondition can be evaluated in
+    # EXECUTING and FINISHING states
+    InvariantCondition
+  | # PostCondition is evaluated in EXECUTING or FINISHING states
+    PostCondition
+  | # RepeatCondition is evaluated only in ITERATION_ENDED state,
+    # after node variables are deactivated
+    RepeatCondition
+condition = GeneralizedBooleanExpression, SourceLocators
+EndCondition = element EndCondition { condition }
+ExitCondition = element ExitCondition { condition }
+InvariantCondition = element InvariantCondition { condition }
+PostCondition = element PostCondition { condition }
+PreCondition = element PreCondition { condition }
+RepeatCondition = element RepeatCondition { condition }
+SkipCondition = element SkipCondition { condition }
+StartCondition = element StartCondition { condition }
+Interface = In? | InOut?
+interface-spec = (DeclareVariable | DeclareArray)+, SourceLocators
+In = element In { interface-spec }
+InOut = element InOut { interface-spec }
+UsingMutex =
+  element UsingMutex {
+    element Mutex { variable-reference }+,
+    SourceLocators
+  }
+Resource =
+  element Resource {
+    (element Name { GeneralizedStringExpression }
+     & element Priority { GeneralizedNumericExpression }
+     & element LowerBound { GeneralizedNumericExpression }?
+     & element UpperBound { GeneralizedNumericExpression }?
+     & element ReleaseAtTermination { GeneralizedBooleanExpression }?),
+    SourceLocators
+  }
+DeclaredVariable =
+  IntegerVariable
+  | RealVariable
+  | BooleanVariable
+  | StringVariable
+  | ArrayVariable
+  | ArrayElement
+variable-reference =
+  attribute Name { xsd:NCName },
+  SourceLocators
+IntegerVariable = element IntegerVariable { variable-reference }
+RealVariable = element RealVariable { variable-reference }
+BooleanVariable = element BooleanVariable { variable-reference }
+StringVariable = element StringVariable { variable-reference }
+ArrayVariable = element ArrayVariable { variable-reference }
+DeclareVariable =
+  element DeclareVariable {
+    InitialValue?,
+    attribute Name { xsd:NCName },
+    attribute Type { AtomicTypeValues },
+    SourceLocators
+  }
+DeclareArray =
+  element DeclareArray {
+    InitialArrayValue?,
+    attribute Name { xsd:NCName },
+    attribute ElementType { AtomicTypeValues },
+    attribute MaxSize { xsd:nonNegativeInteger }?,
+    SourceLocators
+  }
+# Legal initializers for atomic variable declarations
+InitialValue =
+  BooleanExpression
+  | NumericExpression
+  | StringExpression
+  | Lookup
+  | ArrayElement
+# Legal initializers for array variable declarations
+InitialArrayValue = GeneralizedArrayExpression
+VariableDeclaration = DeclareVariable | DeclareArray | DeclareMutex
+Command =
+  element Command {
+    Resource*, DeclaredVariable?, Name, Expression*, SourceLocators
+  }
+# Expression of any type
+Expression =
+  BooleanExpression
+  | NumericExpression
+  | StringExpression
+  | ArrayExpression
+  | Lookup
+  | ArrayElement
+Update = element Update { Pair*, SourceLocators }
+Pair =
+  element Pair {
+    Expression,
+    attribute Name { xsd:NCName }
+  }
+LibraryCall =
+  element LibraryCall {
+    node-base,
+    element Library { xsd:NCName },
+    Alias*
+  }
+Alias =
+  element Alias {
+    Expression,
+    attribute NodeParameter { xsd:NCName },
+    SourceLocators
+  }
+Integer =
+  element Integer {
+    attribute value { xsd:integer }?
+  }
+Real =
+  element Real {
+    attribute value { xsd:double }?
+  }
+Boolean =
+  element Boolean {
+    attribute value { xsd:boolean }?
+  }
+String = element String { xsd:string }
+Array =
+  element Array {
+    (Integer+ | Real+ | Boolean+ | String+),
+    attribute ElementType { AtomicTypeValues },
+    SourceLocators
+  }
+GeneralizedArrayExpression = ArrayExpression | Lookup
+ArrayExpression = Array | ArrayVariable
+assignment = DeclaredVariable, Expression, SourceLocators
+GeneralizedBooleanExpression = BooleanExpression | Lookup | ArrayElement
+BooleanExpression =
+  LogicalOperator
+  | Equality
+  | NumericComparison
+  | KnownTest
+  | NodeStatePredicate
+  | NodeOutcomePredicate
+  | NodeFailurePredicate
+  | BooleanVariable
+  | Boolean
+LogicalOperator = OR | XOR | AND | NOT
+Equality =
+  # Sigh. Have to preserve old names for sake of simple translation.
+  
+  # <xs:element ref="EQ"/>
+  
+  # <xs:element ref="NE"/>
+  EQBoolean
+  | EQNumeric
+  | EQInternal
+  | EQString
+  | EQArray
+  | NEBoolean
+  | NENumeric
+  | NEInternal
+  | NEString
+  | NEArray
+NumericComparison = GT | GE | LT | LE
+IsKnown =
+  element IsKnown {
+    (Expression
+     | NodeStateVariable
+     | NodeOutcomeVariable
+     | NodeCommandHandleVariable),
+    SourceLocators
+  }
+ALL_KNOWN =
+  element ALL_KNOWN { GeneralizedArrayExpression, SourceLocators }
+ANY_KNOWN =
+  element ANY_KNOWN { GeneralizedArrayExpression, SourceLocators }
+KnownTest = IsKnown | ALL_KNOWN | ANY_KNOWN
+unary-boolean-op = GeneralizedBooleanExpression, SourceLocators
+nary-boolean-op = GeneralizedBooleanExpression+, SourceLocators
+NOT = element NOT { unary-boolean-op }
+OR = element OR { nary-boolean-op }
+XOR = element XOR { nary-boolean-op }
+AND = element AND { nary-boolean-op }
+binary-numeric-op =
+  GeneralizedNumericExpression,
+  GeneralizedNumericExpression,
+  SourceLocators
+GT = element GT { binary-numeric-op }
+GE = element GE { binary-numeric-op }
+LT = element LT { binary-numeric-op }
+LE = element LE { binary-numeric-op }
+equality-operator =
+  (GeneralizedBooleanExpression
+   | GeneralizedBooleanExpression
+   | GeneralizedNumericExpression
+   | GeneralizedNumericExpression
+   | GeneralizedStringExpression
+   | GeneralizedStringExpression
+   | GeneralizedArrayExpression
+   | GeneralizedArrayExpression
+   | NodeState
+   | NodeState
+   | NodeOutcome
+   | NodeOutcome
+   | NodeFailure
+   | NodeFailure
+   | NodeCommandHandle
+   | NodeCommandHandle),
+  SourceLocators
+# <xs:element name="EQ" type="equality-operator" />
+
+# <xs:element name="NE" type="equality-operator" />
+EQBoolean = element EQBoolean { equality-operator }
+EQNumeric = element EQNumeric { equality-operator }
+EQString = element EQString { equality-operator }
+EQArray = element EQArray { equality-operator }
+EQInternal = element EQInternal { equality-operator }
+NEBoolean = element NEBoolean { equality-operator }
+NENumeric = element NENumeric { equality-operator }
+NEString = element NEString { equality-operator }
+NEArray = element NEArray { equality-operator }
+NEInternal = element NEInternal { equality-operator }
+# Node references
+NodeCommandHandleVariable =
+  element NodeCommandHandleVariable { node-reference }
+NodeCommandHandleValues =
+  "COMMAND_SENT_TO_SYSTEM"
+  | "COMMAND_ACCEPTED"
+  | "COMMAND_DENIED"
+  | "COMMAND_RCVD_BY_SYSTEM"
+  | "COMMAND_FAILED"
+  | "COMMAND_SUCCESS"
+  | "COMMAND_ABORTED"
+  | "COMMAND_ABORT_FAILED"
+  | "COMMAND_INTERFACE_ERROR"
+NodeCommandHandleValue =
+  element NodeCommandHandleValue { NodeCommandHandleValues }
+NodeCommandHandle = NodeCommandHandleVariable | NodeCommandHandleValue
+NodeState = NodeStateVariable | NodeState
+NodeStateVariable = element NodeStateVariable { node-reference }
+NodeStateValues =
+  "WAITING"
+  | "EXECUTING"
+  | "FINISHING"
+  | "FAILING"
+  | "ITERATION_ENDED"
+  | "FINISHED"
+  | "INACTIVE"
+NodeState =
+  element NodeState {
+    attribute value { NodeStateValues }?
+  }
+# Node State Predicates
+NodeStatePredicate =
+  Executing
+  | Finished
+  | Inactive
+  | IterationEnded
+  | Waiting
+  | NoChildFailed
+Executing = element Executing { node-reference }
+Finished = element Finished { node-reference }
+Inactive = element Inactive { node-reference }
+IterationEnded = element IterationEnded { node-reference }
+Waiting = element Waiting { node-reference }
+NoChildFailed = element NoChildFailed { node-reference }
+NodeOutcome = NodeOutcomeVariable | NodeOutcome
+NodeOutcomeVariable = element NodeOutcomeVariable { node-reference }
+NodeOutcomeValues = "SUCCESS" | "FAILURE" | "SKIPPED" | "INTERRUPTED"
+NodeOutcome =
+  element NodeOutcome {
+    attribute value { NodeOutcomeValues }?
+  }
+# Node Outcome Predicates
+NodeOutcomePredicate =
+  Failed
+  | Skipped
+  | Succeeded
+    # more to come
+    
+Failed = element Failed { node-reference }
+Skipped = element Skipped { node-reference }
+Succeeded = element Succeeded { node-reference }
+NodeFailure = NodeFailureVariable | NodeFailure
+NodeFailureVariable = element NodeFailureVariable { node-reference }
+NodeFailureValues =
+  "PRE_CONDITION_FAILED"
+  | "POST_CONDITION_FAILED"
+  | "INVARIANT_CONDITION_FAILED"
+  | "PARENT_FAILED"
+  | "PARENT_EXITED"
+  | "EXITED"
+NodeFailure =
+  element NodeFailure {
+    attribute value { NodeFailureValues }?
+  }
+# Node Failure Predicates
+NodeFailurePredicate =
+  PostconditionFailed
+  # more to come
+  
+PostconditionFailed = element PostconditionFailed { node-reference }
+NodeTimepoint =
+  element NodeTimepoint {
+    node-reference,
+    attribute NodeState { NodeStateValues },
+    attribute Timepoint { "START" | "END" }
+  }
+GeneralizedStringExpression = StringExpression | Lookup | ArrayElement
+StringExpression = StringVariable | String | StringOperator
+StringOperator = Concat
+Concat = element Concat { GeneralizedStringExpression*, SourceLocators }
+GeneralizedNumericExpression = NumericExpression | Lookup | ArrayElement
+NumericExpression =
+  ArithmeticOperator
+  | IntegerVariable
+  | RealVariable
+  | Integer
+  | Real
+  | NodeTimepoint
+  | #  read operations for arrays
+    ArraySize
+  | ArrayMaxSize
+ArithmeticOperator =
+  ADD
+  | SUB
+  | MUL
+  | DIV
+  | MOD
+  | MAX
+  | MIN
+  | SQRT
+  | ABS
+  | CEIL
+  | FLOOR
+  | ROUND
+  | TRUNC
+  | REAL_TO_INT
+  | STRLEN
+ArrayElement =
+  element ArrayElement {
+    GeneralizedArrayExpression,
+    GeneralizedNumericExpression,
+    SourceLocators
+  }
+DIV = element DIV { binary-numeric-op }
+MOD = element MOD { binary-numeric-op }
+nary-numeric-op = GeneralizedNumericExpression+, SourceLocators
+ADD = element ADD { nary-numeric-op }
+SUB = element SUB { nary-numeric-op }
+MUL = element MUL { nary-numeric-op }
+MAX = element MAX { nary-numeric-op }
+MIN = element MIN { nary-numeric-op }
+unary-numeric-op = GeneralizedNumericExpression, SourceLocators
+SQRT = element SQRT { unary-numeric-op }
+ABS = element ABS { unary-numeric-op }
+CEIL = element CEIL { unary-numeric-op }
+FLOOR = element FLOOR { unary-numeric-op }
+ROUND = element ROUND { unary-numeric-op }
+TRUNC = element TRUNC { unary-numeric-op }
+REAL_TO_INT = element REAL_TO_INT { unary-numeric-op }
+STRLEN = element STRLEN { GeneralizedStringExpression, SourceLocators }
+ArraySize =
+  element ArraySize { GeneralizedArrayExpression, SourceLocators }
+ArrayMaxSize =
+  element ArrayMaxSize { GeneralizedArrayExpression, SourceLocators }
+Lookup =
+  element Lookup {
+    element Tolerance { GeneralizedNumericExpression }?,
+    Name,
+    Expression*,
+    SourceLocators
+  }

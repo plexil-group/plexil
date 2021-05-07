@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tr="extended-plexil-translator">
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <GlobalDeclarations>
     <DeclareMutex>
       <Name>m</Name>
     </DeclareMutex>
   </GlobalDeclarations>
-  <Node NodeType="NodeList" epx="Sequence">
-    <NodeId>ep2cp_Sequence_d2e1</NodeId>
+  <Node NodeType="NodeList" epx="OnCommand">
+    <NodeId generated="1">ep2cp_OnCommand_d13e11</NodeId>
     <VariableDeclarations>
       <DeclareVariable>
         <Name>distance</Name>
@@ -21,23 +21,31 @@
         <Type>String</Type>
       </DeclareVariable>
     </VariableDeclarations>
+    <UsingMutex>
+      <Name>m</Name>
+    </UsingMutex>
     <InvariantCondition>
       <NoChildFailed>
         <NodeRef dir="self"/>
       </NoChildFailed>
     </InvariantCondition>
-    <UsingMutex>
-      <Name>m</Name>
-    </UsingMutex>
     <NodeBody>
       <NodeList>
-        <Node NodeType="Command">
-          <NodeId>ep2cp_CmdWait</NodeId>
+        <Node NodeType="Command" epx="OnCommand-command-wait">
+          <NodeId generated="1">ep2cp_CmdWait</NodeId>
           <EndCondition>
             <IsKnown>
               <StringVariable>ep2cp_hdl</StringVariable>
             </IsKnown>
           </EndCondition>
+          <PostCondition>
+            <EQInternal>
+              <NodeCommandHandleVariable>
+                <NodeRef dir="self"/>
+              </NodeCommandHandleVariable>
+              <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+            </EQInternal>
+          </PostCondition>
           <NodeBody>
             <Command>
               <StringVariable>ep2cp_hdl</StringVariable>
@@ -50,18 +58,26 @@
             </Command>
           </NodeBody>
         </Node>
-        <Node NodeType="Command">
-          <NodeId>ep2cp_CmdGetParam_distance</NodeId>
+        <Node NodeType="Command" epx="OnCommand-get-param">
+          <NodeId generated="1">ep2cp_CmdGetParam_0</NodeId>
           <StartCondition>
-            <Finished>
-              <NodeRef dir="sibling">ep2cp_CmdWait</NodeRef>
-            </Finished>
+            <IsKnown>
+              <StringVariable>ep2cp_hdl</StringVariable>
+            </IsKnown>
           </StartCondition>
           <EndCondition>
             <IsKnown>
               <IntegerVariable>distance</IntegerVariable>
             </IsKnown>
           </EndCondition>
+          <PostCondition>
+            <EQInternal>
+              <NodeCommandHandleVariable>
+                <NodeRef dir="self"/>
+              </NodeCommandHandleVariable>
+              <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+            </EQInternal>
+          </PostCondition>
           <NodeBody>
             <Command>
               <IntegerVariable>distance</IntegerVariable>
@@ -75,18 +91,26 @@
             </Command>
           </NodeBody>
         </Node>
-        <Node NodeType="Command">
-          <NodeId>ep2cp_CmdGetParam_direction</NodeId>
+        <Node NodeType="Command" epx="OnCommand-get-param">
+          <NodeId generated="1">ep2cp_CmdGetParam_1</NodeId>
           <StartCondition>
-            <Finished>
-              <NodeRef dir="sibling">ep2cp_CmdGetParam_distance</NodeRef>
-            </Finished>
+            <IsKnown>
+              <StringVariable>ep2cp_hdl</StringVariable>
+            </IsKnown>
           </StartCondition>
           <EndCondition>
             <IsKnown>
               <RealVariable>direction</RealVariable>
             </IsKnown>
           </EndCondition>
+          <PostCondition>
+            <EQInternal>
+              <NodeCommandHandleVariable>
+                <NodeRef dir="self"/>
+              </NodeCommandHandleVariable>
+              <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+            </EQInternal>
+          </PostCondition>
           <NodeBody>
             <Command>
               <RealVariable>direction</RealVariable>
@@ -100,26 +124,24 @@
             </Command>
           </NodeBody>
         </Node>
-        <Node NodeType="NodeList">
-          <NodeId>ep2cp_CmdAction_moveRover</NodeId>
+        <Node NodeType="Empty" epx="OnCommand-action">
+          <NodeId>foo</NodeId>
           <StartCondition>
-            <Finished>
-              <NodeRef dir="sibling">ep2cp_CmdGetParam_direction</NodeRef>
-            </Finished>
+            <AND>
+              <Succeeded>
+                <NodeRef dir="sibling">ep2cp_CmdGetParam_0</NodeRef>
+              </Succeeded>
+              <Succeeded>
+                <NodeRef dir="sibling">ep2cp_CmdGetParam_1</NodeRef>
+              </Succeeded>
+            </AND>
           </StartCondition>
-          <NodeBody>
-            <NodeList>
-              <Node NodeType="Empty">
-                <NodeId>foo</NodeId>
-              </Node>
-            </NodeList>
-          </NodeBody>
         </Node>
-        <Node NodeType="Command">
-          <NodeId>ep2cp_CmdReturn</NodeId>
+        <Node NodeType="Command" epx="OnCommand-return">
+          <NodeId generated="1">ep2cp_OnCommandReturn_moveRover</NodeId>
           <StartCondition>
             <Finished>
-              <NodeRef dir="sibling">ep2cp_CmdAction_moveRover</NodeRef>
+              <NodeRef dir="sibling">foo</NodeRef>
             </Finished>
           </StartCondition>
           <NodeBody>

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -30,26 +30,32 @@
 #include "CommandHandle.hh"
 #include "Debug.hh"
 #include "Error.hh"
-#include "ThreadSpawn.hh"
 
+#include <algorithm>
 #include <fstream>
 #include <map>
+#include <thread>
 
-#ifdef STDC_HEADERS
-#include <cstdint>
+#if defined(HAVE_CSTDIO)
 #include <cstdio>
+#elif defined(HAVE_STDIO_H)
+#include <stdio.h>
+#endif
+
+#if defined(HAVE_CSTRING)
 #include <cstring>
+#elif defined(HAVE_STRING_H)
+#include <string.h>
 #endif
 
 namespace PLEXIL 
 {
-
-  // Message type name cache
-  // Not clear whether string concatenation or map lookup is more expensive.
-
-  typedef std::pair<std::string, std::string> MessageFormatKey;
-  typedef std::map<MessageFormatKey, std::string> MessageFormatMap;
-  static MessageFormatMap messageFormatMap;
+  // forward reference
+  static bool definePlexilIPCMessageTypes(std::string uid);
+  static void myIpcDispatch(bool *flag_ptr);
+  static void ipcMessageHandler(MSG_INSTANCE /* rawMsg */,
+                                void * unmarshalledMsg,
+                                void * this_as_void_ptr);
 
   /**
    * Returns a constant character string pointer for the formatted message type,
@@ -58,14 +64,19 @@ namespace PLEXIL
    * @param destId The destination ID for the message
    * @return Character string pointer.
    */
-  static char const *formatMsgName(const std::string& msgName, const std::string& destId) {
+  static char const *formatMsgName(const char *msgName, const std::string &destId)
+  {
+    using MessageFormatKey = std::pair<std::string, std::string>;
+    using MessageFormatMap = std::map<MessageFormatKey, std::string>;
+
+    static MessageFormatMap sl_formatMap;
+
     MessageFormatKey const key(msgName, destId);
-    MessageFormatMap::iterator it = messageFormatMap.find(key);
-    if (it != messageFormatMap.end())
-      return it->second.c_str();
-    it = messageFormatMap.insert(it,
-                                 std::pair<MessageFormatKey, std::string>(key, destId + msgName));
-    return it->second.c_str();
+    std::string &resultString = sl_formatMap[key];
+    if (!resultString.empty())
+      return resultString.c_str();
+    sl_formatMap[key] = destId + msgName;
+    return sl_formatMap[key].c_str();
   }
 
   /**
@@ -78,7 +89,6 @@ namespace PLEXIL
     switch (typ) {
     case PlexilMsgType_NotifyExec:
     case PlexilMsgType_UnknownValue:
-
       return MSG_BASE;
       break;
 
@@ -157,7 +167,7 @@ namespace PLEXIL
    */
   struct PlexilMsgBase *constructPlexilValueMsg(Value const &val)
   {
-    if (val.isKnown())
+    if (val.isKnown()) {
       switch (val.valueType()) {
       case BOOLEAN_TYPE: {
         bool b;
@@ -165,7 +175,7 @@ namespace PLEXIL
         struct PlexilBooleanValueMsg *boolMsg = new struct PlexilBooleanValueMsg;
         boolMsg->header.msgType = PlexilMsgType_BooleanValue;
         boolMsg->boolValue = (unsigned char) b;
-        debugMsg("constructPlexilValueMsg", "Boolean value is " << b);
+        debugMsg("constructPlexilValueMsg", " Boolean value is " << b);
         return (struct PlexilMsgBase *) boolMsg;
       }
 
@@ -173,7 +183,7 @@ namespace PLEXIL
         struct PlexilIntegerValueMsg *intMsg = new struct PlexilIntegerValueMsg;
         intMsg->header.msgType = PlexilMsgType_IntegerValue;
         val.getValue(intMsg->intValue);
-        debugMsg("constructPlexilValueMsg", "Integer value is " << intMsg->intValue);
+        debugMsg("constructPlexilValueMsg", " Integer value is " << intMsg->intValue);
         return (struct PlexilMsgBase *) intMsg;
       }
 
@@ -181,7 +191,7 @@ namespace PLEXIL
         struct PlexilRealValueMsg *realMsg = new struct PlexilRealValueMsg;
         realMsg->header.msgType = PlexilMsgType_RealValue;
         val.getValue(realMsg->doubleValue);
-        debugMsg("constructPlexilValueMsg", "Real value is " << realMsg->doubleValue);
+        debugMsg("constructPlexilValueMsg", " Real value is " << realMsg->doubleValue);
         return (struct PlexilMsgBase *) realMsg;
       }
 
@@ -191,7 +201,7 @@ namespace PLEXIL
         struct PlexilStringValueMsg *stringMsg = new struct PlexilStringValueMsg;
         stringMsg->header.msgType = PlexilMsgType_StringValue;
         stringMsg->stringValue = sp->c_str();
-        debugMsg("constructPlexilValueMsg", "String value is \"" << stringMsg->stringValue << "\"");
+        debugMsg("constructPlexilValueMsg", " String value is \"" << stringMsg->stringValue << "\"");
         return (struct PlexilMsgBase *) stringMsg;
       }
 
@@ -220,11 +230,12 @@ namespace PLEXIL
         boolArrayMsg->arraySize = size;
         boolArrayMsg->boolArray = bools;
         debugMsg("constructPlexilValueMsg",
-                 "Boolean array size " << boolArrayMsg->arraySize);
+                 " Boolean array size " << boolArrayMsg->arraySize);
         debugStmt("constructPlexilValueMsg",
                   for (size_t i = 0; i < size; ++i) 
                     std::cout << "elt " << i << ": " << (bool) boolArrayMsg->boolArray[i] << '\n');
-        debugMsg("constructPlexilValueMsg", "First parameter of Boolean array is " << (bool) boolArrayMsg->boolArray[0]);
+        debugMsg("constructPlexilValueMsg",
+                 " First parameter of Boolean array is " << (bool) boolArrayMsg->boolArray[0]);
         return (struct PlexilMsgBase *) boolArrayMsg;
       }
 
@@ -241,7 +252,7 @@ namespace PLEXIL
         intArrayMsg->arraySize = size;
         intArrayMsg->intArray = nums;
         debugMsg("constructPlexilValueMsg",
-                 "Integer array size " << intArrayMsg->arraySize);
+                 " Integer array size " << intArrayMsg->arraySize);
         debugStmt("constructPlexilValueMsg",
                   for (size_t i = 0; i < size; ++i) 
                     std::cout << "elt " << i << ": " << intArrayMsg->intArray[i] << '\n');
@@ -261,7 +272,7 @@ namespace PLEXIL
         realArrayMsg->arraySize = size;
         realArrayMsg->doubleArray = nums;
         debugMsg("constructPlexilValueMsg",
-                 "Real array size " << realArrayMsg->arraySize);
+                 " Real array size " << realArrayMsg->arraySize);
         debugStmt("constructPlexilValueMsg",
                   for (size_t i = 0; i < size; ++i) 
                     std::cout << "elt " << i << ": " << realArrayMsg->doubleArray[i] << '\n');
@@ -284,7 +295,7 @@ namespace PLEXIL
         strArrayMsg->arraySize = size;
         strArrayMsg->stringArray = strings;
         debugMsg("constructPlexilValueMsg",
-                 "String array size " << strArrayMsg->arraySize);
+                 " String array size " << strArrayMsg->arraySize);
         debugStmt("constructPlexilValueMsg",
                   for (size_t i = 0; i < size; ++i) 
                     std::cout << "elt " << i << ": " << strArrayMsg->stringArray[i] << '\n');
@@ -292,9 +303,11 @@ namespace PLEXIL
       }
 
       default:
-        errorMsg("Invalid or unimplemented PLEXIL data type");
+        errorMsg("constructPlexilValueMsg: Invalid or unimplemented PLEXIL data type "
+                 << val.valueType());
         return nullptr;
       }
+    }
     else {
       // Unknown
       struct PlexilUnknownValueMsg *unkMsg = new struct PlexilUnknownValueMsg;
@@ -305,9 +318,10 @@ namespace PLEXIL
   }
 
   struct PlexilMsgBase* constructPlexilPairMsg(std::string const& name,
-                                               Value const val) {
+                                               Value const val)
+  {
     PlexilMsgBase* result = nullptr;
-    if(val.isKnown()) {
+    if (val.isKnown()) {
       switch(val.valueType()) {
       case BOOLEAN_TYPE: {
         bool b;
@@ -369,6 +383,9 @@ namespace PLEXIL
    */
   Value getPlexilMsgValue(struct PlexilMsgBase const *msg)
   {
+    assertTrue_2(msg, "getPlexilMsgValue: null pointer");
+
+    debugMsg("getPlexilMsgValue", " message type = " << msg->msgType);
     switch ((PlexilMsgType) msg->msgType) {
     case PlexilMsgType_CommandHandleValue: {
       PlexilCommandHandleValueMsg const *param = reinterpret_cast<const struct PlexilCommandHandleValueMsg*> (msg);
@@ -459,7 +476,8 @@ namespace PLEXIL
 
     default:
       // TODO: handle error more gracefully
-      errorMsg("getPlexilMsgValue: invalid or unimplemented message type");
+      errorMsg("getPlexilMsgValue: invalid or unimplemented message type "
+               << msg->msgType);
       // fall thru...
 
     case PlexilMsgType_UnknownValue:
@@ -468,13 +486,12 @@ namespace PLEXIL
   }
 
   IpcFacade::IpcFacade() :
+    m_myUID(generateUID()),
+    m_listenersMutex(),
+    m_nextSerial(1),
     m_isInitialized(false),
     m_isStarted(false),
-    m_stopDispatchThread(false),
-    m_nextSerial(1),
-    m_myUID(generateUID()),
-    m_incompletesMutex(),
-    m_listenersMutex()
+    m_stopDispatchThread(false)
   {
     debugMsg("IpcFacade", " constructor");
   }
@@ -484,33 +501,41 @@ namespace PLEXIL
     if (m_isStarted) {
       stop();
     }
-    if (m_isInitialized) {
-      shutdown();
+    if (m_isInitialized) { // but not started
+      unsubscribeAllListeners();
+      IPC_disconnect();
+      m_isInitialized = false;
     }
   }
 
   const std::string& IpcFacade::getUID() {
     return m_myUID;
   }
+
   /**
    * @brief Connects to the Ipc server. This should be called before calling start().
    * If it is not, this method is called by start. If already initialized, this method
    * does nothing and returns IPC_OK.
    * @param taskName If null, the current UID of the IpcFacade is used as the task name.
    */
-  IPC_RETURN_TYPE IpcFacade::initialize(const char* taskName, const char* serverName) {
+  IPC_RETURN_TYPE IpcFacade::initialize(const char* taskName, const char* serverName)
+  {
     if (m_isInitialized) {
       debugMsg("IpcFacade:initialize", " already done, returning");
       return IPC_OK;
     }
 
-    if (taskName && taskName != m_myUID)
+    if (taskName && *taskName && taskName != m_myUID)
       m_myUID = taskName;
+
+    debugMsg("IpcFacade:initialize",
+             " UID " << m_myUID <<  " server name " << serverName);
+
+    IPC_RETURN_TYPE result = IPC_OK;
 
     // perform global initialization
     // Initialize IPC
     // possibly redundant, but always safe
-    IPC_RETURN_TYPE result = IPC_OK;
     debugMsg("IpcFacade:initialize", " calling IPC_initialize()");
     result = IPC_initialize();
     if (result != IPC_OK) {
@@ -521,23 +546,20 @@ namespace PLEXIL
     // Connect to central
     debugMsg("IpcFacade:initialize", " calling IPC_connectModule()");
     result = IPC_connectModule(m_myUID.c_str(), serverName);
-    if (result != IPC_OK)
-      {
-        debugMsg("IpcFacade:initialize", " IPC_connectModule() failed, IPC_errno = " << IPC_errno);
-        return result;
-      }
+    if (result != IPC_OK) {
+      debugMsg("IpcFacade:initialize", " IPC_connectModule() failed, IPC_errno = " << IPC_errno);
+      return result;
+    }
 
     // Define messages
     debugMsg("IpcFacade:initialize", " defining message types");
-    if (definePlexilIPCMessageTypes())
-      {
-        result = IPC_OK;
-      }
-    else
-      {
-        condDebugMsg(result == IPC_OK, "IpcFacade:initialize", " defining message types failed");
-        result = IPC_Error;
-      }
+    if (definePlexilIPCMessageTypes(m_myUID)) {
+      result = IPC_OK;
+    }
+    else {
+      condDebugMsg(result == IPC_OK, "IpcFacade:initialize", " defining message types failed");
+      result = IPC_Error;
+    }
     if (result == IPC_OK) {
       m_isInitialized = true;
       debugMsg("IpcFacade:initialize", " succeeded");
@@ -550,23 +572,24 @@ namespace PLEXIL
    * started, this method does nothing and returns IPC_OK.
    * @return IPC_Error if the dispatch thread is not started correctly, IPC_OK otherwise
    */
-  IPC_RETURN_TYPE IpcFacade::start() {
+  IPC_RETURN_TYPE IpcFacade::start()
+  {
     IPC_RETURN_TYPE result = IPC_OK;
     if (!m_isInitialized || !IPC_isConnected())
       result = IPC_Error;
+
     //perform only when this instance is the only started instance of the class
     if (result == IPC_OK && !m_isStarted) {
       // Subscribe to messages
-      debugMsg("IpcFacade:start", " subscribing to messages");
+      debugMsg("IpcFacade:start",
+               ' ' << m_myUID << " subscribing to messages");
       subscribeToMsgs();
 
       // Spawn message thread AFTER all subscribes complete
       // Running thread in parallel with subscriptions resulted in deadlocks
-      debugMsg("IpcFacade:start", " spawning IPC dispatch thread");
-      if (threadSpawn((THREAD_FUNC_PTR) myIpcDispatch, this, m_threadHandle)) {
-        debugMsg("IpcFacade:start", " succeeded");
-        m_isStarted = true;
-      }
+      debugMsg("IpcFacade:start", ' ' << m_myUID << " spawning IPC dispatch thread");
+      m_thread = std::thread(myIpcDispatch, &m_stopDispatchThread);
+      m_isStarted = true;
     }
     return result;
   }
@@ -576,154 +599,118 @@ namespace PLEXIL
    * this is the only running instance of IpcFacade, stops the Ipc message
    * handling thread. If Ipc is not running, this method does nothing and returns IPC_OK.
    */
-  void IpcFacade::stop() {
+  void IpcFacade::stop()
+  {
     if (!m_isStarted) {
       return;
     }
 
     // Cancel IPC dispatch thread first to prevent deadlocks
-    debugMsg("IpcFacade:stop", " cancelling dispatch thread");
+    debugMsg("IpcFacade:stop", ' ' << m_myUID << " cancelling dispatch thread");
     m_stopDispatchThread = true;
-    int myErrno = pthread_join(m_threadHandle, nullptr);
-    if (myErrno != 0) {
-      debugMsg("IpcUtil:stop", "Error in pthread_join; errno = " << myErrno);
-    }
+    m_thread.join();
 
-    debugMsg("IpcFacade:stop", " unsubscribing from messages");
+    debugMsg("IpcFacade:stop", ' ' << m_myUID << " unsubscribing all");
+    unsubscribeAllListeners();
+
+    debugMsg("IpcFacade:stop", ' ' << m_myUID << " unsubscribing from messages");
     unsubscribeFromMsgs();
-
-    debugMsg("IpcFacade:stop", " unsubscribing all");
     m_isStarted = false;
-    unsubscribeAll();
 
-    debugMsg("IpcFacade:stop", " complete");
-  }
-
-  /**
-   * @brief Disconnects from the Ipc server. This puts Ipc back in its initial state before
-   * being initialized.
-   */
-  void IpcFacade::shutdown() {
-    if (m_isInitialized) {
-      if (m_isStarted) {
-        stop();
-      }
-
-      // Disconnect from central
-      IPC_disconnect();
-    }
+    // Disconnect from central
+    debugMsg("IpcFacade:stop", ' ' << m_myUID << " disconnecting");
+    IPC_disconnect();
     m_isInitialized = false;
+
+    debugMsg("IpcFacade:stop", ' ' << m_myUID << " complete");
   }
 
-  void IpcFacade::subscribeAll(IpcMessageListener* listener) {
-    m_localRegisteredHandlers.push_back(LocalListenerRef(ALL_MSG_TYPE(), listener));
-    subscribeGlobal(LocalListenerRef(ALL_MSG_TYPE(), listener));
+  void IpcFacade::subscribeAll(IpcMessageListener* listener)
+  {
+    debugMsg("IpcFacade:subscribeAll", " locking listeners mutex");
+    {
+      std::lock_guard<std::mutex> guard(m_listenersMutex);
+      m_listenersToAll.push_back(listener);
+    }
+    debugMsg("IpcFacade:subscribeAll", " unlocked listeners mutex");
   }
 
-  void IpcFacade::subscribe(IpcMessageListener* listener, PlexilMsgType type) {
-    m_localRegisteredHandlers.push_back(LocalListenerRef((uint16_t) type, listener));
-    subscribeGlobal(LocalListenerRef((uint16_t) type, listener));
+  void IpcFacade::subscribe(IpcMessageListener* listener, PlexilMsgType type)
+  {
+    debugMsg("IpcFacade:subscribe", " locking listeners mutex");
+    {
+      std::lock_guard<std::mutex> guard(m_listenersMutex);
+      //creates a new entry if one does not already exist
+      m_registeredListeners[type].push_back(listener);
+    }
+    debugMsg("IpcFacade:subscribe", " unlocked listeners mutex");
   }
+
+  // Unsubscribe this one listener from all messages to which it listens.
+  void IpcFacade::unsubscribe(IpcMessageListener *listener)
+  {
+    debugMsg("IpcFacade:unsubscribe", " locking listeners mutex");
+    {
+      std::lock_guard<std::mutex> guard(m_listenersMutex);
+      std::remove(m_listenersToAll.begin(), m_listenersToAll.end(), listener);
+      for (ListenerMap::value_type pair : m_registeredListeners)
+        std::remove(pair.second.begin(), pair.second.end(), listener);
+    }
+    debugMsg("IpcFacade:unsubscribe", " unlocking listeners mutex");
+  }
+
+  // Ignore the "unused variable" warning, it's used; see below.
+  static constexpr const char *ALL_MSG_TYPE_NAMES[] =
+    {MSG_BASE,
+     RETURN_VALUE_MSG,
+     BOOLEAN_VALUE_MSG,
+     INTEGER_VALUE_MSG,
+     REAL_VALUE_MSG,
+     STRING_VALUE_MSG,
+     BOOLEAN_ARRAY_MSG,
+     INTEGER_ARRAY_MSG,
+     REAL_ARRAY_MSG,
+     STRING_ARRAY_MSG,
+     BOOLEAN_PAIR_MSG,
+     INTEGER_PAIR_MSG,
+     REAL_PAIR_MSG,
+     STRING_PAIR_MSG,
+     nullptr};
 
   IPC_RETURN_TYPE IpcFacade::subscribeToMsgs()
   {
-    IPC_RETURN_TYPE status;
-    status = subscribeDataCentral(MSG_BASE, messageHandler);
-    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << MSG_BASE << " messages, IPC_errno = " << IPC_errno);
-    status = subscribeDataCentral(RETURN_VALUE_MSG, messageHandler);
-    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << RETURN_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = subscribeDataCentral(BOOLEAN_VALUE_MSG, messageHandler);
-    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << BOOLEAN_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = subscribeDataCentral(INTEGER_VALUE_MSG, messageHandler);
-    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << INTEGER_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = subscribeDataCentral(REAL_VALUE_MSG, messageHandler);
-    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << REAL_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = subscribeDataCentral(STRING_VALUE_MSG, messageHandler);
-    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << STRING_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = subscribeDataCentral(BOOLEAN_ARRAY_MSG, messageHandler);
-    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << BOOLEAN_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = subscribeDataCentral(INTEGER_ARRAY_MSG, messageHandler);
-    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << INTEGER_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = subscribeDataCentral(REAL_ARRAY_MSG, messageHandler);
-    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << REAL_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = subscribeDataCentral(STRING_ARRAY_MSG, messageHandler);
-    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << STRING_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = subscribeDataCentral(BOOLEAN_PAIR_MSG, messageHandler);
-    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << BOOLEAN_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = subscribeDataCentral(INTEGER_PAIR_MSG, messageHandler);
-    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << INTEGER_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = subscribeDataCentral(REAL_PAIR_MSG, messageHandler);
-    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << REAL_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = subscribeDataCentral(STRING_PAIR_MSG, messageHandler);
-    assertTrueMsg(status == IPC_OK, "IpcFacade::start: Error subscribing to " << STRING_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
+    IPC_RETURN_TYPE status = IPC_OK;
+    for (const char * const *name = &ALL_MSG_TYPE_NAMES[0] ; *name ; ++name) {
+      status = subscribeDataCentral(*name, ipcMessageHandler);
+      assertTrueMsg(status == IPC_OK,
+                    "IpcFacade " << m_myUID << ": Subscribing to " << *name
+                    << " messages failed; IPC_errno = " << IPC_errno);
+    }      
     return status;
   }
 
-  void IpcFacade::unsubscribeAll() {
-    debugMsg("IpcFacade:unsubscribeAll", " entered");
-    while (!m_localRegisteredHandlers.empty())
-      unsubscribeAll(m_localRegisteredHandlers.front().second);
-    debugMsg("IpcFacade:unsubscribeAll", " succeeded");
-  }
+  void IpcFacade::unsubscribeAllListeners()
+  {
+    // prevent modification and access while removing
+    debugMsg("IpcFacade:unsubscribeAll", " locking listeners mutex");
+    {
+      std::lock_guard<std::mutex> guard(m_listenersMutex);
 
-  void IpcFacade::unsubscribeAll(IpcMessageListener* listener) {
-    //prevent modification and access while removing
-    std::lock_guard<std::mutex> guard(m_listenersMutex);
-    for (LocalListenerList::iterator it = m_localRegisteredHandlers.begin();
-         it != m_localRegisteredHandlers.end();
-         it++)
-      if (it->second == listener) {
-        unsubscribeGlobal(*it);
-        m_localRegisteredHandlers.erase(it);
-        return;
-      }
+      m_listenersToAll.clear();
+      m_registeredListeners.clear();
+    }
+    debugMsg("IpcFacade:unsubscribeAll", " unlocked listeners mutex");
   }
 
   IPC_RETURN_TYPE IpcFacade::unsubscribeFromMsgs()
   {
-    IPC_RETURN_TYPE status;
-    status = IPC_unsubscribe(MSG_BASE, messageHandler);
-    assertTrueMsg(status == IPC_OK,
-                  "IpcFacade: Error unsubscribing from " << MSG_BASE << " messages, IPC_errno = " << IPC_errno);
-    status = IPC_unsubscribe(RETURN_VALUE_MSG, messageHandler);
-    assertTrueMsg(status == IPC_OK,
-                  "IpcFacade: Error unsubscribing from " << RETURN_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = IPC_unsubscribe(BOOLEAN_VALUE_MSG, messageHandler);
-    assertTrueMsg(status == IPC_OK,
-                  "IpcFacade: Error unsubscribing from " << BOOLEAN_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = IPC_unsubscribe(INTEGER_VALUE_MSG, messageHandler);
-    assertTrueMsg(status == IPC_OK,
-                  "IpcFacade: Error unsubscribing from " << INTEGER_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = IPC_unsubscribe(REAL_VALUE_MSG, messageHandler);
-    assertTrueMsg(status == IPC_OK,
-                  "IpcFacade: Error unsubscribing from " << REAL_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = IPC_unsubscribe(STRING_VALUE_MSG, messageHandler);
-    assertTrueMsg(status == IPC_OK,
-                  "IpcFacade: Error unsubscribing from " << STRING_VALUE_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = IPC_unsubscribe(BOOLEAN_ARRAY_MSG, messageHandler);
-    assertTrueMsg(status == IPC_OK,
-                  "IpcFacade: Error unsubscribing from " << BOOLEAN_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = IPC_unsubscribe(INTEGER_ARRAY_MSG, messageHandler);
-    assertTrueMsg(status == IPC_OK,
-                  "IpcFacade: Error unsubscribing from " << INTEGER_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = IPC_unsubscribe(REAL_ARRAY_MSG, messageHandler);
-    assertTrueMsg(status == IPC_OK,
-                  "IpcFacade: Error unsubscribing from " << REAL_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = IPC_unsubscribe(STRING_ARRAY_MSG, messageHandler);
-    assertTrueMsg(status == IPC_OK,
-                  "IpcFacade: Error unsubscribing from " << STRING_ARRAY_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = IPC_unsubscribe(BOOLEAN_PAIR_MSG, messageHandler);
-    assertTrueMsg(status == IPC_OK,
-                  "IpcFacade: Error unsubscribing from " << BOOLEAN_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = IPC_unsubscribe(INTEGER_PAIR_MSG, messageHandler);
-    assertTrueMsg(status == IPC_OK,
-                  "IpcFacade: Error unsubscribing from " << INTEGER_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = IPC_unsubscribe(REAL_PAIR_MSG, messageHandler);
-    assertTrueMsg(status == IPC_OK,
-                  "IpcFacade: Error unsubscribing from " << REAL_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
-    status = IPC_unsubscribe(STRING_PAIR_MSG, messageHandler);
-    assertTrueMsg(status == IPC_OK,
-                  "IpcFacade: Error unsubscribing from " << STRING_PAIR_MSG << " messages, IPC_errno = " << IPC_errno);
+    IPC_RETURN_TYPE status = IPC_OK;
+    for (const char * const *name = &ALL_MSG_TYPE_NAMES[0] ; *name ; ++name) {
+      status = IPC_unsubscribe(*name, ipcMessageHandler);
+      assertTrueMsg(status == IPC_OK,
+                    "IpcFacade " << m_myUID << ": Unsubscribing from " << *name
+                    << " messages failed; IPC_errno = " << IPC_errno);
+    }      
     return status;
   }
 
@@ -731,46 +718,83 @@ namespace PLEXIL
    * @brief publishes the given message via IPC
    * @param command The command string to send
    */
-  uint32_t IpcFacade::publishMessage(std::string const &command) {
+  uint32_t IpcFacade::publishMessage(std::string const &command)
+  {
     assertTrue_2(m_isStarted, "publishMessage called before started");
-    struct PlexilStringValueMsg packet = { { PlexilMsgType_Message, 0, getSerialNumber(), m_myUID.c_str() }, command.c_str() };
+    struct PlexilStringValueMsg packet =
+      { { PlexilMsgType_Message,
+          0,
+          getSerialNumber(),
+          m_myUID.c_str() },
+        command.c_str() };
     return IPC_publishData(STRING_VALUE_MSG, (void *) &packet);
   }
 
-  uint32_t IpcFacade::publishCommand(std::string const &command, std::vector<Value> const &argsToDeliver) {
+  uint32_t IpcFacade::publishCommand(std::string const &command,
+                                     std::vector<Value> const &argsToDeliver)
+  {
     return sendCommand(command, "", argsToDeliver);
   }
 
-  uint32_t IpcFacade::sendCommand(std::string const &command, std::string const &dest, std::vector<Value> const &argsToDeliver) {
+  uint32_t IpcFacade::sendCommand(std::string const &command,
+                                  std::string const &dest,
+                                  std::vector<Value> const &argsToDeliver)
+  {
     assertTrue_2(m_isStarted, "publishCommand called before started");
     uint32_t serial = getSerialNumber();
-    struct PlexilStringValueMsg cmdPacket = { { PlexilMsgType_Command, (uint16_t) argsToDeliver.size(), serial, m_myUID.c_str() }, command.c_str() };
-    IPC_RETURN_TYPE result = IPC_publishData(formatMsgName(STRING_VALUE_MSG, dest), (void *) &cmdPacket);
+    struct PlexilStringValueMsg cmdPacket =
+      { { PlexilMsgType_Command,
+          (uint16_t) argsToDeliver.size(),
+          serial,
+          m_myUID.c_str() },
+        command.c_str() };
+
+    IPC_RETURN_TYPE result =
+      IPC_publishData(formatMsgName(STRING_VALUE_MSG, dest), (void *) &cmdPacket);
+
     if (result == IPC_OK) {
       result = sendParameters(argsToDeliver, serial);
-      debugMsg("IpcFacade:publishCommand", "Command " << command << " published with serial " << serial);
     }
+
     setError(result);
-    return result == IPC_OK ? serial : ERROR_SERIAL();
+
+    if (result == IPC_OK) {
+      debugMsg("IpcFacade:publishCommand", ' ' << m_myUID
+               << " Command \"" << command << "\" published, serial " << serial);
+      return serial;
+    }
+    else {
+      return ERROR_SERIAL;
+    }
   }
 
   uint32_t IpcFacade::publishLookupNow(std::string const &lookup, std::vector<Value> const &argsToDeliver) {
     return sendLookupNow(lookup, "", argsToDeliver);
   }
 
-  uint32_t IpcFacade::sendLookupNow(std::string const &lookup, std::string const &dest, std::vector<Value> const &argsToDeliver) {
+  uint32_t IpcFacade::sendLookupNow(std::string const &lookup,
+                                    std::string const &dest,
+                                    std::vector<Value> const &argsToDeliver)
+  {
     // Construct the messages
     // Leader
     uint32_t serial = getSerialNumber();
-    struct PlexilStringValueMsg leader = { { PlexilMsgType_LookupNow, (uint16_t) argsToDeliver.size(), serial, m_myUID.c_str() }, lookup.c_str() };
+    struct PlexilStringValueMsg leader =
+      { { PlexilMsgType_LookupNow,
+          (uint16_t) argsToDeliver.size(),
+          serial,
+          m_myUID.c_str() },
+        lookup.c_str() };
 
     IPC_RETURN_TYPE result =
       IPC_publishData(formatMsgName(STRING_VALUE_MSG, dest), (void *) &leader);
-    if (result == IPC_OK) {
+
+    if (result == IPC_OK && !argsToDeliver.empty())
+      // Send trailers, if any 
       result = sendParameters(argsToDeliver, serial);
-    }
+
     setError(result);
-    return result == IPC_OK ? serial : ERROR_SERIAL();
+    return result == IPC_OK ? serial : ERROR_SERIAL;
   }
 
   uint32_t IpcFacade::publishReturnValues(uint32_t request_serial,
@@ -779,14 +803,20 @@ namespace PLEXIL
   {
     assertTrue_2(m_isStarted, "publishReturnValues called before started");
     uint32_t serial = getSerialNumber();
-    struct PlexilReturnValuesMsg packet = { { PlexilMsgType_ReturnValues, 1, serial, m_myUID.c_str() }, request_serial, request_uid.c_str() };
+    struct PlexilReturnValuesMsg packet =
+      { { PlexilMsgType_ReturnValues,
+          1, // trailing msgs
+          serial,
+          m_myUID.c_str() },
+        request_serial,
+        request_uid.c_str() };
     IPC_RETURN_TYPE result =
       IPC_publishData(formatMsgName(RETURN_VALUE_MSG, request_uid), (void *) &packet);
     if (result == IPC_OK) {
       result = sendParameters(std::vector<Value>(1, arg), serial, request_uid);
     }
     setError(result);
-    return result == IPC_OK ? serial : ERROR_SERIAL();
+    return result == IPC_OK ? serial : ERROR_SERIAL;
   }
 
   IPC_RETURN_TYPE IpcFacade::getError() {
@@ -797,31 +827,31 @@ namespace PLEXIL
     m_error = error;
   }
 
-  uint32_t IpcFacade::publishTelemetry(const std::string& destName, std::vector<Value> const &values) {
+  uint32_t IpcFacade::publishTelemetry(const std::string& destName,
+                                       std::vector<Value> const &values)
+  {
     // Telemetry values message
     debugMsg("IpcFacade:publishTelemetry",
-             " sending telemetry message for \"" << destName << "\"");
-    // *** FIXME: Memory leak? ***
-    PlexilStringValueMsg* tvMsg = new PlexilStringValueMsg();
-    tvMsg->header.msgType = (uint16_t) PlexilMsgType_TelemetryValues;
-    tvMsg->stringValue = destName.c_str();
-
-    tvMsg->header.count = values.size();
+             ' ' << m_myUID << " sending telemetry message for \"" << destName << "\"");
     uint32_t leaderSerial = getSerialNumber();
-    tvMsg->header.serial = leaderSerial;
-    tvMsg->header.senderUID = m_myUID.c_str();
-    IPC_RETURN_TYPE status = IPC_publishData(STRING_VALUE_MSG, (void *) tvMsg);
-    if (status == IPC_OK) {
+    PlexilStringValueMsg tvMsg =
+      { { (uint16_t) PlexilMsgType_TelemetryValues,
+          (uint16_t) values.size(),
+          leaderSerial,
+          m_myUID.c_str()},
+        destName.c_str()};
+    IPC_RETURN_TYPE status = IPC_publishData(STRING_VALUE_MSG, (void *) &tvMsg);
+    if (status == IPC_OK && !values.empty()) {
       status = sendParameters(values, leaderSerial);
     }
     setError(status);
-    return status == IPC_OK ? leaderSerial : ERROR_SERIAL();
+    return status == IPC_OK ? leaderSerial : ERROR_SERIAL;
   }
   
   uint32_t IpcFacade::publishUpdate(const std::string& nodeName,
                                     std::vector<std::pair<std::string, Value> > const& update) {
     debugMsg("IpcFacade:publishUpdate",
-             " sending planner update for \"" << nodeName << "\"");
+             ' ' << m_myUID << " sending planner update for \"" << nodeName << "\"");
     uint32_t serial = getSerialNumber();
     struct PlexilStringValueMsg updatePacket =
       {{PlexilMsgType_PlannerUpdate,
@@ -834,7 +864,7 @@ namespace PLEXIL
       status = sendPairs(update, serial);
     }
     setError(status);
-    return status == IPC_OK ? serial : ERROR_SERIAL();
+    return status == IPC_OK ? serial : ERROR_SERIAL;
   }
 
   /**
@@ -871,12 +901,14 @@ namespace PLEXIL
     for (size_t i = 0; i < nParams && result == IPC_OK; i++) {
       char const *msgFormat = msgFormatForType((PlexilMsgType) paramMsgs[i]->msgType);
       if (dest.empty()) {
-        debugMsg("IpcFacade:sendParameters", " using format " << msgFormat << " for parameter " << i);
+        debugMsg("IpcFacade:sendParameters",
+                 " using format " << msgFormat << " for parameter " << i);
         result = IPC_publishData(msgFormat, paramMsgs[i]);
       }
       else {
         char const *msgName = formatMsgName(msgFormat, dest);
-        debugMsg("IpcFacade:sendParameters", " using format " << msgName << " for parameter " << i);
+        debugMsg("IpcFacade:sendParameters",
+                 " using format " << msgName << " for parameter " << i);
         result = IPC_publishData(msgName, paramMsgs[i]);
       }
     }
@@ -961,7 +993,7 @@ namespace PLEXIL
       pairMsg->serial = serial;
       pairMsg->senderUID = m_myUID.c_str();
       std::string msgName =
-        formatMsgName(std::string(msgFormatForType((PlexilMsgType) pairMsg->msgType)),
+        formatMsgName(msgFormatForType((PlexilMsgType) pairMsg->msgType),
                       "");
       result = IPC_publishData(msgName.c_str(), pairMsg);
 
@@ -993,149 +1025,185 @@ namespace PLEXIL
     return m_nextSerial++;
   }
 
-  bool IpcFacade::definePlexilIPCMessageTypes() {
+  //! Define all PLEXIL message types with Central. Also defines each
+  //! PLEXIL message type with the UID as a prefix for directed
+  //! communication. Has no effect for any previously defined message
+  //! types.
+  //! @param uid The UID of the calling IpcFacade instance.
+  //! @return true if successful, false otherwise
+  //! @note Caller should ensure IPC_initialize() has been called first
+  bool definePlexilIPCMessageTypes(std::string uid)
+  {
     debugMsg("IpcFacade:definePlexilIPCMessageTypes", " entered");
     IPC_RETURN_TYPE status;
     status = IPC_defineMsg(MSG_BASE, IPC_VARIABLE_LENGTH, MSG_BASE_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(MSG_BASE, m_myUID), IPC_VARIABLE_LENGTH, MSG_BASE_FORMAT);
+    status = IPC_defineMsg(formatMsgName(MSG_BASE, uid), IPC_VARIABLE_LENGTH, MSG_BASE_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(RETURN_VALUE_MSG, IPC_VARIABLE_LENGTH, RETURN_VALUE_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(RETURN_VALUE_MSG, m_myUID), IPC_VARIABLE_LENGTH, RETURN_VALUE_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(RETURN_VALUE_MSG, uid), IPC_VARIABLE_LENGTH, RETURN_VALUE_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(BOOLEAN_VALUE_MSG, IPC_VARIABLE_LENGTH, BOOLEAN_VALUE_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(BOOLEAN_VALUE_MSG, m_myUID), IPC_VARIABLE_LENGTH, BOOLEAN_VALUE_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(BOOLEAN_VALUE_MSG, uid), IPC_VARIABLE_LENGTH, BOOLEAN_VALUE_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(INTEGER_VALUE_MSG, IPC_VARIABLE_LENGTH, INTEGER_VALUE_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(INTEGER_VALUE_MSG, m_myUID), IPC_VARIABLE_LENGTH, INTEGER_VALUE_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(INTEGER_VALUE_MSG, uid), IPC_VARIABLE_LENGTH, INTEGER_VALUE_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(REAL_VALUE_MSG, IPC_VARIABLE_LENGTH, REAL_VALUE_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(REAL_VALUE_MSG, m_myUID), IPC_VARIABLE_LENGTH, REAL_VALUE_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(REAL_VALUE_MSG, uid), IPC_VARIABLE_LENGTH, REAL_VALUE_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(STRING_VALUE_MSG, IPC_VARIABLE_LENGTH, STRING_VALUE_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(STRING_VALUE_MSG, m_myUID), IPC_VARIABLE_LENGTH, STRING_VALUE_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(STRING_VALUE_MSG, uid), IPC_VARIABLE_LENGTH, STRING_VALUE_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(BOOLEAN_ARRAY_MSG, IPC_VARIABLE_LENGTH, BOOLEAN_ARRAY_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(BOOLEAN_ARRAY_MSG, m_myUID), IPC_VARIABLE_LENGTH, BOOLEAN_ARRAY_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(BOOLEAN_ARRAY_MSG, uid), IPC_VARIABLE_LENGTH, BOOLEAN_ARRAY_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(INTEGER_ARRAY_MSG, IPC_VARIABLE_LENGTH, INTEGER_ARRAY_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(INTEGER_ARRAY_MSG, m_myUID), IPC_VARIABLE_LENGTH, INTEGER_ARRAY_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(INTEGER_ARRAY_MSG, uid), IPC_VARIABLE_LENGTH, INTEGER_ARRAY_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(REAL_ARRAY_MSG, IPC_VARIABLE_LENGTH, REAL_ARRAY_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(REAL_ARRAY_MSG, m_myUID), IPC_VARIABLE_LENGTH, REAL_ARRAY_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(REAL_ARRAY_MSG, uid), IPC_VARIABLE_LENGTH, REAL_ARRAY_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(STRING_ARRAY_MSG, IPC_VARIABLE_LENGTH, STRING_ARRAY_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(STRING_ARRAY_MSG, m_myUID), IPC_VARIABLE_LENGTH, STRING_ARRAY_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(STRING_ARRAY_MSG, uid), IPC_VARIABLE_LENGTH, STRING_ARRAY_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(BOOLEAN_PAIR_MSG, IPC_VARIABLE_LENGTH, BOOLEAN_PAIR_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(BOOLEAN_PAIR_MSG, m_myUID), IPC_VARIABLE_LENGTH, BOOLEAN_PAIR_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(BOOLEAN_PAIR_MSG, uid), IPC_VARIABLE_LENGTH, BOOLEAN_PAIR_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(INTEGER_PAIR_MSG, IPC_VARIABLE_LENGTH, INTEGER_PAIR_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(INTEGER_PAIR_MSG, m_myUID), IPC_VARIABLE_LENGTH, INTEGER_PAIR_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(INTEGER_PAIR_MSG, uid), IPC_VARIABLE_LENGTH, INTEGER_PAIR_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(REAL_PAIR_MSG, IPC_VARIABLE_LENGTH, REAL_PAIR_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(REAL_PAIR_MSG, m_myUID), IPC_VARIABLE_LENGTH, REAL_PAIR_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(REAL_PAIR_MSG, uid), IPC_VARIABLE_LENGTH, REAL_PAIR_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
     status = IPC_defineMsg(STRING_PAIR_MSG, IPC_VARIABLE_LENGTH, STRING_PAIR_MSG_FORMAT);
     if (status != IPC_OK)
       return false;
-    status = IPC_defineMsg(formatMsgName(STRING_PAIR_MSG, m_myUID), IPC_VARIABLE_LENGTH, STRING_PAIR_MSG_FORMAT);
+    status = IPC_defineMsg(formatMsgName(STRING_PAIR_MSG, uid), IPC_VARIABLE_LENGTH, STRING_PAIR_MSG_FORMAT);
     condDebugMsg(status == IPC_OK, "IpcFacade:definePlexilIPCMessageTypes", " succeeded");
     return status == IPC_OK;
   }
 
-  /**
-   * @brief IPC listener thread top level function to replace IPC_dispatch().
-   */
-  void IpcFacade::myIpcDispatch(void * this_as_void_ptr)
+  //! IPC listener thread top level.
+  //! Exits when the stop flag is set.
+  void myIpcDispatch(bool *flag_ptr)
   {
-    IpcFacade* facade = reinterpret_cast<IpcFacade*>(this_as_void_ptr);
-    assertTrueMsg(facade,
-                  "IpcFacade::messageHandler: pointer to IpcFacade instance is null!");
+    assertTrue_2(flag_ptr,
+                 "IpcFacade dispatch thread: pointer to stop flag is null!");
+
     debugMsg("IpcFacade:myIpcDispatch", " started");
     IPC_RETURN_TYPE ipcStatus = IPC_OK;
-    while (!facade->m_stopDispatchThread
-           && ipcStatus != IPC_Error) {
-      ipcStatus = IPC_listenClear(1000); // 
-    }
-    assertTrueMsg(ipcStatus != IPC_Error, "IpcFacade::myIpcDispatch: IPC error, IPC_errno = " << IPC_errno);
+
+    while (!*flag_ptr && ipcStatus != IPC_Error)
+      ipcStatus = IPC_listenClear(1000); 
+
+    assertTrueMsg(ipcStatus != IPC_Error,
+                  "IpcFacade dispatch thread: IPC error, IPC_errno = " << IPC_errno);
       
-    facade->m_stopDispatchThread = false;
+    *flag_ptr = false;
     debugMsg("IpcFacade:myIpcDispatch", " terminated");
   }
 
   /**
    * @brief Handler function as seen by IPC.
+   * @note Called from dispatch thread.
    */
-  void IpcFacade::messageHandler(MSG_INSTANCE /* rawMsg */,
-                                 void * unmarshalledMsg,
-                                 void * this_as_void_ptr) {
-    const PlexilMsgBase* msgData = reinterpret_cast<const PlexilMsgBase*> (unmarshalledMsg);
-    assertTrueMsg(msgData,
-                  "IpcFacade::messageHandler: pointer to message data is null!");
-    IpcFacade* facade = reinterpret_cast<IpcFacade*>(this_as_void_ptr);
-    assertTrueMsg(facade,
-                  "IpcFacade::messageHandler: pointer to IpcFacade instance is null!");
+  void ipcMessageHandler(MSG_INSTANCE /* rawMsg */,
+                         void *unmarshalledMsg,
+                         void *IpcFacade_as_void_ptr)
+  {
+    assertTrue_2(unmarshalledMsg,
+                 "ipcMessageHandler: pointer to unmarshalled message is null!");
+    assertTrue_2(IpcFacade_as_void_ptr,
+                 "ipcMessageHandler: pointer to IpcFacade instance is null!");
 
+    PlexilMsgBase* msgData = reinterpret_cast<PlexilMsgBase *>(unmarshalledMsg);
+    IpcFacade* facade = reinterpret_cast<IpcFacade* >(IpcFacade_as_void_ptr);
+    facade->handleMessage(msgData);
+  }
+
+  // Handle a message received from IPC dispatch thread
+  void IpcFacade::handleMessage(PlexilMsgBase *msgData)
+  {
     PlexilMsgType msgType = (PlexilMsgType) msgData->msgType;
-    debugMsg("IpcFacade:messageHandler", " received message type = " << msgType);
+    debugMsg("IpcFacade:handleMessage",
+             ' ' << m_myUID << " received message type = " << msgType);
     switch (msgType) {
-      // TODO: filter out commands/msgs we aren't prepared to handle
 
+      // These can have 0 or more parameters,
+      // and frequently have 0.
     case PlexilMsgType_Command:
     case PlexilMsgType_LookupNow:
+      if (msgData->count) {
+        debugMsg("IpcFacade:handleMessage",
+                 ' ' << m_myUID << " received "
+                 << (msgType == PlexilMsgType_Command ? "Command" : "LookupNow")
+                 << " message with parameters, processing as multi-part");
+        cacheMessageLeader(msgData);
+      }
+      else {
+        debugMsg("IpcFacade:handleMessage",
+                 ' ' << m_myUID << " delivering "
+                 << (msgType == PlexilMsgType_Command ? "Command" : "LookupNow")
+                 << " message with no parameters immediately");
+        deliverMessages(std::vector<PlexilMsgBase *>(1, msgData));
+      }
+      break;
+
+      // PlannerUpdate can have 0 pairs, but it's unlikely.
     case PlexilMsgType_PlannerUpdate:
+      // TelemetryValues can have 0 values, but it's unlikely.
     case PlexilMsgType_TelemetryValues:
-      debugMsg("IpcFacade:messageHandler", "processing as multi-part message");
-      facade->cacheMessageLeader(msgData);
+      debugMsg("IpcFacade:handleMessage", "processing as multi-part message");
+      cacheMessageLeader(msgData);
       break;
 
       // ReturnValues is a PlexilReturnValuesMsg
-      // Followed by 0 (?) or more values
+      // Followed by 1 value
       // Only pay attention to return values directed at us
     case PlexilMsgType_ReturnValues: {
-      debugMsg("IpcFacade:messageHandler", " processing as return value");
+      debugMsg("IpcFacade:handleMessage", " processing as return value");
       const PlexilReturnValuesMsg* returnLeader = (const PlexilReturnValuesMsg*) msgData;
-      if (strcmp(returnLeader->requesterUID, facade->getUID().c_str()) == 0)
-        facade->cacheMessageLeader(msgData);
+      if (!strcmp(returnLeader->requesterUID, getUID().c_str()))
+        cacheMessageLeader(msgData);
       break;
     }
       // Values - could be parameters or return values
@@ -1144,7 +1212,8 @@ namespace PLEXIL
     case PlexilMsgType_IntegerValue:
     case PlexilMsgType_RealValue:
     case PlexilMsgType_StringValue:
-      // Arrays
+
+      // Array values
     case PlexilMsgType_BooleanArray:
     case PlexilMsgType_IntegerArray:
     case PlexilMsgType_RealArray:
@@ -1156,128 +1225,132 @@ namespace PLEXIL
     case PlexilMsgType_PairReal:
     case PlexilMsgType_PairString:
 
+      // CommandHandle return
+    case PlexilMsgType_CommandHandleValue:
+
       // Log with corresponding leader message
-      facade->cacheMessageTrailer(msgData);
+      cacheMessageTrailer(msgData);
+      break;
+
+      // Standalone messages
+    case PlexilMsgType_Message:
+      // Not currently sent by IpcFacade,
+      // but handled by IpcAdapter
+    case PlexilMsgType_NotifyExec:
+    case PlexilMsgType_AddPlan:
+    case PlexilMsgType_AddPlanFile:
+    case PlexilMsgType_AddLibrary:
+    case PlexilMsgType_AddLibraryFile:
+
+      debugMsg("IpcFacade:handleMessage", "Received single-message type, delivering to listeners");
+      deliverMessages(std::vector<PlexilMsgBase *>(1, msgData));
       break;
 
     default:
-      debugMsg("IpcFacade:messageHandler", "Received single-message type, delivering to listeners");
-      facade->deliverMessage(std::vector<const PlexilMsgBase*>(1, msgData));
+      errorMsg("IpcFacade::handleMessage: Received unimplemented or invalid message type "
+               << msgType);
       break;
     }
   }
+  
   /**
    * @brief Cache start message of a multi-message sequence
+   * @note Called from IPC dispatch thread.
    */
 
   // N.B. Presumes that messages are received in order.
   // Also presumes that any required filtering (e.g. on command name) has been done by the caller
 
-  void IpcFacade::cacheMessageLeader(const PlexilMsgBase* msgData) {
-    IpcMessageId msgId(msgData->senderUID, msgData->serial);
+  void IpcFacade::cacheMessageLeader(PlexilMsgBase* msgData)
+  {
+    IpcMessageId const msgId(msgData->senderUID, msgData->serial);
 
-    // Check that this isn't a duplicate header
-    debugMsg("IpcFacade:cacheMessageLeader", " locking incompletes mutex");
-    std::lock_guard<std::mutex> g(m_incompletesMutex);
+    // Check that this isn't a duplicate leader
     IncompleteMessageMap::iterator it = m_incompletes.find(msgId);
     assertTrueMsg(it == m_incompletes.end(),
-                  "IpcFacade::cacheMessageLeader: internal error: found existing sequence for sender "
+                  "IpcFacade " << m_myUID
+                  << ": internal error: received duplicate leader for sender "
                   << msgData->senderUID << ", serial " << msgData->serial);
 
     if (msgData->count == 0) {
       debugMsg("IpcFacade:cacheMessageLeader", " count == 0, processing immediately");
-      std::vector<const PlexilMsgBase*> msgVec(1, msgData);
-      deliverMessage(msgVec);
-    } else {
+      deliverMessages(std::vector<PlexilMsgBase *>(1, msgData));
+    }
+    else {
       debugMsg("IpcFacade:cacheMessageLeader",
-               " storing leader with sender " << msgData->senderUID << ", serial " << msgData->serial
-               << ",\n expecting " << msgData->count << " values");
-      m_incompletes[msgId] = std::vector<const PlexilMsgBase*>(1, msgData);
+               " storing leader from sender " << msgData->senderUID
+               << " serial " << msgData->serial
+               << ", expecting " << msgData->count << " values");
+      std::vector<PlexilMsgBase *> msgVec(msgData->count + 1);
+      msgVec.clear(); // reset length to 0
+      msgVec.push_back(msgData);
+      m_incompletes[msgId] = msgVec;
     }
   }
 
   /**
    * @brief Cache following message of a multi-message sequence
+   * @note Called from IPC dispatch thread.
    */
-
   // N.B. Presumes that messages are received in order.
-
-  void IpcFacade::cacheMessageTrailer(const PlexilMsgBase* msgData) {
+  void IpcFacade::cacheMessageTrailer(PlexilMsgBase* msgData)
+  {
     IpcMessageId msgId(msgData->senderUID, msgData->serial);
-    debugMsg("IpcFacade:cacheMessageTrailer", " locking incompletes mutex");
-    std::lock_guard<std::mutex> g(m_incompletesMutex);
     IncompleteMessageMap::iterator it = m_incompletes.find(msgId);
     if (it == m_incompletes.end()) {
-      debugMsg("IpcFacade::cacheMessageTrailer",
-               " no existing sequence for sender "
+      debugMsg("IpcFacade:cacheMessageTrailer",
+               ' ' << m_myUID << " no existing sequence for sender "
                << msgData->senderUID << ", serial " << msgData->serial << ", ignoring");
       return;
     }
-    std::vector<const PlexilMsgBase*>& msgs = it->second;
+    std::vector<PlexilMsgBase*> &msgs = it->second;
     msgs.push_back(msgData);
     // Have we got them all?
+    assertTrueMsg(msgs[0],
+                  "IpcFacade::cacheMessageTrailer " << m_myUID
+                  << ": pointer to leader is null!");
+
     if (msgs.size() > msgs[0]->count) {
       debugMsg("IpcFacade:cacheMessageTrailer",
-               " delivering " << msgs.size() << " messages");
-      deliverMessage(msgs);
+               ' ' << m_myUID << " delivering " << msgs.size() << " messages");
+      deliverMessages(msgs);
       m_incompletes.erase(it);
     }
   }
 
-  /**
-   * @brief Deliver the given message to all listeners registered for it
-   */
-  void IpcFacade::deliverMessage(const std::vector<const PlexilMsgBase*>& msgs) {
-    if (!msgs.empty()) {
-      //send to listeners for all
-      {
-        debugMsg("IpcFacade:deliverMessage", " locking listeners mutex");
-        std::lock_guard<std::mutex> guard(m_listenersMutex);
-        ListenerMap::iterator map_it = m_registeredListeners.find(ALL_MSG_TYPE());
-        if (map_it != m_registeredListeners.end()) {
-          for (ListenerList::iterator it = (*map_it).second.begin(); it != (*map_it).second.end(); it++) {
-            (*it)->ReceiveMessage(msgs);
-          }
-        }
-        //send to listeners for msg type
-        map_it = m_registeredListeners.find(msgs.front()->msgType);
-        if (map_it != m_registeredListeners.end()) {
-          for (ListenerList::iterator it = (*map_it).second.begin(); it != (*map_it).second.end(); it++) {
-            (*it)->ReceiveMessage(msgs);
-          }
-        }
-      }
+  //! Deliver the given messages to all listeners registered for the leader,
+  //! then free the message data.
+  //! @param msgs (Const reference to) Vector of message pointers
+  //! @note Called from dispatch thread.
+  void IpcFacade::deliverMessages(const std::vector<PlexilMsgBase *>& msgs)
+  {
+    assertTrue_2(!msgs.empty(),
+                 "IpcFacade::deliverMessages: empty message vector");
 
-      // clean up
-      for (size_t i = 0; i < msgs.size(); i++) {
-        const PlexilMsgBase* msg = msgs[i];
-        IPC_freeData(IPC_msgFormatter(msgFormatForType((PlexilMsgType) msg->msgType)), (void *) msg);
+    {
+      debugMsg("IpcFacade:deliverMessage", " locking listeners mutex");
+      std::lock_guard<std::mutex> guard(m_listenersMutex);
+
+      // send to listeners for all
+      for (IpcMessageListener * l : m_listenersToAll)
+        l->ReceiveMessage(msgs);
+
+      // send to listeners for msg type
+      ListenerMap::const_iterator map_it =
+        m_registeredListeners.find(msgs.front()->msgType);
+      if (map_it != m_registeredListeners.end()) {
+        for (IpcMessageListener * l : map_it->second)
+          l->ReceiveMessage(msgs);
       }
     }
-  }
+    debugMsg("IpcFacade:deliverMessage", " unlocked listeners mutex");
 
-  void IpcFacade::subscribeGlobal(const LocalListenerRef& listener) {
-    debugMsg("IpcFacade:subscribeGlobal", " locking listeners mutex");
-    std::lock_guard<std::mutex> guard(m_listenersMutex);
-    //creates a new entry if one does not already exist
-    m_registeredListeners[listener.first].push_back(listener.second);
-  }
-
-  /**
-   * @brief Unsubscribe the given listener from the listener map.
-   * @note Caller must hold m_listenersMutex.
-   */
-  void IpcFacade::unsubscribeGlobal(const LocalListenerRef& listener) {
-    ListenerMap::iterator map_it = m_registeredListeners.find(listener.first);
-    if (map_it != m_registeredListeners.end()) {
-      for (ListenerList::iterator it = (*map_it).second.begin(); it != (*map_it).second.end(); it++)
-        if (listener.second == *it) {
-          *map_it->second.erase(it);
-          return;
-        }
+    // clean up
+    for (size_t i = 0; i < msgs.size(); i++) {
+      PlexilMsgBase* msg = msgs[i];
+      IPC_freeData(IPC_msgFormatter(msgFormatForType((PlexilMsgType) msg->msgType)), (void *) msg);
     }
   }
-
 
 // UUID generation constants
 #define UUID_SIZE_BITS 128
@@ -1317,7 +1390,7 @@ namespace PLEXIL
              randomBits[6],
              randomBits[7]);
 
-    debugMsg("IpcFacade:generateUID", " returns " << resultbuf); 
+    debugMsg("IpcFacade:generateUID", " returns " << resultbuf);
     return std::string(resultbuf);
   }
 
@@ -1331,7 +1404,7 @@ namespace PLEXIL
     IPC_RETURN_TYPE result = IPC_unsubscribe(msgName, handler);
     if (result != IPC_OK)
       return result;
-    return IPC_unsubscribe(formatMsgName(std::string(msgName), m_myUID), handler);
+    return IPC_unsubscribe(formatMsgName(msgName, m_myUID), handler);
   }
 
   /**

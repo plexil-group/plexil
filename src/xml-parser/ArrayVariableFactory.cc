@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,48 +24,41 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ArrayVariableFactory.hh"
-
 #include "ArrayVariable.hh"
+#include "ConcreteExpressionFactory.hh"
 #include "Constant.hh"
 #include "createExpression.hh"
 #include "Error.hh"
-#include "NodeConnector.hh"
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
 
 #include "pugixml.hpp"
 
-#include <limits>
-
-#ifdef STDC_HEADERS
+#if defined(HAVE_CSTDLIB)
 #include <cstdlib>
+#elif defined(HAVE_STDLIB_H)
+#include <stdlib.h>
 #endif
 
 using pugi::xml_node;
 
 namespace PLEXIL
 {
-  ArrayVariableFactory::ArrayVariableFactory(std::string const &name)
-    : ExpressionFactory(name)
-  {
-  }
-
-  ArrayVariableFactory::~ArrayVariableFactory()
-  {
-  }
 
   //
   // First pass: XML checks
   //
 
-  ValueType ArrayVariableFactory::check(char const *nodeId, xml_node expr) const
+  template <>
+  ValueType factoryCheck<ArrayVariable>(char const *nodeId,
+                                        pugi::xml_node const expr,
+                                        ValueType desiredType)
   {
     // We know the declaration has a name and a valid type.
     // Check for a legal array type.
     xml_node temp = expr.first_child().next_sibling();
-    ValueType typ = parseValueType(temp.child_value());
-    checkParserExceptionWithLocation(arrayType(typ) != UNKNOWN_TYPE,
+    ValueType eltType = parseValueType(temp.child_value());
+    checkParserExceptionWithLocation(arrayType(eltType) != UNKNOWN_TYPE,
                                      temp,
                                      "Node \"" << nodeId
                                      << "\": Invalid type name " << temp.child_value()
@@ -75,6 +68,7 @@ namespace PLEXIL
     // Everything after type is optional
     temp = temp.next_sibling();
     if (temp) {
+      Integer max_size = -1;
       // Check for optional MaxSize tag
       if (testTag(MAX_SIZE_TAG, temp)) {
         // Check for non-negative integer
@@ -84,8 +78,7 @@ namespace PLEXIL
                                          "Node \"" << nodeId
                                          << "\": Empty " << temp.name()
                                          << " in " << expr.name() << ' ' << expr.child_value(NAME_TAG));
-        Integer n;
-        checkParserExceptionWithLocation(parseValue<Integer>(sz, n) && n >= 0,
+        checkParserExceptionWithLocation(parseValue<Integer>(sz, max_size) && max_size >= 0,
                                          temp,
                                          "Node \"" << nodeId
                                          << "\": " << temp.name()
@@ -113,46 +106,66 @@ namespace PLEXIL
                                          << expr.name() << ' ' << expr.child_value(NAME_TAG));
         temp = temp.first_child();
 
-        // *** N.B. ***
-        // The schema used to restrict initializers to literals.
-        // Now restricts to literals and variables
-        // we may choose to broaden this in the future.
-        // Comment out this check if so.
-    
-        checkParserExceptionWithLocation(testTagSuffix(VAL_SUFFIX, temp) || testTagSuffix(VAR_SUFFIX, temp),
+        // The schema restricts array variable initializers
+        // to variables, array literals, or one scalar literal of compatible type.
+        // We may choose to broaden this in the future.
+        checkParserExceptionWithLocation(testTag(ARRAY_VAL_TAG, temp)
+                                         || testTag(ARRAYVAR_TAG, temp)
+                                         || testTagSuffix(VAL_SUFFIX, temp),
                                          temp,
                                          "Node \"" << nodeId
                                          << "\": Invalid " << INITIALVAL_TAG << " contents in "
                                          << expr.name() << ' ' << expr.child_value(NAME_TAG));
 
-        // Legal initializers are list of scalars, ArrayValue, ArrayVariable
-        if (testTagPrefix("Array", temp)) {
+        // Check for junk after initializer
+        checkParserExceptionWithLocation(!temp.next_sibling(),
+                                         temp.next_sibling(),
+                                         "Node \"" << nodeId
+                                         << "\": " << INITIALVAL_TAG
+                                         << " contains extra elements in "
+                                         << expr.name() << ' ' << expr.child_value(NAME_TAG))
+
+          // Legal initializers are ArrayValue, ArrayVariable, scalar of element type
           ValueType v = checkExpression(nodeId, temp);
-          checkParserExceptionWithLocation(v == arrayType(typ)
-                                           || v == UNKNOWN_TYPE, // FIXME - for variables
+        if (testTag(ARRAY_VAL_TAG, temp) || testTag(ARRAYVAR_TAG, temp)) {
+          // ArrayValue, ArrayVariable cases
+          checkParserExceptionWithLocation(v == arrayType(eltType),
+                                           // || v == UNKNOWN_TYPE, // FIXME - for variables
                                            temp,
                                            "Node \"" << nodeId
-                                           << "\": " << valueTypeName(typ)
+                                           << "\": " << valueTypeName(eltType)
                                            << " array variable " << expr.child_value(NAME_TAG)
                                            << " has " << INITIALVAL_TAG
                                            << " of incompatible type " << valueTypeName(v));
         }
-        else
-          do {
-            ValueType v = checkExpression(nodeId, temp);
-            checkParserExceptionWithLocation(v == typ,
-                                             temp,
-                                             "Node \"" << nodeId
-                                             << "\": " << valueTypeName(typ)
-                                             << " array variable " << expr.child_value(NAME_TAG)
-                                             << " has " << INITIALVAL_TAG
-                                             << " of incompatible type " << valueTypeName(v));
-            temp = temp.next_sibling();
-          } while (temp);
+        else if (testTagSuffix(VAL_SUFFIX, temp)) {
+          // Scalar initializer
+          checkParserExceptionWithLocation(areTypesCompatible(eltType, v),
+                                           temp,
+                                           "Node \"" << nodeId
+                                           << "\": " << valueTypeName(eltType)
+                                           << " array variable " << expr.child_value(NAME_TAG)
+                                           << " has " << INITIALVAL_TAG
+                                           << " of incompatible type " << valueTypeName(v));
+        }
+
+        // Test that array literal size is not larger than MAX_SIZE
+        if (testTag(ARRAY_VAL_TAG, temp) && max_size >= 0) {
+          size_t elts = std::distance(temp.children().begin(), temp.children().end());
+          checkParserExceptionWithLocation(elts <= (size_t) max_size,
+                                           temp,
+                                           "Node \"" << nodeId
+                                           << "\": " << valueTypeName(eltType)
+                                           << " initial value of array variable "
+                                           << expr.child_value(NAME_TAG)
+                                           << " is larger than the " << MAX_SIZE_TAG
+                                           << ", " << max_size);
+        }
+        // any illegal initializers should have been caught above
       }
     }
 
-    return arrayType(typ);
+    return arrayType(eltType);
   }
 
   //
@@ -161,10 +174,11 @@ namespace PLEXIL
 
   // N.B. Construction of initializer expression happens later.
 
-  Expression *ArrayVariableFactory::allocate(xml_node const expr,
+  template <>
+  Expression *factoryAllocate<ArrayVariable>(pugi::xml_node const expr,
                                              NodeConnector *node,
                                              bool &wasCreated,
-                                             ValueType /* returnType */) const
+                                             ValueType returnType)
   {
     xml_node temp = expr.first_child();
     char const *name = temp.child_value();
@@ -210,5 +224,7 @@ namespace PLEXIL
       return nullptr;
     }
   }
+
+  ENSURE_EXPRESSION_FACTORY(ArrayVariable);
 
 } // namespace PLEXIL

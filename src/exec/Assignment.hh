@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,8 +33,9 @@
 namespace PLEXIL
 {
 
-  // forward reference
+  // forward references
   class Assignable;
+  class ExecListenerBase;
 
   class Assignment final
   {
@@ -59,8 +60,8 @@ namespace PLEXIL
     void activate();
     void deactivate();
     void fixValue();
-    void execute();
-    void retract();
+    void execute(ExecListenerBase *listener);
+    void retract(ExecListenerBase *listener);
 
     // For use by AssignmentNode
     void cleanUp();

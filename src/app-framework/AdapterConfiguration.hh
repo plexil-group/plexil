@@ -1,347 +1,359 @@
 /* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
-*  All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*     * Redistributions of source code must retain the above copyright
-*       notice, this list of conditions and the following disclaimer.
-*     * Redistributions in binary form must reproduce the above copyright
-*       notice, this list of conditions and the following disclaimer in the
-*       documentation and/or other materials provided with the distribution.
-*     * Neither the name of the Universities Space Research Association nor the
-*       names of its contributors may be used to endorse or promote products
-*       derived from this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
-* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
-* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+ *  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Universities Space Research Association nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
 /*
  * AdapterConfiguration.hh
  *
  *  Created on: Jan 28, 2010
- *      Author: jhogins
+ *      Authors: jhogins
+ *               bcampbell
+ *               cfry
  */
 
 #ifndef ADAPTERCONFIGURATION_HH_
 #define ADAPTERCONFIGURATION_HH_
 
-#include "InterfaceAdapter.hh"
+#include "CommandHandler.hh"
+#include "Dispatcher.hh"
+#include "LookupHandler.hh"
+#include "PlannerUpdateHandler.hh"
 
-#include <memory>
-#include <set>
+#include <string>
+#include <vector>
 
-namespace PLEXIL {
+// Forward references
+namespace pugi
+{
+  class xml_node;
+}
 
-  // forward references
+namespace PLEXIL
+{
+
+  // Forward references
   class ExecListener;
   class ExecListenerHub;
   class InterfaceAdapter;
+  class InterfaceManager;
   class InputQueue;
 
-  class AdapterConfiguration {
+  //*
+  // @class AdapterConfiguration
+  // @brief Abstract base class for registering external interfaces
+  class AdapterConfiguration : public Dispatcher
+  {
   public:
 
     /**
-     * @brief Constructor.
+     * @brief Virtual destructor.
      */
-    AdapterConfiguration();
+    virtual ~AdapterConfiguration() = default;
 
-    /**
-     * @brief Destructor.
-     */
-    ~AdapterConfiguration();
-
-    /**
-     * @brief Constructs interface adapters from the provided XML.
-     * @param configXml The XML element used for interface configuration.
-     * @return true if successful, false otherwise.
-     */
-    bool constructInterfaces(pugi::xml_node const configXml);
+    //! Constructs concrete interfaces as specified by the configuration XML.
+    //! @param configXml The interface specifications.
+    //! @param intf The InterfaceManager.
+    //! @param listenerHub The ExecListenerHub.
+    //! @return true if successful, false otherwise.
+    virtual bool constructInterfaces(pugi::xml_node const configXml,
+                                     InterfaceManager &intf,
+                                     ExecListenerHub &listenerHub) = 0;
 
     /**
      * @brief Performs basic initialization of the interface and all adapters.
      * @return true if successful, false otherwise.
      */
-    bool initialize();
+    virtual bool initialize() = 0;
 
     /**
      * @brief Prepares the interface and adapters for execution.
      * @return true if successful, false otherwise.
      */
-    bool start();
+    virtual bool start() = 0;
 
     /**
-     * @brief Halts all interfaces.
-     * @return true if successful, false otherwise.
+     * @brief Stops all interfaces.
      */
-    bool stop();
+    virtual void stop() = 0;
+
+    //
+    // Handler registration functions
+    //
 
     /**
-     * @brief Resets the interface prior to restarting.
-     * @return true if successful, false otherwise.
+     * @brief Register the given CommandHandler instance for all
+     *        command names in the given vector.
+     * @param handler Pointer to the CommandHandler instance.
+     * @param names Const reference to Vector of command name strings.
+     * @note The AdapterConfiguration instance takes shared ownership
+     *       of the handler.
      */
-    bool reset();
+    virtual void registerCommandHandler(CommandHandlerPtr handler,
+                                        std::vector<std::string> const &names) = 0;
 
     /**
-     * @brief Shuts down the interface.
-     * @return true if successful, false otherwise.
+     * @brief Register the given CommandHandler for this command,
+     *        overriding any previous handler or interface adapter
+     *        registration.
+     * @param handler Shared pointer to the CommandHandler instance.
+     * @param cmdName The name of the command to map to this handler.
+     * @note The AdapterConfiguration instance takes shared ownership
+     *       of the handler.
      */
-    bool shutdown();
+    virtual void registerCommandHandler(CommandHandlerPtr handler,
+                                        std::string const &cmdName) = 0;
 
     /**
+     * @brief Register the given handler functions for the named
+     * command, overriding any previous handler or interface adapter
+     * registration.
+     * @param cmdName The command name to map to this handler.
+     * @param execCmd The function to call when this command is
+     * executed.
+     * @param abortCmd The function to call when this command is
+     * aborted; defaults to defaultAbortCommandHandler.
+     */
+    virtual void registerCommandHandlerFunction(std::string const &cmdName,
+                                                ExecuteCommandHandler execCmd,
+                                                AbortCommandHandler abortCmd = defaultAbortCommandHandler)
+    = 0;
+
+    /**
+     * @brief Register the CommandHandler instance as the default for
+     * commands without a specific handler, overriding any previously
+     * registered default handler or interface adapter, including the
+     * default default handler.
+     * @param handler Shared pointer to the CommandHandler instance.
+     * @note The AdapterConfiguration instance takes shared ownership
+     *       of the handler.
+     */
+    virtual void setDefaultCommandHandler(CommandHandlerPtr handler) = 0;
+    
+    /**
+     * @brief Register the given handler function(s) as the default
+     * for commands without a specific handler, overriding any
+     * previously registered default handler or interface adapter,
+     * including the default default handler.
+     * @param execCmd The execute command handler function.
+     * @param abortCmd (Optional) The abort command handler function.
+     *        Defaults to defaultAbortCommandHandler if not supplied.
+     * @see defaultAbortCommandHandler
+     */
+    virtual void setDefaultCommandHandlerFunction(ExecuteCommandHandler execCmd,
+                                                  AbortCommandHandler abortCmd
+                                                  = defaultAbortCommandHandler)
+    = 0;
+
+    /**
+     * @brief Register the given LookupHandler instance for all lookup
+     *        names in the given vector.
+     * @param handler Shared pointer to the LookupHandler instance.
+     * @param names Const reference to a vector of name strings.
+     * @note The AdapterConfiguration instance takes shared ownership
+     *       of the handler.
+     */
+    virtual void registerLookupHandler(LookupHandlerPtr handler,
+                                       std::vector<std::string> const &names) = 0;
+
+    /**
+     * @brief Register the given LookupHandler instance for lookups
+     *        for this state name, overriding any previous handler or
+     *        interface adapter registrations for the name.
+     * @param stateName The name of the state to map to this handler.
+     * @param handler Pointer to the LookupHandler.
+     * @note The AdapterConfiguration instance takes shared ownership
+     *       of the handler.
+     */
+    virtual void registerLookupHandler(LookupHandlerPtr handler,
+                                       std::string const &stateName) = 0;
+
+    /**
+     * @brief Register the given handler function(s) for lookups to
+     *        this state, overriding any previous handler or interface
+     *        adapter registrations for this name.
+     * @param stateName The name of the state to map to these handler functions.
+     * @param lookupNow The lookupNow function for this state.
+     * @param setThresholdsReal (Optional) The setThresholdsReal
+     *        handler function for this state.
+     * @param setThresholdsInteger (Optional) The setThresholdsInteger
+     *        handler function for this state.
+     */
+    virtual void registerLookupHandlerFunction(std::string const &stateName,
+                                               LookupNowHandler ln,
+                                               SetThresholdsHandlerReal setTD =
+                                               SetThresholdsHandlerReal(),
+                                               SetThresholdsHandlerInteger setTI =
+                                               SetThresholdsHandlerInteger(),
+                                               ClearThresholdsHandler clrT = 
+                                               ClearThresholdsHandler())
+    = 0;
+
+    /**
+     * @brief Register the given LookupHandler instance as the default
+     * for lookups, overriding any previously registered default
+     * handler or interface adapter, including the default default
+     * handler.
+     * @param handler Shared pointer to the new default LookupHandler.
+     * @note The AdapterConfiguration instance takes shared ownership
+     *       of the handler.
+     */
+    virtual void setDefaultLookupHandler(LookupHandlerPtr handler) = 0;
+    
+    /**
+     * @brief Register the given handler function(s) as the default
+     *        for lookups, overriding any previously registered default
+     *        handler or interface adapter, including the default default
+     *        handler.
+     * @param lookupNow The lookup handler function to use as a default.
+     * @param setThresholdsReal (Optional) The setThresholdsReal handler function.
+     *        May be null.
+     * @param setThresholdsInteger (Optional) The setThresholdsInteger handler function.
+     *        May be null.
+     */
+    virtual void setDefaultLookupHandler(LookupNowHandler lookupNow,
+                                         SetThresholdsHandlerReal setThresholdsReal =
+                                         SetThresholdsHandlerReal(),
+                                         SetThresholdsHandlerInteger setThresholdsInteger =
+                                         SetThresholdsHandlerInteger(),
+                                         ClearThresholdsHandler clrT =
+                                         ClearThresholdsHandler())
+    = 0;
+    
+    /**
+     * @brief Register the given handler function for planner updates,
+     *        overriding any previously registered handlers or interface
+     *        adapters.
+     * @param updateFn The handler function.
+     */
+    virtual void registerPlannerUpdateHandler(PlannerUpdateHandler updateFn) = 0;
+
+    //! Add the ExecListener instance to the application.
+    //! @param listener The ExecListener.
+    //! @note Can be called from adapter initialization functions.
+    virtual void addExecListener(ExecListener *listener) = 0;
+
+    /**
+     * @deprecated
      * @brief Add an externally constructed interface adapter.
-     * @param adapter The adapter ID.
+     * @param adapter Pointer to the InterfaceAdapter instance.
+     *
+     * @note The AdapterConfiguration instance takes ownership 
+     *       and is responsible for deleting the adapter.
+     * @note The adapter is responsible for registering its own handlers
+     *       in its initialize() method.
      */
-    void addInterfaceAdapter(InterfaceAdapter *adapter);
-
-    /**
-     * @brief Add an externally constructed ExecListener.
-     * @param listener Pointer to the listener
-     */
-    void addExecListener(ExecListener *listener);
+    virtual void addInterfaceAdapter(InterfaceAdapter *adapter) = 0;
 
     //
-    // API to interface adapters
+    // Handler accessors
+    //
+    // Should only be used by InterfaceManager and module tests
     //
 
     /**
-     * @brief Register the given interface adapter.
-     * @param adapter The interface adapter to be registered.
+     * @brief Return the CommandHandler instance for a command name.
+     * @param cmdName The command name.
+     * @return Pointer to the CommandHandler instance for the named
+     * command.
      */
-
-    void defaultRegisterAdapter(InterfaceAdapter *adapter);
+    virtual CommandHandler *getCommandHandler(std::string const& stateName) const = 0;
 
     /**
-     * @brief Register the given interface adapter for this command.
-     Returns true if successful.  Fails and returns false
-     iff the command name already has an adapter registered
-              or setting a command interface is not implemented.
-     * @param commandName The command to map to this adapter.
-     * @param intf The interface adapter to handle this command.
-     */
-    bool registerCommandInterface(std::string const &commandName,
-                                  InterfaceAdapter *intf);
-
-    /**
-     * @brief Register the given interface adapter for lookups to this state.
-     Returns true if successful.  Fails and returns false
-     if the state name already has an adapter registered
-              or registering a lookup interface is not implemented.
-     * @param stateName The name of the state to map to this adapter.
-     * @param intf The interface adapter to handle this lookup.
-     * @param telemetryOnly False if this interface implements LookupNow, true otherwise.
-     */
-    bool registerLookupInterface(std::string const &stateName,
-                                 InterfaceAdapter *intf,
-                                 bool telemetryOnly = false);
-
-    /**
-     * @brief Register the given interface adapter for planner updates.
-              Returns true if successful.  Fails and returns false
-              iff an adapter is already registered
-              or setting the default planner update interface is not implemented.
-     * @param intf The interface adapter to handle planner updates.
-     */
-    bool registerPlannerUpdateInterface(InterfaceAdapter *intf);
-
-    /**
-     * @brief Register the given interface adapter as the default for all lookups and commands
-     which do not have a specific adapter.  Returns true if successful.
-     Fails and returns false if there is already a default adapter registered
-              or setting the default interface is not implemented.
-     * @param intf The interface adapter to use as the default.
-     */
-    bool setDefaultInterface(InterfaceAdapter *intf);
-
-    /**
-     * @brief Register the given interface adapter as the default for lookups.
-              This interface will be used for all lookups which do not have
-          a specific adapter.
-              Returns true if successful.
-          Fails and returns false if there is already a default lookup adapter registered
-              or setting the default lookup interface is not implemented.
-     * @param intf The interface adapter to use as the default.
-     * @return True if successful, false if there is already a default adapter registered.
-     */
-    bool setDefaultLookupInterface(InterfaceAdapter *intf);
-
-    /**
-     * @brief Register the given interface adapter as the default for commands.
-              This interface will be used for all commands which do not have
-          a specific adapter.
-              Returns true if successful.
-          Fails and returns false if there is already a default command adapter registered.
-     * @param intf The interface adapter to use as the default.
-     * @return True if successful, false if there is already a default adapter registered.
-     */
-    bool setDefaultCommandInterface(InterfaceAdapter *intf);
-
-    /**
-     * @brief Return the interface adapter in effect for this command, whether
-     specifically registered or default. May return nullptr.
-     * @param commandName The command.
-     */
-    InterfaceAdapter *getCommandInterface(std::string const &commandName);
-
-    /**
-     * @brief Return the current default interface adapter for commands.
-              May return nullptr.
-     */
-    InterfaceAdapter *getDefaultCommandInterface();
-
-    /**
-     * @brief Return the interface adapter in effect for lookups with this state name,
-     whether specifically registered or default. May return nullptr.
+     * @brief Return the LookupHandler instance in effect for lookups
+     *        with this state name.
      * @param stateName The state.
+     * @return Pointer to the LookupHandler for the named state.
      */
-    InterfaceAdapter *getLookupInterface(std::string const& stateName);
+    virtual LookupHandler *getLookupHandler(std::string const& stateName) const = 0;
 
     /**
-     * @brief Query configuration data to determine if a state is only available as telemetry.
-     * @param stateName The state.
-     * @return True if state is declared telemetry-only, false otherwise.
-     * @note In the absence of a declaration, a state is presumed not to be telemetry.
+     * @brief Get the handler function for planner updates.
+     * @return The handler function.
      */
-    bool lookupIsTelemetry(std::string const &stateName) const;
-
-    /**
-     * @brief Return the current default interface adapter for lookups.
-              May return nullptr.
-     */
-    InterfaceAdapter *getDefaultLookupInterface();
-
-    /**
-     * @brief Return the interface adapter in effect for planner updates,
-              whether specifically registered or default. May return nullptr.
-     */
-    InterfaceAdapter *getPlannerUpdateInterface();
-
-    /**
-     * @brief Return the current default interface adapter. May return nullptr.
-     */
-    InterfaceAdapter *getDefaultInterface();
-
-    std::vector<std::unique_ptr<InterfaceAdapter>> &getAdapters()
-    {
-      return m_adapters;
-    }
-
-    std::vector<std::unique_ptr<InterfaceAdapter>> const &getAdapters() const
-    {
-      return m_adapters;
-    }
-
-    ExecListenerHub *getListenerHub()
-    {
-      return m_listenerHub.get();
-    }
-
-    /**
-     * @brief Returns true if the given adapter is a known interface in the system. False otherwise
-     */
-    bool isKnown(InterfaceAdapter *intf);
-
-    /**
-     * @brief Clears the interface adapter registry.
-     */
-    void clearAdapterRegistry();
+    virtual PlannerUpdateHandler getPlannerUpdateHandler() const = 0;
 
     //
-    // Plan, library path access
+    // Path registration for plans and libraries
     //
-
-    /**
-     * @brief Get the search path for library nodes.
-     * @return A reference to the library search path.
-     */
-    const std::vector<std::string>& getLibraryPath() const;
-
-    /**
-     * @brief Get the search path for plan files.
-     * @return A reference to the plan search path.
-     */
-    const std::vector<std::string>& getPlanPath() const;
-
-    /**
-     * @brief Add the specified directory name to the end of the library node loading path.
-     * @param libdir The directory name.
-     */
-    void addLibraryPath(const std::string& libdir);
-
-    /**
-     * @brief Add the specified directory names to the end of the library node loading path.
-     * @param libdirs The vector of directory names.
-     */
-    void addLibraryPath(const std::vector<std::string>& libdirs);
-
-    /**
-     * @brief Add the specified directory name to the end of the plan loading path.
-     * @param libdir The directory name.
-     */
-    void addPlanPath(const std::string& libdir);
 
     /**
      * @brief Add the specified directory names to the end of the plan loading path.
      * @param libdirs The vector of directory names.
      */
-    void addPlanPath(const std::vector<std::string>& libdirs);
+    virtual void addPlanPath(const std::vector<std::string>& libdirs) = 0;
+
+    /**
+     * @brief Add the specified directory name to the end of the plan loading path.
+     * @param libdir The directory name.
+     */
+    virtual void addPlanPath(const std::string& libdir) = 0;
+
+    /**
+     * @brief Add the specified directory names to the end of the library node loading path.
+     * @param libdirs The vector of directory names.
+     */
+    virtual void addLibraryPath(const std::vector<std::string>& libdirs) = 0;
+
+    /**
+     * @brief Add the specified directory name to the end of the library node loading path.
+     * @param libdir The directory name.
+     */
+    virtual void addLibraryPath(const std::string& libdir) = 0;
+
+    //
+    // Search path access for plans and libraries
+    //
+
+    /**
+     * @brief Get the search path for plan files.
+     * @return A const reference to the plan search path.
+     */
+    virtual const std::vector<std::string>& getPlanPath() const = 0;
+
+    /**
+     * @brief Get the search path for library nodes.
+     * @return A const reference to the library search path.
+     */
+    virtual const std::vector<std::string>& getLibraryPath() const = 0;
+
+    //
+    // Input queue
+    //
 
     /**
      * @brief Construct the input queue specified by the configuration data.
      * @return Pointer to instance of a class derived from InputQueue.
+     *
+     * @note Use of configuration data for selecting an input queue 
+     *       type has not yet been implemented.
      */
-    std::unique_ptr<InputQueue> constructInputQueue() const;
-
-  private:
-
-    // Not implemented
-    AdapterConfiguration(AdapterConfiguration const &) = delete;
-    AdapterConfiguration(AdapterConfiguration &&) = delete;
-    AdapterConfiguration &operator=(AdapterConfiguration const &) = delete;
-    AdapterConfiguration &operator=(AdapterConfiguration &&) = delete;
-
-    /**
-     * @brief Deletes the given adapter from the interface manager
-     * @return true if the given adapter existed and was deleted. False if not found
-     */
-    bool deleteAdapter(InterfaceAdapter *intf);
-
-    //* Default InterfaceAdapters
-    InterfaceAdapter *m_defaultInterface;
-    InterfaceAdapter *m_defaultCommandInterface;
-    InterfaceAdapter *m_defaultLookupInterface;
-
-    //* InterfaceAdapter to use for PlannerUpdate nodes
-    InterfaceAdapter *m_plannerUpdateInterface;
-
-    // Maps by command/lookup
-
-    // Interface adapter maps
-    typedef std::map<std::string, InterfaceAdapter *> InterfaceMap;
-    InterfaceMap m_lookupMap;
-    InterfaceMap m_commandMap;
-
-    std::set<std::string> m_telemetryLookups;
-
-    //* ExecListener hub
-    std::unique_ptr<ExecListenerHub> m_listenerHub;
-
-    //* All known InterfaceAdapter instances
-    std::vector<std::unique_ptr<InterfaceAdapter>> m_adapters;
-
-    //* List of directory names for plan file search paths
-    std::vector<std::string> m_planPath;
+    virtual InputQueue *makeInputQueue() const = 0;
   };
 
-  extern AdapterConfiguration *g_configuration;
+  //* @brief Abstract factory for AdapterConfiguration
+  AdapterConfiguration *makeAdapterConfiguration();
 
 }
 

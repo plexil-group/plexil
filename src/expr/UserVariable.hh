@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,9 +27,9 @@
 #ifndef PLEXIL_USER_VARIABLE_HH
 #define PLEXIL_USER_VARIABLE_HH
 
-#include "Assignable.hh"
 #include "GetValueImpl.hh"
 #include "Notifier.hh"
+#include "Variable.hh"
 
 #include <vector>
 
@@ -41,10 +41,10 @@ namespace PLEXIL
    * @brief Templatized class for user-created plan variables.
    */
 
-  // Scalar case
+  // General scalar case
   template <typename T>
   class UserVariable final :
-    public Assignable,
+    public Variable,
     public GetValueImpl<T>,
     public Notifier
   {
@@ -111,22 +111,15 @@ namespace PLEXIL
 
     virtual Value getSavedValue() const override;
 
-    virtual void setInitializer(Expression *expr, bool garbage) override;
-
     virtual void setUnknown() override;
 
     virtual void setValue(Value const &val) override;
 
-    virtual Assignable *getBaseVariable() override;
-    virtual Assignable const *getBaseVariable() const override;
+    //
+    // Variable API
+    //
 
-    virtual bool isInUse() const override;
-    virtual bool reserve(Node *node) override;
-    virtual void release() override;
-
-    virtual void addWaitingNode(Node *node) override;
-    virtual void removeWaitingNode(Node *node) override;
-    virtual std::vector<Node *> const *getWaitingNodes() const override;
+    virtual void setInitializer(Expression *expr, bool garbage) override;
 
     /**
      * @brief Set the value for this object.
@@ -150,9 +143,6 @@ namespace PLEXIL
 
   private:
 
-    //! Nodes waiting to assign to this variable. Usually empty.
-    std::vector<Node *> m_waiters;
-
     // N.B. Ordering is suboptimal for bool because of required padding;
     // fine for Integer and Real
     T m_value;
@@ -160,8 +150,6 @@ namespace PLEXIL
 
     Expression *m_initializer;
     char const *m_name;
-
-    Node *m_user;
 
     bool m_known;
     bool m_savedKnown;
@@ -172,7 +160,7 @@ namespace PLEXIL
   // String case
   template <>
   class UserVariable<String> final :
-    public Assignable,
+    public Variable,
     public GetValueImpl<String>,
     public Notifier
   {
@@ -250,17 +238,6 @@ namespace PLEXIL
 
     virtual void setValue(Value const &val) override;
 
-    virtual Assignable *getBaseVariable() override;
-    virtual Assignable const *getBaseVariable() const override;
-
-    virtual bool isInUse() const override;
-    virtual bool reserve(Node *node) override;
-    virtual void release() override;
-
-    virtual void addWaitingNode(Node *node) override;
-    virtual void removeWaitingNode(Node *node) override;
-    virtual std::vector<Node *> const *getWaitingNodes() const override;
-
     /**
      * @brief Set the value for this object.
      * @param val The expression with the new value for this object.
@@ -283,16 +260,11 @@ namespace PLEXIL
 
   private:
 
-    //! Nodes waiting to assign to this variable. Usually empty.
-    std::vector<Node *> m_waiters;
-
     String m_value;
     String m_savedValue;   // for undoing assignment 
 
     Expression *m_initializer;
     char const *m_name;
-
-    Node *m_user;
 
     bool m_known;
     bool m_savedKnown;

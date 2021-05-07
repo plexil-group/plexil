@@ -27,7 +27,6 @@
 #include "GetValueImpl.hh"
 
 #include "ArrayImpl.hh"
-#include "Error.hh"
 #include "PlexilTypeTraits.hh"
 #include "Value.hh"
 

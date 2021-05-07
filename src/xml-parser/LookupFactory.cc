@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,22 +24,21 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "LookupFactory.hh"
-
+#include "ConcreteExpressionFactory.hh"
 #include "createExpression.hh"
-#include "Error.hh"
 #include "ExprVec.hh"
 #include "Lookup.hh"
-#include "NodeConnector.hh"
-#include "ParserException.hh"
 #include "parser-utils.hh"
+#include "ParserException.hh"
 #include "PlexilSchema.hh"
 #include "SymbolTable.hh"
 
 #include "pugixml.hpp"
 
-#ifdef STDC_HEADERS
+#if defined(HAVE_CSTRING)
 #include <cstring>
+#elif defined(HAVE_STRING_H)
+#include <string.h>
 #endif
 
 using pugi::xml_node;
@@ -47,16 +46,10 @@ using pugi::xml_node;
 namespace PLEXIL
 {
 
-  LookupFactory::LookupFactory(std::string const &name)
-    : ExpressionFactory(name)
-  {
-  }
-
-  LookupFactory::~LookupFactory()
-  {
-  }
-
-  ValueType LookupFactory::check(char const *nodeId, xml_node const expr) const
+  template <>
+  ValueType factoryCheck<Lookup>(char const *nodeId,
+                                 pugi::xml_node const expr,
+                                 ValueType desiredType)
   {
     xml_node stateNameXml = expr.first_child();
     checkParserExceptionWithLocation(testTag(NAME_TAG, stateNameXml),
@@ -83,9 +76,9 @@ namespace PLEXIL
     ValueType resultType = UNKNOWN_TYPE;
     Symbol const *lkup = nullptr;
     if (testTag(STRING_VAL_TAG, nameXml)) {
-        lkup = getLookupSymbol(nameXml.child_value());
-        if (lkup)
-          resultType = lkup->returnType();
+      lkup = getLookupSymbol(nameXml.child_value());
+      if (lkup)
+        resultType = lkup->returnType();
     }
     
     xml_node temp = stateNameXml.next_sibling();
@@ -169,10 +162,11 @@ namespace PLEXIL
     return resultType;
   }
 
-  Expression *LookupFactory::allocate(xml_node const expr,
+  template <>
+  Expression *factoryAllocate<Lookup>(pugi::xml_node const expr,
                                       NodeConnector *node,
                                       bool & wasCreated,
-                                      ValueType /* returnType */) const
+                                      ValueType returnType)
   {
     // Syntactic checking has been done already
     xml_node stateNameXml = expr.first_child();
@@ -185,7 +179,6 @@ namespace PLEXIL
 
     // Type checking support
     Symbol const *lkup = nullptr;
-    ValueType returnType = UNKNOWN_TYPE;
     if (stateName->isConstant()) {
       // Check whether it's known
       std::string const *nameStr;
@@ -251,9 +244,8 @@ namespace PLEXIL
           ValueType tolType = tol->valueType();
           checkParserException(isNumericType(tolType) || tolType == UNKNOWN_TYPE,
                                "createExpression: LookupOnChange tolerance expression must be numeric");
-          return new LookupOnChange(stateName, stateNameGarbage, returnType,
-                                    tol, tolGarbage,
-                                    argVec);
+          return makeLookupOnChange(stateName, stateNameGarbage, returnType,
+                                    tol, tolGarbage, argVec);
         }
         catch (ParserException &e) {
           if (tolGarbage)
@@ -262,7 +254,7 @@ namespace PLEXIL
         }
       }
       else
-        return new Lookup(stateName, stateNameGarbage, returnType, argVec);
+        return makeLookup(stateName, stateNameGarbage, returnType, argVec);
     }
     catch (ParserException &e) {
       delete argVec;
@@ -270,4 +262,7 @@ namespace PLEXIL
     }
   }
 
+  ENSURE_EXPRESSION_FACTORY(Lookup);
+
 } // namespace PLEXIL
+

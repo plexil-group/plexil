@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -38,6 +38,37 @@
 namespace PLEXIL {
 
   //
+  // Local constants
+  //
+  
+  // XML formatting options
+  static constexpr const unsigned int PUGI_FORMAT_OPTIONS = pugi::format_raw | pugi::format_no_declaration;
+
+  // Literal strings
+  static constexpr const char TRUE_STR[] = "true";
+  static constexpr const char FALSE_STR[] = "false";
+
+  // XML tags
+  static constexpr const char PLAN_INFO_TAG[] = "PlanInfo";
+  static constexpr const char PLEXIL_PLAN_TAG[] = "PlexilPlan";
+  static constexpr const char PLEXIL_LIBRARY_TAG[] = "PlexilLibrary";
+  static constexpr const char VIEWER_BLOCKS_TAG[] = "ViewerBlocks";
+
+  static constexpr const char NODE_ID_TAG[] = "NodeId";
+  static constexpr const char NODE_PATH_TAG[] = "NodePath";
+
+  static constexpr const char NODE_STATE_UPDATE_TAG[] = "NodeStateUpdate";
+  static constexpr const char NODE_STATE_TAG[] = "NodeState";
+  static constexpr const char NODE_OUTCOME_TAG[] = "NodeOutcome";
+  static constexpr const char NODE_FAILURE_TYPE_TAG[] = "NodeFailureType";
+  static constexpr const char CONDITIONS_TAG[] = "Conditions";
+
+  static constexpr const char ASSIGNMENT_TAG[] = "Assignment";
+  static constexpr const char VARIABLE_TAG[] = "Variable";
+  static constexpr const char VARIABLE_NAME_TAG[] = "VariableName";
+  static constexpr const char VARIABLE_VALUE_TAG[] = "Value";
+
+  //
   // Local utilities
   //
 
@@ -70,7 +101,7 @@ namespace PLEXIL {
     if (node->getParent())
       formatNodePathInternal(s, node->getParent());
     // Put ours at the end
-    simpleTextElement(s, LuvFormat::NODE_ID_TAG(), node->getNodeId().c_str());
+    simpleTextElement(s, NODE_ID_TAG, node->getNodeId().c_str());
   }
 
   /**
@@ -80,9 +111,9 @@ namespace PLEXIL {
    */
   void formatNodePath(std::ostream& s, 
                       Node const *node) {
-    simpleStartTag(s, LuvFormat::NODE_PATH_TAG());
+    simpleStartTag(s, NODE_PATH_TAG);
     formatNodePathInternal(s, node);
-    endTag(s, LuvFormat::NODE_PATH_TAG());
+    endTag(s, NODE_PATH_TAG);
   }
 
   /**
@@ -97,7 +128,7 @@ namespace PLEXIL {
     assertTrueMsg(node,
                   "LuvFormat::formatConditions: not a node");
 
-    simpleStartTag(s, LuvFormat::CONDITIONS_TAG());
+    simpleStartTag(s, CONDITIONS_TAG);
 
     for (size_t i = 0; i < NodeImpl::conditionIndexMax; ++i) {
       Expression const *cond = node->getCondition(i);
@@ -109,7 +140,7 @@ namespace PLEXIL {
       }
     }
 
-    endTag(s, LuvFormat::CONDITIONS_TAG());
+    endTag(s, CONDITIONS_TAG);
   }
 
   /**
@@ -119,11 +150,11 @@ namespace PLEXIL {
    */
   void LuvFormat::formatPlanInfo(std::ostream& s, 
                                  bool block) {
-    simpleStartTag(s, PLAN_INFO_TAG());
+    simpleStartTag(s, PLAN_INFO_TAG);
     simpleTextElement(s, 
-                      VIEWER_BLOCKS_TAG(),
-                      (block ? TRUE_STR() : FALSE_STR()));
-    endTag(s, PLAN_INFO_TAG());
+                      VIEWER_BLOCKS_TAG,
+                      (block ? TRUE_STR : FALSE_STR));
+    endTag(s, PLAN_INFO_TAG);
   }
 
   /**
@@ -135,19 +166,19 @@ namespace PLEXIL {
   void LuvFormat::formatTransition(std::ostream& s, 
                                    NodeTransition const &trans)
   {
-    simpleStartTag(s, NODE_STATE_UPDATE_TAG());
+    simpleStartTag(s, NODE_STATE_UPDATE_TAG);
 
     // add state
-    simpleTextElement(s, NODE_STATE_TAG(), nodeStateName(trans.newState).c_str());
+    simpleTextElement(s, NODE_STATE_TAG, nodeStateName(trans.newState).c_str());
 
     // add outcome
     if (trans.node->getOutcome() != NO_OUTCOME)
-      simpleTextElement(s, NODE_OUTCOME_TAG(),
+      simpleTextElement(s, NODE_OUTCOME_TAG,
                         outcomeName(trans.node->getOutcome()).c_str());
 
     // add failure type
     if (trans.node->getFailureType() != NO_FAILURE)
-      simpleTextElement(s, NODE_FAILURE_TYPE_TAG(),
+      simpleTextElement(s, NODE_FAILURE_TYPE_TAG,
                         failureTypeName(trans.node->getFailureType()).c_str());
       
     // add the condition states
@@ -156,7 +187,7 @@ namespace PLEXIL {
     // add the path
     formatNodePath(s, trans.node);
 
-    endTag(s, NODE_STATE_UPDATE_TAG());
+    endTag(s, NODE_STATE_UPDATE_TAG);
   }
 
   /**
@@ -170,24 +201,24 @@ namespace PLEXIL {
                                    Expression const * /* dest */,
                                    std::string const &destName,
                                    Value const &value) {
-    simpleStartTag(s, ASSIGNMENT_TAG());
+    simpleStartTag(s, ASSIGNMENT_TAG);
 
     // format variable name
-    simpleStartTag(s, VARIABLE_TAG());
+    simpleStartTag(s, VARIABLE_TAG);
 
     // TODO: get path to owning node, if any
 
     // get variable name
-    simpleTextElement(s, VARIABLE_NAME_TAG(), destName.c_str());
-    endTag(s, VARIABLE_TAG());
+    simpleTextElement(s, VARIABLE_NAME_TAG, destName.c_str());
+    endTag(s, VARIABLE_TAG);
 
     // format variable value
     std::string const valueStr = value.valueToString();
     simpleTextElement(s, 
-                      VARIABLE_VALUE_TAG(),
+                      VARIABLE_VALUE_TAG,
                       valueStr.c_str());
     
-    endTag(s, ASSIGNMENT_TAG());
+    endTag(s, ASSIGNMENT_TAG);
   }
 
   /**
@@ -197,7 +228,7 @@ namespace PLEXIL {
    */
   void LuvFormat::formatPlan(std::ostream& s, 
                              pugi::xml_node const plan) {
-    plan.print(s, "", PUGI_FORMAT_OPTIONS());
+    plan.print(s, "", PUGI_FORMAT_OPTIONS);
   }
 
   /**
@@ -209,9 +240,9 @@ namespace PLEXIL {
                                 pugi::xml_node const libNode)
   {
     // create a PLEXIL Library wrapper and stick the library node in it
-    simpleStartTag(s, PLEXIL_LIBRARY_TAG());
-    libNode.print(s, "", PUGI_FORMAT_OPTIONS());
-    endTag(s, PLEXIL_LIBRARY_TAG());
+    simpleStartTag(s, PLEXIL_LIBRARY_TAG);
+    libNode.print(s, "", PUGI_FORMAT_OPTIONS);
+    endTag(s, PLEXIL_LIBRARY_TAG);
   }
 
 }

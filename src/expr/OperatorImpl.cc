@@ -375,7 +375,7 @@ namespace PLEXIL
   //
 
   template class OperatorImpl<Real>;
-  // template class OperatorImpl<Integer>; // redundant
+  // template class OperatorImpl<Integer>; // redundant?
   template class OperatorImpl<Boolean>;
   template class OperatorImpl<String>;
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,11 +29,11 @@
 #include "Debug.hh"
 #include "Error.hh"
 #include "ExecListener.hh"
+#include "ExecListenerFactory.hh"
+#include "InterfaceSchema.hh"
 #include "NodeTransition.hh"
 
 #include "pugixml.hpp"
-
-#include <algorithm>
 
 namespace PLEXIL
 {
@@ -44,54 +44,9 @@ namespace PLEXIL
   {
   }
 
-  /**
-   * @brief Adds an Exec listener for publication of plan events.
-   */
-  void ExecListenerHub::addListener(ExecListener *listener)
-  {
-    check_error_1(listener);
-    // Is this search for repeats really necessary?
-    if (std::any_of(m_listeners.begin(), m_listeners.end(),
-                    [listener] (ExecListenerPtr &ptr) -> bool
-                    { return ptr.get() == listener; }))
-      return;
-    m_listeners.emplace_back(ExecListenerPtr(listener));
-  }
-
-  /**
-   * @brief Removes an Exec listener.
-   */
-  void ExecListenerHub::removeListener(ExecListener *listener)
-  {
-    std::remove_if(m_listeners.begin(), m_listeners.end(),
-                   [listener] (ExecListenerPtr &ptr) -> bool
-                   { return ptr.get() == listener; });
-  }
-
   //
   // API to Exec
   //
-
-
-  /**
-   * @brief Notify that a plan has been received by the Exec.
-   * @param plan The intermediate representation of the plan.
-   */
-  void ExecListenerHub::notifyOfAddPlan(pugi::xml_node const plan)
-  {
-    for (ExecListenerPtr const &listener : m_listeners)
-      listener->notifyOfAddPlan(plan);
-  }
-
-  /**
-   * @brief Notify that a library node has been received by the Exec.
-   * @param libNode The intermediate representation of the plan.
-   */
-  void ExecListenerHub::notifyOfAddLibrary(pugi::xml_node const libNode)
-  {
-    for (ExecListenerPtr const &listener : m_listeners)
-      listener->notifyOfAddLibrary(libNode);
-  }
 
   /**
    * @brief Notify that some set of nodes has changed state.
@@ -119,6 +74,30 @@ namespace PLEXIL
     m_assignments.push_back(AssignmentRecord(dest, destName, value));
   }
 
+  //
+  // API to ExecApplication
+  //
+  
+  /**
+   * @brief Notify that a plan has been received by the Exec.
+   * @param plan The intermediate representation of the plan.
+   */
+  void ExecListenerHub::notifyOfAddPlan(pugi::xml_node const plan)
+  {
+    for (ExecListenerPtr const &listener : m_listeners)
+      listener->notifyOfAddPlan(plan);
+  }
+
+  /**
+   * @brief Notify that a library node has been received by the Exec.
+   * @param libNode The intermediate representation of the plan.
+   */
+  void ExecListenerHub::notifyOfAddLibrary(pugi::xml_node const libNode)
+  {
+    for (ExecListenerPtr const &listener : m_listeners)
+      listener->notifyOfAddLibrary(libNode);
+  }
+
   /**
    * @brief Notify that a step is complete and the listener
    *        may publish transitions and assignments.
@@ -135,8 +114,36 @@ namespace PLEXIL
   }
 
   //
-  // API to InterfaceManager
+  // API to AdapterConfiguration
   //
+
+  bool ExecListenerHub::constructListener(pugi::xml_node const configXml)
+  {
+    debugMsg("ExecListenerHub:constructListener",
+             " constructing listener type \""
+             << configXml.attribute(InterfaceSchema::LISTENER_TYPE_ATTR).value()
+             << '"');
+    ExecListener *listener = 
+      ExecListenerFactory::createInstance(configXml);
+    if (!listener) {
+      warn("constructInterfaces: failed to construct listener type \""
+           << configXml.attribute(InterfaceSchema::LISTENER_TYPE_ATTR).value()
+           << '"');
+      return false;
+    }
+    m_listeners.emplace_back(ExecListenerPtr(listener));
+    return true;
+  }
+
+  /**
+   * @brief Adds an Exec listener for publication of plan events.
+   */
+  void ExecListenerHub::addListener(ExecListener *listener)
+  {
+    check_error_1(listener);
+    m_listeners.emplace_back(ExecListenerPtr(listener));
+    debugMsg("ExecListenerHub:addListener", " called");
+  }
 
   /**
    * @brief Perform listener-specific initialization.
@@ -144,16 +151,16 @@ namespace PLEXIL
    */
   bool ExecListenerHub::initialize()
   {
-    bool success = true;
+    debugMsg("ExecListenerHub:initialize", " entered");
     for (ExecListenerPtr const &listener : m_listeners) {
-      success = listener->initialize();
-      if (!success) {
+      if (!listener->initialize()) {
         debugMsg("ExecListenerHub:initialize",
                  " failed to initialize all Exec listeners, returning false");
         return false;
       }
     }
-    return success;
+    debugMsg("ExecListenerHub:initialize", " returns true");
+    return true;
   }
 
   /**
@@ -162,49 +169,24 @@ namespace PLEXIL
    */
   bool ExecListenerHub::start()
   {
-    bool success = true;
     for (ExecListenerPtr const &listener : m_listeners) {
-      success = listener->start();
-      if (!success)
-        break; // stop at first failure
+      if (!listener->start()) {
+        debugMsg("ExecListenerHub:start",
+                 " failed to start all Exec listeners, returning false");
+        return false; // stop at first failure
+      }
     }
-    return success;
+    debugMsg("ExecListenerHub:start", " returns true");
+    return true;
   }
 
   /**
    * @brief Perform listener-specific actions to stop.
-   * @return true if successful, false otherwise.
    */
-  bool ExecListenerHub::stop()
+  void ExecListenerHub::stop()
   {
-    bool success = true;
     for (ExecListenerPtr const &listener : m_listeners)
-      success = listener->stop() && success;
-    return success;
-  }
-
-  /**
-   * @brief Perform listener-specific actions to reset to initialized state.
-   * @return true if successful, false otherwise.
-   */
-  bool ExecListenerHub::reset()
-  {
-    bool success = true;
-    for (ExecListenerPtr const &listener : m_listeners)
-      success = listener->reset() && success;
-    return success;
-  }
-
-  /**
-   * @brief Perform listener-specific actions to shut down.
-   * @return true if successful, false otherwise.
-   */
-  bool ExecListenerHub::shutdown()
-  {
-    bool success = true;
-    for (ExecListenerPtr const &listener : m_listeners)
-      success = listener->shutdown() && success;
-    return success;
+      listener->stop();
   }
 
 }

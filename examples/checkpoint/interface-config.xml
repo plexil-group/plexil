@@ -1,0 +1,14 @@
+<Interfaces>
+  <Adapter AdapterType="CheckpointAdapter">
+    <SaveConfiguration Directory="./saves"
+		       RemoveOldSaves="true"/>
+    <!-- Configuration allows test to intentionally "crash"-->
+    <AdapterConfiguration OKOnExit="false"
+			  FlushOnExit="false"
+			  FlushOnStart="true"
+			  UseTime="true" />
+  </Adapter>
+  <Adapter AdapterType="StringAdapter"/>
+  <Adapter AdapterType="Time"/>
+  <Adapter AdapterType="Utility"/>
+</Interfaces>

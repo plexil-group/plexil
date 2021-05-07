@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,14 @@
 namespace PLEXIL
 {
 
+  QueueEntry::QueueEntry()
+    : next(nullptr),
+      command(nullptr),
+      value(),
+      type(Q_UNINITED)
+  {
+  }
+
   void QueueEntry::reset()
   {
     next = nullptr;
@@ -48,6 +56,27 @@ namespace PLEXIL
     type = Q_LOOKUP;
   }
 
+  void QueueEntry::initForLookup(State const &stat, Value &&val)
+  {
+    state = new State(stat); // have to copy 
+    value = std::move(val);
+    type = Q_LOOKUP;
+  }
+
+  void QueueEntry::initForLookup(State &&stat, Value const &val)
+  {
+    state = new State(stat); // have to copy 
+    value = val;
+    type = Q_LOOKUP;
+  }
+
+  void QueueEntry::initForLookup(State &&stat, Value &&val)
+  {
+    state = new State(stat); // have to copy 
+    value = std::move(val);
+    type = Q_LOOKUP;
+  }
+
   void QueueEntry::initForCommandAck(Command *cmd, CommandHandleValue val)
   {
     command = cmd;
@@ -59,6 +88,13 @@ namespace PLEXIL
   {
     command = cmd;
     value = val;
+    type = Q_COMMAND_RETURN;
+  }
+
+  void QueueEntry::initForCommandReturn(Command *cmd, Value &&val)
+  {
+    command = cmd;
+    value = std::move(val);
     type = Q_COMMAND_RETURN;
   }
 
@@ -80,6 +116,29 @@ namespace PLEXIL
   {
     plan = node;
     type = Q_ADD_PLAN;
+  }
+
+  void QueueEntry::initForReceiveMessage(Message *msg)
+  {
+    message = msg;
+    type = Q_RECEIVE_MSG;
+  }
+
+  void QueueEntry::initForAcceptMessage(Message *msg, std::string const &handle)
+  {
+    message = msg;
+    type = Q_ACCEPT_MSG;
+  }
+
+  void QueueEntry::initForReleaseMessageHandle(std::string const &handle)
+  {
+    value = handle;
+    type = Q_RELEASE_MSG_HANDLE;
+  }
+
+  void QueueEntry::initForMessageQueueEmpty()
+  {
+    type = Q_MSG_QUEUE_EMPTY;
   }
 
   void QueueEntry::initForMark(unsigned int seq)

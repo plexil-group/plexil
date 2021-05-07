@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@ import java.util.Vector;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import net.n3.nanoxml.*;
+import org.w3c.dom.Element;
 
 public class LookupNode extends ExpressionNode
 {
@@ -118,13 +118,19 @@ public class LookupNode extends ExpressionNode
                     // else nothing needs to be done
                 }
                 else {
-                    // State takes parameters
+                    // No parameters given
                     if (m_arguments == null) {
-                        state.addDiagnostic(invocation,
-                                            "State \"" + stateName + "\" requires "
-                                            + Integer.toString(argSpecs.size())
-                                            + " parameters, but none were supplied",
-                                            Severity.ERROR);
+                        if (argSpecs.size() == 1 &&
+                            argSpecs.elementAt(0) instanceof WildcardVariableName) {
+                            // No parameters required, do nothing
+                        }
+                        else {
+                            state.addDiagnostic(invocation,
+                                                "State \"" + stateName + "\" requires "
+                                                + Integer.toString(argSpecs.size())
+                                                + " parameters, but none were supplied",
+                                                Severity.ERROR);
+                        }
                     }
                     // Check arg count
                     else {
@@ -203,32 +209,33 @@ public class LookupNode extends ExpressionNode
         this.checkChildren(context, state);
     }
 
+    @Override
     protected void constructXML()
     {
-        super.constructXML();
+        super.constructXMLBase();
 
         // Add state
-        IXMLElement nameXML = new XMLElement("Name");
-        m_xml.addChild(nameXML);
+        Element nameXML = CompilerState.newElement("Name");
+        m_xml.appendChild(nameXML);
         if (this.getChild(0).getType() == PlexilLexer.STATE_NAME) {
             // literal name
-            IXMLElement literalNameXML = new XMLElement("StringValue");
-            nameXML.addChild(literalNameXML);
-            literalNameXML.setContent(this.getChild(0).getChild(0).getText());
+            Element literalNameXML = CompilerState.newElement("StringValue");
+            nameXML.appendChild(literalNameXML);
+            literalNameXML.appendChild(CompilerState.newTextNode(this.getChild(0).getChild(0).getText()));
         }
         else // name expression
-            nameXML.addChild(this.getChild(0).getXML());
+            nameXML.appendChild(this.getChild(0).getXML());
 
         // Add tolerance
         if (m_tolerance != null) {
-            IXMLElement tolXML = new XMLElement("Tolerance");
-            m_xml.addChild(tolXML);
-            tolXML.addChild(m_tolerance.getXML());
+            Element tolXML = CompilerState.newElement("Tolerance");
+            m_xml.appendChild(tolXML);
+            tolXML.appendChild(m_tolerance.getXML());
         }
 
         // Add parameters
         if (m_arguments != null) {
-            m_xml.addChild(m_arguments.getXML());
+            m_xml.appendChild(m_arguments.getXML());
         }
 
     }

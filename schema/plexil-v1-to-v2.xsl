@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -213,8 +213,8 @@
     <xsl:for-each select="EndCondition|ExitCondition|InvariantCondition|PostCondition|
                           PreCondition|RepeatCondition|SkipCondition|StartCondition">
       <xsl:element name="{name()}">
-        <xsl:apply-templates select="*" />
         <xsl:copy-of select="@FileName|@LineNo|@ColNo" />
+        <xsl:apply-templates select="*" />
       </xsl:element>
     </xsl:for-each> 
     <xsl:for-each select="Interface/*">

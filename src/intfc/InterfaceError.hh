@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -48,7 +48,7 @@ namespace PLEXIL
 
     InterfaceError &operator=(const InterfaceError &other);
 
-    virtual ~InterfaceError() PLEXIL_NOEXCEPT;
+    virtual ~InterfaceError() PLEXIL_NOEXCEPT = default;
 
     bool operator==(const InterfaceError &other);
 
@@ -77,7 +77,7 @@ namespace PLEXIL
 
   private:
 
-    InterfaceError(); // not implemented
+    InterfaceError() = delete; // not implemented
 
   };
 

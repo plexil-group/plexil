@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -116,6 +116,29 @@ namespace PLEXIL
     virtual ~NodeImpl();
 
     //
+    // Listenable API
+    //
+    
+    virtual bool isPropagationSource() const override
+    {
+      return true;
+    }
+
+    // Override Notifier method
+    virtual bool isActive() const override
+    {
+      return true;
+    }
+
+    virtual void activate() override
+    {
+    }
+
+    virtual void deactivate() override
+    {
+    }
+
+    //
     // LinkedQueue API used by PlexilExec
     //
     
@@ -153,34 +176,17 @@ namespace PLEXIL
     virtual void notifyChanged() override;
 
     //
-    // Listenable API
-    //
-    
-    virtual bool isPropagationSource() const override
-    {
-      return true;
-    }
-
-    // Override Notifier method
-    virtual bool isActive() const override
-    {
-      return true;
-    }
-
-    virtual void activate() override
-    {
-    }
-
-    virtual void deactivate() override
-    {
-    }
-
-    //
     // Node API
     //
 
     // Make the node active.
     virtual void activateNode() override;
+
+    //! Notify the node that something has changed.
+    //! @param exec The PlexilExec instance.
+    //! @note This is an optimization for cases where the change is
+    //! the direct result of executive action.
+    virtual void notifyChanged(PlexilExec *exec) override;
 
     /**
      * @brief Gets the destination state of this node, were it to transition,
@@ -193,7 +199,6 @@ namespace PLEXIL
     /**
      * @brief Gets the previously calculated destination state of this node.
      * @return The destination state.
-
      */
     virtual NodeState getNextState() const override
     {
@@ -204,7 +209,7 @@ namespace PLEXIL
      * @brief Commit a pending state transition based on the statuses of various conditions.
      * @param time The time of the transition.
      */
-    void transition(double time = 0.0) override; // FIXME - need a better time representation
+    void transition(PlexilExec *exec, double time = 0.0) override;
 
     /**
      * @brief Get the priority of a node.
@@ -260,10 +265,22 @@ namespace PLEXIL
       return dynamic_cast<Node const *>(m_parent);
     }
 
-    virtual std::vector<Mutex *> const *getUsingMutexes() const override
-    {
-      return m_usingMutexes.get();
-    }
+    //
+    // Resource conflict API
+    //
+
+    //! Does this node need to acquire resources before it can execute?
+    //! @return true if resources must be acquired, false otherwise.
+    virtual bool acquiresResources() const override;
+
+    //! Reserve the resources needed by the node.
+    //! On failure, add self to the resources' wait lists.
+    //! @return true if successful, false if not.
+    virtual bool tryResourceAcquisition() override;
+
+    //! Remove the node from the pending queues of any resources
+    //! it was trying to acquire.
+    virtual void releaseResourceReservations() override;
 
     /**
      * @brief Notify that a resource on which we're pending is now available.
@@ -304,13 +321,13 @@ namespace PLEXIL
     NodeImpl *getParentNode() {return m_parent; }
     NodeImpl const *getParentNode() const {return m_parent; }
 
-    /**
-     * @brief Sets the state variable to the new state.
-     * @param newValue The new node state.
-     * @note Virtual so it can be overridden by ListNode wrapper method.
-     * @note Only used by node implementation classes and unit tests.
-     */
-    virtual void setState(NodeState newValue, double tym); // FIXME
+    //! Sets the state variable to the new state.
+    //! @param exec The Exec to notify of the change.
+    //! @param newValue The new node state.
+    //! @param tym The time of transition.
+    //! @note Virtual so it can be overridden by ListNode wrapper method.
+    //! @note Only used by node implementation classes and unit tests.
+    virtual void setState(PlexilExec *exec, NodeState newValue, double tym);
 
     // Used by unit tests
     void setNodeFailureType(FailureType f);
@@ -321,6 +338,14 @@ namespace PLEXIL
      * @note Used by GanttListener and PlanDebugListener.
      */
     double getCurrentStateStartTime() const;
+
+    /**
+     * @brief Gets the time at which this node entered the given state.
+     * @param state The state.
+     * @return Time value as a double. If not found, returns -DBL_MAX.
+     * @note Used by GanttListener and PlanDebugListener.
+     */
+    double getStateStartTime(NodeState state) const;
 
     /**
      * @brief Find the named variable in this node, ignoring its ancestors.
@@ -443,10 +468,9 @@ namespace PLEXIL
     void commonInit();
 
     // Called from the transition handler
-    void execute();
+    void execute(PlexilExec *exec);
     void reset();
-    virtual void abort();
-    void deactivateExecutable();
+    void deactivateExecutable(PlexilExec *exec);
 
     // Variables
     void activateLocalVariables();
@@ -489,8 +513,8 @@ namespace PLEXIL
     // Specific behaviors for derived classes
     virtual void specializedCreateConditionWrappers();
     virtual void specializedActivate();
-    virtual void specializedHandleExecution();
-    virtual void specializedDeactivateExecutable();
+    virtual void specializedHandleExecution(PlexilExec *exec);
+    virtual void specializedDeactivateExecutable(PlexilExec *exec);
 
     //
     // State transition implementation methods
@@ -514,10 +538,10 @@ namespace PLEXIL
     // Transition out of the named current state.
     void transitionFromInactive();
     void transitionFromWaiting();
-    virtual void transitionFromExecuting();
-    virtual void transitionFromFinishing();
+    virtual void transitionFromExecuting(PlexilExec *exec);
+    virtual void transitionFromFinishing(PlexilExec *exec);
     void transitionFromFinished();
-    virtual void transitionFromFailing();
+    virtual void transitionFromFailing(PlexilExec *exec);
     void transitionFromIterationEnded();
 
     void transitionToInactive();
@@ -525,7 +549,7 @@ namespace PLEXIL
     virtual void transitionToExecuting();
     virtual void transitionToFinishing();
     virtual void transitionToFinished();
-    virtual void transitionToFailing();
+    virtual void transitionToFailing(PlexilExec *exec);
     virtual void transitionToIterationEnded(); 
 
     // Phases of destructor
@@ -585,8 +609,8 @@ namespace PLEXIL
 
     // These should only be called from transition().
     void setNodeOutcome(NodeOutcome o);
-    void transitionFrom();
-    void transitionTo(double tym); // FIXME
+    void transitionFrom(PlexilExec *exec);
+    void transitionTo(PlexilExec *exec, double tym);
     void logTransition(double time, NodeState newState);
 
     //
