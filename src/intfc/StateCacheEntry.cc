@@ -473,9 +473,9 @@ namespace PLEXIL
     CachedValuePtr m_highThreshold;
   };
 
-  StateCacheEntry *makeStateCacheEntry()
+  std::unique_ptr<StateCacheEntry> makeStateCacheEntry()
   {
-    return new StateCacheEntryImpl();
+    return std::make_unique<StateCacheEntryImpl>();
   }
 
 }
