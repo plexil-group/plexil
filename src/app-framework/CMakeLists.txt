@@ -35,7 +35,7 @@ add_library(PlexilAppFramework ${PlexilExec_SHARED_OR_STATIC}
 install(TARGETS PlexilAppFramework
   DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-target_include_directories(PlexilAppFramework PRIVATE
+include_directories(
   ${CMAKE_CURRENT_LIST_DIR}
   ${PlexilExec_SOURCE_DIR}/utils
   ${PlexilExec_SOURCE_DIR}/value
@@ -123,20 +123,15 @@ if(MODULE_TESTS)
 
   install(TARGETS timebase-test
     DESTINATION ${CMAKE_INSTALL_BINDIR})
-  
-  target_include_directories(timebase-test PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}
-    ${PlexilExec_SOURCE_DIR}/utils
-    ${PlexilExec_SOURCE_DIR}/value
-    ${PlexilExec_SOURCE_DIR}/expr
-    ${PlexilExec_SOURCE_DIR}/intfc
-    ${pugixml_SOURCE_DIR}
-    )
 
   target_link_libraries(timebase-test
     PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec
     -L${pugixml_LIB_DIR} -lpugixml
     )
+
+  if(HAVE_LIBRT)
+    target_link_libraries(timebase-test rt)
+  endif()
 
   if(PlexilExec_EXE_INSTALL_RPATH)
     set_target_properties(timebase-test
