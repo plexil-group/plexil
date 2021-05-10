@@ -29,6 +29,7 @@
 
 #include "Operation.hh"
 
+#include <limits>
 #include <memory> // std::unique_ptr
 
 namespace PLEXIL
