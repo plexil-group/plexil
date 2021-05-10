@@ -168,7 +168,7 @@ public:
                     << std::endl;
           return false;
         }
-        m_symbolTable.emplace(sym->name, sym);
+        m_symbolTable.emplace(sym->name, std::unique_ptr<SimSymbol>(sym));
       }
       else if (firstWord == "Command") {
         // Is command declaration w/ no return value
@@ -188,7 +188,7 @@ public:
                     << std::endl;
           return false;
         }
-        m_symbolTable.emplace(sym->name, sym);
+        m_symbolTable.emplace(sym->name, std::unique_ptr<SimSymbol>(sym));
       }
       else if (m_symbolTable.empty() && !telemetry && !compatibilityMode) {
         // Presume this is first line of old-style command script
@@ -242,7 +242,7 @@ private:
                 << ", line " << instream.getLineCount()
                 << ":\n found \"" << word << "\", expected Command or Lookup"
                 << std::endl;
-      return NULL;
+      return nullptr;
     }
 
 
@@ -296,7 +296,7 @@ private:
     }
 
     CommandResponseManager* result = makeCommandResponseManager(name);
-    m_map->emplace(name, result);
+    m_map->emplace(name, std::unique_ptr<CommandResponseManager>(result));
     return result;
   }
 
