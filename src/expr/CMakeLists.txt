@@ -37,9 +37,10 @@ add_library(PlexilExpr ${Plexil_Exec_SHARED_OR_STATIC}
 install(TARGETS PlexilExpr
   DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-target_include_directories(PlexilExpr PRIVATE
+include_directories(
   ${PlexilExec_SOURCE_DIR}/utils
-  ${PlexilExec_SOURCE_DIR}/value)
+  ${PlexilExec_SOURCE_DIR}/value
+  )
 
 target_link_libraries(PlexilExpr PUBLIC
   PlexilUtils PlexilValue)
@@ -69,11 +70,10 @@ if(MODULE_TESTS)
 
   install(TARGETS expr-module-tests
     DESTINATION ${CMAKE_INSTALL_BINDIR})
-  
+
   target_include_directories(expr-module-tests PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
-    ${PlexilExec_SOURCE_DIR}/utils
-    ${PlexilExec_SOURCE_DIR}/value)
+    )
   
   target_link_libraries(expr-module-tests PlexilUtils PlexilValue PlexilExpr)
 

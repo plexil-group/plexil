@@ -36,7 +36,6 @@ install(TARGETS PlexilAppFramework
   DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 include_directories(
-  ${CMAKE_CURRENT_LIST_DIR}
   ${PlexilExec_SOURCE_DIR}/utils
   ${PlexilExec_SOURCE_DIR}/value
   ${PlexilExec_SOURCE_DIR}/expr
@@ -123,6 +122,10 @@ if(MODULE_TESTS)
 
   install(TARGETS timebase-test
     DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+  target_include_directories(timebase-test PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}
+    )
 
   target_link_libraries(timebase-test
     PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec

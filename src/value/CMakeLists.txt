@@ -32,8 +32,9 @@ add_library(PlexilValue ${PlexilExec_SHARED_OR_STATIC}
 install(TARGETS PlexilValue
   DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-target_include_directories(PlexilValue PRIVATE
-  ${PlexilExec_SOURCE_DIR}/utils)
+include_directories(
+  ${PlexilExec_SOURCE_DIR}/utils
+  )
 
 target_link_libraries(PlexilValue PUBLIC PlexilUtils)
 
@@ -52,8 +53,7 @@ if(MODULE_TESTS)
     DESTINATION ${CMAKE_INSTALL_BINDIR})
 
   target_include_directories(value-module-tests PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}
-    ${PlexilExec_SOURCE_DIR}/utils)
+    ${CMAKE_CURRENT_LIST_DIR})
 
   target_link_libraries(value-module-tests PRIVATE
     PlexilUtils PlexilValue)

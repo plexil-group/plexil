@@ -50,14 +50,14 @@ set_source_files_properties(createExpression.cc
 install(TARGETS PlexilXmlParser
   DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-target_include_directories(PlexilXmlParser PRIVATE
-  ${CMAKE_CURRENT_BINARY_DIR}
+include_directories(
   ${PlexilExec_SOURCE_DIR}/utils
   ${PlexilExec_SOURCE_DIR}/value
   ${PlexilExec_SOURCE_DIR}/expr
   ${PlexilExec_SOURCE_DIR}/intfc
   ${PlexilExec_SOURCE_DIR}/exec
   ${pugixml_SOURCE_DIR}
+  ${CMAKE_CURRENT_BINARY_DIR} # ExpresssionMap.hh
   )
 
 target_link_libraries(PlexilXmlParser PUBLIC
@@ -78,15 +78,6 @@ add_executable(analyzePlan
 
 install(TARGETS analyzePlan
   DESTINATION ${CMAKE_INSTALL_BINDIR})
-
-target_include_directories(analyzePlan PRIVATE
-  ${PlexilExec_SOURCE_DIR}/utils
-  ${PlexilExec_SOURCE_DIR}/value
-  ${PlexilExec_SOURCE_DIR}/expr
-  ${PlexilExec_SOURCE_DIR}/intfc
-  ${PlexilExec_SOURCE_DIR}/exec
-  ${pugixml_SOURCE_DIR}
-  )
 
 target_link_libraries(analyzePlan PRIVATE
   PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec
@@ -113,12 +104,6 @@ if(MODULE_TESTS)
 
   target_include_directories(parser-module-tests PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
-    ${PlexilExec_SOURCE_DIR}/utils
-    ${PlexilExec_SOURCE_DIR}/value
-    ${PlexilExec_SOURCE_DIR}/expr
-    ${PlexilExec_SOURCE_DIR}/intfc
-    ${PlexilExec_SOURCE_DIR}/exec
-    ${pugixml_SOURCE_DIR}
     )
 
   target_link_libraries(parser-module-tests PRIVATE
@@ -139,12 +124,6 @@ if(MODULE_TESTS)
 
   target_include_directories(parser-benchmark PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}
-    ${PlexilExec_SOURCE_DIR}/utils
-    ${PlexilExec_SOURCE_DIR}/value
-    ${PlexilExec_SOURCE_DIR}/expr
-    ${PlexilExec_SOURCE_DIR}/intfc
-    ${PlexilExec_SOURCE_DIR}/exec
-    ${pugixml_SOURCE_DIR}
     )
 
   target_link_libraries(parser-benchmark PRIVATE
