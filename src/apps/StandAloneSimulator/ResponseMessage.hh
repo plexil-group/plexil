@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,12 +31,6 @@
 
 #include "Value.hh"
 
-#if defined(HAVE_CSTDDEF)
-#include <cstddef> // NULL
-#elif defined(HAVE_STDDEF_H)
-#include <stddef.h> // NULL
-#endif
-
 /**
  * @brief Enumeration value representing the kind of message.
  */
@@ -55,7 +49,7 @@ struct ResponseMessage
   ResponseMessage(std::string const &nam,
                   PLEXIL::Value const &val,
                   int typ = MSG_TELEMETRY,
-                  void* id_ = NULL)
+                  void* id_ = nullptr)
     : name(nam),
       value(val),
       id(id_),
