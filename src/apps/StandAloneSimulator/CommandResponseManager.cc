@@ -102,7 +102,7 @@ public:
     ++m_Counter;
 
     // This shouldn't happen, but check anyway just in case
-    assertTrueMsg(respBase != NULL,
+    assertTrueMsg(respBase != nullptr,
                   "getResponses: Internal error: No response found for \""
                   << m_Identifier << "\"");
 
@@ -110,7 +110,7 @@ public:
       tDelay = respBase->delay;
       return respBase;
     }
-    return NULL;
+    return nullptr;
   }
 
 }; // class CommandResponseManagerImpl

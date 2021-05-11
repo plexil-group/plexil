@@ -242,7 +242,7 @@ private:
                 << ", line " << instream.getLineCount()
                 << ":\n found \"" << word << "\", expected Command or Lookup"
                 << std::endl;
-      return NULL;
+      return nullptr;
     }
 
 
