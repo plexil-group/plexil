@@ -134,7 +134,7 @@ namespace PLEXIL
 
         checkInterfaceError(!setitimer(ITIMER_REAL,
                                        &mytimerval,
-                                       NULL),
+                                       nullptr),
                             "ItimerTimebase::setTimer: setitimer failed, errno = "
                             << errno << ":\n " << strerror(errno));
 
@@ -156,7 +156,7 @@ namespace PLEXIL
 
       // Disable the timer
       struct itimerval tymrVal = {{0, 0}, {0, 0}};
-      if (setitimer(ITIMER_REAL, &tymrVal, NULL)) {
+      if (setitimer(ITIMER_REAL, &tymrVal, nullptr)) {
         warn("ItimerTimebase::stop: setitimer failed, errno = "
              << errno << ":\n " << strerror(errno));
       }
@@ -211,7 +211,7 @@ namespace PLEXIL
       mytimerval.it_value = deadline - now;
       checkInterfaceError(!setitimer(ITIMER_REAL,
                                      &mytimerval,
-                                     NULL),
+                                     nullptr),
                           "ItimerTimebase::setTimer: setitimer failed, errno = "
                           << errno << ":\n " << strerror(errno));
 
