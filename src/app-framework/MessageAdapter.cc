@@ -51,7 +51,7 @@ namespace PLEXIL
   //! The MessageAdapter maintains an input queue. Arriving messages
   //! are enqueued along with sender ID (if available) and timestamp.
 
-  class MessageAdapterImpl : virtual public InterfaceAdapter, public MessageAdapter
+  class MessageAdapterImpl : public MessageAdapter, public InterfaceAdapter
   {
   public:
 

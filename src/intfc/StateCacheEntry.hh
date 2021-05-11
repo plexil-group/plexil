@@ -29,6 +29,8 @@
 
 #include "LookupReceiver.hh"
 
+#include <memory> // std::unique_ptr
+
 namespace PLEXIL
 {
   // Forward references
@@ -84,7 +86,7 @@ namespace PLEXIL
     virtual void updatePtr(StringArray const *valPtr) = 0;
   };
 
-  StateCacheEntry *makeStateCacheEntry();
+  std::unique_ptr<StateCacheEntry> makeStateCacheEntry();
 
 } // namespace PLEXIL
 

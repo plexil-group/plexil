@@ -35,11 +35,12 @@ add_library(PlexilExec ${PlexilExec_SHARED_OR_STATIC}
 install(TARGETS PlexilExec
   DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-target_include_directories(PlexilExec PRIVATE
+include_directories(
   ${PlexilExec_SOURCE_DIR}/utils
   ${PlexilExec_SOURCE_DIR}/value
   ${PlexilExec_SOURCE_DIR}/expr
-  ${PlexilExec_SOURCE_DIR}/intfc)
+  ${PlexilExec_SOURCE_DIR}/intfc
+  )
 
 target_link_libraries(PlexilExec PUBLIC
   PlexilUtils PlexilValue PlexilExpr PlexilIntfc)
@@ -67,13 +68,9 @@ if(MODULE_TESTS)
     set_target_properties(exec-module-tests
       PROPERTIES SOURCES ${exec-module-tests_SOURCES})
   endif()
-  
+
   target_include_directories(exec-module-tests PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}
-    ${PlexilExec_SOURCE_DIR}/utils
-    ${PlexilExec_SOURCE_DIR}/value
-    ${PlexilExec_SOURCE_DIR}/expr
-    ${PlexilExec_SOURCE_DIR}/intfc)
+    ${CMAKE_CURRENT_LIST_DIR})
 
   target_link_libraries(exec-module-tests
     PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec)

@@ -47,10 +47,9 @@ namespace PLEXIL
   // This file defines the additional member functions transport
   // implementations can use to pass messages into the PLEXIL Exec.
 
-  class MessageAdapter : virtual public InterfaceAdapter
+  class MessageAdapter
   {
   public:
-    MessageAdapter() = default;
     virtual ~MessageAdapter() = default;
 
     //

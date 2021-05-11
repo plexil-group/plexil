@@ -34,7 +34,6 @@
 #include "StateCacheEntry.hh"
 
 #include <map>
-#include <memory>
 
 namespace PLEXIL
 {
