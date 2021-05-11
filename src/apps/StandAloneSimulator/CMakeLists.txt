@@ -30,9 +30,10 @@ project(StandAloneSimulator
   LANGUAGES CXX)
 
 add_executable(simulator 
-  Agenda.cc CommandResponseManager.cc IpcCommRelay.cc
-  PlexilSimulator.cc Simulator.cc SimulatorScriptReader.cc
-  TimingService.cc)
+  Agenda.cc CommandResponseManager.cc IpcCommRelay.cc LineInStream.cc
+  PlexilSimResponseFactory.cc PlexilSimulator.cc ResponseFactory.cc 
+  Simulator.cc SimulatorScriptReader.cc TimingService.cc
+  )
 
 target_include_directories(simulator PUBLIC
   ${PlexilExec_SOURCE_DIR}/utils
