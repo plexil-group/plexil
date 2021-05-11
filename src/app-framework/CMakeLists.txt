@@ -36,6 +36,7 @@ install(TARGETS PlexilAppFramework
   DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 include_directories(
+  ${CMAKE_CURRENT_LIST_DIR}
   ${PlexilExec_SOURCE_DIR}/utils
   ${PlexilExec_SOURCE_DIR}/value
   ${PlexilExec_SOURCE_DIR}/expr
