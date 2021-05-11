@@ -68,12 +68,12 @@ public:
    * @param uniqueId Caller-specified identifier, passed through the simulator to the comm relay.
    */
   virtual void scheduleResponseForCommand(const std::string& command, 
-                                          void* uniqueId = NULL) = 0;
+                                          void* uniqueId = nullptr) = 0;
 
   /**
    * @brief Get the current value of the named state.
    * @param stateName The state name to which we are responding.
-   * @return Pointer to a ResponseMessage object, or NULL.
+   * @return Pointer to a ResponseMessage object, or nullptr.
    */
   virtual ResponseMessage*
   getLookupNowResponse(const std::string& stateName, void* uniqueId) const = 0;

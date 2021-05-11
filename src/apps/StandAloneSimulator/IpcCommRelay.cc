@@ -127,7 +127,7 @@ void IpcCommRelay::processLookupNow(const std::vector<PlexilMsgBase*>& msgs) {
         " ignoring parameters for state \"" << stateName << "\"");
   IpcMessageId* transId = new IpcMessageId(msgs[0]->senderUID, msgs[0]->serial);
   ResponseMessage* response = m_Simulator->getLookupNowResponse(stateName, static_cast<void*> (transId));
-  if (response != NULL) {
+  if (response != nullptr) {
     // Simply send the response
     debugMsg("IpcCommRelay:lookupNow", " sending response for " << stateName);
   } else {

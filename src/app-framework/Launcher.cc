@@ -169,7 +169,7 @@ namespace PLEXIL
       return false;
     }
 
-    std::string const *nodeName = NULL;
+    std::string const *nodeName = nullptr;
     if (!args[0].getValuePointer(nodeName)) {
       warn("Node name parameter value to " << cmd->getName() << " command is UNKNOWN");
       return false;
@@ -243,7 +243,7 @@ namespace PLEXIL
         intf->notifyOfExternalEvent();
         return;
       }
-      std::string const *formal = NULL;
+      std::string const *formal = nullptr;
       if (!args[i].getValuePointer(formal)) {
         warn("Launcher: StartPlan command argument " << i << " is UNKNOWN");
         intf->handleCommandAck(cmd, COMMAND_FAILED);
@@ -262,7 +262,7 @@ namespace PLEXIL
     }
     
     // Get the callee's name
-    std::string const *nodeName = NULL;
+    std::string const *nodeName = nullptr;
     args[0].getValuePointer(nodeName); // for effect, value is known to be known
 
     // Create the caller's name
@@ -303,13 +303,13 @@ namespace PLEXIL
       std::find_if(allNodes.begin(), allNodes.end(), pred);
     if (it == allNodes.end()) {
       warn("No such node" << nodeName); // FIXME
-      return NULL;
+      return nullptr;
     }
     Node *result = it->get();
     if (allNodes.end() !=
         std::find_if(++it, allNodes.end(), pred)) {
       warn("Multiple nodes named " << nodeName); // FIXME
-      return NULL;
+      return nullptr;
     }
     return result;
   }
@@ -331,7 +331,7 @@ namespace PLEXIL
       return;
     }
 
-    std::string const *nodeName = NULL;
+    std::string const *nodeName = nullptr;
     args[0].getValuePointer(nodeName); // for effect, value is known
     Node *node = findNode(*nodeName);
     if (!node) {

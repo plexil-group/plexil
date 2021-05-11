@@ -133,7 +133,7 @@ public:
     m_Started = true;
 
     timeval now;
-    gettimeofday(&now, NULL);
+    gettimeofday(&now, nullptr);
     debugMsg("Simulator:start", " at "
              << std::setiosflags(std::ios_base::fixed) << std::setprecision(6)
              << timevalToDouble(now));
@@ -197,7 +197,7 @@ public:
                                   void* uniqueId)
   {
     timeval time;
-    gettimeofday(&time, NULL);
+    gettimeofday(&time, nullptr);
     debugMsg("Simulator:scheduleResponseForCommand",
              " for : " << command);
     bool valid = constructNextResponse(command, uniqueId, time, MSG_COMMAND);
@@ -211,13 +211,13 @@ public:
   /**
    * @brief Get the current value of the named state.
    * @param stateName The state name to which we are responding.
-   * @return Pointer to a const ResponseMessage object, or NULL.
+   * @return Pointer to a const ResponseMessage object, or nullptr.
    */
   ResponseMessage* getLookupNowResponse(const std::string& stateName, void* uniqueId) const
   {
     NameValueMap::const_iterator it = m_LookupNowValueMap.find(stateName);
     if (it == m_LookupNowValueMap.end())
-      return NULL; // Name not known or no value established yet
+      return nullptr; // Name not known or no value established yet
     return new ResponseMessage(stateName, it->second, MSG_LOOKUP, uniqueId);
   }
 
@@ -232,7 +232,7 @@ private:
     if (m_CmdToRespMgr->find(cmdName) != m_CmdToRespMgr->end())
       return m_CmdToRespMgr->find(cmdName)->second.get();
 
-    return NULL;
+    return nullptr;
   }
 
   bool constructNextResponse(const std::string& command,
@@ -249,7 +249,7 @@ private:
     CommandResponseManager* msgMgr = iter->second.get();
     timeval tDelay;
     const GenericResponse* respBase = msgMgr->getResponses(tDelay);
-    if (respBase == NULL) {
+    if (respBase == nullptr) {
       debugMsg("Simulator:constructNextResponse",
                " No more responses for \"" << command << "\"");
       return false;
@@ -271,7 +271,7 @@ private:
   void scheduleMessage(const timeval& delay, ResponseMessage* msg)
   {
     timeval now;
-    gettimeofday(&now, NULL);
+    gettimeofday(&now, nullptr);
     timeval eventTime = now + delay;
     debugMsg("Simulator:scheduleMessage",
              " scheduling message at "
@@ -309,7 +309,7 @@ private:
   void handleWakeUp()
   {
     timeval now;
-    gettimeofday(&now, NULL);
+    gettimeofday(&now, nullptr);
     debugMsg("Simulator:handleWakeUp",
              " entered at "
              << std::setiosflags(std::ios_base::fixed) << std::setprecision(6)

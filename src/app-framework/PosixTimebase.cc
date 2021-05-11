@@ -140,7 +140,7 @@ namespace PLEXIL
       checkInterfaceError(!timer_settime(m_timer,
                                          0, // flags
                                          &tymrSpec,
-                                         NULL),
+                                         nullptr),
                           "PosixTimebase::start: timer_settime failed, errno = "
                           << errno << ":\n " << strerror(errno));
 
@@ -161,7 +161,7 @@ namespace PLEXIL
       if (timer_settime(m_timer,
 			0, // flags
 			&tymrSpec,
-			NULL)) {
+			nullptr)) {
         warn("PosixTimebase::stop: timer_settime failed, errno = "
              << errno << ":\n " << strerror(errno));
       }
@@ -208,7 +208,7 @@ namespace PLEXIL
       checkInterfaceError(!timer_settime(m_timer,
                                          TIMER_ABSTIME, // flags
                                          &tymrSpec,
-                                         NULL),
+                                         nullptr),
                           "PosixTimebase::setTimer: timer_settime failed, errno = "
                           << errno << ":\n " << strerror(errno));
 
