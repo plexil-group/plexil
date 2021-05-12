@@ -82,6 +82,7 @@ find_program(GPERF gperf)
 
 find_library(MATH_LIBRARY m)
 
+CHECK_LIBRARY_EXISTS(dl dlopen "/usr/lib" HAVE_LIBDL)
 CHECK_LIBRARY_EXISTS(pthread pthread_sigmask "/usr/lib" HAVE_LIBPTHREAD)
 CHECK_LIBRARY_EXISTS(rt timer_create "/usr/lib" HAVE_LIBRT)
 CHECK_LIBRARY_EXISTS(dispatch dispatch_activate "/usr/local/lib" HAVE_LIBDISPATCH)
