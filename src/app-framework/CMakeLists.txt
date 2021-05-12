@@ -117,7 +117,7 @@ if(HAVE_UDP_ADAPTER)
   endif()
 endif()
 
-if(MODULE_TESTS)
+if(MODULE_TESTS AND WITH_THREADS)
   add_executable(timebase-test
     test/timebase-test.cc Timebase.cc TimebaseFactory.cc)
 
