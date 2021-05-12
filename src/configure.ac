@@ -147,6 +147,8 @@ AS_IF([test "x$enable_udp" = "xyes"],[
 AC_SEARCH_LIBS([cos], [m])
 # pthread support
 AC_SEARCH_LIBS([pthread_sigmask], [pthread])
+# dynamic loading - see also header dlfcn.h
+AC_SEARCH_LIBS([dlopen], [dl])
 # POSIX timer - not present on macOS
 AC_SEARCH_LIBS([timer_create], [rt])
 # Dispatch queues - macOS
