@@ -36,6 +36,7 @@ install(TARGETS PlexilAppFramework
   DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 include_directories(
+  ${CMAKE_CURRENT_LIST_DIR}
   ${PlexilExec_SOURCE_DIR}/utils
   ${PlexilExec_SOURCE_DIR}/value
   ${PlexilExec_SOURCE_DIR}/expr
@@ -116,7 +117,7 @@ if(HAVE_UDP_ADAPTER)
   endif()
 endif()
 
-if(MODULE_TESTS)
+if(MODULE_TESTS AND WITH_THREADS)
   add_executable(timebase-test
     test/timebase-test.cc Timebase.cc TimebaseFactory.cc)
 

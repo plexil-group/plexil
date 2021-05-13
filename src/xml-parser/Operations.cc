@@ -629,6 +629,19 @@ namespace PLEXIL
     if (typeA == typeB)
       return typeA;
 
+    if (typeA == UNKNOWN_TYPE) {
+      switch (typeB) {
+      case REAL_TYPE:
+        return REAL_TYPE;
+      case INTEGER_TYPE:
+        return INTEGER_TYPE;
+      case STRING_TYPE:
+        return STRING_TYPE;
+      default:
+        return UNKNOWN_TYPE;
+      }
+    }
+
     // handle numeric type coercion
     switch (typeA) {
     case INTEGER_TYPE:

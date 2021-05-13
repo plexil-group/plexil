@@ -70,8 +70,6 @@ AC_ARG_WITH([jni],
         AS_HELP_STRING([--with-jni=JAVA_HOME],
         [Include utilities for Java Native Interface in JAVA_HOME]),
         [AC_SUBST([JAVA_HOME], ["$with_jni"])])
-AC_ARG_WITH([unix-time],
-        AS_HELP_STRING([--with-unix-time], [Use Unix time facilities (default=yes)]))
 AC_ARG_WITH([threads],
         AS_HELP_STRING([--with-threads], [Build for multithreaded use (default=yes)]))
 AC_ARG_ENABLE([debug-listener],
@@ -147,6 +145,8 @@ AS_IF([test "x$enable_udp" = "xyes"],[
 AC_SEARCH_LIBS([cos], [m])
 # pthread support
 AC_SEARCH_LIBS([pthread_sigmask], [pthread])
+# dynamic loading - see also header dlfcn.h
+AC_SEARCH_LIBS([dlopen], [dl])
 # POSIX timer - not present on macOS
 AC_SEARCH_LIBS([timer_create], [rt])
 # Dispatch queues - macOS

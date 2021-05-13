@@ -451,7 +451,9 @@ namespace PLEXIL
     {
       assertTrue_2(m_interfacesStarted,
                    "ExecApplication: Fatal error: step() called before startInterfaces()");
+#ifdef PLEXIL_WITH_THREADS
       unsigned int oldMark = m_lastMark;
+#endif
       bool needsStep = false;
       bool allFinished = false;
       {
@@ -487,7 +489,9 @@ namespace PLEXIL
       assertTrue_2(m_interfacesStarted,
                    "ExecApplication: Fatal error: step() called before startInterfaces()");
 
+#ifdef PLEXIL_WITH_THREADS
       unsigned int oldMark = m_lastMark;
+#endif
       bool allFinished = false;
       {
 #ifdef PLEXIL_WITH_THREADS
@@ -634,8 +638,10 @@ namespace PLEXIL
       m_interfacesStarted = false;
       m_initialized = false;
 
+#ifdef PLEXIL_WITH_THREADS
       // Tell anyone waiting that we're finished
       m_shutdownSem.post();
+#endif // PLEXIL_WITH_THREADS
     }
 
     /**
@@ -812,8 +818,10 @@ namespace PLEXIL
     //! Notify the application that a queue mark was processed.
     virtual void markProcessed(unsigned int sequence) override
     {
+#ifdef PLEXIL_WITH_THREADS
       debugMsg("ExecApplication:markProcessed", " sequence #" << sequence);
       m_lastMark = sequence;
+#endif
     }
 
   private:
