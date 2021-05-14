@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -76,7 +76,7 @@ CXX			?= c++
 # Sane defaults for compiler flags.
 INITIAL_CPPFLAGS	?=
 INITIAL_CFLAGS		?= -g -O2 -Wall
-INITIAL_CXXFLAGS	?= $(INITIAL_CFLAGS) -std=c++03
+INITIAL_CXXFLAGS	?= $(INITIAL_CFLAGS) -std=c++14
 
 # end defaults for configure
 endif
