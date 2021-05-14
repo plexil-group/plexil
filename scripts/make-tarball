@@ -1,6 +1,6 @@
-#! /bin/sh
+#! /bin/sh -e
 
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,53 +25,74 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Run this script in an empty temp directory
-
-# Exit on any error
-set -e
+DEFAULT_BRANCH='develop'
 
 usage()
 {
-    echo "usage: $0 release-id [svn-rev]"
-    echo "Best to run this in an empty temporary directory"
+    echo <<EOF
+Usage: $(basename "$0") release-id [branch-or-tag]
+ Create a tarball of the Plexil source tree with the GNU autotools initialized
+ and Java subsystems prebuilt.
+Arguments:
+  release-id      Top level directory name for the resulting source tree;
+                   also used as the basename for the tarball.
+  branch-or-tag   (Optional) Git branch or tag name;
+                   defaults to "$DEFAULT_BRANCH"
+EOF
 }
 
 if [ -z "$1" ]
 then
     usage
+    exit 2
+fi
+
+RELEASE_ID="$1"
+BRANCH="${2:-$DEFAULT_BRANCH}"
+
+if ! AUTORECONF="$(command -v autoreconf)"
+then
+    echo "$(basename "$0"): Error: can't find the 'autoreconf' program." >&2
     exit 1
 fi
 
-relid=$1
-
-rev='HEAD'
-if [ -n "$2" ]
+if ! GPERF="$(command -v gperf)"
 then
-    rev="$2"
-fi
-
-GPERF="$(which gperf)"
-if [ -z "$GPERF" ]
-then
-    echo "Error: Can't find the 'gperf' program. Exiting."
+    echo "$(basename "$0"): Error: can't find the 'gperf' program." >&2
     exit 1
 fi
 
-set -e # exit on error
+if ! TEMPDIR="$(mktemp -d -t plexil_export)"
+then
+    echo "$(basename "$0"): Error: 'mktemp' failed." >&2
+    exit 1
+fi
 
-svn export -r $rev https://svn.code.sf.net/p/plexil/code/branches/plexil-x "$relid" > /dev/null
-cd "$relid"
-export PLEXIL_HOME="$PWD"
+WD="$(pwd -P)"
 
+# TEMP DEBUG
+echo "Using working directory $TEMPDIR"
+
+cd "$TEMPDIR"
+mkdir "$RELEASE_ID"
+echo "Cloning PLEXIL"
+git clone --depth 1 -b "$BRANCH" -- https://git.code.sf.net/p/plexil/git plexil-git
+echo "Exporting PLEXIL from clone"
+cd plexil-git
+git archive --format=tar HEAD | tar -x -f - -C "../$RELEASE_ID"
+
+cd "../$RELEASE_ID"
 echo "Installing autotools files and building configure script"
-cd "$relid"
-PLEXIL_HOME="$PWD" make src/configure
+export PLEXIL_HOME="$(pwd -P)" # just in case
+make src/configure
 
+echo "Making XML parser expression map"
 # Prebuild expression parser core
 # NOTE: this must track the contents of src/xml-parser/Makefile.am
 "$GPERF" -m 8 --output-file=src/xml-parser/ExpressionMap.hh src/xml-parser/ExpressionMap.gperf
 
 # Build Java apps users will need (and clean up build leftovers)
+echo "Building Java applications"
 make plexil-compiler
 rm -rf compilers/plexil/classes compilers/plexil/generated
 
@@ -85,13 +106,13 @@ make checker
 rm -rf checker/build
 
 cd ..
-echo "Generating tar file ${relid}.tar.bz2"
-tar cjf "${relid}.tar.bz2" "$relid"
-rm -rf "$relid"
+echo "Generating tar file ${WD}/${RELEASE_ID}.tar.gz"
+tar czf "${WD}/${RELEASE_ID}.tar.gz" "$RELEASE_ID"
 
-echo "Deleting temporary directory $relid"
-rm -rf "$relid"
+cd "$WD"
+echo "Deleting temporary directory $TEMPDIR"
+rm -rf "$TEMPDIR"
 
-echo "Done"
+echo "Complete."
 
 exit 0
