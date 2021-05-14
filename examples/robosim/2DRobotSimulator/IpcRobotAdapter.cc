@@ -28,7 +28,6 @@
 
 #include "Debug.hh"
 #include "Error.hh"
-#include "ThreadSpawn.hh"
 
 #include <sys/time.h>
 
