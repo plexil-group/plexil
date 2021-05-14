@@ -1,6 +1,6 @@
 # Top level Makefile for Plexil
 
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -33,6 +33,7 @@ MAKEFILE_DIR := $(realpath $(join $(dir $(firstword $(MAKEFILE_LIST))),.))
 
 ifeq ($(PLEXIL_HOME),)
 PLEXIL_HOME := $(MAKEFILE_DIR)
+$(info Setting PLEXIL_HOME to $(PLEXIL_HOME))
 else
 ifneq ($(PLEXIL_HOME),$(MAKEFILE_DIR))
 $(error Environment variable PLEXIL_HOME is in error. It must be set to $(MAKEFILE_DIR) before proceeding)
@@ -41,14 +42,13 @@ endif
 
 export PLEXIL_HOME
 
-include makeinclude/standard-defs.make
+include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
 #
-# Locations for GNU autotools
+# Locations for prerequisites
 #
 
-# TODO? test for existence
-AUTORECONF := autoreconf
+AUTORECONF := $(shell command -v autoreconf)
 
 # Primary target
 plexil-default: tools
@@ -111,8 +111,6 @@ app-framework: lib/libPlexilAppFramework.$(SUFSHARE)
 
 exec-core: lib/libPlexilExec.$(SUFSHARE)
 
-GanttListener: lib/libGanttListener.$(SUFSHARE)
-
 ipc: lib/libipc.a bin/central
 
 IpcUtils: lib/libIpcUtils.$(SUFSHARE)
@@ -145,7 +143,6 @@ bin/central lib/libIpc.a : most
 bin/simulator : most
 bin/TestExec : most
 bin/universalExec : most
-lib/libGanttListener.$(SUFSHARE) : most
 lib/libipc.a : most
 lib/libIpcAdapter.$(SUFSHARE) : most
 lib/libIpcUtils.$(SUFSHARE) : most
@@ -176,7 +173,7 @@ src/Makefile: src/configure
  --bindir="$(BINDIR)" --includedir="$(INCLUDEDIR)" --libdir="$(LIBDIR)" \
  CC="$(CC)" CXX="$(CXX)" \
  CPPFLAGS="$(INITIAL_CPPFLAGS)" CFLAGS="$(INITIAL_CFLAGS)" CXXFLAGS="$(INITIAL_CXXFLAGS)" \
- --disable-static --enable-gantt --enable-ipc --enable-sas --enable-test-exec --enable-udp
+ --disable-static --enable-ipc --enable-sas --enable-test-exec --enable-udp
 
 #
 # Bootstrapping autobuild files
@@ -215,9 +212,10 @@ distclean squeaky-clean: | clean
 	@(cd src/third-party/ipc && $(RM) Makefile Makefile.in)
 	@(cd src/third-party/pugixml/src && $(RM) Makefile Makefile.in)
 	@(cd src && $(RM) Makefile Makefile.in aclocal.m4 \
- compile configure configure.env config.guess config.status config.sub \
+ compile configure configure~ configure.env config.guess config.guess~ \
+ config.log config.status config.sub config.sub~ \
  cppcheck.sh depcomp INSTALL install-sh libtool ltmain.sh missing \
- plexil-config.h plexil-config.h.in stamp-h1)
+ plexil-config.h plexil-config.h.in plexil-config.h.in~ stamp-h1)
 	@(cd src && $(RM) -rf m4 autom4te.cache)
 
 # *** TODO: release target(s) ***
@@ -239,6 +237,6 @@ jtags:
 alltags:
 	@ find . \( -name "*.cc" -or -name "*.cpp" -or -name "*.hh" -or -name "*.hpp" -or -name "*.java" -or -name "*.xml" -or -name Makefile \) | etags -
 
-.PHONY: app-framework exec-core GanttListener ipc IpcAdapter IpcUtils 
+.PHONY: app-framework exec-core ipc IpcAdapter IpcUtils 
 
 .PHONY: alltags clean ctags jtags most most-build most-install plexil-default squeaky-clean tags
