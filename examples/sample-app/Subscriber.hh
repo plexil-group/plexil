@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,36 +24,29 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _H_sample_system
-#define _H_sample_system
+// This is a barebones publisher to call the appropriate methods in SampleAdapter
 
-// This is a very simple abstraction of a real system that a Plexil plan might
-// operate on.  It contains mutable state variables of varying types, and
-// several commands.
+#ifndef _H__sample_subscriber
+#define _H__sample_subscriber
 
-float getSize ();
-void setSize (const float& s);
+#include "Value.hh"
+#include <string>
 
-int getSpeed ();
-void setSpeed (const int& s);
+// For SampleAdapter only
+#include "SampleAdapter.hh"
 
-std::string getColor ();
-void setColor (const std::string&);
 
-// The overloaded 'at' functions support three variants of a
-// parameterized state called 'At'.
-//
-std::string at ();
-bool at (const std::string& location);
-bool at (int x, int y);
 
-// This command changes the 'at' state.
-void move (const std::string& location, int x, int y);
+void setSubscriber(SampleAdapter *i);
 
-// A trivial, obligatory example.
-void hello ();  
+// The overloaded publish function, one for each value/parameter combination
+// found in this application.
 
-// A command that is essentially a math function
-int square (int x);
+void publish (const std::string& state_name, PLEXIL::Value val);
+
+
+void publish (const std::string& state_name, PLEXIL::Value val,PLEXIL::Value arg);
+
+void publish (const std::string& state_name, PLEXIL::Value val,PLEXIL::Value arg1, PLEXIL::Value arg2);
 
 #endif

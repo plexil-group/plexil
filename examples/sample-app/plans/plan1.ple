@@ -1,0 +1,54 @@
+Integer Lookup Speed;
+Real Lookup Size;
+Boolean Lookup at(String location);
+String Lookup Color;
+String Lookup SystemName;
+
+Integer Command Square(Integer);
+Command Hello();
+Command pprint(...);
+Command SetSpeed(Integer);
+Command SetSize(Real);
+Command SetColor(String);
+Command SetName(String);
+Command Move(String,Integer,Integer);
+
+
+// This simple plan verifies the initial values of some system states, issues
+// commands that change the system state, and finally checks that the state
+// has changed as expected, and that a command has returned the expected value
+
+Root: 
+{
+  
+  Integer result;
+  
+  // The start condition verifies the assumed initial system state.
+  StartCondition ((Lookup(Speed) == 4) 
+		  && Lookup(at("Home")) 
+		  && (Lookup(Color) == "Blue")
+		  && (Lookup(SystemName) == "Devin"));
+  
+  
+  // The postcondition verifies that the state has changed as expected after
+  PostCondition ((result == 16)
+		 && Lookup(at("Waypoint1")) 
+		 && (Lookup(Speed) == 10)
+		 && (Lookup(Size) == 10.0)
+		 && (Lookup(Color) == "Green")
+		 && (Lookup(SystemName) == "Robert"));
+  
+  A: pprint ("---- Beginning commands...");
+
+  Commands: Concurrence
+  {
+    B: Hello();
+    C: result = Square(4); 
+    D: SetSpeed(10);
+    E: SetSize(10.0);
+    F: SetColor("Green");
+    G: Move("Waypoint1", 1, 1);
+    H: pprint("Speed and size:",Lookup(Speed),Lookup(Size));
+    I: SetName("Robert");
+  }            
+}

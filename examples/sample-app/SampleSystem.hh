@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,8 @@
 #ifndef _H_SampleSystem
 #define _H_SampleSystem
 
+#include <string>
+
 // This is a very simple abstraction of a real system that a Plexil plan might
 // operate on.  It supports mutable state variables of varying types, and
 // several commands.
@@ -34,11 +36,21 @@
 class SampleSystem
 {
  public:
+  ~SampleSystem ()
+  {
+    if (s_system) {
+      delete s_system;
+    }
+  }
 
-  SampleSystem();
-  // using compiler's destructor; no assignment or copy
-  
-  float getSize () { return m_size; } 
+  static SampleSystem *getInstance () {
+    if (!s_system) {
+      s_system = new SampleSystem;
+    }
+    return s_system;
+  }
+
+  float getSize () { return m_size; }
   void setSize (float);
 
   int getSpeed () { return m_speed; }
@@ -46,6 +58,9 @@ class SampleSystem
 
   std::string getColor () { return m_color; }
   void setColor (const std::string&);
+
+  std::string getName () { return m_name; }
+  void setName (const std::string&);
 
   // The overloaded 'at' functions support three variants of a parameterized
   // state called 'At'.  Note that 'At' is fundamentally different from the
@@ -55,25 +70,31 @@ class SampleSystem
   std::string at () { return m_at_location; }
   bool at (const std::string& location) { return location == m_at_location; }
   bool at (int x, int y) { return (x == m_at_coordinates.first &&
-								   y == m_at_coordinates.second); }
+                                   y == m_at_coordinates.second); }
 
   // This command changes the 'at' state.
   void move (const std::string& location, int x, int y);
 
   // Some trivial commands
-  void hello ();  
+  void hello ();
   int square (int x) { return x * x; }
+  int cube (int x) { return x * x * x; }
 
  private:
 
-  SampleSystem (const SampleSystem&);            // undefined - no copying
-  SampleSystem& operator= (const SampleSystem&); // undefined - no assignment
+  SampleSystem();
+  // Prohibit copy and assign
+  SampleSystem (const SampleSystem&);
+  SampleSystem& operator= (const SampleSystem&);
+  
+  static SampleSystem *s_system;
 
   float m_size;
   int m_speed;
   std::string m_color;
   std::string m_at_location;
   std::pair<int, int> m_at_coordinates;
+  std::string m_name;
 };
 
 #endif

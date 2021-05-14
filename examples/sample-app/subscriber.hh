@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2010, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,37 +24,22 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// This is a barebones publish-subscribe facility for the sample PLEXIL
-// application.  It provides a set of subscription functions specific to various
-// combinations of return type and parameters.
+#ifndef _H__sample_subscriber
+#define _H__sample_subscriber
 
-#ifndef _H__system
-#define _H__system
-
+#include "Value.hh"
 #include <string>
 
-// Subscriber types
-typedef void (* SubscribeInt) (const std::string& state_name, int val);
-typedef void (* SubscribeReal) (const std::string& state_name, float val);
-typedef void (* SubscribeString) (const std::string& state_name,
-                                  const std::string& val);
-typedef void (* SubscribeBoolString) (const std::string& state_name,
-                                      bool val, const std::string& arg);
-typedef void (* SubscribeBoolIntInt) (const std::string& state_name,
-                                      bool val, int arg1, int arg2);
+// A Subscriber is any object that can accept these receiveValue calls.
+class Subscriber
+{
+public:
+  virtual void receiveValue (const std::string& state_name, PLEXIL::Value val) = 0;
+  virtual void receiveValue (const std::string& state_name, PLEXIL::Value val, PLEXIL::Value arg) = 0;
+  virtual void receiveValue (const std::string& state_name, PLEXIL::Value val, PLEXIL::Value arg1, PLEXIL::Value arg2) = 0;
+};
 
-// Setters for subscriber.
-void setSubscriberInt (SubscribeInt);
-void setSubscriberReal (SubscribeReal);
-void setSubscriberString (SubscribeString);
-void setSubscriberBoolString (SubscribeBoolString);
-void setSubscriberBoolIntInt (SubscribeBoolIntInt);
-
-// Publish a state name, which notifies the subscriber.
-void publish (const std::string& state_name, int val);
-void publish (const std::string& state_name, float val);
-void publish (const std::string& state_name, const std::string& val);
-void publish (const std::string& state_name, bool val, const std::string& arg);
-void publish (const std::string& state_name, bool val, int arg1, int arg2);
+// A Subscriber registers for data with this function.
+void setSubscriber(Subscriber *i);
 
 #endif

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,50 +24,74 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "subscriber.hh"
+#include "SampleSystem.hh"
 
+#include "Publisher.hh"
+
+#include <iostream>
+
+SampleSystem* SampleSystem::s_system = NULL;
+
+using std::cout;
+using std::endl;
 using std::string;
-
-// The subscribers.  Their naming convention is:
-//   Subscribe<value-type><param-type>...
-
-static SubscribeInt SubscriberInt = NULL;
-static SubscribeReal SubscriberReal = NULL;
-static SubscribeString SubscriberString = NULL;
-static SubscribeBoolString SubscriberBoolString = NULL;
-static SubscribeBoolIntInt SubscriberBoolIntInt = NULL;
-
-void setSubscriber (SubscribeInt s) { SubscriberInt = s; }
-void setSubscriber (SubscribeReal s) { SubscriberReal = s; }
-void setSubscriber (SubscribeString s) { SubscriberString = s; }
-void setSubscriber (SubscribeBoolString s) { SubscriberBoolString = s; }
-void setSubscriber (SubscribeBoolIntInt s) { SubscriberBoolIntInt = s; }
+using std::pair;
+SampleSystem::SampleSystem ()
+  : m_size (5.1),
+    m_speed (4),
+    m_color ("Blue"),
+    m_at_location ("Home"),
+    m_at_coordinates (0,0),
+    m_name ("Devin")
+{ }
 
 
-// The overloaded publish function, one for each value/parameter combination
-// found in this application.
-
-void publish (const string& state_name, int val)
+void SampleSystem::setSize (float s)
 {
-  SubscriberInt (state_name, val);
+  if (s != m_size) {
+    m_size = s;
+    publish ("Size", s);
+  }
 }
 
-void publish (const string& state_name, float val)
+void SampleSystem::setSpeed (int s)
 {
-  SubscriberReal (state_name, val);
+  if (s != m_speed) {
+    m_speed = s;
+    publish ("Speed", s);
+  }
 }
 
-void publish (const string& state_name, const string& val)
+void SampleSystem::setColor (const string& c)
 {
-  SubscriberString (state_name, val);
+  if (c != m_color) {
+    m_color = c;
+    publish ("Color", c);
+  }
 }
 
-void publish (const std::string& state_name, bool val, const std::string& arg)
+void SampleSystem::setName (const string& n) 
 {
-  SubscriberBoolString (state_name, val, arg);
+  if (n != m_name) {
+    m_name = n;
+  }
+  publish ("Name", n);
 }
 
-void publish (const std::string& state_name, bool val, int arg1, int arg2)
+void SampleSystem::move (const string& location, int x, int y)
 {
-  SubscriberBoolIntInt (state_name, val, arg1, arg2);
+  if (x != m_at_coordinates.first || y != m_at_coordinates.second) {
+    m_at_coordinates.first = x;
+    m_at_coordinates.second = y;
+    publish ("At", true, x, y);
+  }
+  if (location != m_at_location) {
+    m_at_location = location;
+    publish ("At", true, location);
+  }
+}
+
+void SampleSystem::hello ()
+{
+  cout << "Hello World" << endl;
 }

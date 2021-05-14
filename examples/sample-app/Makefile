@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -26,12 +26,8 @@
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
 LIBRARY = SampleAdapter
-SRC = subscriber.cc sample_system.cc SampleAdapter.cc
-INC = subscriber.hh sample_system.hh SampleAdapter.hh
-
-LIBS += pugixml PlexilAppFramework PlexilExec PlexilIntfc PlexilExpr PlexilValue PlexilUtils
-
-LIB_TARGET = lib$(LIB_NAME)$(LIB_EXT)
+SRC = Publisher.cc SampleSystem.cc SampleAdapter.cc
+INC = Publisher.hh Subscriber.hh SampleSystem.hh
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 
