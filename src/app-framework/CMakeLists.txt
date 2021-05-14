@@ -65,9 +65,10 @@ endif()
 
 install(FILES
   AdapterConfiguration.hh AdapterExecInterface.hh AdapterFactory.hh
-  Configuration.hh ExecApplication.hh ExecListener.hh ExecListenerFactory.hh
-  ExecListenerFilter.hh ExecListenerFilterFactory.hh ExecListenerHub.hh
-  InterfaceAdapter.hh InterfaceManager.hh ListenerFilters.hh MessageAdapter.hh
+  CommandHandler.hh Configuration.hh ExecApplication.hh ExecListener.hh
+  ExecListenerFactory.hh ExecListenerFilter.hh ExecListenerFilterFactory.hh
+  ExecListenerHub.hh InterfaceAdapter.hh InterfaceManager.hh ListenerFilters.hh
+  LookupHandler.hh MessageAdapter.hh PlannerUpdateHandler.hh
   SerializedInputQueue.hh SimpleInputQueue.hh Timebase.hh TimebaseFactory.hh
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 

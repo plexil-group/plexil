@@ -58,11 +58,12 @@ endif
 endif # STATIC_LIB_OPT
 
 include_HEADERS = AdapterConfiguration.hh AdapterExecInterface.hh \
- AdapterFactory.hh Configuration.hh ExecApplication.hh ExecListener.hh \
- ExecListenerFactory.hh ExecListenerFilter.hh ExecListenerFilterFactory.hh \
- ExecListenerHub.hh InterfaceAdapter.hh InterfaceManager.hh \
- ListenerFilters.hh MessageAdapter.hh SerializedInputQueue.hh \
- SimpleInputQueue.hh Timebase.hh TimebaseFactory.hh
+ AdapterFactory.hh CommandHandler.hh Configuration.hh ExecApplication.hh \
+ ExecListener.hh ExecListenerFactory.hh ExecListenerFilter.hh \
+ ExecListenerFilterFactory.hh ExecListenerHub.hh InterfaceAdapter.hh \
+ InterfaceManager.hh ListenerFilters.hh LookupHandler.hh MessageAdapter.hh \
+ PlannerUpdateHandler.hh SerializedInputQueue.hh SimpleInputQueue.hh \
+ Timebase.hh TimebaseFactory.hh
 
 # Internal use only
 noinst_HEADERS = Launcher.h TimeAdapter.h UtilityAdapter.h
