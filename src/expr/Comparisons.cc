@@ -52,26 +52,6 @@ namespace PLEXIL
   // Helpers for Equal, NotEqual
   //
 
-  // For argument type checking at load time
-  // Types may not be known if lookup not declared, computed lookup name, etc.
-  static bool canBeEqual(ValueType typeA, ValueType typeB)
-  {
-    // Identical types can always be compared for equality
-    if (typeA == typeB)
-      return true;
-
-    // Punt if either type unknown
-    if (typeA == UNKNOWN_TYPE || typeB == UNKNOWN_TYPE)
-      return true;
-
-    // Arithmetic types
-    if (isNumericType(typeA) && isNumericType(typeB))
-      return true;
-
-    // Anything else is an error.
-    return false;
-  }
-
   // General (scalar) case
   template <typename T>
   static bool compareEqual(Boolean &result, Expression const *argA, Expression const *argB)
