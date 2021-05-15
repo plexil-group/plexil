@@ -38,12 +38,14 @@ plans: $(PLAN_PLXS)
 robosim :
 	$(MAKE) -C RoboSimSimulator
 
+clean dust localdust::
+	@ $(MAKE) -C 2DRobotSimulator $@
+	@ $(MAKE) -C RoboSimSimulator $@
+
 localclean::
 	@ $(MAKE) -C 2DRobotSimulator $@
 	@ $(MAKE) -C RoboSimSimulator $@
 	@ $(RM) $(PLAN_PLXS)
-
-localdust::
 
 %.plx: %.ple
 	@ $(PLEXIL_HOME)/scripts/plexilc $<
