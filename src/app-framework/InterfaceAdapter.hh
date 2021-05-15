@@ -109,6 +109,13 @@ namespace PLEXIL
       return m_interface;
     }
 
+    //! Get a const reference to the AdapterExecInterface.
+    //! @return The AdapterExecInterface reference.
+    AdapterExecInterface const &getInterface() const
+    {
+      return m_interface;
+    }
+
     //! Get the parsed configuration for this adapter.
     //! @return Const reference to the configuration object.
     AdapterConf const &configuration()
