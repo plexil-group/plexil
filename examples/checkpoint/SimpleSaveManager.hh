@@ -1,15 +1,18 @@
 #ifndef _H_SimpleSaveManager
 #define _H_SimpleSaveManager
 
-#include "Value.hh"
 #include "Nullable.hh"
-#include "ValueType.hh"
 #include "SaveManager.hh"
-#include "ThreadMutex.hh"
-#include <map>
-#include <utility>      // std::pair, std::make_pair
-#include <string.h>
+
+#include "Value.hh"
+#include "ValueType.hh"
+
 #include "pugixml.hpp"
+
+#include <map>
+#include <mutex>
+#include <utility>      // std::pair, std::make_pair
+
 
 class SimpleSaveManager : public SaveManager
 {
@@ -53,7 +56,7 @@ private:
   
   bool m_directory_set;
   bool m_remove_old_saves;
-  PLEXIL::ThreadMutex m_data_lock;
+  std::mutex m_data_lock;
   std::vector<PLEXIL::Command*> m_queued_commands;
 };
 #endif

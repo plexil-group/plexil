@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,35 +24,43 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _H__Subscriber
-#define _H__Subscriber
+#ifndef CHECKPOINT_PUBLISHER_HH
+#define CHECKPOINT_PUBLISHER_HH
 
 #include <string>
 
 // Forward declarations
 namespace PLEXIL
 {
-  class Value;
   class Command;
+  class Value;
 }
 
-// A Subscriber is any object that can accept these calls.
-class Subscriber
-{
-public:
-  virtual void receiveValue (const std::string& state_name,
-                             const PLEXIL::Value& val) = 0;
-  virtual void receiveValue (const std::string& state_name,
-                             const PLEXIL::Value& val,
-                             const PLEXIL::Value& arg) = 0;
-  virtual void receiveValue (const std::string& state_name,
-                             const PLEXIL::Value& val,
-                             const PLEXIL::Value& arg1, const PLEXIL::Value& arg2) = 0;
-  virtual void receiveCommandReceived (PLEXIL::Command* cmd) = 0;
-  virtual void receiveCommandSuccess (PLEXIL::Command* cmd) = 0;
-};
+// Forward declaration
+class Subscriber;
 
-// A Subscriber registers for data with this function.
+// Set the instance of the Subscriber to pubish to
 void setSubscriber(Subscriber *i);
 
-#endif
+// The overloaded publish function, one for each value/parameter combination
+// found in this application.
+
+void publish (const std::string& state_name,
+	      const PLEXIL::Value& val);
+
+
+void publish (const std::string& state_name,
+	      const PLEXIL::Value& val,
+	      const PLEXIL::Value& arg);
+
+void publish (const std::string& state_name,
+	      const PLEXIL::Value& val,
+	      const PLEXIL::Value& arg1,
+	      const PLEXIL::Value& arg2);
+
+void publishCommandReceived (PLEXIL::Command* cmd);
+
+void publishCommandSuccess  (PLEXIL::Command* cmd); 
+
+
+#endif // CHECKPOINT_PUBLISHER_HH

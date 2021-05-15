@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,41 +27,28 @@
 #ifndef _H_CheckpointSystem
 #define _H_CheckpointSystem
 
-#include "Value.hh"
-#include "Nullable.hh"
-#include "SaveManager.hh"
 #include "data_support.hh"
+#include "Nullable.hh"
 #include "ReadWriteLock.hh"
-#include "Command.hh"
+#include "SaveManager.hh"
 
+#include "Command.hh"
+#include "Value.hh"
 
 #include "pugixml.hpp"
 
-
+#include <memory>
 
 // This is a class that stores, operates on, and provides information
 // about crashes and checkpoints
 
-
-class CheckpointSystem
+class CheckpointSystem final
 {
 public:
-
-  ~CheckpointSystem ()
-  {
-    if (s_system) {
-      delete s_system;
-    }
-    delete m_manager;
-  }
+  ~CheckpointSystem() = default;
 
   // Singleton paradigm
-  static CheckpointSystem *getInstance () {
-    if (!s_system) {
-      s_system = new CheckpointSystem;
-    }
-    return s_system;
-  }
+  static CheckpointSystem *getInstance();
   
   // Lookups
   bool didCrash();
@@ -88,27 +75,28 @@ public:
 
 private:
   
-  // Singleton paradigm
+  // Only getInstance() static member function should have access
+  // to the constructor
   CheckpointSystem();
-  static CheckpointSystem *s_system;
 
   //Prohibits copying or assigning
-  CheckpointSystem (const CheckpointSystem&);
-  CheckpointSystem& operator= (const CheckpointSystem&);
-
+  CheckpointSystem(const CheckpointSystem&) = delete;
+  CheckpointSystem(CheckpointSystem&&) = delete;
+  CheckpointSystem& operator= (const CheckpointSystem&) = delete;
+  CheckpointSystem& operator= (CheckpointSystem&&) = delete;
   
   // Helper functions
   bool valid_boot(PLEXIL::Integer boot_num);
-  bool valid_checkpoint(const std::string& checkpoint_name,PLEXIL::Integer boot_num);
+  bool valid_checkpoint(const std::string& checkpoint_name, PLEXIL::Integer boot_num);
   
   // Synchronization control
   ReadWriteLock m_rw;
 
   // Persistent Storage system
-  SaveManager* const m_manager;
+  std::unique_ptr<SaveManager> m_manager;
   
   // Data
-  std::vector<BootData>  m_data_vector;
+  std::vector<BootData> m_data_vector;
   int m_num_total_boots;
 
   bool m_use_time;

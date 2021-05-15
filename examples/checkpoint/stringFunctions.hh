@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,35 +24,17 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef _H__Subscriber
-#define _H__Subscriber
+// Functions for manipulating strings in StringAdapter
 
-#include <string>
+#include "Value.hh"
 
-// Forward declarations
-namespace PLEXIL
-{
-  class Value;
-  class Command;
-}
-
-// A Subscriber is any object that can accept these calls.
-class Subscriber
-{
-public:
-  virtual void receiveValue (const std::string& state_name,
-                             const PLEXIL::Value& val) = 0;
-  virtual void receiveValue (const std::string& state_name,
-                             const PLEXIL::Value& val,
-                             const PLEXIL::Value& arg) = 0;
-  virtual void receiveValue (const std::string& state_name,
-                             const PLEXIL::Value& val,
-                             const PLEXIL::Value& arg1, const PLEXIL::Value& arg2) = 0;
-  virtual void receiveCommandReceived (PLEXIL::Command* cmd) = 0;
-  virtual void receiveCommandSuccess (PLEXIL::Command* cmd) = 0;
-};
-
-// A Subscriber registers for data with this function.
-void setSubscriber(Subscriber *i);
-
-#endif
+PLEXIL::Value toStringFunction(const std::vector<PLEXIL::Value> &args);
+PLEXIL::Value stringToIntegerFunction(const std::vector<PLEXIL::Value> &args);
+PLEXIL::Value stringToRealFunction(const std::vector<PLEXIL::Value> &args);
+PLEXIL::Value stringToBooleanFunction(const std::vector<PLEXIL::Value> &args);
+PLEXIL::Value substrFunction(const std::vector<PLEXIL::Value> &args);
+PLEXIL::Value strlwrFunction(const std::vector<PLEXIL::Value> &args);
+PLEXIL::Value struprFunction(const std::vector<PLEXIL::Value> &args);
+PLEXIL::Value strindexFunction(const std::vector<PLEXIL::Value> &args);
+PLEXIL::Value find_first_of_Function(const std::vector<PLEXIL::Value> &args);
+PLEXIL::Value find_last_of_Function(const std::vector<PLEXIL::Value> &args);

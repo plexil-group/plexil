@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,9 +25,11 @@
 
 include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
-LIBRARY = CheckpointAdapter
-SRC = Subscriber.cc CheckpointSystem.cc CheckpointAdapter.cc SimpleSaveManager.cc StringAdapter.cc
-INC = Subscriber.hh CheckpointSystem.hh Nullable.hh CheckpointAdapter.hh SimpleSaveManager.hh ReadWriteLock.hh SaveManager.hh StringAdapter.hh data_support.hh Guard.hh
+LIBRARIES := CheckpointAdapter StringAdapter
+
+CheckpointAdapter_SRC := CheckpointSystem.cc CheckpointAdapter.cc Publisher.cc SimpleSaveManager.cc
+
+StringAdapter_SRC := StringAdapter.cc stringFunctions.cc
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
 
