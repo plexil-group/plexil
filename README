@@ -2,7 +2,7 @@ This is the top level directory of the PLEXIL distribution.
 
 See http://plexil.sourceforge.net/ for information about this
 software, including its user manuals.  There is more information in
-the README files found in each subdirectory of this directory.
+the README files found in the subdirectories.
 
 The Versions file describes previous releases of Plexil, as well as
 the latest features not yet released in a binary distribution.
@@ -13,25 +13,24 @@ The CAVEATS file describes known problems and issues in this release.
 Software requirements
 ---------------------
 
-The complete PLEXIL suite should run on most recent versions of Linux
-(including Microsoft Windows Subsystem for Linux) and Mac OS X. It
-builds on FreeBSD as well, but is not actively supported on this
-platform.
+The complete PLEXIL suite is maintained on recent versions of Linux
+and macOS.  It should build and run on other Unix-like environments
+(e.g. Microsoft Windows Subsystem for Linux, BSD family) without much
+effort.
 
--- This version of PLEXIL requires a C++11 compliant compiler --
+-- This version of PLEXIL requires a C++14 compliant compiler --
 
-This release depends on the feature set introduced in the C++11
-language standard. GCC releases before 4.7 and LLVM (clang) releases
-before 3.3 are not supported.
+This release depends on the feature set introduced in the C++14
+language standard.
 
 Building the PLEXIL tool suite from source requires the following
 software:
 
- * GNU Make
- * GNU Bash
- * GNU autotools (autoconf, automake, libtool, m4)
+ * POSIX-compliant shell (e.g. GNU bash, dash, zsh, etc.)
+ * GNU Make and autotools (autoconf, automake, libtool, m4) or
+ * CMake
  * GNU gperf
- * gcc/g++, clang/clang++, or other C99 and C++03 compliant compilers
+ * gcc/g++, clang/clang++, or other C99 and C++14 compliant compilers
  * Java 8 or newer JDK (e.g. openjdk-11-jdk)
  * Apache ant, including the antlr module
 
@@ -50,7 +49,7 @@ To build the PLEXIL distribution:
 1. To build everything, including the robosim and sample-app examples,
    change to this top level directory and type:
 
-  make
+  make everything
 
 2. If you do not wish to build the examples:
 
@@ -108,8 +107,8 @@ The latter is sometimes needed when make or autotools files have
 changed.
 
 
-How to build PLEXIL Executive - Custom configuration
-----------------------------------------------------
+How to build PLEXIL Executive - Custom configuration with autotools
+-------------------------------------------------------------------
 
 1. Create the script 'src/configure':
 
