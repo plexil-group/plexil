@@ -18,9 +18,9 @@ and macOS.  It should build and run on other Unix-like environments
 (e.g. Microsoft Windows Subsystem for Linux, BSD family) without much
 effort.
 
--- This version of PLEXIL requires a C++14 compliant compiler --
+-- This version of PLEXIL requires a C++11 compliant compiler --
 
-This release depends on the feature set introduced in the C++14
+This release depends on the feature set introduced in the C++11
 language standard.
 
 Building the PLEXIL tool suite from source requires the following
@@ -30,7 +30,7 @@ software:
  * GNU Make and autotools (autoconf, automake, libtool, m4) or
  * CMake
  * GNU gperf
- * gcc/g++, clang/clang++, or other C99 and C++14 compliant compilers
+ * gcc/g++, clang/clang++, or other C99 and C++11 compliant compilers
  * Java 8 or newer JDK (e.g. openjdk-11-jdk)
  * Apache ant, including the antlr module
 
@@ -127,8 +127,8 @@ How to build PLEXIL Executive - Custom configuration with autotools
   in the PLEXIL installation directory.  You can omit or change
   options as desired.
 
-  ./configure --prefix="$PLEXIL_HOME" --disable-static \
-     --enable-gantt --enable-ipc --enable-sas --enable-test-exec --enable-udp
+  ./configure --prefix="$PLEXIL_HOME" --disable-static --enable-ipc \
+   --enable-sas --enable-test-exec --enable-udp
 
   For a complete list of options, type:
 
@@ -167,7 +167,7 @@ not recommended.
   desired.
 
   cmake path/to/plexil/src -DCMAKE_INSTALL_PREFIX="$PLEXIL_HOME" \
-    -DGANTT_LISTENER=ON -DSTANDALONE_SIMULATOR=ON -DTEST_EXEC=ON -DUDP_ADAPTER=ON
+    -DSTANDALONE_SIMULATOR=ON -DTEST_EXEC=ON -DUDP_ADAPTER=ON
 
   Please see the CAVEATS file in this directory for advice on CMake options.
 
