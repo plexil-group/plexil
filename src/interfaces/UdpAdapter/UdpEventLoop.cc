@@ -83,8 +83,8 @@ namespace PLEXIL
     Listener(int fd, in_port_t p, size_t maxLen, ListenerFunction fn)
       : func(fn),
         maxSize(maxLen),
-        buffer(std::make_unique<char[]>(maxLen)),
-        addrBuf(std::make_unique<struct sockaddr_storage>()),
+        buffer(std::unique_ptr<char[]>(new char[maxLen])),
+        addrBuf(std::unique_ptr<struct sockaddr_storage>(new struct sockaddr_storage)),
         addrSizeBuf(),
         socketFD(fd),
         port(p),
@@ -583,7 +583,7 @@ namespace PLEXIL
 
   std::unique_ptr<UdpEventLoop> makeUdpEventLoop()
   {
-    return std::make_unique<UdpEventLoopImpl>();
+    return std::unique_ptr<UdpEventLoop>(new UdpEventLoopImpl());
   }
 
 } // namespace PLEXIL
