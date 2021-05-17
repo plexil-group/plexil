@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,24 +24,23 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
 #include "CheckpointSystem.hh"
 #include "Guard.hh"
 #include "SimpleSaveManager.hh"
-#include "Subscriber.hh"
-#include "AdapterExecInterface.hh" // g_execInterface
+#include "Publisher.hh"
+
 #include "Debug.hh"
+#include "StateCache.hh" // queryTime(), currentTime()
 
 #include <iostream>
 #include <limits>
-
-
 
 using std::string;
 using std::vector;
 using std::map;
 
 using namespace PLEXIL;
+
 #define debug(msg) debugMsg("CheckpointSystem"," "<<msg)
 
 ///////////////////////////// Conveniences //////////////////////////////////
@@ -71,17 +70,32 @@ Value time_to_Value(Nullable<Real> time){
   if(time.has_value()) return time.value();
   else return Unknown;
 }
+
+
 //////////////////////////////// Class Features ////////////////////////////////
-CheckpointSystem::CheckpointSystem(): m_manager(new SimpleSaveManager), m_use_time(true){}
 
+CheckpointSystem::CheckpointSystem() :
+  m_manager(std::unique_ptr<SaveManager>(new SimpleSaveManager())),
+  m_use_time(true)
+{
+}
 
-void CheckpointSystem::start(){
-  m_manager->setData(&m_data_vector,&m_num_total_boots);
+CheckpointSystem *CheckpointSystem::getInstance()
+{
+  static std::unique_ptr<CheckpointSystem> sl_system = nullptr;
+  if (!sl_system) {
+    sl_system.reset(new CheckpointSystem());
+  }
+  return sl_system.get();
+}
+
+void CheckpointSystem::start() {
+  m_manager->setData(&m_data_vector, &m_num_total_boots);
   m_manager->loadCrashes();
 }
 
-void CheckpointSystem::useTime(bool use_time){
-  debug("Using time? "<<use_time);
+void CheckpointSystem::useTime(bool use_time) {
+  debug("Using time? " << use_time);
   m_manager->useTime(use_time);
   m_use_time = use_time;
 }
@@ -283,8 +297,8 @@ void CheckpointSystem::setCheckpoint(const string& checkpoint_name, bool value,s
     Guard local_guard(m_rw,write);
     // queryTime returns 0 if no time adapter can be found
     Nullable<Real> time;
-    if(m_use_time){
-      time.set_value(g_execInterface->queryTime());
+    if (m_use_time) {
+      time.set_value(StateCache::instance().queryTime());
       if(time.value()==std::numeric_limits<double>::min()) time.nullify();
     }
   

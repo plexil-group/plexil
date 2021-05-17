@@ -1,9 +1,11 @@
 #include "SimpleSaveManager.hh"
-#include "Subscriber.hh"
+
+#include "Publisher.hh" // publishCommandSuccess()
 
 // PLEXIL includes
-#include "AdapterExecInterface.hh" // g_execInterface
 #include "Debug.hh"
+#include "StateCache.hh" // queryTime()
+
 #include "pugixml.hpp"
 
 // POSIX includes
@@ -21,6 +23,7 @@
 #include <cerrno>
 #include <cstdio>
 #include <cstdlib>     /* strtod */
+#include <cstring>
 
 using std::cerr;
 using std::endl;
@@ -204,7 +207,7 @@ void SimpleSaveManager::loadCrashes(){
   Nullable<Real> time;
   if(m_use_time){
     // Use queryTime here because this is likely the first time we are reading the time
-    time.set_value(g_execInterface->queryTime());
+    time.set_value(StateCache::queryTime());
     if(time.value()==std::numeric_limits<double>::min()) time.nullify();
   }
   BootData boot_d = {time,
@@ -334,9 +337,9 @@ bool SimpleSaveManager::writeToFile(const string& location){
     if(boot_n==0){
        Nullable<Real> time;
        if(m_use_time){
-	 // Use currentTime not queryTime (which is guaranteed to be up-to-date)
-	 // because the TimeAdapter may have quit by this point
-	 time.set_value(g_execInterface->currentTime());
+         // Use currentTime not queryTime (which is guaranteed to be up-to-date)
+         // because the TimeAdapter may have quit by this point
+         time.set_value(StateCache::currentTime());
 	 if(time.value()==std::numeric_limits<double>::min()) time.nullify();
        }
   

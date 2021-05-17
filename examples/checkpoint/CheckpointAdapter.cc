@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,17 +31,15 @@
 #include "AdapterConfiguration.hh"
 #include "AdapterFactory.hh"
 #include "AdapterExecInterface.hh"
+#include "CommandHandle.hh"
+#include "CommandHandler.hh"
 #include "Debug.hh"
 #include "Expression.hh"
-#include "StateCacheEntry.hh"
+#include "LookupHandler.hh"
+#include "LookupReceiver.hh"
+
 #include <iostream>
-#include <algorithm> //tranform
-
-// Protects commands and lookups by guaranteeing the correc number of arguments
-#define ARGCOUNT(a,b)  if(args.size()<a || args.size()>b){ \
-      retval = Unknown; \
-      cerr<<"Invalid number of arguments to "<<state_name<<endl;} else
-
+#include <algorithm> //transform
 
 using std::cerr;
 using std::endl;
@@ -53,50 +51,41 @@ using std::copy;
 
 using namespace PLEXIL;
 
-
 ///////////////////////////// Conveniences //////////////////////////////////
+
+// Handler boilerplate
+#define LOOKUP_HANDLER(MIN_ARGS, MAX_ARGS, RETURN_VALUE)                \
+  [this](const State& state, LookupReceiver *rcvr) -> void              \
+  { if (state.parameterCount() < MIN_ARGS || state.parameterCount() > MAX_ARGS) { \
+      cerr << "Invalid number of arguments to " << state.name() << endl; } \
+    else { rcvr->update(RETURN_VALUE);                                  \
+      m_subscribedStates.insert(state);}}
+
+#define COMMAND_HANDLER(BODY)                               \
+  [](Command* cmd, AdapterExecInterface* intf) -> void  \
+  { const vector<Value>& args = cmd->getArgValues(); \
+    BODY }
+
+// Protects commands and lookups by checking the number of arguments
+#define ARGCOUNT(a,b) \
+  if (state.parameterCount() < a || state.parameterCount() > b) {       \
+    retval.setUnknown();                                                \
+    cerr << "Invalid number of arguments to " << state.name() << endl;} \
+  else
 
 // A preamble for error messages.
 static string error = "Error in CheckpointAdapter: ";
-
-// A prettier name for the "unknown" value.
-static Value Unknown;
-
-// Static member initialization
-CheckpointSystem *CheckpointSystem::s_system = 0;
 
 // An empty argument vector.
 static vector<Value> EmptyArgs;
 
 //////////////////////////// Helper functions ////////////////////////////////
 
-// TODO: Use XPath
 static string getChildWithAttribute(const pugi::xml_node& configXml,
-			     const string& node_name,
-			     const string& attribute_name){
-  for (pugi::xml_node child = configXml.first_child(); child; child = child.next_sibling())
-  {
-    if(child.name()==node_name){
-      for (pugi::xml_attribute attr = child.first_attribute(); attr; attr = attr.next_attribute())
-      {
-	if(attr.name()==attribute_name){
-	  return attr.value();
-	}
-      }
-    }
-  }
-  return "";
-}
-
-static pugi::xml_node getChildWithName(const pugi::xml_node& configXml,
-			     const string& node_name){
-  for (pugi::xml_node child = configXml.first_child(); child; child = child.next_sibling())
-  {
-    if(child.name()==node_name){
-      return child;
-    }
-  }
-  return pugi::xml_node(NULL);
+                                    const string& node_name,
+                                    const string& attribute_name)
+{
+  return configXml.child(node_name.c_str()).attribute(attribute_name.c_str()).value();
 }
 
 static Integer get_boot(const vector<Value>& args,int pos){
@@ -104,145 +93,50 @@ static Integer get_boot(const vector<Value>& args,int pos){
   Integer which_boot = 0;
   if(!args.empty()){
     args[pos].getValue(which_boot);
-    debugMsg("CheckpointAdapter:fetch","arg0="<<which_boot);
+    debugMsg("CheckpointAdapter:fetch", "arg0=" << which_boot);
   }
   else{
-    debugMsg("CheckpointAdapter:fetch","Defaulting boot to 0");
+    debugMsg("CheckpointAdapter:fetch", "Defaulting boot to 0");
   }
   return which_boot;
-}
-
-///////////////////////////// State support //////////////////////////////////
-
-// Queries the system for the value of a state and its arguments.
-//
-static Value fetch (const string& state_name, const vector<Value>& args)
-{
-  debugMsg("CheckpointAdapter:fetch",
-           "Fetch called on " << state_name << " with " << args.size() << " args");
- 
-  Value retval;
-  
-  if (state_name == "DidCrash"){
-    ARGCOUNT(0,0){
-      retval = CheckpointSystem::getInstance()->didCrash();
-    }
-  }
-  else if (state_name == "NumberOfAccessibleBoots"){
-    ARGCOUNT(0,0){
-      retval = CheckpointSystem::getInstance()->numAccessibleBoots();
-    }
-  }
-  else if (state_name == "NumberOfUnhandledBoots"){
-    ARGCOUNT(0,0){
-      retval = CheckpointSystem::getInstance()->numUnhandledBoots();
-    }
-  }
-  else if (state_name == "NumberOfTotalBoots"){
-    ARGCOUNT(0,0){
-      retval = CheckpointSystem::getInstance()->numTotalBoots();
-    }
-  }
-  else if (state_name == "CheckpointWhen"){
-    ARGCOUNT(1,1){
-      string which_checkpoint;
-      args[0].getValue(which_checkpoint);
-      retval = CheckpointSystem::getInstance()->getCheckpointLastPassed(which_checkpoint);
-    }
-  }
-
-  else{
-    if (state_name == "TimeOfLastSave"){
-      ARGCOUNT(0,1){
-	retval = CheckpointSystem::getInstance()->getTimeOfCrash(get_boot(args,0));
-      }
-    }
-    else if (state_name == "TimeOfBoot"){
-      ARGCOUNT(0,1){
-	retval = CheckpointSystem::getInstance()->getTimeOfBoot(get_boot(args,0));
-      }
-    }
-    else if (state_name == "IsBootOK"){
-      ARGCOUNT(0,1){
-	retval = CheckpointSystem::getInstance()->getIsOK(get_boot(args,0));
-      }
-    }
-    else{
-      ARGCOUNT(1,2){
-	Integer which_boot = get_boot(args,1);
-	string which_checkpoint;
-	args[0].getValue(which_checkpoint);
-	if (state_name == "CheckpointState"){
-	  retval = CheckpointSystem::getInstance()->getCheckpointState(which_checkpoint,which_boot);
-	}
-	else if (state_name == "CheckpointTime"){
-	  retval = CheckpointSystem::getInstance()->getCheckpointTime(which_checkpoint,which_boot);
-	}
-	else if (state_name == "CheckpointInfo"){
-	  retval = CheckpointSystem::getInstance()->getCheckpointInfo(which_checkpoint,which_boot);
-	}
-	//No match
-	else {
-	  cerr << error << "invalid state: " << state_name << endl;
-	  retval = Unknown;
-	}
-      }
-    }
-  }
-
-  debugMsg("CheckpointAdapter:fetch", "Fetch returning " << retval);
-  return retval;
 }
 
 // The 'receive' functions are the subscribers for system state updates.  They
 // receive the name of the state whose value has changed in the system.  Then
 // they propagate the state's new value to the executive.
 
-static State createState (const string& state_name, const vector<Value>& value)
-{
-  State state(state_name, value.size());
-  if (value.size() > 0)
-  {
-    for(size_t i=0; i<value.size();i++)
-    {
-      state.setParameter(i, value[i]);
-    }
-  }
-  return state;
-}
-
 void CheckpointAdapter::receiveValue (const string& state_name, const Value& val)
 {
-  propagateValueChange (createState(state_name, EmptyArgs),
+  propagateValueChange (State(state_name, EmptyArgs),
 					       vector<Value> (1, val));
 }
 
 
 void CheckpointAdapter::receiveValue (const string& state_name, const Value& val, const Value& arg)
 {
-  propagateValueChange (createState(state_name, vector<Value> (1,arg)),
+  propagateValueChange (State(state_name, vector<Value> (1,arg)),
 					       vector<Value> (1, val));
 }
 
-
-void CheckpointAdapter::receiveValue(const string& state_name, const Value& val, const Value& arg1,const Value& arg2)
+void CheckpointAdapter::receiveValue(const string& state_name, const Value& val, const Value& arg1, const Value& arg2)
 {
   vector<Value> vec;
   vec.push_back (arg1);
   vec.push_back (arg2);
-  propagateValueChange (createState(state_name, vec), vector<Value> (1, val));
+  propagateValueChange (State(state_name, vec), vector<Value> (1, val));
 }
 
-void CheckpointAdapter::receiveCommandReceived(Command* cmd){
-  if(cmd != NULL){
-    m_execInterface.handleCommandAck(cmd, COMMAND_RCVD_BY_SYSTEM);
-    m_execInterface.notifyOfExternalEvent();
+void CheckpointAdapter::receiveCommandReceived(Command* cmd) {
+  if (cmd != NULL) {
+    getInterface().handleCommandAck(cmd, COMMAND_RCVD_BY_SYSTEM);
+    getInterface().notifyOfExternalEvent();
   }
 }
-void CheckpointAdapter::receiveCommandSuccess   (Command* cmd){
-  if(cmd != NULL){
-    m_execInterface.handleCommandAck(cmd, COMMAND_SUCCESS);
-    m_execInterface.notifyOfExternalEvent();
+
+void CheckpointAdapter::receiveCommandSuccess(Command* cmd) {
+  if (cmd != NULL) {
+    getInterface().handleCommandAck(cmd, COMMAND_SUCCESS);
+    getInterface().notifyOfExternalEvent();
   }
 }
 
@@ -250,37 +144,37 @@ void CheckpointAdapter::receiveCommandSuccess   (Command* cmd){
 
 
 CheckpointAdapter::CheckpointAdapter(AdapterExecInterface& execInterface,
-                             const pugi::xml_node& configXml) :
-    InterfaceAdapter(execInterface, configXml)
+                                     AdapterConf* conf) :
+  InterfaceAdapter(execInterface, conf),
+  Subscriber()
 {
-
   
   // Reads save directory from configuration file
-  const pugi::xml_node save_config = getChildWithName(configXml,"SaveConfiguration");
+  const pugi::xml_node save_config = conf->xml.child("SaveConfiguration");
 
   // If SaveConfiguration not specified, will be a node_null that always returns empty strings
   CheckpointSystem::getInstance()->setSaveConfiguration(&save_config);
 
-  string ok_on_exit = getChildWithAttribute(configXml,"AdapterConfiguration","OKOnExit");
+  string ok_on_exit = getChildWithAttribute(conf->xml,"AdapterConfiguration","OKOnExit");
   std::transform(ok_on_exit.begin(),ok_on_exit.end(),ok_on_exit.begin(), ::tolower);
   // Defaults to true for safety
   if(ok_on_exit == "false") m_ok_on_exit = false;
   else m_ok_on_exit = true;
   debugMsg("CheckpointAdapter", " created.");
 
-  string flush_on_exit = getChildWithAttribute(configXml,"AdapterConfiguration","FlushOnExit");
+  string flush_on_exit = getChildWithAttribute(conf->xml,"AdapterConfiguration","FlushOnExit");
   std::transform(flush_on_exit.begin(),flush_on_exit.end(),flush_on_exit.begin(), ::tolower);
   // Defaults to true for safety
   if(flush_on_exit == "false") m_flush_on_exit = false;
   else m_flush_on_exit = true;
 
-  string flush_on_start = getChildWithAttribute(configXml,"AdapterConfiguration","FlushOnStart");
+  string flush_on_start = getChildWithAttribute(conf->xml,"AdapterConfiguration","FlushOnStart");
   std::transform(flush_on_start.begin(),flush_on_start.end(),flush_on_start.begin(), ::tolower);
   // Defaults to true for safety
   if(flush_on_start == "false") m_flush_on_start = false;
   else m_flush_on_start = true;
 
-  string use_time_s = getChildWithAttribute(configXml,"AdapterConfiguration","UseTime");
+  string use_time_s = getChildWithAttribute(conf->xml,"AdapterConfiguration","UseTime");
   std::transform(use_time_s.begin(),use_time_s.end(),use_time_s.begin(), ::tolower);
   // Defaults to true for safety
   if(use_time_s == "false") CheckpointSystem::getInstance()->useTime(false);
@@ -289,25 +183,92 @@ CheckpointAdapter::CheckpointAdapter(AdapterExecInterface& execInterface,
   debugMsg("CheckpointAdapter", " created.");
 }
 
-bool CheckpointAdapter::initialize()
+bool CheckpointAdapter::initialize(AdapterConfiguration *config)
 {
-  g_configuration->registerLookupInterface("DidCrash", this);
-  g_configuration->registerLookupInterface("IsBootOK", this);
-  
-  g_configuration->registerLookupInterface("NumberOfAccessibleBoots", this);
-  g_configuration->registerLookupInterface("NumberOfTotalBoots", this);
-  g_configuration->registerLookupInterface("NumberOfUnhandledBoots", this);
-  g_configuration->registerLookupInterface("TimeOfLastSave", this);
-  g_configuration->registerLookupInterface("TimeOfBoot", this);
+  // Construct and register our handlers
+  config->registerLookupHandlerFunction("DidCrash",
+                                        LOOKUP_HANDLER(0, 0,
+                                                       CheckpointSystem::getInstance()->didCrash()));
+  config->registerLookupHandlerFunction("IsBootOK",
+                                        LOOKUP_HANDLER(0, 1,
+                                                       CheckpointSystem::getInstance()->getIsOK(get_boot(state.parameters(), 0))));
+  config->registerLookupHandlerFunction("NumberOfAccessibleBoots",
+                                        LOOKUP_HANDLER(0, 0,
+                                                       CheckpointSystem::getInstance()->numAccessibleBoots()));
+  config->registerLookupHandlerFunction("NumberOfTotalBoots",
+                                        LOOKUP_HANDLER(0, 0,
+                                                       CheckpointSystem::getInstance()->numTotalBoots()));
+  config->registerLookupHandlerFunction("NumberOfUnhandledBoots",
+                                        LOOKUP_HANDLER(0, 0,
+                                                       CheckpointSystem::getInstance()->numUnhandledBoots()));
+  config->registerLookupHandlerFunction("TimeOfLastSave",
+                                        LOOKUP_HANDLER(0, 1,
+                                                       CheckpointSystem::getInstance()->getTimeOfCrash(get_boot(state.parameters(), 0))));
+  config->registerLookupHandlerFunction("TimeOfBoot",
+                                        LOOKUP_HANDLER(0, 1,
+                                                       CheckpointSystem::getInstance()->getTimeOfBoot(get_boot(state.parameters(), 0))));
 
-  g_configuration->registerLookupInterface("CheckpointState", this);
-  g_configuration->registerLookupInterface("CheckpointTime", this);
-  g_configuration->registerLookupInterface("CheckpointInfo", this);
-  g_configuration->registerLookupInterface("CheckpointWhen", this);
+  config->registerLookupHandlerFunction("CheckpointState",
+                                        LOOKUP_HANDLER(1, 2,
+                                                       CheckpointSystem::getInstance()->getCheckpointState(state.parameter(0).valueToString(), get_boot(state.parameters(), 1))));
+  config->registerLookupHandlerFunction("CheckpointTime",
+                                        LOOKUP_HANDLER(1, 2,
+                                                       CheckpointSystem::getInstance()->getCheckpointTime(state.parameter(0).valueToString(), get_boot(state.parameters(), 1))));
+  config->registerLookupHandlerFunction("CheckpointInfo", 
+                                        LOOKUP_HANDLER(1, 2,
+                                                       CheckpointSystem::getInstance()->getCheckpointInfo(state.parameter(0).valueToString(), get_boot(state.parameters(), 1))));
+  config->registerLookupHandlerFunction("CheckpointWhen",
+                                        LOOKUP_HANDLER(1, 1,
+                                                       CheckpointSystem::getInstance()->getCheckpointLastPassed(state.parameter(0).valueToString())));
 
-  g_configuration->registerCommandInterface("set_checkpoint", this);
-  g_configuration->registerCommandInterface("set_boot_ok", this);
-  g_configuration->registerCommandInterface("flush_checkpoints", this);
+  config->registerCommandHandlerFunction("set_checkpoint",
+                                         COMMAND_HANDLER(string checkpoint_name;
+                                                         bool flag = true;
+                                                         string info;
+                                                         args[0].getValue(checkpoint_name);
+                                                         switch (args.size()) {
+                                                         case 3:
+                                                           args[1].getValue(flag);
+                                                           args[2].getValue(info);
+                                                           break;
+                                                         case 2:
+                                                           if (args[1].valueType() == BOOLEAN_TYPE)
+                                                             args[1].getValue(flag);
+                                                           else
+                                                             args[1].getValue(info);
+                                                           break;
+                                                         case 1:
+                                                           break;
+                                                         default:
+                                                           cerr << error << "set_checkpoint invalid number of arguments" << endl;
+                                                           intf->handleCommandAck(cmd, COMMAND_FAILED);
+                                                           return;
+                                                         }
+                                                         CheckpointSystem::getInstance()->setCheckpoint(checkpoint_name, flag, info, cmd);));
+  config->registerCommandHandlerFunction("set_boot_ok",
+                                         COMMAND_HANDLER(bool flag = true;
+                                                         Integer boot_num = 0;
+                                                         switch (args.size()) {
+                                                         case 2:
+                                                           args[0].getValue(flag);
+                                                           args[1].getValue(boot_num);
+                                                           break;
+                                                         case 1:
+                                                           if (args[0].valueType() == BOOLEAN_TYPE)
+                                                             args[0].getValue(flag);
+                                                           else
+                                                             args[0].getValue(boot_num);
+                                                           break;
+                                                         default:
+                                                           cerr << error << "set_boot_ok invalid number of arguments" << endl;
+                                                           intf->handleCommandAck(cmd, COMMAND_FAILED);
+                                                           return;
+                                                         }
+                                                         CheckpointSystem::getInstance()->setOK(flag, boot_num, cmd);));
+  config->registerCommandHandlerFunction("flush_checkpoints",
+                                         COMMAND_HANDLER(intf->handleCommandReturn(cmd,
+                                                                                   Value((Boolean) CheckpointSystem::getInstance()->flush()));
+                                                         intf->handleCommandAck(cmd, COMMAND_SUCCESS);));
 
   // Register ourselves to receive updates
   setSubscriber(this);
@@ -324,136 +285,23 @@ bool CheckpointAdapter::start()
   return true;
 }
 
-bool CheckpointAdapter::stop()
-{
-  debugMsg("CheckpointAdapter", " stopped.");
-  return true;
-}
-
-bool CheckpointAdapter::reset()
-{
-  debugMsg("CheckpointAdapter", " reset.");
-  return true;
-}
-
-bool CheckpointAdapter::shutdown()
+void CheckpointAdapter::stop()
 {
   if(m_ok_on_exit) CheckpointSystem::getInstance()->setOK(true,0,NULL);
   if(m_flush_on_exit) CheckpointSystem::getInstance()->flush();
-  debugMsg("CheckpointAdapter", " shut down.");
-  return true;
+  debugMsg("CheckpointAdapter", " stopped.");
 }
 
-
-// Sends a command (as invoked in a Plexil command node) to the system and sends
-// the status, and return value if applicable, back to the executive.
-
-void CheckpointAdapter::executeCommand(Command *cmd)
-{
-
-  const string &name = cmd->getName();
-  debugMsg("CheckpointAdapter", "Received executeCommand for " << name);  
-
-  
-  Value retval = Unknown;
-  const vector<Value>& args = cmd->getArgValues();
-  
-  // Each command in CheckpointSystem publishes to ReceiveCommandReceived or Success 
-  // set_checkpoint and set_boot_ok to only return success when the change has been (possibly asycnrhonously)
-  // written to disk
-
-  // setOK and setCheckpoint handle the command acknowledgement themselves
-    
-  if (name == "flush_checkpoints"){
-    retval = CheckpointSystem::getInstance()->flush();
-    publishCommandSuccess(cmd); // publish success
-  }
-  else if (name == "set_checkpoint") {
-    if(args.size()<1 || args.size()>3){
-      cerr << error << "set_checkpoint invalid number of arguments" << endl;
-    }
-    
-    else{
-      string checkpoint_name = "";
-      
-      bool value = true;
-      string info = "";
-      args[0].getValue(checkpoint_name);
-
-      if(args.size()==3){
-	args[1].getValue(value);
-	args[2].getValue(info);
-      }
-      if(args.size()==2){
-	if(args[1].valueType()==BOOLEAN_TYPE) args[1].getValue(value);
-	else args[1].getValue(info);
-      }
-      CheckpointSystem::getInstance()->setCheckpoint(checkpoint_name,value,info,cmd);
-    }
-  }
-
-  else if (name == "set_boot_ok") {
-    if(args.size()>2){
-      cerr << error << "set_boot_ok invalid number of arguments" << endl;
-    }
-    
-    else{      
-      bool value = true;
-      Integer boot_num = 0;
-
-      if(args.size()==2){
-	args[0].getValue(value);
-	args[1].getValue(boot_num);
-      }
-      if(args.size()==1){
-	if(args[0].valueType()==BOOLEAN_TYPE) args[0].getValue(value);
-	else args[0].getValue(boot_num);
-      }
-      CheckpointSystem::getInstance()->setOK(value,boot_num,cmd);
-    }
-  }
-  
-  else{ 
-    cerr << error << "invalid command: " << name << endl;
-  }
-  
-  // This sends the command's return value (if expected) to the executive.
-  if (retval != Unknown){
-    m_execInterface.handleCommandReturn(cmd, retval);
-  }
-  m_execInterface.notifyOfExternalEvent();
-}
-
-void CheckpointAdapter::lookupNow (const State& state, StateCacheEntry &entry)
-{
-  entry.update(fetch(state.name(), state.parameters()));
-}
-
-
-void CheckpointAdapter::subscribe(const State& state)
-{
-  debugMsg("CheckpointAdapter:subscribe", " processing state " << state.name());
-  m_subscribedStates.insert(state);
-}
-
-
-void CheckpointAdapter::unsubscribe (const State& state)
-{
-  debugMsg("CheckpointAdapter:subscribe", " unsubscribing from state " << state.name());
-  m_subscribedStates.erase(state);
-}
-
-  // Passes value onto executive, which makes no guarantees about non-modification so can't be const reference
+// Passes value onto executive, which makes no guarantees about non-modification so can't be const reference
 void CheckpointAdapter::propagateValueChange (const State& state,
-                                          const vector<Value>& vals) const
+                                              const vector<Value>& vals)
 {
   // If subscribed
-  if (m_subscribedStates.find(state) != m_subscribedStates.end()){
-    m_execInterface.handleValueChange(state, vals.front());
-    m_execInterface.notifyOfExternalEvent();
+  if (m_subscribedStates.find(state) != m_subscribedStates.end()) {
+    getInterface().handleValueChange(state, vals.front());
+    getInterface().notifyOfExternalEvent();
   }
 }
-
 
 // Necessary boilerplate
 extern "C" {
