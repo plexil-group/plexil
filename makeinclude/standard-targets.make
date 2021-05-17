@@ -49,79 +49,92 @@ DEPS    = $(addsuffix .d,$(basename $(SRC)))
 DEP_TMP	= $(wildcard $(addsuffix .*,$(DEPS)))
 DIRT    = $(OBJ) $(DEPS) $(DEP_TMP)
 
-##### Internal Targets -- not typically invoked explicitly.
+# Macro for libraries
+define library
+$(1)_OBJ := $$(addsuffix .o,$$(basename $$($(1)_SRC)))
+$(1)_DEPS := $$(addsuffix .d,$$(basename $$($(1)_SRC)))
+DEPS += $$($(1)_DEPS)
+DIRT += $$($(1)_OBJ) $$($(1)_DEPS)
 
-ifneq ($(LIBRARY),)
+ifneq ($$(PLEXIL_SHARED),)
+$(1)_SHLIB := lib$(1)$(SUFSHARE)
 
+plexil-default: $$(LIBDIR)/$$($(1)_SHLIB)
+
+$$(LIBDIR)/$$($(1)_SHLIB) : $$($(1)_SHLIB) $$(LIBDIR)
+	$$(CP) $$< $$@
+
+$$($(1)_SHLIB): $$(LIBDIR) $$($(1)_OBJ)
+	-$$(RM) $$@
+	$$(LD) $$(SHARED_FLAGS) $$(EXTRA_LD_SO_FLAGS) $$(EXTRA_FLAGS) -o $$@ $$($(1)_OBJ) $$(LIB_PATH_FLAGS) $$(LIB_FLAGS) $$(LIBS)
+
+localclean::
+	@$$(RM) $$($(1)_SHLIB)
+endif
+
+ifneq ($$(PLEXIL_STATIC),)
+$(1)_ARCHIVE := lib$(1).a
+
+plexil-default: $$(LIBDIR)/$$($(1)_ARCHIVE)
+
+$$(LIBDIR)/$$($(1)_ARCHIVE): $$($(1)_ARCHIVE) $$(LIBDIR)
+	$$(CP) $$< $$@
+
+$$($(1)_ARCHIVE): $$(LIBDIR) $($(1)_OBJ)
+	$$(AR) crus $$@ $$($(1)_OBJ)
+
+localclean::
+	@$$(RM) $$($(1)_ARCHIVE)
+endif
+
+# Library includes to install
+ifneq ($$($(1)_INC),)
+plexil-default: $$(INCDIR)/$$($(1)_INC)
+$$(INCDIR)/$$($(1)_INC): $$(INCDIR) $$($(1)_INC)
+	$$(CP) $$($(1)_INC) $$<
+endif
+
+endef
+
+ifneq ($(LIBRARIES),)
 $(LIBDIR):
 	mkdir -p $(LIBDIR)
 
-ifneq ($(PLEXIL_SHARED),)
-## Build a shared library (SHLIB)
-
-SHLIB	:= lib$(LIBRARY)$(SUFSHARE)
-
-plexil-default: shlib
-
-shlib $(LIBDIR)/$(SHLIB): $(SHLIB) $(LIBDIR)
-	$(RM) $(LIBDIR)/$(SHLIB)
-	$(CP) $(SHLIB) $(LIBDIR)/$(SHLIB)
-
-$(SHLIB): $(OBJ)
-	$(LD) $(SHARED_FLAGS) $(EXTRA_LD_SO_FLAGS) $(EXTRA_FLAGS) -o $(SHLIB) $(OBJ) $(LIB_PATH_FLAGS) $(LIB_FLAGS) $(LIBS)
-
-localclean::
-	@$(RM) $(SHLIB) $(LIBDIR)/$(SHLIB) $(SHLIB).dSYM
+$(foreach lib,$(LIBRARIES),$(eval $(call library,$(lib))))
 endif
 
-ifneq ($(PLEXIL_STATIC),)
-## Build an archive library (.a file)
+# Macro for executables
 
-ARCHIVE := lib$(LIBRARY).a
+define executable
+$(1)_OBJ := $$(addsuffix .o,$$(basename $$($(1)_SRC)))
+$(1)_DEPS := $$(addsuffix .d,$$(basename $$($(1)_SRC)))
+DEPS += $$($(1)_DEPS)
+DIRT += $$($(1)_OBJ) $$($(1)_DEPS)
 
-plexil-default: archive
+plexil-default: $$(BINDIR)/$1
 
-archive $(LIBDIR)/$(ARCHIVE): $(ARCHIVE) $(LIBDIR)
-	$(RM) $(LIBDIR)/$(ARCHIVE)
-	$(CP) $(ARCHIVE) $(LIBDIR)/$(ARCHIVE)
+$$(BINDIR)/$1: $1 $$(BINDIR)
+	$$(CP) $$< $$@
 
-# This will update an existing archive library with any object files newer
-# than it, or create the library from existing objects if it does not exist.
-
-$(ARCHIVE): $(OBJ)
-	$(AR) crus $(ARCHIVE) $(OBJ)
+$1: $$($(1)_OBJ)
+	$$(LD) $$(EXTRA_EXE_FLAGS) $$(EXTRA_FLAGS) -o $1 $$($(1)_OBJ) $$(LIB_PATH_FLAGS) $$(LIB_FLAGS) $$(LIBS)
 
 localclean::
-	@$(RM) $(ARCHIVE) $(LIBDIR)/$(ARCHIVE)
-endif
+	@$$(RM) $1 $1.dSYM
 
-endif # $(LIBRARY)
+endef
 
 ifneq ($(EXECUTABLE),)
-
-plexil-default: executable
-
-# handle case of multiple targets in EXECUTABLE
-# see src/interfaces/Sockets/test/Makefile
-executable $(foreach exec,$(EXECUTABLE),$(BINDIR)/$(exec)): $(EXECUTABLE) $(BINDIR)
-	$(CP) $(EXECUTABLE) $(BINDIR)
-
 $(BINDIR):
 	mkdir -p $(BINDIR)
 
-## Build an executable
-# note that this does NOT yet correctly handle multiple targets in EXECUTABLE!
-$(EXECUTABLE): $(OBJ)
-	$(LD) $(EXTRA_EXE_FLAGS) $(EXTRA_FLAGS) -o $(EXECUTABLE) $(OBJ) $(LIB_PATH_FLAGS) $(LIB_FLAGS) $(LIBS)
-
-localclean::
-	@$(RM) $(EXECUTABLE) $(EXECUTABLE).dSYM $(foreach e,$(EXECUTABLE),$(BINDIR)/$(e))
+$(foreach exec,$(EXECUTABLE),$(eval $(call executable,$(exec))))
 endif
 
 ##### Delete extraneous by-products of compilation.
 
 localdust::
-	@if [ -n "$(DIRT)" ] ; then $(RM) $(DIRT); fi
+	$$(RM) $(DIRT)
 
 ##### Dependencies
 
@@ -184,6 +197,6 @@ dust:: localdust
 
 .PHONY: dust clean localclean localdust
 
-ifneq ($(MAKECMDGOALS),clean)
+ifeq ($(findstring $(MAKECMDGOALS),dust clean localdust localclean),)
 -include $(DEPS)
 endif
