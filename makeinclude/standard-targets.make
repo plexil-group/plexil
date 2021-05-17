@@ -134,7 +134,7 @@ endif
 ##### Delete extraneous by-products of compilation.
 
 localdust::
-	$$(RM) $(DIRT)
+	$(RM) $(DIRT)
 
 ##### Dependencies
 
