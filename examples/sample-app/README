@@ -1,4 +1,4 @@
-This directory contains a very simple example of a PLEXIL application.   
+This directory contains a very simple example of a PLEXIL application.
 
 Build this example by typing 'make'.
 
@@ -10,7 +10,7 @@ Run it by typing 'make test1' or
 Description
 -----------
 
-A tiny system modeling a few states and commands is defined in sample_system.
+A tiny system modeling a few states and commands is defined in SampleSystem.
 
 An interface adapter, through which the Plexil executive communicates with the
 system, is defined in SampleAdapter.

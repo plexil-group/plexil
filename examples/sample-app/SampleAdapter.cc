@@ -1,43 +1,48 @@
-/* Copyright (c) 2006-2014, Universities Space Research Association (USRA).
-*  All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*     * Redistributions of source code must retain the above copyright
-*       notice, this list of conditions and the following disclaimer.
-*     * Redistributions in binary form must reproduce the above copyright
-*       notice, this list of conditions and the following disclaimer in the
-*       documentation and/or other materials provided with the distribution.
-*     * Neither the name of the Universities Space Research Association nor the
-*       names of its contributors may be used to endorse or promote products
-*       derived from this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
-* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
-* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+ *  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *     * Redistributions of source code must retain the above copyright
+ *       notice, this list of conditions and the following disclaimer.
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimer in the
+ *       documentation and/or other materials provided with the distribution.
+ *     * Neither the name of the Universities Space Research Association nor the
+ *       names of its contributors may be used to endorse or promote products
+ *       derived from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+ * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 
-#include "SampleAdapter.hh"
+#include "SampleSystem.hh"
+#include "Subscriber.hh"
 
-#include "subscriber.hh"
-#include "sample_system.hh"
-
+// PLEXIL includes
 #include "AdapterConfiguration.hh"
 #include "AdapterFactory.hh"
 #include "AdapterExecInterface.hh"
+#include "Command.hh"
 #include "Debug.hh"
-#include "StateCacheEntry.hh"
+//#include "Expression.hh"
+#include "InterfaceAdapter.hh"
+#include "LookupReceiver.hh"
+#include "State.hh"
 
 #include <iostream>
+#include <set>
 
 using std::cout;
+using std::string;
 using std::cerr;
 using std::endl;
 using std::map;
@@ -45,6 +50,7 @@ using std::string;
 using std::vector;
 using std::copy;
 
+using namespace PLEXIL;
 
 ///////////////////////////// Conveniences //////////////////////////////////
 
@@ -52,271 +58,287 @@ using std::copy;
 static string error = "Error in SampleAdapter: ";
 
 // A prettier name for the "unknown" value.
-static Value Unknown;
-
-// A localized handle on the adapter, which allows a
-// decoupling between the sample system and adapter.
-static SampleAdapter * Adapter;
+static Value const Unknown;
 
 // An empty argument vector.
-static vector<Value> EmptyArgs;
+static vector<Value> const EmptyArgs;
 
 
 ///////////////////////////// State support //////////////////////////////////
 
-// Queries the system for the value of a state and its arguments.
-//
-static Value fetch (const string& state_name, const vector<Value>& args)
+// The states for which SampleAdapter publishes updates
+static std::set<State> subscribedStates;
+
+
+
+class SampleAdapter : public PLEXIL::InterfaceAdapter, public Subscriber
 {
-  debugMsg("SampleAdapter:fetch",
-           "Fetch called on " << state_name << " with " << args.size() << " args");
-  Value retval;
+public:
 
-  // NOTE: A more streamlined approach to dispatching on state name
-  // would be nice.
+  SampleAdapter(AdapterExecInterface& execInterface,
+                AdapterConf *conf) :
+    InterfaceAdapter(execInterface, conf),
+    Subscriber()
+  {
+    debugMsg("SampleAdapter", " created.");
+  }
 
-  if (state_name == "Size") retval = getSize();
-  else if (state_name == "Speed") retval = getSpeed();
-  else if (state_name == "Color") retval = getColor();
-  else if (state_name == "at") {
+  virtual ~SampleAdapter() = default;
+
+  ///////////////////////////// Member functions //////////////////////////////////
+
+  //
+  // InterfaceAdapter API
+  //
+  virtual bool initialize(AdapterConfiguration *config)
+  {
+    // Register command handlers for each command
+    config->registerCommandHandlerFunction("SetSize", setSize);
+    config->registerCommandHandlerFunction("SetSpeed", setSpeed);
+    config->registerCommandHandlerFunction("SetColor", setColor);
+    config->registerCommandHandlerFunction("SetName", setName);
+    config->registerCommandHandlerFunction("Move", move);
+    config->registerCommandHandlerFunction("Hello", hello);
+    config->registerCommandHandlerFunction("Square", square);
+    config->registerCommandHandlerFunction("Cube", cube);
+    // Register a default command handler
+    config->setDefaultCommandHandlerFunction(defaultHandler);
+
+    // Register lookup handlers for each state
+    config->registerLookupHandlerFunction("Size", getSize);
+    config->registerLookupHandlerFunction("Color", getColor);
+    config->registerLookupHandlerFunction("Speed", getSpeed);
+    config->registerLookupHandlerFunction("SystemName", getSystemName);
+    config->registerLookupHandlerFunction("at", getAt);
+    // Register a default lookup handler
+    config->setDefaultLookupHandler(getDefault);
+
+    setSubscriber(this);
+    debugMsg("SampleAdapter", " initialized.");
+    return true;
+  }
+
+  virtual bool start()
+  {
+    debugMsg("SampleAdapter", " started.");
+    return true;
+  }
+
+  virtual void stop()
+  {
+    debugMsg("SampleAdapter", " stopped.");
+  }
+
+  //
+  // Subscriber API
+  //
+
+  // The 'receive' functions are the subscribers for system state updates.  They
+  // receive the name of the state whose value has changed in the system.  Then
+  // they propagate the state's new value to the executive.
+
+  virtual void receiveValue (const string& state_name, Value val)
+  {
+    propagateValueChange (State(state_name), val);
+  }
+
+  virtual void receiveValue (const string& state_name, Value val, Value arg)
+  {
+    propagateValueChange (State(state_name, vector<Value> (1, arg)), val);
+  }
+
+  virtual void receiveValue (const string& state_name, Value val, Value arg1, Value arg2)
+  {
+    vector<Value> vec;
+    vec.push_back (arg1);
+    vec.push_back (arg2);
+    propagateValueChange (State(state_name, vec), val);
+  }
+
+  private:
+
+  //////////////////////////// Command Handlers /////////////////////////////////
+
+  static void setSize(Command *cmd, AdapterExecInterface *intf) {
+    string const &name = cmd->getName();
+    debugMsg("SampleAdapter", " Received executeCommand for " << name); 
+    double d;
+    cmd->getArgValues()[0].getValue(d);
+    SampleSystem::getInstance()->setSize (d);
+    intf->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+    intf->notifyOfExternalEvent();
+  }
+
+  static void setSpeed(Command *cmd, AdapterExecInterface *intf) {
+    string const &name = cmd->getName();
+    debugMsg("SampleAdapter", " Received executeCommand for " << name); 
+    int32_t i = 0;
+    cmd->getArgValues()[0].getValue(i);
+    SampleSystem::getInstance()->setSpeed (i);
+    intf->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+    intf->notifyOfExternalEvent();
+  }
+
+  static void setColor(Command *cmd, AdapterExecInterface *intf) {
+    string const &name = cmd->getName();
+    debugMsg("SampleAdapter", " Received executeCommand for " << name); 
+    string s;
+    cmd->getArgValues()[0].getValue(s);
+    SampleSystem::getInstance()->setColor (s);
+    intf->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+    intf->notifyOfExternalEvent();
+  }
+
+  static void setName(Command *cmd, AdapterExecInterface *intf) {
+    string const &name = cmd->getName();
+    debugMsg("SampleAdapter", " Received executeCommand for " << name); 
+    string s;
+    cmd->getArgValues()[0].getValue(s);
+    SampleSystem::getInstance()->setName (s);
+    intf->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+    intf->notifyOfExternalEvent();
+  }
+
+  static void move(Command *cmd, AdapterExecInterface *intf) {
+    string const &name = cmd->getName();
+    debugMsg("SampleAdapter", " Received executeCommand for " << name); 
+    string s;
+    int32_t i1 = 0, i2 = 0;
+    const vector<Value>& args = cmd->getArgValues();
+    args[0].getValue(s);
+    args[1].getValue(i1);
+    args[2].getValue(i2);
+    SampleSystem::getInstance()->move (s, i1, i2);
+    intf->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+    intf->notifyOfExternalEvent();
+  }
+
+  static void hello(Command *cmd, AdapterExecInterface *intf) {
+    string const &name = cmd->getName();
+    debugMsg("SampleAdapter", " Received executeCommand for " << name); 
+    SampleSystem::getInstance()->hello ();
+    intf->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+    intf->notifyOfExternalEvent();
+  }
+
+  static void square(Command *cmd, AdapterExecInterface *intf) {
+    string const &name = cmd->getName();
+    debugMsg("SampleAdapter", " Received executeCommand for " << name);
+    intf->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+    int32_t i = 0;
+    cmd->getArgValues()[0].getValue(i);
+    intf->handleCommandReturn(cmd, SampleSystem::getInstance()->square (i));
+    intf->notifyOfExternalEvent();
+  }
+
+  static void cube(Command *cmd, AdapterExecInterface *intf) {
+    string const &name = cmd->getName();
+    debugMsg("SampleAdapter", " Received executeCommand for " << name);
+    intf->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+    int32_t i = 0;
+    cmd->getArgValues()[0].getValue(i);
+    intf->handleCommandReturn(cmd, SampleSystem::getInstance()->cube (i));
+    intf->notifyOfExternalEvent();
+  }
+
+  static void defaultHandler(Command *cmd, AdapterExecInterface *intf) {
+    string const &name = cmd->getName();
+    cerr << error << "invalid command: " << name << endl;
+    intf->handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
+    intf->notifyOfExternalEvent();
+  }
+
+  ///////////////////////////// Lookup Handlers /////////////////////////////////
+
+  static void getSize (const State& state, LookupReceiver *entry) 
+  {
+    debugMsg("SampleAdapter:getSize",
+             " lookup called for " << state.name() << " with " << state.parameters().size() << " args");
+    entry->update(SampleSystem::getInstance()->getSize());
+    subscribedStates.insert(state);
+  }
+
+  static void getSpeed (const State& state, LookupReceiver *entry) 
+  {
+    debugMsg("SampleAdapter:getSpeed",
+             " lookup called for " << state.name() << " with " << state.parameters().size() << " args");
+    entry->update(SampleSystem::getInstance()->getSpeed());
+    subscribedStates.insert(state);
+  }
+
+  static void getColor (const State& state, LookupReceiver *entry) 
+  {
+    debugMsg("SampleAdapter:getColor",
+             " lookup called for " << state.name() << " with " << state.parameters().size() << " args");
+    entry->update(SampleSystem::getInstance()->getColor());
+    subscribedStates.insert(state);
+  }
+
+  static void getSystemName (const State& state, LookupReceiver *entry) 
+  {
+    debugMsg("SampleAdapter:getStateName",
+             " lookup called for " << state.name() << " with " << state.parameters().size() << " args");
+    entry->update(SampleSystem::getInstance()->getName());
+    subscribedStates.insert(state);
+  }
+
+  static void getAt (const State& state, LookupReceiver *entry) 
+  {
+    string const &name = state.name();
+    const vector<Value>& args = state.parameters();
+    debugMsg("SampleAdapter:getAt",
+             " lookup called for " << name << " with " << args.size() << " args");
     switch (args.size()) {
     case 0:
-      retval = at ();
+      entry->update(SampleSystem::getInstance()->at ());
+      subscribedStates.insert(state);
       break;
     case 1: {
-      std::string s;
+      string s;
       args[0].getValue(s);
-      retval = at (s); 
+      entry->update(SampleSystem::getInstance()->at(s));
+      subscribedStates.insert(state);
       break;
     }
     case 2: {
       int32_t arg0 = 0, arg1 = 0;
       args[0].getValue(arg0);
       args[1].getValue(arg1);
-      retval = at (arg0, arg1);
+      entry->update(SampleSystem::getInstance()->at (arg0, arg1));
+      subscribedStates.insert(state);
       break;
     }
     default: {
       cerr << error << "invalid lookup of 'at'" << endl;
-      retval = Unknown;
+      entry->update(Unknown);
     }
     }
   }
-  else {
-    cerr << error << "invalid state: " << state_name << endl;
-    retval = Unknown;
-  }
 
-  debugMsg("SampleAdapter:fetch", "Fetch returning " << retval);
-  return retval;
-}
-
-
-// The 'receive' functions are the subscribers for system state updates.  They
-// receive the name of the state whose value has changed in the system.  Then
-// they propagate the state's new value to the executive.
-
-static void propagate (const State& state, const vector<Value>& value)
-{
-  Adapter->propagateValueChange (state, value);
-}
-
-static State createState (const string& state_name, const vector<Value>& value)
-{
-  State state(state_name, value.size());
-  if (value.size() > 0)
+  static void getDefault (const State& state, LookupReceiver *entry) 
   {
-    for(size_t i=0; i<value.size();i++)
-    {
-      state.setParameter(i, value[i]);
-    }
+    debugMsg("SampleAdapter:getDefault",
+             " lookup called for " << state.name() << " with " << state.parameters().size() << " args");
+    cerr << error << "invalid state: " << state.name() << endl;
+    entry->update(Unknown);
   }
-  return state;
-}
 
-static void receive (const string& state_name, int val)
-{
-  propagate (createState(state_name, EmptyArgs),
-             vector<Value> (1, val));
-}
-
-static void receive (const string& state_name, float val)
-{
-  propagate (createState(state_name, EmptyArgs),
-             vector<Value> (1, val));
-}
-
-static void receive (const string& state_name, const string& val)
-{
-  propagate (createState(state_name, EmptyArgs),
-             vector<Value> (1, val));
-}
-
-static void receive (const string& state_name, bool val, const string& arg)
-{
-  propagate (createState(state_name, vector<Value> (1, arg)),
-             vector<Value> (1, val));
-}
-
-static void receive (const string& state_name, bool val, int arg1, int arg2)
-{
-  vector<Value> vec;
-  vec.push_back (arg1);
-  vec.push_back (arg2);
-  propagate (createState(state_name, vec), vector<Value> (1, val));
-}
-
-
-///////////////////////////// Member functions //////////////////////////////////
-
-
-SampleAdapter::SampleAdapter(AdapterExecInterface& execInterface,
-                             const pugi::xml_node& configXml) :
-    InterfaceAdapter(execInterface, configXml)
-{
-  debugMsg("SampleAdapter", " created.");
-}
-
-bool SampleAdapter::initialize()
-{
-  g_configuration->defaultRegisterAdapter(this);
-  Adapter = this;
-  setSubscriberInt (receive);
-  setSubscriberReal (receive);
-  setSubscriberString (receive);
-  setSubscriberBoolString (receive);
-  setSubscriberBoolIntInt (receive);
-  debugMsg("SampleAdapter", " initialized.");
-  return true;
-}
-
-bool SampleAdapter::start()
-{
-  debugMsg("SampleAdapter", " started.");
-  return true;
-}
-
-bool SampleAdapter::stop()
-{
-  debugMsg("SampleAdapter", " stopped.");
-  return true;
-}
-
-bool SampleAdapter::reset()
-{
-  debugMsg("SampleAdapter", " reset.");
-  return true;
-}
-
-bool SampleAdapter::shutdown()
-{
-  debugMsg("SampleAdapter", " shut down.");
-  return true;
-}
-
-
-// Sends a command (as invoked in a Plexil command node) to the system and sends
-// the status, and return value if applicable, back to the executive.
-//
-void SampleAdapter::executeCommand(Command *cmd)
-{
-  const string &name = cmd->getName();
-  debugMsg("SampleAdapter", "Received executeCommand for " << name);  
-
-  Value retval = Unknown;
-  vector<Value> argv(10);
-  const vector<Value>& args = cmd->getArgValues();
-  copy (args.begin(), args.end(), argv.begin());
-
-  // NOTE: A more streamlined approach to dispatching on command type
-  // would be nice.
-  string s;
-  int32_t i1 = 0, i2 = 0;
-  double d = 0.0;
-
-  if (name == "SetSize") {
-    args[0].getValue(d);
-    setSize(d);
+  void propagateValueChange (const State& state, const Value &val)
+  {
+    if (!isStateSubscribed(state))
+      return;
+    debugMsg("SampleAdapter:propagateValueChange",
+             " Propagating new value " << val << " for state " << state);
+    getInterface().handleValueChange (state, val);
+    getInterface().notifyOfExternalEvent();
   }
-  else if (name == "SetSpeed") {
-    args[0].getValue(i1);
-    setSpeed (i1);
+
+  bool isStateSubscribed(const State& state) const
+  {
+    return subscribedStates.find(state) != subscribedStates.end();
   }
-  else if (name == "SetColor") {
-    args[0].getValue(s);
-    setColor (s);
-  }
-  else if (name == "Move") {
-    args[0].getValue(s);
-    args[1].getValue(i1);
-    args[2].getValue(i2);
-    move (s, i1, i2);
-  }
-  else if (name == "Hello") 
-    hello ();
-  else if (name == "Square") {
-    args[0].getValue(i1);
-    retval = square (i1);
-  }
-  else 
-    cerr << error << "invalid command: " << name << endl;
 
-  // This sends a command handle back to the executive.
-  m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
-  // This sends the command's return value (if expected) to the executive.
-  if (retval != Unknown)
-    m_execInterface.handleCommandReturn(cmd, retval);
-  m_execInterface.notifyOfExternalEvent();
-}
-
-void SampleAdapter::lookupNow(State const &state, StateCacheEntry &entry)
-{
-  // This is the name of the state as given in the plan's LookupNow
-  string const &name = state.name();
-  const vector<Value>& args = state.parameters();
-  entry.update(fetch(name, args));
-}
-
-
-void SampleAdapter::subscribe(const State& state)
-{
-  debugMsg("SampleAdapter:subscribe", " processing state "
-           << state.name());
-  m_subscribedStates.insert(state);
-}
-
-
-void SampleAdapter::unsubscribe (const State& state)
-{
-  debugMsg("SampleAdapter:subscribe", " from state "
-           << state.name());
-  m_subscribedStates.erase(state);
-}
-
-// Does nothing.
-void SampleAdapter::setThresholds (const State& state, double hi, double lo)
-{
-}
-
-void SampleAdapter::setThresholds (const State& state, int32_t hi, int32_t lo)
-{
-}
-
-
-void SampleAdapter::propagateValueChange (const State& state,
-                                          const vector<Value>& vals) const
-{
-  if (!isStateSubscribed(state))
-    return; 
-  m_execInterface.handleValueChange(state, vals.front());
-  m_execInterface.notifyOfExternalEvent();
-}
-
-
-bool SampleAdapter::isStateSubscribed(const State& state) const
-{
-  return m_subscribedStates.find(state) != m_subscribedStates.end();
-}
+}; // class SampleAdapter
 
 // Necessary boilerplate
 extern "C" {
