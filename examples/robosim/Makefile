@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,7 @@
 
 include ../../makeinclude/standard-defs.make
 
-plexil-default: 2DRoboSim plans
+plexil-default: 2DRoboSim RoboSimSim plans
 
 PLAN_SRCS := $(wildcard plans/*.ple)
 PLAN_PLXS := $(PLAN_SRCS:.ple=.plx)
@@ -35,7 +35,7 @@ plans: $(PLAN_PLXS)
 2DRoboSim:
 	$(MAKE) -C 2DRobotSimulator
 
-robosim :
+RoboSimSim :
 	$(MAKE) -C RoboSimSimulator
 
 clean dust localdust::
