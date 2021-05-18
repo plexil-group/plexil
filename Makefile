@@ -48,6 +48,9 @@ include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 # Locations for prerequisites
 #
 
+# Have to do it this way because 'command' is a shell builtin; the
+# straightforward '$(shell command -v autoreconf)' fails with the message
+# 'sh: command: not found'.
 AUTORECONF := $(shell echo 'command -v autoreconf' | /bin/sh)
 
 # Primary target
