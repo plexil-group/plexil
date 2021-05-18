@@ -48,7 +48,7 @@ include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 # Locations for prerequisites
 #
 
-AUTORECONF := $(shell command -v autoreconf)
+AUTORECONF := $(shell echo 'command -v autoreconf' | /bin/sh)
 
 # Primary target
 plexil-default: tools
