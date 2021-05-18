@@ -81,15 +81,6 @@ if(PLAN_DEBUG_LISTENER)
   endif()
 endif()
 
-if(HAVE_GANTT_LISTENER)
-  target_include_directories(PlexilAppFramework PRIVATE
-    ${PlexilExec_SOURCE_DIR}/interfaces/GanttListener)
-  if(NOT BUILD_SHARED_LIBS)
-    target_link_libraries(PlexilAppFramework PUBLIC
-      GanttListener)
-  endif()
-endif()
-
 if(HAVE_IPC_ADAPTER)
   target_include_directories(PlexilAppFramework PRIVATE
     ${PlexilExec_SOURCE_DIR}/interfaces/IpcUtils

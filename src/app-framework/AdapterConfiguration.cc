@@ -67,10 +67,6 @@
 #include "PlanDebugListener.hh"
 #endif
 
-#ifdef HAVE_GANTT_LISTENER
-#include "GanttListener.hh"
-#endif
-
 #ifdef HAVE_IPC_ADAPTER
 #include "IpcAdapter.h"
 #endif
@@ -143,15 +139,6 @@ namespace PLEXIL {
       dynamicLoadModule("PlanDebugListener", nullptr);
 #else
       initPlanDebugListener();
-#endif
-#endif
-
-#ifdef HAVE_GANTT_LISTENER
-      // Every application should have access to the GANTT Listener
-#ifdef PIC
-      dynamicLoadModule("GanttListener", nullptr);
-#else
-      initGanttListener();
 #endif
 #endif
 

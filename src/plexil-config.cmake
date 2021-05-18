@@ -1,4 +1,4 @@
-## Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+## Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 ##  All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -35,12 +35,6 @@ include(CheckTypeSize)
 #
 # Optional modules
 #
-
-if(GANTT_LISTENER)
-  set(HAVE_GANTT_LISTENER ON)
-else()
-  unset(HAVE_GANTT_LISTENER CACHE)
-endif()
 
 if(IPC_ADAPTER)
   set(HAVE_IPC_ADAPTER ON)
@@ -164,7 +158,6 @@ CHECK_INCLUDE_FILE(fcntl.h HAVE_FCNTL_H)
 CHECK_INCLUDE_FILE(pthread.h HAVE_PTHREAD_H)
 CHECK_INCLUDE_FILE(semaphore.h HAVE_SEMAPHORE_H)
 CHECK_INCLUDE_FILE(unistd.h HAVE_UNISTD_H)
-CHECK_INCLUDE_FILE(sys/stat.h HAVE_SYS_STAT_H) # GanttListener only
 CHECK_INCLUDE_FILE(sys/time.h HAVE_SYS_TIME_H)
 
 # Networking
@@ -227,9 +220,8 @@ int main(int argc, char ** /* argv */)
 unset(CMAKE_REQUIRED_LIBRARIES)
 
 # Other POSIX specifics
-CHECK_FUNCTION_EXISTS(getcwd HAVE_GETCWD) # GanttListener only
 CHECK_FUNCTION_EXISTS(gethostbyname HAVE_GETHOSTBYNAME) # UdpAdapter, IPC
-CHECK_FUNCTION_EXISTS(getpid HAVE_GETPID) # Logging, ExecApplication, GanttListener
+CHECK_FUNCTION_EXISTS(getpid HAVE_GETPID) # Logging, ExecApplication
 CHECK_FUNCTION_EXISTS(isatty HAVE_ISATTY) # utils/Logging.cc only
 
 # Math
@@ -273,7 +265,6 @@ endif()
 # Types
 #
 
-CHECK_TYPE_SIZE(pid_t PID_T) # GanttListener
 CHECK_TYPE_SIZE(suseconds_t SUSECONDS_T)
 
 #

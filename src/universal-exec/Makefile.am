@@ -51,10 +51,6 @@ if DEBUG_LISTENER_OPT
   universalExec_LDADD += @top_builddir@/interfaces/PlanDebugListener/libPlanDebugListener.la
 endif
 
-if GANTT_OPT
-  universalExec_LDADD += @top_builddir@/interfaces/GanttListener/libGanttListener.la
-endif
-
 if IPC_OPT
   universalExec_LDADD += @top_builddir@/interfaces/IpcAdapter/libIpcAdapter.la \
  @top_builddir@/interfaces/IpcUtils/libIpcUtils.la
