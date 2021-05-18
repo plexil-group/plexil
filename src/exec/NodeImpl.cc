@@ -1577,7 +1577,7 @@ namespace PLEXIL
    * @brief Gets the time at which this node entered the given state.
    * @param state The state.
    * @return Time value as a double.
-   * @note Used by GanttListener and PlanDebugListener.
+   * @note Used by PlanDebugListener.
    */
   double NodeImpl::getStateStartTime(NodeState state) const
   {

@@ -127,8 +127,8 @@ How to build PLEXIL Executive - Custom configuration with autotools
   in the PLEXIL installation directory.  You can omit or change
   options as desired.
 
-  ./configure --prefix="$PLEXIL_HOME" --disable-static \
-     --enable-gantt --enable-ipc --enable-sas --enable-test-exec --enable-udp
+  ./configure --prefix="$PLEXIL_HOME" --disable-static --enable-ipc \
+   --enable-sas --enable-test-exec --enable-udp
 
   For a complete list of options, type:
 
@@ -167,7 +167,7 @@ not recommended.
   desired.
 
   cmake path/to/plexil/src -DCMAKE_INSTALL_PREFIX="$PLEXIL_HOME" \
-    -DGANTT_LISTENER=ON -DSTANDALONE_SIMULATOR=ON -DTEST_EXEC=ON -DUDP_ADAPTER=ON
+    -DSTANDALONE_SIMULATOR=ON -DTEST_EXEC=ON -DUDP_ADAPTER=ON
 
   Please see the CAVEATS file in this directory for advice on CMake options.
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2015, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -105,9 +105,6 @@ public class Luv extends JFrame {
     private RegexNodeFilter regexFilter;
     private int luvPrevPort = 0;
 
-    //Gantt Viewer
-    private OpenGanttViewer openGanttViewer;
-
     private Map<String, PlanView> planViews;
 
     // current working instance of luv
@@ -179,7 +176,6 @@ public class Luv extends JFrame {
         portGui = null;
         hideOrShowWindow = null;
         createCFGFileWindow = null;
-        openGanttViewer = null;
 
         regexFilter = new RegexNodeFilter(true);
         regexFilter.extendedPlexilView();
@@ -381,15 +377,6 @@ public class Luv extends JFrame {
         //     };
         // viewMenu.add(extendedViewAction);
         // viewMenu.add(new JSeparator());
-        // viewMenu.add(new LuvAction("Show Gantt Viewer",
-        //                            "Show viewer window with timeline/Gantt views of a plan post-execution.",
-        //                            VK_V,
-        //                            META_DOWN_MASK) {
-        //         public void actionPerformed(ActionEvent e) {	
-        //             getGanttViewer().openURL();
-        //         }
-        //     }
-        //              );
 
         debugMenu = new JMenu("Debug");
         menuBar.add(debugMenu);
@@ -614,15 +601,6 @@ public class Luv extends JFrame {
      *  @return the current instance of the Luv application */
     public static Luv getLuv() {
         return theLuv;
-    }
-    
-    /** Gantt Viewer
-     *  Opens the Gantt Viewer in a browser.
-     *  @return OpenGanttViewer */
-    public OpenGanttViewer getGanttViewer() {
-        if (openGanttViewer == null)
-            openGanttViewer = new OpenGanttViewer();
-        return openGanttViewer;
     }
 
     /** Returns the current instance of the Luv HideOrShowWindow.

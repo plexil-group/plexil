@@ -335,7 +335,7 @@ namespace PLEXIL
     /**
      * @brief Gets the time at which this node entered its current state.
      * @return Time value as a double.
-     * @note Used by GanttListener and PlanDebugListener.
+     * @note Used by PlanDebugListener.
      */
     double getCurrentStateStartTime() const;
 
@@ -343,7 +343,7 @@ namespace PLEXIL
      * @brief Gets the time at which this node entered the given state.
      * @param state The state.
      * @return Time value as a double. If not found, returns -DBL_MAX.
-     * @note Used by GanttListener and PlanDebugListener.
+     * @note Used by PlanDebugListener.
      */
     double getStateStartTime(NodeState state) const;
 
@@ -393,7 +393,6 @@ namespace PLEXIL
     Mutex *findMutex(char const *name) const;
 
     // May return nullptr.
-    // Used by GanttListener.
     NodeVariableMap const *getVariableMap() const { return m_variablesByName.get(); }
 
     /**

@@ -1,4 +1,4 @@
-## Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+## Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 ##  All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -55,7 +55,6 @@ option(TEST_EXEC "Build the TestExec application" ON)
 option(UDP_ADAPTER "Build adapter for interfacing via UDP" OFF)
 option(PLAN_DEBUG_LISTENER "Build the PlanDebugListener module" ON)
 option(VIEWER_LISTENER "Build interface for Plexil Viewer" ON)
-option(GANTT_LISTENER "Build interface for GANTT chart generator (deprecated)" OFF)
 option(MODULE_TESTS "Build unit test executables for submodules" OFF)
 #
 # Not strictly exec code
@@ -158,9 +157,6 @@ if(TEST_EXEC)
 endif()
 if(UNIVERSAL_EXEC)
   add_subdirectory(universal-exec)
-endif()
-if(GANTT_LISTENER)
-  add_subdirectory(interfaces/GanttListener)
 endif()
 if(UDP_ADAPTER)
   add_subdirectory(interfaces/UdpAdapter)

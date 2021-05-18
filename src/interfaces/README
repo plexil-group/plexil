@@ -1,11 +1,6 @@
 This directory contains libraries that perform various common
 interfacing tasks.  
 
-The GanttListener subdirectory allows plan execution to be visualized
-after plan completion. This is meant to be used with the Javascript
-code in the $PLEXIL_HOME/GanttViewer directory. Caveat: this code is
-known to be buggy.
-
 The IpcAdapter subdirectory provides a general purpose interface to
 other systems, from a Plexil-centric viewpoint.  It uses the open
 source package TCA-IPC (Inter-Process Communication), which is

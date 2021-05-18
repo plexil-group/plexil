@@ -41,10 +41,6 @@ if UNIVERSAL_EXEC_OPT
 endif
 
 ## Options normally off
-if GANTT_OPT
-  MAYBE_GANTT_SUBDIRS = interfaces/GanttListener
-endif
-
 if IPC_OPT
   MAYBE_IPC_SUBDIRS = third-party/ipc interfaces/IpcUtils interfaces/IpcAdapter
 endif
@@ -68,7 +64,6 @@ endif
 SUBDIRS = utils value expr intfc exec \
  third-party/pugixml/src xml-parser app-framework \
  $(MAYBE_DEBUG_LISTENER_SUBDIRS) $(MAYBE_VIEWER_SUBDIRS) \
- $(MAYBE_GANTT_SUBDIRS) \
  $(MAYBE_TEST_EXEC_SUBDIRS) \
  $(MAYBE_IPC_SUBDIRS) $(MAYBE_SAS_SUBDIRS) \
  $(MAYBE_UDP_SUBDIRS) \

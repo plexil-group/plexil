@@ -76,8 +76,6 @@ AC_ARG_ENABLE([debug-listener],
         AS_HELP_STRING([--enable-debug-listener], [Build PlanDebugListener interface (default=yes)]))
 AC_ARG_ENABLE([debug-logging],
         AS_HELP_STRING([--enable-debug-logging], [Allow debug output (default=yes)]))
-AC_ARG_ENABLE([gantt],
-        AS_HELP_STRING([--enable-gantt], [Build GanttListener interface (default=no)]))
 AC_ARG_ENABLE([ipc],
         AS_HELP_STRING([--enable-ipc], [Build IPC and IpcAdapter library (default=no)]))
 AC_ARG_ENABLE([module-tests],
@@ -104,7 +102,6 @@ AM_CONDITIONAL([SHARED_LIB_OPT], [test "x$enable_shared" != "xno"])
 AM_CONDITIONAL([STATIC_LIB_OPT], [test "x$enable_static" != "xno"])
 
 # These default to disabled (without)
-AM_CONDITIONAL([GANTT_OPT], [test "x$enable_gantt" = "xyes"])
 AM_CONDITIONAL([IPC_OPT], [test "x$enable_ipc" = "xyes"])
 AM_CONDITIONAL([JNI_OPT], [test "x$with_jni" != "x"])
 AM_CONDITIONAL([MODULE_TESTS_OPT], [test "x$enable_module_tests" = "xyes"])
@@ -129,9 +126,6 @@ AS_IF([test "x$enable_viewer" != "xno"],[
 ])
 
 # Disabled by default
-AS_IF([test "x$enable_gantt" = "xyes"],[
-  AC_DEFINE([HAVE_GANTT_LISTENER],[1],[Define to 1 if GanttListener is enabled in the build.])
-])
 AS_IF([test "x$enable_ipc" = "xyes"],[
   AC_DEFINE([HAVE_IPC_ADAPTER],[1],[Define to 1 if IpcAdapter is enabled in the build.])
 ])
@@ -228,12 +222,6 @@ AC_STRUCT_TM
 AC_CHECK_FUNCS([localtime_r])
 ])
 
-# Used only in GanttListener
-AS_IF([test "x$enable_gantt" = "xyes"], [
-AC_CHECK_FUNCS([getcwd])
-AC_CHECK_TYPES([pid_t])
-])
-
 AC_CONFIG_FILES([configure.env
                  Makefile
                  utils/Makefile
@@ -276,10 +264,6 @@ AC_CONFIG_FILES([apps/StandAloneSimulator/Makefile])
 
 AS_IF([test "x$enable_udp" = "xyes"], [
 AC_CONFIG_FILES([interfaces/UdpAdapter/Makefile])
-])
-
-AS_IF([test "x$enable_gantt" = "xyes"], [
-AC_CONFIG_FILES([interfaces/GanttListener/Makefile])
 ])
 
 AC_OUTPUT

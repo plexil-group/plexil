@@ -64,13 +64,6 @@ if(NOT BUILD_SHARED_LIBS)
       PlanDebugListener)
   endif()
 
-  if(GANTT_LISTENER)
-    target_include_directories(universalExec PRIVATE
-      ${PlexilExec_SOURCE_DIR}/interfaces/GanttListener)
-    target_link_libraries(universalExec PRIVATE
-      GanttListener)
-  endif()
-
   if(IPC_ADAPTER)
     target_include_directories(universalExec PRIVATE
       ${PlexilExec_SOURCE_DIR}/interfaces/IpcAdapter)
