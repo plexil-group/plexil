@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -46,3 +46,4 @@ clean::
 dust::
 
 include ../../makeinclude/standard-targets.make
+include ../../makeinclude/generic-plexil.make
