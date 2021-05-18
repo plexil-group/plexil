@@ -49,9 +49,6 @@ LIB_PATH	+= $(OPENGL_LIB_PATH)
 EXTRA_LIBS	+= IpcUtils ipc $(PTHREAD_LIB) $(OPENGL_LIBS)
 EXTRA_FLAGS	+= $(OPENGL_EXTRA_FLAGS)
 
-SRC		:= $(wildcard *.cc)
-INC		:= $(wildcard *.hh)
-
-SVN_FILES       := Makefile $(SRC) $(INC)
+robotSimulator_SRC		:= $(wildcard *.cc)
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
