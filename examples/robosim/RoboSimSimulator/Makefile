@@ -27,8 +27,7 @@ include $(PLEXIL_HOME)/makeinclude/standard-defs.make
 
 EXECUTABLE	:= RoboSimSimulator
 
-SRC		:= RoboSimResponseFactory.cc RoboSimSimulator.cc
-INC		:= $(wildcard *.hh)
+RoboSimSimulator_SRC := RoboSimResponseFactory.cc RoboSimSimulator.cc
 
 EXTRA_LIBS += IpcUtils ipc standalonesimulator $(PTHREAD_LIB)
 
