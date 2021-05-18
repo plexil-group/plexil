@@ -29,6 +29,6 @@ EXECUTABLE	:= RoboSimSimulator
 
 RoboSimSimulator_SRC := RoboSimResponseFactory.cc RoboSimSimulator.cc
 
-EXTRA_LIBS += IpcUtils ipc standalonesimulator $(PTHREAD_LIB)
+EXTRA_LIBS += standalonesimulator IpcUtils ipc $(PTHREAD_LIB)
 
 include $(PLEXIL_HOME)/makeinclude/standard-targets.make
