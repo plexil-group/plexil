@@ -224,7 +224,7 @@ namespace PLEXIL
       {
         Listener *l = new Listener(fd, port, maxLen, fn);
         std::lock_guard<std::mutex> guard(m_listenerMutex);
-        m_listeners.emplace(std::make_pair(port, l));
+        m_listeners.emplace(std::make_pair(port, std::unique_ptr<Listener>(l)));
       }
 
       // Tell event loop it has a new listener
