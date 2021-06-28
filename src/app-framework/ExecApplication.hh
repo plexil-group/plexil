@@ -153,6 +153,11 @@ namespace PLEXIL
     //! finishes.
     virtual void waitForPlanFinished() = 0;
 
+    //! Query whether the Exec has finished executing all plans.
+    //! @return True if at least one plan has been run and all
+    //!         plans have finished, false otherwise.
+    virtual bool allPlansFinished() = 0;
+
     //! Suspend the current thread until the application reaches
     //! APP_STOPPED state.
     //! @note Wait can be interrupted by signal handling; calling
