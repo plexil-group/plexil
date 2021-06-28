@@ -265,6 +265,13 @@ namespace PLEXIL
       return m_suspended;
     }
 
+    /**
+     * @brief Query whether the Exec has finished executing all plans.
+     * @return True if at least one plan has been run and all
+     *         plans have finished, false otherwise.
+     */
+    bool allPlansFinished();
+
   protected:
 
     //

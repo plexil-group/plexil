@@ -624,6 +624,15 @@ namespace PLEXIL
 #endif // PLEXIL_WITH_THREADS
   }
 
+  bool
+  ExecApplication::allPlansFinished()
+  {
+#ifdef PLEXIL_WITH_THREADS
+        RTMutexGuard guard(m_execMutex);
+#endif    
+        return g_exec->allPlansFinished();
+  }
+
   /**
    * @brief Suspend the current thread until the application reaches APP_SHUTDOWN state.
    * @note May be called by multiple threads
