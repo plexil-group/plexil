@@ -1,0 +1,133 @@
+// Script for testing OnCommand interface error handling
+
+script {
+  // Initial state here
+
+  // cycle 1
+  // ReceiveCommand(Quit) executed on this cycle
+  delay;
+
+  // cycle 2
+  // ReceiveCommand(Foo), ReceiveCommand(Bar), ReceiveCommand(Baz) executed this cycle
+  // This is the earliest we can send this
+  simultaneous {
+    command ReceiveCommand ("Foo" : string) = "Foo_0" : string;
+    command-success ReceiveCommand ("Foo" : string);
+  }
+
+  // cycle 3
+  // pprint(Foo!) executed this cycle
+  delay;
+  
+  // cycle 4
+  // SendReturnValue(Foo_0, true) executed this cycle
+  // Must acknowledge automatically generated (and hidden)
+  // SendReturnValue command or loop never finishes
+  command-success SendReturnValue ("Foo_0" : string, 1 : bool);
+
+  // cycle 5
+  // ReceiveCommand(Foo) executed this cycle
+  command-failed ReceiveCommand ("Foo" : string);
+
+  // cycle 6
+  // pprint(SimpleOnCommand failed) executed this cycle
+  delay;
+
+  // cycle 7
+  // ReceiveCommand(Foo) executed this cycle ; will not be ack'd
+  simultaneous {
+    command ReceiveCommand ("Bar" : string) = "Bar_1" : string;
+    command-success ReceiveCommand ("Bar" : string);
+  }
+
+  // cycle 8
+  // GetParameter(Bar_1, 0) executed this cycle
+  simultaneous {
+    command GetParameter ("Bar_1" : string, 0 : int) = "Bar" : string;
+    command-success GetParameter ("Bar_1" : string, 0 : int);
+  }
+
+  // cycle 9
+  // pprint(Bar Bar) excuted this cycle
+  delay;
+
+  // cycle 10
+  // SendReturnValue(Bar_1, true) executed this cycle
+  command-success SendReturnValue("Bar_1" : string, 1 : bool);
+
+  // cycle 11
+  // ReceiveCommand(Bar) executed this cycle
+  command-failed ReceiveCommand ("Bar" : string);
+  
+  // cycle 12
+  // pprint(SimpleOnCommandParam failed) executed this cycle
+  delay;
+
+  // cycle 13
+  // ReceiveCommand(Bar) executed this cycle; will not be ack'd
+  simultaneous {
+    command ReceiveCommand ("Baz" : string) = "Baz_2" : string;
+    command-success ReceiveCommand ("Baz" : string);
+  }
+
+  // cycle 14
+  // GetParameter(Baz_2, 0) executed this cycle
+  simultaneous {
+    command GetParameter ("Baz_2" : string, 0 : int) = 42 : int;
+    command-success GetParameter ("Baz_2" : string, 0 : int);
+  }
+  
+  // cycle 15
+  // pprint(Baz 42) executed this cycle
+  delay;
+
+  // cycle 16
+  // SendReturnValue(Baz_2, true) executed this cycle
+  command-success SendReturnValue ("Baz_2" : string, 1 : bool);
+
+  // cycle 17
+  // ReceiveCommand(Baz) executed this cycle
+  simultaneous {
+    command ReceiveCommand ("Baz" : string) = "Baz_3" : string;
+    command-success ReceiveCommand ("Baz" : string);
+  }
+
+  // cycle 18
+  // GetParameter(Baz_3, 0) executed this cycle
+  command-failed GetParameter ("Baz_3" : string, 0 : int);
+
+  // cycle 19
+  // pprint(OnCommandWithParamFailure) executed this cycle
+  delay;
+  
+  // cycle 20
+  // ReceiveCommand(Baz) executed this cycle, will not be ack'd
+  simultaneous {
+    command ReceiveCommand ("Quit" : string) = "Quit_5" : string;
+    command-success ReceiveCommand ("Quit" : string);
+  }
+
+  // cycle 21
+  // pprint(OnCommandFailureTest exiting on Quit command) executed this cycle
+  delay;
+
+  // cycle 22
+  // finished = true;
+  delay;
+
+  // cycle 23
+  // ReceiveCommand(Foo), ReceiveCommand(Bar), ReceiveCommand(Baz) aborted this cycle
+  simultaneous {
+    command-abort ReceiveCommand ("Foo" : string) = 1 : bool;
+    command-abort ReceiveCommand ("Bar" : string) = 1 : bool;
+    command-abort ReceiveCommand ("Baz" : string) = 1 : bool;
+  }
+
+  // cycle 24
+  // pprint(OnCommandFailureTest complete)
+  delay;
+
+  // cycle 25
+  // FINI
+
+}

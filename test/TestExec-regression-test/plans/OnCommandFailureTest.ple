@@ -1,0 +1,85 @@
+// Test of OnCommand behavior in failure scenario
+
+// Used internally by OnCommand macro, not user visible
+String Command ReceiveCommand(String commandName);
+// Language doesn't currently support Any as a return type
+// Any Command GetParameter(String commandId, Integer index);
+
+// Used internally by OnCommand macro,
+// may be used in user code too
+Command SendReturnValue(String commandId, Any val);
+
+Command pprint(...);
+
+// This is likely to be a common command handling idiom
+OnCommandFailureTest:
+{
+  Boolean finished = false;
+
+  Concurrence {
+    EndCondition finished;
+    PostCondition(NoChildFailed(Self));
+
+    OnCommand "Quit" {
+      pprint("OnCommandFailureTest exiting on Quit command");
+      finished = true;
+    }
+  
+    Concurrence {
+      ExitCondition finished;
+
+      while (!finished)
+        // On a failure of a ReceiveCommand or GetParameter command, the OnCommand
+        // node will transition to FAILING -> ITERATION_ENDED -> FINISHED with
+        // outcome of FAILURE and a failure type of INVARIANT_CONDITION_FAILED.
+        Concurrence {
+          PostCondition NodeSucceeded(Child(SimpleOnCommand))
+            || NodeInvariantFailed(Child(SimpleOnCommand));
+
+        SimpleOnCommand:
+          OnCommand "Foo"
+            pprint("Foo!");
+
+          {
+            StartCondition NodeInvariantFailed(Sibling(SimpleOnCommand));
+            SkipCondition NodeSucceeded(Sibling(SimpleOnCommand));
+            pprint("SimpleOnCommand failed");
+          }
+        }
+
+      while (!finished)
+        Concurrence {
+          PostCondition NodeSucceeded(Child(OnCommandWithParams))
+            || NodeInvariantFailed(Child(OnCommandWithParams));
+
+        OnCommandWithParams:
+          OnCommand "Bar" (String a)
+            pprint("Bar", a);
+
+          {
+            StartCondition NodeInvariantFailed(Sibling(OnCommandWithParams));
+            SkipCondition NodeSucceeded(Sibling(OnCommandWithParams));
+            pprint("OnCommandWithParams failed");
+          }
+        }
+          
+      while (!finished)
+        Concurrence {
+          PostCondition NodeSucceeded(Child(OnCommandWithParamFailure))
+            || NodeInvariantFailed(Child(OnCommandWithParamFailure));
+
+        OnCommandWithParamFailure:
+          OnCommand "Baz" (Integer b)
+            pprint("Baz", b);
+
+          {
+            StartCondition NodeInvariantFailed(Sibling(OnCommandWithParamFailure));
+            SkipCondition NodeSucceeded(Sibling(OnCommandWithParamFailure));
+            pprint("OnCommandWithParamFailure failed");
+          }
+        }
+    } // end of inner Concurrence
+  } // end of outer Concurrence
+
+  pprint("OnCommandFailureTest complete");
+}

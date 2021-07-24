@@ -1,0 +1,130 @@
+<PLEXILScript>
+  <Script>
+    <Delay/>
+    <Simultaneous>
+    <Command name="ReceiveCommand" type="string">
+      <Param type="string">Foo</Param>
+      <Result>Foo_0</Result>
+    </Command>
+    <CommandAck name="ReceiveCommand" type="string">
+      <Param type="string">Foo</Param>
+      <Result>COMMAND_SUCCESS</Result>
+    </CommandAck>
+    </Simultaneous>
+    <Delay/>
+    <CommandAck name="SendReturnValue" type="string">
+      <Param type="string">Foo_0</Param>
+      <Param type="bool">1</Param>
+      <Result>COMMAND_SUCCESS</Result>
+    </CommandAck>
+    <CommandAck name="ReceiveCommand" type="string">
+      <Param type="string">Foo</Param>
+      <Result>COMMAND_FAILED</Result>
+    </CommandAck>
+    <Delay/>
+    <Simultaneous>
+    <Command name="ReceiveCommand" type="string">
+      <Param type="string">Bar</Param>
+      <Result>Bar_1</Result>
+    </Command>
+    <CommandAck name="ReceiveCommand" type="string">
+      <Param type="string">Bar</Param>
+      <Result>COMMAND_SUCCESS</Result>
+    </CommandAck>
+    </Simultaneous>
+    <Simultaneous>
+    <Command name="GetParameter" type="string">
+      <Param type="string">Bar_1</Param>
+      <Param type="int">0</Param>
+      <Result>Bar</Result>
+    </Command>
+    <CommandAck name="GetParameter" type="string">
+      <Param type="string">Bar_1</Param>
+      <Param type="int">0</Param>
+      <Result>COMMAND_SUCCESS</Result>
+    </CommandAck>
+    </Simultaneous>
+    <Delay/>
+    <CommandAck name="SendReturnValue" type="string">
+      <Param type="string">Bar_1</Param>
+      <Param type="bool">1</Param>
+      <Result>COMMAND_SUCCESS</Result>
+    </CommandAck>
+    <CommandAck name="ReceiveCommand" type="string">
+      <Param type="string">Bar</Param>
+      <Result>COMMAND_FAILED</Result>
+    </CommandAck>
+    <Delay/>
+    <Simultaneous>
+    <Command name="ReceiveCommand" type="string">
+      <Param type="string">Baz</Param>
+      <Result>Baz_2</Result>
+    </Command>
+    <CommandAck name="ReceiveCommand" type="string">
+      <Param type="string">Baz</Param>
+      <Result>COMMAND_SUCCESS</Result>
+    </CommandAck>
+    </Simultaneous>
+    <Simultaneous>
+    <Command name="GetParameter" type="int">
+      <Param type="string">Baz_2</Param>
+      <Param type="int">0</Param>
+      <Result>42</Result>
+    </Command>
+    <CommandAck name="GetParameter" type="string">
+      <Param type="string">Baz_2</Param>
+      <Param type="int">0</Param>
+      <Result>COMMAND_SUCCESS</Result>
+    </CommandAck>
+    </Simultaneous>
+    <Delay/>
+    <CommandAck name="SendReturnValue" type="string">
+      <Param type="string">Baz_2</Param>
+      <Param type="bool">1</Param>
+      <Result>COMMAND_SUCCESS</Result>
+    </CommandAck>
+    <Simultaneous>
+    <Command name="ReceiveCommand" type="string">
+      <Param type="string">Baz</Param>
+      <Result>Baz_3</Result>
+    </Command>
+    <CommandAck name="ReceiveCommand" type="string">
+      <Param type="string">Baz</Param>
+      <Result>COMMAND_SUCCESS</Result>
+    </CommandAck>
+    </Simultaneous>
+    <CommandAck name="GetParameter" type="string">
+      <Param type="string">Baz_3</Param>
+      <Param type="int">0</Param>
+      <Result>COMMAND_FAILED</Result>
+    </CommandAck>
+    <Delay/>
+    <Simultaneous>
+    <Command name="ReceiveCommand" type="string">
+      <Param type="string">Quit</Param>
+      <Result>Quit_5</Result>
+    </Command>
+    <CommandAck name="ReceiveCommand" type="string">
+      <Param type="string">Quit</Param>
+      <Result>COMMAND_SUCCESS</Result>
+    </CommandAck>
+    </Simultaneous>
+    <Delay/>
+    <Delay/>
+    <Simultaneous>
+    <CommandAbort name="ReceiveCommand" type="bool">
+      <Param type="string">Foo</Param>
+      <Result>1</Result>
+    </CommandAbort>
+    <CommandAbort name="ReceiveCommand" type="bool">
+      <Param type="string">Bar</Param>
+      <Result>1</Result>
+    </CommandAbort>
+    <CommandAbort name="ReceiveCommand" type="bool">
+      <Param type="string">Baz</Param>
+      <Result>1</Result>
+    </CommandAbort>
+    </Simultaneous>
+    <Delay/>
+  </Script>
+</PLEXILScript>
