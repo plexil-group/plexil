@@ -1,0 +1,55 @@
+// Script for testing OnCommand interface error handling
+
+script {
+  // Initial state here
+
+  // cycle 1
+  // ReceiveMessage(Quit) executed on this cycle
+  delay;
+
+  // cycle 2
+  // ReceiveMessage(Foo) executed this cycle
+  simultaneous {
+    command ReceiveMessage ("Foo" : string) = "Foo_0" : string;
+    command-success ReceiveMessage ("Foo" : string);
+  }
+
+  // cycle 3
+  // pprint(Foo!) executed this cycle
+  delay;
+
+  // cycle 4
+  // ReceiveMessage(Foo) executed this cycle
+  command-failed ReceiveMessage ("Foo" : string);
+
+  // cycle 5
+  // pprint(SimpleOnMessage failed) executed this cycle
+  delay;
+
+  // cycle 6
+  // ReceiveMessage(Foo) executed this cycle; will not be ack'd
+  simultaneous {
+    command ReceiveMessage ("Quit" : string) = "Quit_5" : string;
+    command-success ReceiveMessage ("Quit" : string);
+  }
+
+  // cycle 7
+  // pprint(OnMessageFailureTest exiting on Quit message) executed this cycle
+  delay;
+
+  // cycle 8
+  // finished = true;
+  delay;
+
+  // cycle 9
+  // ReceiveMessage(Foo) aborted this cycle
+  command-abort ReceiveMessage ("Foo" : string) = 1 : bool;
+
+  // cycle 10
+  // pprint(OnMessageFailureTest complete)
+  delay;
+
+  // cycle 11
+  // FINI
+
+}

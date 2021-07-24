@@ -1,0 +1,38 @@
+<PLEXILScript>
+  <Script>
+    <Delay/>
+    <Simultaneous>
+    <Command name="ReceiveMessage" type="string">
+      <Param type="string">Foo</Param>
+      <Result>Foo_0</Result>
+    </Command>
+    <CommandAck name="ReceiveMessage" type="string">
+      <Param type="string">Foo</Param>
+      <Result>COMMAND_SUCCESS</Result>
+    </CommandAck>
+    </Simultaneous>
+    <Delay/>
+    <CommandAck name="ReceiveMessage" type="string">
+      <Param type="string">Foo</Param>
+      <Result>COMMAND_FAILED</Result>
+    </CommandAck>
+    <Delay/>
+    <Simultaneous>
+    <Command name="ReceiveMessage" type="string">
+      <Param type="string">Quit</Param>
+      <Result>Quit_5</Result>
+    </Command>
+    <CommandAck name="ReceiveMessage" type="string">
+      <Param type="string">Quit</Param>
+      <Result>COMMAND_SUCCESS</Result>
+    </CommandAck>
+    </Simultaneous>
+    <Delay/>
+    <Delay/>
+    <CommandAbort name="ReceiveMessage" type="bool">
+      <Param type="string">Foo</Param>
+      <Result>1</Result>
+    </CommandAbort>
+    <Delay/>
+  </Script>
+</PLEXILScript>
