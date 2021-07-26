@@ -19,7 +19,7 @@
     </CommandAck>
     <CommandAck name="ReceiveCommand" type="string">
       <Param type="string">Foo</Param>
-      <Result>COMMAND_FAILED</Result>
+      <Result>COMMAND_INTERFACE_ERROR</Result>
     </CommandAck>
     <Delay/>
     <Simultaneous>
@@ -52,7 +52,7 @@
     </CommandAck>
     <CommandAck name="ReceiveCommand" type="string">
       <Param type="string">Bar</Param>
-      <Result>COMMAND_FAILED</Result>
+      <Result>COMMAND_INTERFACE_ERROR</Result>
     </CommandAck>
     <Delay/>
     <Simultaneous>
@@ -96,7 +96,7 @@
     <CommandAck name="GetParameter" type="string">
       <Param type="string">Baz_3</Param>
       <Param type="int">0</Param>
-      <Result>COMMAND_FAILED</Result>
+      <Result>COMMAND_INTERFACE_ERROR</Result>
     </CommandAck>
     <Delay/>
     <Simultaneous>
