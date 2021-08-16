@@ -15,7 +15,7 @@
 	  (assignment-node (priority 1)
 	     (assignment (array-element "actual" 2) (+ (array-element "actual" 2) (realvar "knots"))))
           (if (boolvar "debug")
-              (command "print" "[" (stringvar "name") "] recv: set-speed " (realvar "knots") ", " (arrayvar "actual") "\n")))))
+              (command "print" "\n[" (stringvar "name") "] recv: set-speed " (realvar "knots") ", " (arrayvar "actual") "\n")))))
     ;; Handle set-angle commands
     (action "set-angle-handler"
       (repeat-condition true)
@@ -25,7 +25,7 @@
 	   (priority 2)
 	   (assignment (array-element "actual" 4) (+ (array-element "actual" 4) (realvar "degrees"))))
           (if (boolvar "debug")
-              (command "print" "[" (stringvar "name") "] recv: set-angle " (realvar "degrees") ", " (arrayvar "actual") "\n")))))
+              (command "print" "\n[" (stringvar "name") "] recv: set-angle " (realvar "degrees") ", " (arrayvar "actual") "\n")))))
     ;; Handle get-current-state commands
     (action "state-request-handler"
       (repeat-condition true)
@@ -35,6 +35,6 @@
                                (alias "debug" (boolvar "debug")))))
     (action "QuitCommand"
       (on-message "Quit"
-        (command "print" "[" (stringvar "name") "] recv: Quit (quitting)\n\n")))))
+        (command "print" "\n[" (stringvar "name") "] recv: Quit (quitting)\n\n")))))
 
 ;; EOF

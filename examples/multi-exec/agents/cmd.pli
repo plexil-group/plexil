@@ -26,7 +26,7 @@
         ;; (3) Get the current state from the simulator and print it
         (synchronous-command "get-states"
           (command-with-return (arrayvar "actual") "get-current-state" (intvar "period")))
-        (command "print" "[" (stringvar "name") "] recv: " (arrayvar "actual") "\n")
+        (command "print" "\n[" (stringvar "name") "] recv: " (arrayvar "actual") "\n")
         ;; (4) Command deceleration as appropriate
         (sequence "decel-1"
           (variables (real "kps-decel" -1.21) (real "delta"))

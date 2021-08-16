@@ -32,6 +32,7 @@
 #include "MessageQueueMap.hh"
 
 #include "AdapterExecInterface.hh"
+#include "CommandHandle.hh"
 #include "Debug.hh"
 
 #include <utility>
@@ -181,6 +182,7 @@ namespace PLEXIL
     while (!(mqIter == mq.end()) && !(rqIter == rq.end())) {
       debugMsg("MessageQueueMap:updateQueue", " returning value");
       m_execInterface.handleCommandReturn(*rqIter, *mqIter);
+      m_execInterface.handleCommandAck(*rqIter, COMMAND_SUCCESS);
       rqIter = rq.erase(rqIter);
       mqIter = mq.erase(mqIter);
     }

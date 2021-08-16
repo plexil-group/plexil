@@ -1,7 +1,8 @@
 <Interfaces>
   <Adapter AdapterType="OSNativeTime" />
   <Adapter AdapterType="Utility"/>
-  <Adapter AdapterType="IpcAdapter" Server="localhost" AllowDuplicateMessages="true">
+  <Adapter AdapterType="IpcAdapter" Server="localhost" AllowDuplicateMessages="true"
+           TaskName="cmd">
     <LookupNames>x</LookupNames>
     <DefaultCommandAdapter/>
   </Adapter>
