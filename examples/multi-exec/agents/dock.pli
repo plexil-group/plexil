@@ -34,7 +34,7 @@
     ;; Record the start time of this run
     (assignment (array-element "times" 0) (lookup-now "time"))
     ;; Announce that we are up and running
-    (command "print" "\n\n[" (stringvar "name") "] is up and running...\n\n")
+    (command "print" "\n[" (stringvar "name") "] is up and running...\n\n")
     ;; (1) wait for a docking request, and when one is received, register it with
     ;;     the telemetry loop (so that it will be appropriately serviced)
     (sequence "docking-request"
@@ -44,7 +44,7 @@
       (on-command "docking-request" ((real-array "request" 3)) ;rover-id[0] action(1=dock,0=un-dock)[1] urgency(unused)[2]
         (sequence "handle-request"
           (assignment (array-element "times" 1) (- (lookup-now "time") (array-element "times" 0)))
-          (command "print" "\n[" (stringvar "name") " (" (array-element "times" 1) ")] recv: " (arrayvar "request"))
+          (command "print" "\n[" (stringvar "name") " (" (array-element "times" 1) ")] recv: " (arrayvar "request") "\n")
           (assignment (realvar "rover-id") (array-element "request" 0)) ;grab the rover-id
           ;; Handle both docking and un-docking requests
           (try "request-type"
@@ -101,7 +101,7 @@
                                (realvar "period"))
                           0.02)) ;twice the tolerance (i.e., 2 * latency), or wakeups will be skipped
       (assignment (array-element "times" 1) (- (lookup-now "time") (array-element "times" 0)))
-      (command "print" "\n\n[" (stringvar "name") " (" (array-element "times" 1) ")]")
+      (command "print" "\n[" (stringvar "name") " (" (array-element "times" 1) ")]\n")
       (library-call-node (call "update-bay"
 							   (alias "name" (stringvar "name"))
 							   (alias "speeds" (arrayvar "speeds"))
@@ -129,6 +129,6 @@
     ;; Quit when asked to
     (action "QuitCommand"
       (on-message "Quit"
-        (command "print" "[" (stringvar "name") "] recv: Quit (quitting)\n\n")))))
+        (command "print" "\n[" (stringvar "name") "] recv: Quit (quitting)\n\n")))))
 
 ;; EOF

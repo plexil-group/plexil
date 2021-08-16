@@ -12,11 +12,11 @@
 					(real-array "request" 3))) ;rover-id[0] action(1=dock,0=Mn-dock)[1] urgency(unused)[2]
 			(variables (real "bay"))
 			(assignment (array-element "request" 0) (realvar "rover-id")) ;set the request to this rover
-			(command "print" "\n\n[" (stringvar "name") "] is up and running...\n\n")
+			(command "print" "\n[" (stringvar "name") "] is up and running...\n\n")
 			(wait 5 "wait-to-start")
 			;; (1) send the docking request
 			(command "docking-request" (arrayvar "request"))
-			(command "print" "\n[" (stringvar "name") "] sent: " (arrayvar "request"))
+			(command "print" "\n[" (stringvar "name") "] sent: " (arrayvar "request") "\n")
 			;; (2) respond to the bay-status messages
 			(action "dock"
 					(repeat-condition (not (boolvar "docked")))
@@ -29,8 +29,8 @@
 												  (skip-condition (not (= 0 (array-element "bay-status" 2))))
 												  (assignment (realvar "bay") (array-element "bay-status" 0))
 												  (assignment (boolvar "docked") true))
-										  (command "print" "\n[" (stringvar "name") "] recv: " (arrayvar "bay-status")))))
-			(command "print" "\n\n[" (stringvar "name") "] docked in bay " (realvar "bay") "\n")
+										  (command "print" "\n[" (stringvar "name") "] recv: " (arrayvar "bay-status") "\n"))))
+			(command "print" "\n[" (stringvar "name") "] docked in bay " (realvar "bay") "\n")
 			;; ( ) Stay awhile, then un-dock and leave
 			(wait 10 "wait-before-un-docking")
 			(assignment (array-element "request" 1) 0) ;un-dock request
@@ -40,7 +40,7 @@
 			(sequence "Quit"
 					  (skip-condition (not (boolvar "send-quit")))
 					  (wait 5 "wait-to-quit")
-					  (command "print" "\n[" (stringvar "name") "] sent: Quit (quitting)\n")
+					  (command "print" "\n[" (stringvar "name") "] sent: Quit (quitting)\n\n")
 					  (command "SendMessage" "Quit"))))
 
 ;; EOF
