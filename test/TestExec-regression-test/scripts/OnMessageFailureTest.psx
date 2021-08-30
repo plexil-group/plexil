@@ -14,7 +14,7 @@
     <Delay/>
     <CommandAck name="ReceiveMessage" type="string">
       <Param type="string">Foo</Param>
-      <Result>COMMAND_FAILED</Result>
+      <Result>COMMAND_INTERFACE_ERROR</Result>
     </CommandAck>
     <Delay/>
     <Simultaneous>

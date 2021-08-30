@@ -20,7 +20,7 @@ script {
 
   // cycle 4
   // ReceiveMessage(Foo) executed this cycle
-  command-failed ReceiveMessage ("Foo" : string);
+  command-interface-error ReceiveMessage ("Foo" : string);
 
   // cycle 5
   // pprint(SimpleOnMessage failed) executed this cycle

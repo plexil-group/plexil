@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -62,6 +62,7 @@ element returns [ElementAST ast = null] :
     | ast = commandAck  
     | ast = commandAccepted
     | ast = commandDenied
+    | ast = commandInterfaceError
     | ast = commandSentToSystem
     | ast = commandRcvdBySystem
     | ast = commandSuccess
@@ -139,6 +140,13 @@ commandDenied returns [CommandAST ast = null] :
         { List<ParameterAST> ps; }
         "command-denied" n:ID ps = parameters SEMI
         { List<String> vs = new LinkedList<String> (); vs.add ("COMMAND_DENIED");
+          ast = new CommandAST ("CommandAck", "Result", n.getText(), ps, "string", vs); }
+    ;
+
+commandInterfaceError returns [CommandAST ast = null] :
+        { List<ParameterAST> ps; }
+        "command-interface-error" n:ID ps = parameters SEMI
+        { List<String> vs = new LinkedList<String> (); vs.add ("COMMAND_INTERFACE_ERROR");
           ast = new CommandAST ("CommandAck", "Result", n.getText(), ps, "string", vs); }
     ;
 

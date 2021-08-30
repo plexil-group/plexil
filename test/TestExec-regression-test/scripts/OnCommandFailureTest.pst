@@ -27,7 +27,7 @@ script {
 
   // cycle 5
   // ReceiveCommand(Foo) executed this cycle
-  command-failed ReceiveCommand ("Foo" : string);
+  command-interface-error ReceiveCommand ("Foo" : string);
 
   // cycle 6
   // pprint(SimpleOnCommand failed) executed this cycle
@@ -57,7 +57,7 @@ script {
 
   // cycle 11
   // ReceiveCommand(Bar) executed this cycle
-  command-failed ReceiveCommand ("Bar" : string);
+  command-interface-error ReceiveCommand ("Bar" : string);
   
   // cycle 12
   // pprint(SimpleOnCommandParam failed) executed this cycle
@@ -94,7 +94,7 @@ script {
 
   // cycle 18
   // GetParameter(Baz_3, 0) executed this cycle
-  command-failed GetParameter ("Baz_3" : string, 0 : int);
+  command-interface-error GetParameter ("Baz_3" : string, 0 : int);
 
   // cycle 19
   // pprint(OnCommandWithParamFailure) executed this cycle
