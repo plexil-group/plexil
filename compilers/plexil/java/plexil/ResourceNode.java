@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -58,6 +58,18 @@ public class ResourceNode extends PlexilTreeNode
 		return new ResourceNode(this);
 	}
 
+    // format is:
+    // ^(RESOURCE_KYWD name_expr [ option_kywd value_expr ]* )
+
+    @Override
+    protected void earlyCheckChildren(NodeContext context, CompilerState state)
+    {
+        for (int i = 0; i < this.getChildCount(); i += 2) {
+            // Perform early checks on the expressions
+            this.getChild(i).earlyCheck(context, state);
+        }
+    }
+
     @Override
 	protected void earlyCheckSelf(NodeContext context, CompilerState state)
 	{
@@ -68,7 +80,6 @@ public class ResourceNode extends PlexilTreeNode
 			PlexilTreeNode kywd = this.getChild(i);
 			ExpressionNode valueExpr = (ExpressionNode) this.getChild(i + 1);
 			if (valueExpr == null) {
-				// TODO: complain if valueExpr null
 				if (this.getChild(i + 1) != null) {
 					state.addDiagnostic(this.getChild(i + 1),
 										"The value supplied for the Resource option "
@@ -148,6 +159,14 @@ public class ResourceNode extends PlexilTreeNode
                                 Severity.ERROR);
         }
 	}
+
+    @Override
+    protected void checkChildren(NodeContext context, CompilerState state)
+    {
+        for (int i = 0; i < this.getChildCount(); i += 2) {
+            this.getChild(i).check(context, state);
+        }
+    }
 
     @Override
 	protected void checkSelf(NodeContext context, CompilerState state)

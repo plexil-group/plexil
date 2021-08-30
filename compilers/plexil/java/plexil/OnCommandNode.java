@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,18 +25,18 @@
 
 package plexil;
 
-import java.util.Vector;
-
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
 import org.w3c.dom.Element;
 
-public class OnCommandNode extends PlexilTreeNode
-{
-    // Name binding context
-	NodeContext m_context = null;
+import java.util.List;
 
+// Structure is
+// ON_COMMAND_KYWD^ expression variableDeclaration* action)
+
+public class OnCommandNode extends NodeTreeNode
+{
     public OnCommandNode(Token t)
     {
         super(t);
@@ -45,138 +45,80 @@ public class OnCommandNode extends PlexilTreeNode
     public OnCommandNode(OnCommandNode n)
     {
         super(n);
-		m_context = n.m_context;
     }
 
+    @Override
 	public Tree dupNode()
 	{
 		return new OnCommandNode(this);
 	}
 
-    /**
-     * @brief Get the containing name binding context for this branch of the parse tree.
-     * @return A NodeContext instance, or the global context.
-     */
-    public NodeContext getContext()
-    {
-        return m_context;
-    }
-
 	// structure is:
 	// ^(ON_COMMAND_KYWD expression paramsSpec? action)
 
-	public void earlyCheck(NodeContext parentContext, CompilerState state)
+    @Override
+	protected void earlyCheckSelf(NodeContext parentContext, CompilerState state)
 	{
-		// Check command name expression
-		getChild(0).earlyCheck(parentContext, state);
+        super.earlyCheckSelf(parentContext, state); // NodeTreeNode method
 
-        // get node ID
-        String nodeId = null;
-        PlexilTreeNode parent = this.getParent();
-        if (parent != null && parent instanceof ActionNode) {
-            nodeId = ((ActionNode) parent).getNodeId();
+        // The Extended PLEXIL translator treats all VariableDeclaration forms
+        // as parameters, so if a local (not interface) variable was declared
+        // in the surrounding block, issue an error diagnostic.
+        List<VariableName> vars = m_context.getLocalVariables();
+        if (!vars.isEmpty()) {
+            // Pick one declaration to use for error location purposes
+            PlexilTreeNode declaration = vars.get(0).getDeclaration();
+            state.addDiagnostic(declaration,
+								"Local variables may not be declared in the block containing an OnCommand",
+								Severity.ERROR);
         }
-        else {
-            // should never happen
-            state.addDiagnostic(this,
-                                "Internal error: OnCommandNode instance has no parent ActionNode",
-                                Severity.FATAL);
-        }
+    }
 
-		// Construct a context
-		// Generated context name includes the command name
-		m_context = new NodeContext(parentContext, nodeId + "_ON_COMMAND");
-
-        // Parse parameter list, if supplied
-        ParameterSpecNode parmAST = getParameters();
-        if (parmAST != null) {
-            parmAST.earlyCheck(m_context, state); // for effect
-            Vector<VariableName> parmSpecs = parmAST.getParameterVector();
-            if (parmSpecs != null) {
-                for (VariableName vn : parmSpecs) {
-					// Check that it is not an interface variable
-					if (!vn.isLocal()) {
-						state.addDiagnostic(vn.getDeclaration(),
-											"Parameter \"" + vn.getName() + "\" to OnCommand was declared " +
-											(vn.isAssignable() ? "InOut" : "In"),
-											Severity.ERROR);
-					}
-					// add to context
-					// TODO: added checks (e.g. duplicate names)?
-					m_context.addVariable(vn);
-				}
-			}
-		}
-
-		// Check body with parameter variables defined
-		getBody().earlyCheck(m_context, state);
-	}
-
-	public void check(NodeContext parentContext, CompilerState state)
+	@Override
+    protected void checkChildren(NodeContext parentContext, CompilerState state)
 	{
-		checkSelf(parentContext, state);
-		getChild(0).check(parentContext, state); // name expression
-		// Check parameter list
-		ParameterSpecNode specs = getParameters();
-		if (specs != null)
-			specs.check(parentContext, state);
-		getBody().check(m_context, state);
-	}
+        super.checkChildren(parentContext, state); // NodeTreeNode method
 
-    protected void checkSelf(NodeContext context, CompilerState state)
-    {
-		// Coerce name expression to string
         ExpressionNode nameExp = (ExpressionNode) this.getChild(0);
+		// Coerce name expression to string, if we can
         if (!nameExp.assumeType(PlexilDataType.STRING_TYPE, state)) {
             state.addDiagnostic(nameExp,
 								"The name expression to the " + this.getToken().getText()
 								+ " statement was not a string expression",
 								Severity.ERROR);
 		}
-    }
+	}
 
     @Override
     protected void constructXML()
     {
-        super.constructXMLBase();
+        super.constructXMLBase(); // PlexilTreeNode method
 
-        // Construct the name element, but don't output it yet.
+        // If the OnCommand is surrounded by a block, the block
+        // will output the parameter declarations for us
+        if (!this.inheritsParentContext()) {
+            // Output the parameters, if any
+            List<VariableName> vars = m_context.getLocalVariables();
+            if (!vars.isEmpty()) {
+                Element decls = CompilerState.newElement("VariableDeclarations");
+                m_xml.appendChild(decls);
+                for (VariableName v : vars)
+                    decls.appendChild(v.makeDeclarationXML());
+            }
+        }
+
+        // Name next
         Element name = CompilerState.newElement ("Name");
 		name.appendChild(this.getChild(0).getXML());
+        m_xml.appendChild(name);
 
-        // Second child: parameters (optional), or action
-        ParameterSpecNode parms = getParameters();
-		Vector<VariableName> parmSpecs = null;
-        if (parms == null
-			|| (parmSpecs = parms.getParameterVector()) == null) {
-			// No parameter declarations
-            m_xml.appendChild(name);
-            m_xml.appendChild(getBody().getXML());
-        } 
-		else {
-            // Parameters are output first, followed by name
-			Element decls = CompilerState.newElement("VariableDeclarations");
-			for (VariableName vn : parmSpecs) {
-				decls.appendChild(vn.makeDeclarationXML());
-			}
-            m_xml.appendChild(decls);
-            m_xml.appendChild(name);
-            m_xml.appendChild(getBody().getXML());
-        }
+        // Body
+        m_xml.appendChild(getBody().getXML());
     }
 
-    protected ParameterSpecNode getParameters()
-    {
-        if (this.getChild(1).getType() != PlexilLexer.PARAMETERS)
-            return null;
-        return (ParameterSpecNode) this.getChild(1);
-    }
-
-	protected PlexilTreeNode getBody()
+	private PlexilTreeNode getBody()
 	{
-		if (this.getChild(1).getType() == PlexilLexer.PARAMETERS)
-			return (PlexilTreeNode) this.getChild(2);
-		return (PlexilTreeNode) this.getChild(1);
+        return this.getChild(this.getChildCount() - 1);
 	}
 
 }

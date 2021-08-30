@@ -478,13 +478,12 @@ namespace PLEXIL
       if (status) {
         warn("UdpAdapter::executeReceiveCommandCommand: startUdpMessageReceiver failed");
         m_execInterface.handleCommandAck(cmd, COMMAND_FAILED);
+        m_execInterface.notifyOfExternalEvent();
       }
       else {
         debugMsg("UdpAdapter:executeReceiveCommandCommand",
                  " message handler for \"" << command << "\" registered");
-        m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
       }
-      m_execInterface.notifyOfExternalEvent();
     }
 
     // GET_PARAMETER_COMMAND
@@ -576,8 +575,6 @@ namespace PLEXIL
       std::string command = formatMessageName(msgName, GET_PARAMETER_COMMAND, id);
       m_messageQueues.addRecipient(command, cmd);
       debugMsg("UdpAdapter:executeGetParameterCommand", " message handler for \"" << cmd->getName() << "\" registered");
-      m_execInterface.handleCommandAck(cmd, COMMAND_SENT_TO_SYSTEM);
-      m_execInterface.notifyOfExternalEvent();
     }    
 
 

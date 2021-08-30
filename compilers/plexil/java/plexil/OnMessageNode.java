@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -30,7 +30,7 @@ import org.antlr.runtime.tree.*;
 
 import org.w3c.dom.Element;
 
-public class OnMessageNode extends PlexilTreeNode
+public class OnMessageNode extends NodeTreeNode
 {
     public OnMessageNode(Token t)
     {
@@ -42,6 +42,7 @@ public class OnMessageNode extends PlexilTreeNode
         super(n);
     }
 
+    @Override
 	public Tree dupNode()
 	{
 		return new OnMessageNode(this);
@@ -50,9 +51,12 @@ public class OnMessageNode extends PlexilTreeNode
 	// Format is:
 	// ^(ON_MESSAGE_KYWD expression action)
 
-    protected void checkSelf(NodeContext context, CompilerState state)
+    @Override
+    protected void checkChildren(NodeContext parentContext, CompilerState state)
     {
-		// Ensure that the message is a string expression
+        super.checkChildren(parentContext, state); // NodeTreeNode method
+
+		// Ensure that the message name is a string expression
 		ExpressionNode msgName = (ExpressionNode) this.getChild(0);
 		if (!msgName.assumeType(PlexilDataType.STRING_TYPE, state)) {
 			state.addDiagnostic(msgName,

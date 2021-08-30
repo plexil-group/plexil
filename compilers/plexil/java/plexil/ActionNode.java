@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,12 +25,18 @@
 
 package plexil;
 
+import plexil.xml.DOMUtils;
+
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
 import org.w3c.dom.Element;
 
-import plexil.xml.DOMUtils;
+// ActionNode is a wrapper around an executable PLEXIL statement.
+// It mainly serves as a place to hang a NodeId.
+
+// Structure is:
+// (ACTION NCName? baseAction)
 
 public class ActionNode extends PlexilTreeNode
 {
@@ -61,24 +67,18 @@ public class ActionNode extends PlexilTreeNode
         return m_nodeId; 
     }
 
+    @Override
 	public Tree dupNode()
 	{
 		return new ActionNode(this);
 	}
 
-    public PlexilTreeNode getBaseAction()
-    {
-        return this.getChild(this.getChildCount() - 1);
-    }
-
-    //
-    // Format is
-    // (ACTION NCName? baseAction)
-
+    @Override
     protected void earlyCheckSelf(NodeContext context, CompilerState state)
     {
-        // If supplied, get the node ID
+        // Look at the first child
         PlexilTreeNode firstChild = this.getChild(0);
+        // If supplied, get the node ID
         if (hasNodeId()) {
             m_nodeId = firstChild.getText();
             // Check that node ID is locally unique

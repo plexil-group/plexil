@@ -1,7 +1,8 @@
 <Interfaces>
   <Adapter AdapterType="OSNativeTime" />
   <Adapter AdapterType="Utility"/>
-  <Adapter AdapterType="IpcAdapter" Server="localhost" AllowDuplicateMessages="true">
+  <Adapter AdapterType="IpcAdapter" Server="localhost" AllowDuplicateMessages="true"
+           TaskName="rover">
     <DefaultCommandAdapter/>
   </Adapter>
   <Listener ListenerType="PlanDebugListener"/>

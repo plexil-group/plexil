@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,10 +25,11 @@
 
 package plexil;
 
-import java.util.Vector;
-
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ArgumentListNode extends PlexilTreeNode
 {
@@ -51,7 +52,7 @@ public class ArgumentListNode extends PlexilTreeNode
                                        CompilerState state, 
                                        String callType,
                                        String callName,
-                                       Vector<VariableName> paramSpec)
+                                       List<VariableName> paramSpec)
     {
         // Check number of arguments only
         boolean wildcardSeen = false;
@@ -65,7 +66,7 @@ public class ArgumentListNode extends PlexilTreeNode
                                     Severity.ERROR);
                 break; // no point in checking further
             }
-            if (paramSpec.elementAt(i) instanceof WildcardVariableName) {
+            if (paramSpec.get(i) instanceof WildcardVariableName) {
                 wildcardSeen = true;
                 break; // no need to check further
             }
@@ -87,15 +88,15 @@ public class ArgumentListNode extends PlexilTreeNode
                                   CompilerState state, 
                                   String callType,
                                   String callName,
-                                  Vector<VariableName> paramSpec)
+                                  List<VariableName> paramSpec)
     {
         // Check types of arguments only
         for (int i = 0; i < this.getChildCount(); i++) {
             if (i >= paramSpec.size()
-                || paramSpec.elementAt(i) instanceof WildcardVariableName) 
+                || paramSpec.get(i) instanceof WildcardVariableName) 
                 break; // no further checking possible or needed
 
-            PlexilDataType reqdType = paramSpec.elementAt(i).getVariableType();
+            PlexilDataType reqdType = paramSpec.get(i).getVariableType();
             ExpressionNode parm = (ExpressionNode) this.getChild(i);
             parm.check(context, state);
             if (!parm.assumeType(reqdType, state)) {

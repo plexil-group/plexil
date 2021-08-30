@@ -1,0 +1,42 @@
+// Test of OnMessage in command failure
+
+String Command ReceiveMessage(String messageName);
+Command pprint(...);
+
+OnMessageFailureTest:
+{
+  Boolean finished = false;
+
+  Concurrence {
+    // Exit on receipt of Quit message
+    OnMessage "Quit" {
+      pprint("OnMessageFailureTest exiting on Quit message");
+      finished = true;
+    }
+
+    {
+      ExitCondition finished;
+
+      while (!finished)
+        // On a failure of a ReceiveMessage command, the OnMessage
+        // node will transition to FAILING -> ITERATION_ENDED -> FINISHED with
+        // outcome of FAILURE and a failure type of INVARIANT_CONDITION_FAILED.
+        Concurrence {
+          PostCondition NodeSucceeded(Child(SimpleOnMessage))
+            || NodeInvariantFailed(Child(SimpleOnMessage));
+
+        SimpleOnMessage:
+          OnMessage "Foo"
+            pprint("Foo!");
+
+          {
+            StartCondition NodeInvariantFailed(Sibling(SimpleOnMessage));
+            SkipCondition NodeSucceeded(Sibling(SimpleOnMessage));
+            pprint("SimpleOnMessage failed");
+          }
+        }
+    }
+  }
+
+  pprint("OnMessageFailureTest complete");
+}

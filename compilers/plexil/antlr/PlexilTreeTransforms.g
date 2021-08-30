@@ -230,11 +230,11 @@ bindingContextNode:
 // A checked block has an outcome of FAILURE if some child fails.
 // Therefore can be collapsed if only 1 child.
 checkedBlock:
-        CHECKED_SEQUENCE_KWYD
+        CHECKED_SEQUENCE_KYWD
     |   SEQUENCE_KYWD
     |   BLOCK
     |   LBRACE
-    |   TRY
+    |   TRY_KYWD
     ;
 
 // An unchecked block has an outcome of SUCCESS if all children fail.

@@ -83,6 +83,7 @@ SAME_NAME_SCRIPT_TESTS='array1 array3 array4 array8 AtomicAssignment
  ChangeLookupTest command1 command2 command3 command4 command5 CommandCleanupTest
  concat2 conjuncts conjuncts1
  lookup1 lookup2 lookup3
+ OnCommandFailureTest OnMessageFailureTest
  repeat2 repeat5 repeat7 repeat8
  SiteSurveyWithEOF
  TestEndCondition TestTimepoint

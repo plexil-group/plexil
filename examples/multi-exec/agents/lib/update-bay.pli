@@ -62,6 +62,6 @@
           ))
       ;; Send the new status out
       (command "bay-status" (arrayvar "bay"))
-      (command "print" "\n[" (stringvar "name") " (bay " (array-element "bay" 0) ")] sent: " (arrayvar "bay")))))
+      (command "print" "\n[" (stringvar "name") " (bay " (array-element "bay" 0) ")] sent: " (arrayvar "bay") "\n"))))
 
 ;; EOF
