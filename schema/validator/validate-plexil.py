@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -149,7 +149,7 @@ def loadSchemaFromUrl(schemaUrl, verbose):
 
     try:
         result = xmlschema.XMLSchema11(schemaUrl, validation='lax')
-        if isinstance(result, xmlschema.validators.schema.XMLSchemaBase):
+        if isinstance(result, xmlschema.validators.schemas.XMLSchemaBase):
             if verbose:
                 print('Loaded schema', schemaUrl)
             return result;
@@ -239,7 +239,7 @@ def loadCachedSchema(loadpath):
               sep='', file=sys.stderr)
         return None
 
-    if isinstance(result, xmlschema.validators.schema.XMLSchemaBase):
+    if isinstance(result, xmlschema.validators.schemas.XMLSchemaBase):
         return result
 
     else:
