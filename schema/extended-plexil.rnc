@@ -255,11 +255,14 @@ Wait =
 # Command action that waits for its return value or status handle
 SynchronousCommand =
   element SynchronousCommand {
-    ActionBase,
-    (element Checked { empty }?
-     & element Timeout { GeneralizedNumericExpression, SourceLocators }
-     & Tolerance?),
-    Command
+    ActionBase, synchronous-command-options, Command
   }
+# The intent is "neither, either, or both of these 
+# in any order, but at most once of each"
+synchronous-command-options =
+  element Checked { empty }?
+  & element Timeout {
+      GeneralizedNumericExpression, Tolerance?, SourceLocators
+    }?
 # Generic lookup form
 Lookup = element Lookup { Name, Tolerance?, Arguments?, SourceLocators }

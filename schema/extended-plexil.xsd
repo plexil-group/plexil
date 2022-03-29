@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!DOCTYPE schema PUBLIC "-//W3C//DTD XMLSCHEMA 200102//EN" "http://www.w3.org/2001/XMLSchema.dtd" >
+<!DOCTYPE xs:schema PUBLIC "-//W3C//DTD XSD 1.1//EN" "XMLSchema.dtd" >
 
 <!--
 * Copyright (c) 2006-2022, Universities Space Research Association (USRA).
@@ -480,25 +480,13 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
     </xs:complexType>
   </xs:element>
 
-
   <!-- Command action that waits for its return value or status handle -->
   <xs:element name="SynchronousCommand">
     <xs:complexType>
       <xs:complexContent>
         <xs:extension base="ActionBase">
           <xs:sequence>
-            <xs:all>
-              <xs:element name="Checked" minOccurs="0"/>
-              <xs:sequence minOccurs="0">
-                <xs:element name="Timeout">
-                  <xs:complexType>
-                    <xs:group ref="GeneralizedNumericExpression"/>
-                    <xs:attributeGroup ref="SourceLocators"/>
-                  </xs:complexType>
-                </xs:element>
-                <xs:element ref="Tolerance" minOccurs="0"/>
-              </xs:sequence>
-            </xs:all>
+            <xs:group ref="synchronous-command-options"/>
             <xs:element ref="Command"/>
           </xs:sequence>
         </xs:extension>
@@ -506,6 +494,22 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
     </xs:complexType>
   </xs:element>
 
+  <!-- The intent is "neither, either, or both of these 
+       in any order, but at most once of each" -->
+  <xs:group name="synchronous-command-options">
+    <xs:all>
+      <xs:element name="Checked" minOccurs="0"/>
+      <xs:element name="Timeout" minOccurs="0">
+        <xs:complexType>
+          <xs:sequence>
+            <xs:group ref="GeneralizedNumericExpression"/>
+            <xs:element ref="Tolerance" minOccurs="0"/>
+          </xs:sequence>
+          <xs:attributeGroup ref="SourceLocators"/>
+        </xs:complexType>
+      </xs:element>
+    </xs:all>
+  </xs:group>
 
   <!-- Generic lookup form -->
   <xs:element name="Lookup">
