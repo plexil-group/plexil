@@ -525,12 +525,10 @@
         <Name>
           <StringValue>time</StringValue>
         </Name>
-        <xsl:if test="Tolerance">
-          <xsl:apply-templates select="Tolerance" />
-        </xsl:if>
+        <xsl:apply-templates select="Timeout/Tolerance" />
       </LookupOnChange>
       <ADD>
-        <xsl:apply-templates select="Timeout" />
+        <xsl:apply-templates select="Timeout/*[1]" />
         <NodeTimepointValue>
           <NodeRef dir="self" />
           <NodeStateValue>EXECUTING</NodeStateValue>
