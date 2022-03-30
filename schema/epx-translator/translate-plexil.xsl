@@ -354,10 +354,10 @@
     <NodeCommandHandleVariable>
       <xsl:choose>
         <xsl:when test="$dir and $nodeId">
-          <NodeRef dir="$dir"><xsl:value-of select="$nodeId" /></NodeRef>
+          <NodeRef dir="{$dir}"><xsl:value-of select="$nodeId" /></NodeRef>
         </xsl:when>
         <xsl:when test="$dir">
-          <NodeRef dir="$dir" />
+          <NodeRef dir="{$dir}" />
         </xsl:when>
         <xsl:when test="$nodeId">
           <NodeId><xsl:value-of select="$nodeId" /></NodeId>
