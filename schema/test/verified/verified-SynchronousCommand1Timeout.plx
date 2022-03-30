@@ -5,7 +5,7 @@
          FileName="foo.ple"
          LineNo="104"
          ColNo="1">
-      <NodeId>A</NodeId>
+      <NodeId>SynchronousCommand1Timeout</NodeId>
       <VariableDeclarations>
          <DeclareVariable>
             <Name>x</Name>
@@ -20,6 +20,23 @@
          <NodeList>
             <Node NodeType="Command" epx="SynchronousCommandCommand">
                <NodeId>ep2cp_SynchronousCommand_cmd</NodeId>
+               <InvariantCondition>
+                  <LT>
+                     <LookupOnChange>
+                        <Name>
+                           <StringValue>time</StringValue>
+                        </Name>
+                     </LookupOnChange>
+                     <ADD>
+                        <RealValue>5</RealValue>
+                        <NodeTimepointValue>
+                           <NodeRef dir="self"/>
+                           <NodeStateValue>EXECUTING</NodeStateValue>
+                           <Timepoint>START</Timepoint>
+                        </NodeTimepointValue>
+                     </ADD>
+                  </LT>
+               </InvariantCondition>
                <EndCondition>
                   <EQInternal>
                      <NodeCommandHandleVariable>

@@ -5,7 +5,7 @@
          FileName="foo.ple"
          LineNo="104"
          ColNo="1">
-      <NodeId>A</NodeId>
+      <NodeId>SynchronousCommand1CheckedTimeout</NodeId>
       <VariableDeclarations>
          <DeclareVariable>
             <Name>x</Name>
@@ -16,10 +16,52 @@
             <Type>Integer</Type>
          </DeclareVariable>
       </VariableDeclarations>
+      <InvariantCondition>
+         <NoChildFailed>
+            <NodeRef dir="self"/>
+         </NoChildFailed>
+      </InvariantCondition>
       <NodeBody>
          <NodeList>
             <Node NodeType="Command" epx="SynchronousCommandCommand">
                <NodeId>ep2cp_SynchronousCommand_cmd</NodeId>
+               <InvariantCondition>
+                  <AND>
+                     <LT>
+                        <LookupOnChange>
+                           <Name>
+                              <StringValue>time</StringValue>
+                           </Name>
+                        </LookupOnChange>
+                        <ADD>
+                           <RealValue>5</RealValue>
+                           <NodeTimepointValue>
+                              <NodeRef dir="self"/>
+                              <NodeStateValue>EXECUTING</NodeStateValue>
+                              <Timepoint>START</Timepoint>
+                           </NodeTimepointValue>
+                        </ADD>
+                     </LT>
+                     <NEInternal>
+                        <NodeCommandHandleVariable>
+                           <NodeRef dir="self"/>
+                        </NodeCommandHandleVariable>
+                        <NodeCommandHandleValue>COMMAND_DENIED</NodeCommandHandleValue>
+                     </NEInternal>
+                     <NEInternal>
+                        <NodeCommandHandleVariable>
+                           <NodeRef dir="self"/>
+                        </NodeCommandHandleVariable>
+                        <NodeCommandHandleValue>COMMAND_FAILED</NodeCommandHandleValue>
+                     </NEInternal>
+                     <NEInternal>
+                        <NodeCommandHandleVariable>
+                           <NodeRef dir="self"/>
+                        </NodeCommandHandleVariable>
+                        <NodeCommandHandleValue>COMMAND_INTERFACE_ERROR</NodeCommandHandleValue>
+                     </NEInternal>
+                  </AND>
+               </InvariantCondition>
                <EndCondition>
                   <EQInternal>
                      <NodeCommandHandleVariable>
@@ -28,6 +70,11 @@
                      <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
                   </EQInternal>
                </EndCondition>
+               <PostCondition>
+                  <IsKnown>
+                     <IntegerVariable>ep2cp_SynchronousCommand_temp</IntegerVariable>
+                  </IsKnown>
+               </PostCondition>
                <NodeBody>
                   <Command>
                      <IntegerVariable>ep2cp_SynchronousCommand_temp</IntegerVariable>

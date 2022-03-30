@@ -29,7 +29,15 @@
 
 SHELL = /bin/sh
 
-SYNCH =	SynchronousCommand1 SynchronousCommand2 SynchronousCommand3 \
+SYNCH =	SynchronousCommandMinimal SynchronousCommandChecked \
+	SynchronousCommandWithTimeout \
+	SynchronousCommandWithTimeoutTolerance \
+	SynchronousCommandCheckedWithTimeout \
+	SynchronousCommandCheckedWithTimeoutTolerance \
+	SynchronousCommandWithTimeoutChecked \
+	SynchronousCommandWithTimeoutToleranceChecked \
+	SynchronousCommand1 SynchronousCommand1Checked SynchronousCommand1Timeout \
+	SynchronousCommand1CheckedTimeout SynchronousCommand2 SynchronousCommand3 \
 	SynchronousCommand4 SynchronousCommand5 SynchronousCommand6 \
 	SynchronousCommand7 SynchronousCommand8 SynchronousCommand9 \
 	SynchronousCommand10
