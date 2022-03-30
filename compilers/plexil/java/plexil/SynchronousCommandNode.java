@@ -195,7 +195,7 @@ public class SynchronousCommandNode extends NodeTreeNode
             timeoutXML.appendChild(m_timeout.getXML());
             if (m_tolerance != null) {
                 Element tolXML = CompilerState.newElement("Tolerance");
-                m_xml.appendChild(tolXML);
+                timeoutXML.appendChild(tolXML);
                 tolXML.appendChild(m_tolerance.getXML());
             }
         }
