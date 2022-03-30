@@ -228,36 +228,27 @@
         <xsl:sequence select="$tempVarDecl" />
       </VariableDeclarations>
 
-      <xsl:sequence select="$userConditions/(ExitCondition|PreCondition|
-                            RepeatCondition|SkipCondition|StartCondition)" />
+      <xsl:sequence select="$userConditions/* except InvariantCondition" />
       <xsl:call-template name="sync-cmd-wrapper-invariant">
-        <xsl:with-param name="commandNodeId" select="$commandNodeId" />
         <xsl:with-param name="userInvariant" select="$userConditions/InvariantCondition" />
-      </xsl:call-template>
-      <xsl:call-template name="sync-cmd-wrapper-end">
-        <xsl:with-param name="commandNodeId" select="$commandNodeId" />
-        <xsl:with-param name="assignNodeId" select="$assignNodeId" />
-        <xsl:with-param name="userEnd" select="$userConditions/EndCondition" />
-      </xsl:call-template>
-      <xsl:call-template name="sync-cmd-wrapper-post">
-        <xsl:with-param name="commandNodeId" select="$commandNodeId" />
-        <xsl:with-param name="assignNodeId" select="$assignNodeId" />
-        <xsl:with-param name="userPost" select="$userConditions/PostCondition" />
       </xsl:call-template>
 
       <NodeBody>
         <NodeList>
           <Node NodeType="Command" epx="SynchronousCommandCommand">
             <NodeId><xsl:value-of select="$commandNodeId" /></NodeId>
-            <xsl:if test="Timeout">
-              <InvariantCondition>
-                <xsl:call-template name="sync-cmd-timeout-invariant" />
-              </InvariantCondition>
-            </xsl:if>
+            <xsl:call-template name="sync-cmd-cmd-invariant" />
             <EndCondition>
-              <IsKnown><xsl:copy-of select="$tempVarRef" /></IsKnown>
+              <EQInternal>
+                <xsl:call-template name="command-handle-ref"/>
+                <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+              </EQInternal>
             </EndCondition>
-            <xsl:call-template name="sync-cmd-post" />
+            <xsl:if test="Checked">
+              <PostCondition>
+                <IsKnown><xsl:copy-of select="$tempVarRef" /></IsKnown>
+              </PostCondition>
+            </xsl:if>
             <NodeBody>
               <Command>
                 <xsl:apply-templates select="Command/ResourceList" />                  
@@ -269,23 +260,7 @@
           <Node NodeType="Assignment" epx="SynchronousCommandAssignment">
             <NodeId><xsl:value-of select="$assignNodeId" /></NodeId>
             <StartCondition>
-              <xsl:choose>
-                <xsl:when test="Checked">
-                  <AND>
-                    <EQInternal>
-                      <xsl:call-template name="command-handle-ref">
-                        <xsl:with-param name="dir">sibling</xsl:with-param>
-                        <xsl:with-param name="nodeId" select="$commandNodeId" />
-                      </xsl:call-template>
-                      <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
-                    </EQInternal>
-                    <IsKnown><xsl:copy-of select="$tempVarRef" /></IsKnown>
-                  </AND>
-                </xsl:when>
-                <xsl:otherwise>
-                  <IsKnown><xsl:copy-of select="$tempVarRef" /></IsKnown>
-                </xsl:otherwise>
-              </xsl:choose>
+              <IsKnown><xsl:copy-of select="$tempVarRef" /></IsKnown>
             </StartCondition>
             <NodeBody>
               <Assignment>
@@ -302,43 +277,24 @@
   </xsl:template>
 
   <xsl:template name="sync-cmd-wrapper-invariant">
-    <xsl:param name="commandNodeId" required="yes" />
     <xsl:param name="userInvariant" />
 
-    <!-- boilerplate -->
-    <xsl:variable name="commandHandleRef">
-      <xsl:call-template name="command-handle-ref">
-        <xsl:with-param name="dir">child</xsl:with-param>
-        <xsl:with-param name="nodeId" select="$commandNodeId" />
-      </xsl:call-template>
-    </xsl:variable>
-
     <xsl:choose>
-      <xsl:when test="Checked">
+      <xsl:when test="Checked and $userInvariant">
         <InvariantCondition>
           <AND>
             <xsl:sequence select="$userInvariant/*"/>
-            <NEInternal>
-              <xsl:copy-of select="$commandHandleRef" />
-              <NodeCommandHandleValue>COMMAND_DENIED</NodeCommandHandleValue>
-            </NEInternal>
-            <NEInternal>
-              <xsl:copy-of select="$commandHandleRef" />
-              <NodeCommandHandleValue>COMMAND_FAILED</NodeCommandHandleValue>
-            </NEInternal>
-            <NEInternal>
-              <xsl:copy-of select="$commandHandleRef" />
-              <NodeCommandHandleValue>COMMAND_INTERFACE_ERROR</NodeCommandHandleValue>
-            </NEInternal>
-            <NEInternal>
-              <xsl:copy-of select="$commandHandleRef" />
-              <NodeCommandHandleValue>COMMAND_ABORTED</NodeCommandHandleValue>
-            </NEInternal>
-            <NEInternal>
-              <xsl:copy-of select="$commandHandleRef" />
-              <NodeCommandHandleValue>COMMAND_ABORT_FAILED</NodeCommandHandleValue>
-            </NEInternal>
+            <NoChildFailed>
+              <NodeRef dir="self" />
+            </NoChildFailed>
           </AND>
+        </InvariantCondition>
+      </xsl:when>
+      <xsl:when test="Checked">
+        <InvariantCondition>
+          <NoChildFailed>
+            <NodeRef dir="self" />
+          </NoChildFailed>
         </InvariantCondition>
       </xsl:when>
       <xsl:otherwise>
@@ -347,64 +303,38 @@
     </xsl:choose>
   </xsl:template>
 
-  <xsl:template name="sync-cmd-wrapper-end">
-    <xsl:param name="commandNodeId" required="yes" />
-    <xsl:param name="assignNodeId" required="yes" />
-    <xsl:param name="userEnd" />
-
+  <xsl:template name="sync-cmd-cmd-invariant">
     <xsl:choose>
       <xsl:when test="Checked">
-        <EndCondition>
-          <OR>
-            <xsl:sequence select="$userEnd/*" />
-            <Failed>
-              <NodeRef dir="$child"><xsl:value-of select="$commandNodeId" /></NodeRef>
-            </Failed>
-            <Succeeded>
-              <NodeRef dir="$child"><xsl:value-of select="$assignNodeId" /></NodeRef>
-            </Succeeded>
-          </OR>
-        </EndCondition>
-      </xsl:when>
-      <xsl:otherwise>
-        <xsl:sequence select="$userEnd" />
-      </xsl:otherwise>
-    </xsl:choose>
-  </xsl:template>
-
-  <xsl:template name="sync-cmd-wrapper-post">
-    <xsl:param name="commandNodeId" required="yes" />
-    <xsl:param name="assignNodeId" required="yes" />
-    <xsl:param name="userPost" />
-
-    <!-- boilerplate -->
-    <xsl:variable name="commandHandleRef">
-      <xsl:call-template name="command-handle-ref">
-        <xsl:with-param name="dir">child</xsl:with-param>
-        <xsl:with-param name="nodeId" select="$commandNodeId" />
-      </xsl:call-template>
-    </xsl:variable>
-
-    <xsl:choose>
-      <xsl:when test="Checked">
-        <PostCondition>
+        <InvariantCondition>
           <AND>
-            <xsl:sequence select="$userPost/*" />
-            <EQInternal>
-              <xsl:copy-of select="$commandHandleRef" />
-              <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
-            </EQInternal>
-            <Succeeded>
-              <NodeRef dir="child"><xsl:value-of select="$assignNodeId" /></NodeRef>
-            </Succeeded>
+            <xsl:if test="Timeout">
+              <xsl:call-template name="sync-cmd-timeout-invariant" />
+            </xsl:if>
+            <!-- would be nice to use CommandHandleInterruptible here -->
+            <NEInternal>
+              <xsl:call-template name="command-handle-ref"/>
+              <NodeCommandHandleValue>COMMAND_DENIED</NodeCommandHandleValue>
+            </NEInternal>
+            <NEInternal>
+              <xsl:call-template name="command-handle-ref"/>
+              <NodeCommandHandleValue>COMMAND_FAILED</NodeCommandHandleValue>
+            </NEInternal>
+            <NEInternal>
+              <xsl:call-template name="command-handle-ref"/>
+              <NodeCommandHandleValue>COMMAND_INTERFACE_ERROR</NodeCommandHandleValue>
+            </NEInternal>
           </AND>
-        </PostCondition>
+        </InvariantCondition>
       </xsl:when>
-      <xsl:otherwise>
-        <xsl:sequence select="$userPost" />
-      </xsl:otherwise>
+      <xsl:when test="Timeout">
+        <InvariantCondition>
+          <xsl:call-template name="sync-cmd-timeout-invariant" />
+        </InvariantCondition>
+      </xsl:when>
     </xsl:choose>
   </xsl:template>
+
 
   <!-- 
        Synchronous command without an assignment simply expands into a
@@ -429,7 +359,7 @@
       <xsl:call-template name="sync-cmd-base-end">
         <xsl:with-param name="userEnd" select="$userConditions/EndCondition" />
       </xsl:call-template>
-      <xsl:call-template name="sync-cmd-post">
+      <xsl:call-template name="sync-cmd-base-post">
         <xsl:with-param name="userPost" select="$userConditions/PostCondition" />
       </xsl:call-template>
       <NodeBody>
@@ -463,34 +393,32 @@
   <xsl:template name="sync-cmd-base-end">
     <xsl:param name="userEnd" />
 
-    <xsl:variable name="myCommandHandleRef">
-      <xsl:call-template name="command-handle-ref" />
+    <xsl:variable name="commandSuccessTest">
+      <EQInternal>
+        <xsl:call-template name="command-handle-ref" />
+        <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+      </EQInternal>
     </xsl:variable>
 
+    <!-- N.B. COMMAND_DENIED, COMMAND_FAILED, COMMAND_INTERFACE_ERROR
+         are handled in the default EndCondition wrapper for user end
+         conditions, so we only need to supply COMMAND_SUCCESS -->
     <EndCondition>
-      <OR>
-        <xsl:sequence select="$userEnd/*" />
-        <EQInternal>
-          <xsl:copy-of select="$myCommandHandleRef" />
-          <NodeCommandHandleValue>COMMAND_DENIED</NodeCommandHandleValue>
-        </EQInternal>
-        <EQInternal>
-          <xsl:copy-of select="$myCommandHandleRef" />
-          <NodeCommandHandleValue>COMMAND_INTERFACE_ERROR</NodeCommandHandleValue>
-        </EQInternal>
-        <EQInternal>
-          <xsl:copy-of select="$myCommandHandleRef" />
-          <NodeCommandHandleValue>COMMAND_FAILED</NodeCommandHandleValue>
-        </EQInternal>
-        <EQInternal>
-          <xsl:copy-of select="$myCommandHandleRef" />
-          <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
-        </EQInternal>
-      </OR>
+      <xsl:choose>
+        <xsl:when test="$userEnd">
+          <OR>
+            <xsl:sequence select="$userEnd/*" />
+            <xsl:sequence select="$commandSuccessTest" />
+          </OR>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:sequence select="$commandSuccessTest" />
+        </xsl:otherwise>
+      </xsl:choose>
     </EndCondition>
   </xsl:template>
 
-  <xsl:template name="sync-cmd-post">
+  <xsl:template name="sync-cmd-base-post">
     <xsl:param name="userPost" />
     <xsl:variable name="checkPostcondition">
       <EQInternal>
