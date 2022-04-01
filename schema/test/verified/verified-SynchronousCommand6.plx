@@ -35,9 +35,12 @@
                      <Node NodeType="Command" epx="SynchronousCommandCommand">
                         <NodeId>ep2cp_SynchronousCommand_cmd</NodeId>
                         <EndCondition>
-                           <IsKnown>
-                              <ArrayVariable>ep2cp_SynchronousCommand_temp</ArrayVariable>
-                           </IsKnown>
+                           <EQInternal>
+                              <NodeCommandHandleVariable>
+                                 <NodeRef dir="self"/>
+                              </NodeCommandHandleVariable>
+                              <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+                           </EQInternal>
                         </EndCondition>
                         <NodeBody>
                            <Command>
@@ -101,9 +104,12 @@
                      <Node NodeType="Command" epx="SynchronousCommandCommand">
                         <NodeId>ep2cp_SynchronousCommand_cmd</NodeId>
                         <EndCondition>
-                           <IsKnown>
-                              <ArrayVariable>ep2cp_SynchronousCommand_temp</ArrayVariable>
-                           </IsKnown>
+                           <EQInternal>
+                              <NodeCommandHandleVariable>
+                                 <NodeRef dir="self"/>
+                              </NodeCommandHandleVariable>
+                              <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+                           </EQInternal>
                         </EndCondition>
                         <NodeBody>
                            <Command>

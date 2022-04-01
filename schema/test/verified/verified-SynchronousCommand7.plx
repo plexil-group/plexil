@@ -13,32 +13,12 @@
          </DeclareVariable>
       </VariableDeclarations>
       <EndCondition>
-         <OR>
-            <EQInternal>
-               <NodeCommandHandleVariable>
-                  <NodeRef dir="self"/>
-               </NodeCommandHandleVariable>
-               <NodeCommandHandleValue>COMMAND_DENIED</NodeCommandHandleValue>
-            </EQInternal>
-            <EQInternal>
-               <NodeCommandHandleVariable>
-                  <NodeRef dir="self"/>
-               </NodeCommandHandleVariable>
-               <NodeCommandHandleValue>COMMAND_INTERFACE_ERROR</NodeCommandHandleValue>
-            </EQInternal>
-            <EQInternal>
-               <NodeCommandHandleVariable>
-                  <NodeRef dir="self"/>
-               </NodeCommandHandleVariable>
-               <NodeCommandHandleValue>COMMAND_FAILED</NodeCommandHandleValue>
-            </EQInternal>
-            <EQInternal>
-               <NodeCommandHandleVariable>
-                  <NodeRef dir="self"/>
-               </NodeCommandHandleVariable>
-               <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
-            </EQInternal>
-         </OR>
+         <EQInternal>
+            <NodeCommandHandleVariable>
+               <NodeRef dir="self"/>
+            </NodeCommandHandleVariable>
+            <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+         </EQInternal>
       </EndCondition>
       <NodeBody>
          <Command>
