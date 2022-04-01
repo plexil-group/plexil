@@ -40,95 +40,7 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
 
   <xs:include schemaLocation='plexil-base.xsd'/>
 
-  <!-- Elements -->
-
-  <xs:element name="Name">
-    <xs:complexType>
-      <xs:group ref="GeneralizedStringExpression"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
-
-  <!-- NodeId is optional in Extended PLEXIL Actions -->
-
-  <!-- This could be implemented as xs:all in XML Schema 1.1,
-       IF we could find a validator that understood it.
-  -->
-  <xs:complexType name="ActionBase">
-    <xs:choice minOccurs="0" maxOccurs="unbounded">
-      <xs:element ref="NodeId" minOccurs="0"/>
-
-      <!-- Annotations for static analysis -->
-      <xs:element ref="Assume" minOccurs="0"/>
-      <xs:element ref="Desire" minOccurs="0"/>
-      <xs:element ref="Expect" minOccurs="0"/>
-
-      <!-- Variable declarations -->
-      <xs:element ref="VariableDeclarations" minOccurs="0"/>
-      <xs:element ref="Interface" minOccurs="0"/>
-
-      <!-- User conditions -->
-      <xs:element ref="StartCondition" minOccurs="0"/>
-      <xs:element ref="RepeatCondition" minOccurs="0"/>
-      <xs:element ref="PreCondition" minOccurs="0"/>
-      <xs:element ref="PostCondition" minOccurs="0"/>
-      <xs:element ref="InvariantCondition" minOccurs="0"/>
-      <xs:element ref="EndCondition" minOccurs="0"/>
-      <xs:element ref="ExitCondition" minOccurs="0"/>
-      <xs:element ref="SkipCondition" minOccurs="0"/>
-
-      <!-- Any number of Comment elements COULD be included
-           if we could implement XML Schema 1.1.
-      -->
-      <xs:element ref="Comment" minOccurs="0"/>
-
-      <!-- Currently only relevant for Assignment nodes -->
-      <xs:element name="Priority" type="xs:nonNegativeInteger" minOccurs="0"/>
-    </xs:choice>
-    <xs:attributeGroup ref="SourceLocators"/>
-  </xs:complexType>
-
-  <!-- NodeId is optional in Extended PLEXIL Node -->
-
-  <!-- NodeType could inherit from ActionBase if
-       we could implement XML Schema 1.1.
-  -->
-  <xs:complexType name="NodeType">
-    <xs:all>
-      <xs:element ref="NodeId" minOccurs="0"/>
-
-      <!-- Annotations for static analysis -->
-      <xs:element ref="Assume" minOccurs="0"/>
-      <xs:element ref="Desire" minOccurs="0"/>
-      <xs:element ref="Expect" minOccurs="0"/>
-
-      <!-- Variable declarations -->
-      <xs:element ref="VariableDeclarations" minOccurs="0"/>
-      <xs:element ref="Interface" minOccurs="0"/>
-
-      <!-- User conditions -->
-      <xs:element ref="StartCondition" minOccurs="0"/>
-      <xs:element ref="RepeatCondition" minOccurs="0"/>
-      <xs:element ref="PreCondition" minOccurs="0"/>
-      <xs:element ref="PostCondition" minOccurs="0"/>
-      <xs:element ref="InvariantCondition" minOccurs="0"/>
-      <xs:element ref="EndCondition" minOccurs="0"/>
-      <xs:element ref="ExitCondition" minOccurs="0"/>
-      <xs:element ref="SkipCondition" minOccurs="0"/>
-
-      <!-- Any number of Comment elements COULD be included
-           if we could implement XML Schema 1.1.
-      -->
-      <xs:element ref="Comment" minOccurs="0"/>
-
-      <!-- Currently only relevant for Assignment nodes -->
-      <xs:element name="Priority" type="xs:nonNegativeInteger" minOccurs="0"/>
-
-      <xs:element ref="NodeBody" minOccurs="0"/>
-    </xs:all>
-    <xs:attributeGroup ref="NodeAttributes"/>
-  </xs:complexType>
-  
+  <!-- Legal actions in a PlexilPlan -->
   <xs:group name="ActionGroup">
     <xs:choice>
       <xs:element ref="Node"/>
@@ -148,167 +60,148 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
     </xs:choice>
   </xs:group>
 
-  <xs:group name="BooleanExpression">
-    <xs:choice>
-      <xs:element ref="BooleanVariable"/>
-      <xs:element ref="BooleanValue"/>
-	  <xs:group ref="LogicalOperator"/>
-	  <xs:group ref="Equality"/>
-	  <xs:group ref="NumericComparison"/>
-      <xs:group ref="KnownTest"/>
-      <xs:group ref="NodeStatePredicate"/>
-      <xs:group ref="NodeOutcomePredicate"/>
-      <xs:group ref="NodeFailurePredicate"/>
+  <!-- Variation to support SequenceType -->
+  <xs:group name="Actions">
+    <xs:all>
+      <xs:element ref="Node" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element ref="Concurrence" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element ref="Sequence" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element ref="CheckedSequence" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element ref="UncheckedSequence" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element ref="Try" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element ref="If" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element ref="Do" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element ref="While" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element ref="For" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element ref="OnCommand" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element ref="OnMessage" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element ref="Wait" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element ref="SynchronousCommand" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:all>
+  </xs:group>
 
-      <!-- Extended PLEXIL macros -->
-      <xs:element ref="IterationSucceeded"/>
-      <xs:element ref="Interrupted"/>
-      <xs:element ref="IterationFailed"/>
-      <xs:element ref="InvariantFailed"/>
-      <xs:element ref="ParentFailed"/>
-      <xs:element ref="PreconditionFailed"/>
-      <xs:element ref="MessageReceived"/>
+  <!-- The NodeId element is optional in Extended PLEXIL Node. -->
+  <xs:complexType name="NodeActionType">
+    <xs:all>
+      <xs:group ref="ActionOptions"/>
+      <xs:element ref="NodeId" minOccurs="0"/>
+      <xs:element ref="NodeBody" minOccurs="0"/>
+    </xs:all>
+    <xs:attribute ref="NodeType" use="required"/>
+    <xs:attributeGroup ref="SourceLocators"/>
+  </xs:complexType>
+
+  <!--
+      Support for higher level control structures in Extended PLEXIL
+  -->
+
+  <!-- 
+       There are certain things I can't find a way to express in XSD
+       1.1...  and one of them is an xs:all group of [0,1] occurrences
+       followed by a sequence.
+
+       The alternatives for approximating this are ugly: a sequence
+       with [0,1] occurrences of these options, which would force an
+       unwanted and Procrustean ordering.  Or this kludge.
+
+       An undesired effect of this approach is that it permits
+       multiple copies of the elements in the xs:choice.  The Standard
+       PLEXIL compiler will never generate such code, and the Exec
+       will catch the error if it gets past the Extended PLEXIL
+       translator (which is likely).  So we live with it.
+  -->
+  <xs:group name="ActionOptionChoices">
+    <xs:choice>
+      <!-- NodeId is optional in Extended PLEXIL -->
+      <xs:element ref="NodeId"/>
+
+      <!-- Annotations for static analysis -->
+      <xs:element ref="Assume"/>
+      <xs:element ref="Desire"/>
+      <xs:element ref="Expect"/>
+
+      <!-- Variable declarations -->
+      <xs:element ref="VariableDeclarations"/>
+      <xs:element ref="Interface"/>
+
+      <!-- User conditions -->
+      <xs:element ref="StartCondition"/>
+      <xs:element ref="RepeatCondition"/>
+      <xs:element ref="PreCondition"/>
+      <xs:element ref="PostCondition"/>
+      <xs:element ref="InvariantCondition"/>
+      <xs:element ref="EndCondition"/>
+      <xs:element ref="ExitCondition"/>
+      <xs:element ref="SkipCondition"/>
+
+      <!-- A Comment element has no effect, and passes through the
+           translator unscathed -->
+      <xs:element ref="Comment"/>
+
+      <!-- Currently only relevant for Assignment nodes -->
+      <xs:element name="Priority" type="xs:nonNegativeInteger"/>
     </xs:choice>
   </xs:group>
 
-  <xs:group name="DeclaredVariable">
-    <xs:choice>
-      <xs:element ref="IntegerVariable"/>
-      <xs:element ref="RealVariable"/>
-      <xs:element ref="BooleanVariable"/>
-      <xs:element ref="StringVariable"/>
-      <xs:element ref="DateVariable"/>
-      <xs:element ref="DurationVariable"/>
-      <xs:element ref="ArrayVariable"/>
-      <xs:element ref="ArrayElement"/>
-    </xs:choice>
-  </xs:group>
+  <!-- When order of subelements is important, e.g. If, For -->
+  <xs:complexType name="OrderedActionType">
+    <xs:sequence>
+      <xs:group ref="ActionOptionChoices" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attributeGroup ref="SourceLocators"/>
+  </xs:complexType>
 
-  <xs:group name="LookupGroup">
-    <xs:choice>
-      <xs:element ref="LookupOnChange"/>
-      <xs:element ref="LookupNow"/>
-      <xs:element ref="Lookup"/>
-    </xs:choice>
-  </xs:group>
+  <!-- When order of subelements is unimportant, e.g. Wait, Sequence -->
+  <xs:complexType name="UnorderedActionType">
+    <xs:all>
+      <xs:group ref="ActionOptions"/>
+      <xs:element ref="NodeId" minOccurs="0"/>
+    </xs:all>
+    <xs:attributeGroup ref="SourceLocators"/>
+  </xs:complexType>
 
-  <xs:group name="NumericExpression">
-    <xs:choice>
-      <xs:group ref="ArithmeticOperator"/>
-      <xs:element ref="IntegerVariable"/>
-      <xs:element ref="RealVariable"/>
-      <xs:element ref="IntegerValue"/>
-      <xs:element ref="RealValue"/>
-      <xs:element ref="DateVariable"/>
-      <xs:element ref="DateValue"/>
-      <xs:element ref="DurationVariable"/>
-      <xs:element ref="DurationValue"/>
-      <xs:element ref="NodeTimepointValue"/>
-      <!-- read operations for arrays-->
-      <xs:element ref="ArraySize"/>
-      <xs:element ref="ArrayMaxSize"/>
-    </xs:choice>
-  </xs:group>
-
-  <xs:group name="Value">
-    <xs:choice>
-      <xs:element ref="IntegerValue"/>
-      <xs:element ref="RealValue"/>
-      <xs:element ref="BooleanValue"/>
-      <xs:element ref="StringValue"/>
-      <xs:element ref="DateValue"/>
-      <xs:element ref="DurationValue"/>
-    </xs:choice>
-  </xs:group>
-
-  <!-- Schema types -->
-
-  <xs:simpleType name="AtomicTypeValues">
-    <xs:restriction base="xs:NMTOKEN">
-      <xs:enumeration value="Integer"/>
-      <xs:enumeration value="Real"/>
-      <xs:enumeration value="Boolean"/>
-      <xs:enumeration value="String"/>
-      <xs:enumeration value="Date"/>
-      <xs:enumeration value="Duration"/>
-    </xs:restriction>
-  </xs:simpleType>
-
-  <xs:simpleType name="ParameterTypeValues">
-    <xs:restriction base="xs:NMTOKEN">
-      <xs:enumeration value="Integer"/>
-      <xs:enumeration value="Real"/>
-      <xs:enumeration value="Boolean"/>
-      <xs:enumeration value="String"/>
-      <xs:enumeration value="Date"/>
-      <xs:enumeration value="Duration"/>
-      <xs:enumeration value="Any"/>
-    </xs:restriction>
-  </xs:simpleType>
-
-  <!-- Extensions to Core Plexil -->
-
-  <xs:element name="DurationVariable" type="xs:NCName"/>
-  <xs:element name="DateVariable" type="xs:NCName"/>
-  
-  <xs:element name="DateValue">
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base="xs:dateTime">
-	      <xs:attributeGroup ref="SourceLocators"/>
-        </xs:extension>
-      </xs:simpleContent>
-    </xs:complexType>
-  </xs:element>
-
-  <xs:element name="DurationValue">
-    <xs:complexType>
-      <xs:simpleContent>
-        <xs:extension base="xs:duration">
-	      <xs:attributeGroup ref="SourceLocators"/>
-        </xs:extension>
-      </xs:simpleContent>
-    </xs:complexType>
-  </xs:element>
-
-  <!-- Sequence forms -->
+  <!-- 
+       Sequence forms
+  -->
 
   <xs:complexType name="SequenceType">
     <xs:complexContent>
-      <xs:extension base="ActionBase">
-        <xs:sequence>
-          <xs:group ref="ActionGroup" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
+      <xs:extension base="UnorderedActionType">
+        <xs:group ref="Actions"/>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
 
-  <!-- Actions are performed concurrently.  This is just a List Node.
-  -->
+  <!-- All actions in a Concurrence are performed concurrently.  This
+       construct translates directly into a NodeList node. -->
   <xs:element name="Concurrence" type="SequenceType"/>
 
-  <!-- Each action in the sequence is performed in the given order.  If
-       one fails, the Sequence form terminates with failure.
-  -->
-  <xs:element name="Sequence" type="SequenceType"/>
-
-  <!-- Each action in the sequence is performed in the given order.  If
-       one fails, the CheckedSequence form terminates with failure.
-  -->
+  <!-- Each action in the CheckedSequence is executed in the given
+       order.  If all succeed, the CheckedSequence terminates with an
+       outcome of SUCCESS.  If any of the action fails, the
+       CheckedSequence form terminates with an outcome of FAILURE. -->
   <xs:element name="CheckedSequence" type="SequenceType"/>
 
-  <!-- Like Sequence, except the actions are not checked for success.
-       They will all be executed -->
+  <!-- Each action in the UncheckedSequence is performed in the given
+       order, irrespective of their outcomes.  A completed
+       UncheckedSequence always has an outcome of SUCCESS. -->
   <xs:element name="UncheckedSequence" type="SequenceType"/>
 
-  <!-- Each action in the sequence is performed in turn, until one of
-       them succeeds; the rest are ignored.  The Try form fails if and
-       only if all its actions fail. -->
+  <!-- Sequence is an alias for CheckedSequence.  It will be aliased
+       to UncheckedSequence in a future release. -->
+  <xs:element name="Sequence" type="SequenceType"/>
+
+  <!-- Each action in a Try form is executed in order until one of
+       them finishes with an outcome of SUCCESS.  The rest are
+       ignored.  The Try form fails if and only if all its actions
+       fail. -->
   <xs:element name="Try" type="SequenceType"/>
 
   <!-- Conditionals and loops -->
 
-  <!-- Common components of the following statements -->
+  <!-- Common components of the following higher level control
+       structures -->
+
   <xs:element name="Condition">
     <xs:complexType>
       <xs:group ref="GeneralizedBooleanExpression"/>
@@ -316,42 +209,45 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
     </xs:complexType>
   </xs:element>
 
-  <xs:complexType name="ActionType">
+  <!-- SimpleActionType consists of a single action, with optional
+       source locator attributes.  Previously named ActionType. -->
+  <xs:complexType name="SimpleActionType">
     <xs:group ref="ActionGroup"/>
     <xs:attributeGroup ref="SourceLocators"/>
   </xs:complexType>
 
-  <xs:element name="Action" type="ActionType"/>
+  <xs:element name="Action" type="SimpleActionType"/>
 
-  <!-- If statement with optional ElseIf and Else. -->
+  <!-- Classic If-Then-ElseIf-Else statement -->
   <xs:element name="If">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="ActionBase">
+        <xs:extension base="OrderedActionType">
           <xs:sequence>
             <xs:element ref="Condition"/>
-            <xs:element name="Then" type="ActionType"/>
+            <xs:element name="Then" type="SimpleActionType"/>
             <xs:element name="ElseIf" minOccurs="0" maxOccurs="unbounded">
               <xs:complexType>
                 <xs:sequence>
                   <xs:element ref="Condition"/>
-                  <xs:element name="Then" type="ActionType"/>
+                  <xs:element name="Then" type="SimpleActionType"/>
                 </xs:sequence>
                 <xs:attributeGroup ref="SourceLocators"/>
               </xs:complexType>
             </xs:element>
-            <xs:element name="Else" type="ActionType" minOccurs="0"/>
+            <xs:element name="Else" type="SimpleActionType" minOccurs="0"/>
           </xs:sequence>
         </xs:extension>
       </xs:complexContent>
     </xs:complexType>
   </xs:element>
 
-  <!-- A classic do-while loop -->
+  <!-- A classic do-while loop, which maps directly into a single Node
+       with a RepeatCondition. -->
   <xs:element name="Do">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="ActionBase">
+        <xs:extension base="OrderedActionType">
           <xs:sequence>
             <xs:element ref="Action"/>
             <xs:element ref="Condition"/>
@@ -365,7 +261,7 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
   <xs:element name="While">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="ActionBase">
+        <xs:extension base="OrderedActionType">
           <xs:sequence>
             <xs:element ref="Condition"/>
             <xs:element ref="Action"/>
@@ -376,14 +272,13 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
   </xs:element>
 
   <!-- A For loop.  First a variable is declared (it must be numeric).
-       Next is a boolean expression that determines when to keep the loop
-       going.  Next is a numeric expression used to update the variable
-       (it is typically a function of the variable).  Finally, actions
-       to execute. -->
+       Next is the while-test condition.  Next is a numeric expression
+       used to update the variable (it is typically a function of the
+       variable).  Finally, an action to execute. -->
   <xs:element name="For">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="ActionBase">
+        <xs:extension base="OrderedActionType">
           <xs:sequence>
             <xs:element name="LoopVariable">
               <xs:complexType>
@@ -407,30 +302,72 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
     </xs:complexType>
   </xs:element>
 
-  <!-- Node Predicates -->
-  <!-- TODO: implement these in the Exec, move to plexil-base schema -->
+  <!-- Specialized actions -->
 
-  <xs:element name="IterationSucceeded" type="node-reference"/>
-  <xs:element name="Interrupted" type="node-reference"/>
-  <xs:element name="IterationFailed" type="node-reference"/>
-  <xs:element name="InvariantFailed" type="node-reference"/>
-  <xs:element name="ParentFailed" type="node-reference"/>
-  <xs:element name="PreconditionFailed" type="node-reference"/>
-
-  <!-- Support for message passing between executives -->
-
-  <!-- Deprecated -->
-  <xs:element name="MessageReceived">
+  <!-- Wait a specified duration, with optional tolerance for the time lookup -->
+  <xs:element name="Wait">
     <xs:complexType>
-      <xs:group ref="GeneralizedStringExpression"/>
-      <xs:attributeGroup ref="SourceLocators"/>
+      <xs:complexContent>
+        <xs:extension base="UnorderedActionType">
+          <xs:all>
+            <xs:element name="Units">
+              <xs:complexType>
+                <xs:group ref="GeneralizedNumericExpression"/>
+                <xs:attributeGroup ref="SourceLocators"/>
+              </xs:complexType>
+            </xs:element>
+            <xs:element ref="Tolerance" minOccurs="0"/>
+          </xs:all>
+        </xs:extension>
+      </xs:complexContent>
     </xs:complexType>
   </xs:element>
 
+  <!-- Command action that waits for its return value or status handle -->
+  <xs:element name="SynchronousCommand">
+    <xs:complexType>
+      <xs:complexContent>
+        <xs:extension base="UnorderedActionType">
+          <xs:all>
+            <xs:element ref="Command"/>
+            <xs:element name="Checked" minOccurs="0"/>
+            <xs:element name="Timeout" minOccurs="0">
+              <xs:complexType>
+                <xs:sequence>
+                  <xs:group ref="GeneralizedNumericExpression"/>
+                  <xs:element ref="Tolerance" minOccurs="0"/>
+                </xs:sequence>
+                <xs:attributeGroup ref="SourceLocators"/>
+              </xs:complexType>
+            </xs:element>
+          </xs:all>
+        </xs:extension>
+      </xs:complexContent>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- 
+       Support for message passing between agents
+
+       These actions depend upon a specific set of commands and
+       lookups implemented by IpcAdapter.
+  -->
+
+  <!-- 
+       Wait to receive the named command from an external agent.  When
+       it is received, perform the action.
+
+       OnCommand utilizes the ReceiveCommand, GetParameter, and
+       SendReturnValue commands as implemented in the IpcAdapter.  The
+       signature and behavior of these commands was not documented
+       until 2021.
+
+       OnCommand may be deprecated in a future release.
+  -->
   <xs:element name="OnCommand">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="ActionBase">
+        <xs:extension base="OrderedActionType">
           <xs:sequence>
             <xs:element ref="Name"/>
             <xs:group ref="ActionGroup" minOccurs="0" maxOccurs="1"/>
@@ -440,10 +377,20 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
     </xs:complexType>
   </xs:element>
 
+  <!-- 
+       Wait to receive the given message (a string) from an external
+       agent.  Upon receipt, perform the action.
+
+       OnMessage utilizes the ReceiveMessage command, as implemented
+       by the IpcAdapter.  The signature and behavior of this command
+       were not documented until 2021.
+
+       OnMessage may be deprecated in a future release.
+  -->
   <xs:element name="OnMessage">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="ActionBase">
+        <xs:extension base="OrderedActionType">
           <xs:sequence>
             <xs:element name="Message">
               <xs:complexType>
@@ -458,60 +405,58 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
     </xs:complexType>
   </xs:element>
 
+  <!-- 
+       MessageReceived was used for message passing in an earlier PLEXIL release.
+       It expands into a wrapper around LookupOnChange.
 
-  <!-- Specialized actions -->
-
-  <!-- Wait a specified duration, with optional tolerance for the time reading -->
-  <xs:element name="Wait">
+       MessageReceived is deprecated and will be removed in the next
+       major releas of PLEXIL.
+  -->
+  <xs:element name="MessageReceived">
     <xs:complexType>
-      <xs:complexContent>
-        <xs:extension base="ActionBase">
-          <xs:sequence>
-            <xs:element name="Units">
-              <xs:complexType>
-                <xs:group ref="GeneralizedNumericExpression"/>
-                <xs:attributeGroup ref="SourceLocators"/>
-              </xs:complexType>
-            </xs:element>
-            <xs:element ref="Tolerance" minOccurs="0"/>
-          </xs:sequence>
-        </xs:extension>
-      </xs:complexContent>
+      <xs:group ref="GeneralizedStringExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
     </xs:complexType>
   </xs:element>
 
-  <!-- Command action that waits for its return value or status handle -->
-  <xs:element name="SynchronousCommand">
-    <xs:complexType>
-      <xs:complexContent>
-        <xs:extension base="ActionBase">
-          <xs:sequence>
-            <xs:group ref="synchronous-command-options"/>
-            <xs:element ref="Command"/>
-          </xs:sequence>
-        </xs:extension>
-      </xs:complexContent>
-    </xs:complexType>
-  </xs:element>
+  <!-- 
+       Conveniences
+  -->
 
-  <!-- The intent is "neither, either, or both of these 
-       in any order, but at most once of each" -->
-  <xs:group name="synchronous-command-options">
-    <xs:all>
-      <xs:element name="Checked" minOccurs="0"/>
-      <xs:element name="Timeout" minOccurs="0">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:group ref="GeneralizedNumericExpression"/>
-            <xs:element ref="Tolerance" minOccurs="0"/>
-          </xs:sequence>
-          <xs:attributeGroup ref="SourceLocators"/>
-        </xs:complexType>
-      </xs:element>
-    </xs:all>
-  </xs:group>
+  <!-- Node reference predicates, combining tests on node state,
+       outcome, and failure type -->
 
-  <!-- Generic lookup form -->
+  <!-- TODO: implement these in the Exec, move to plexil-base schema -->
+
+  <!-- NodeStateVariable == ITERATION_ENDED &&
+       NodeOutcomeVariable == SUCCESS -->
+  <xs:element name="IterationSucceeded" type="node-reference"/>
+
+  <!-- NodeStateVariable == FINISHED &&
+       NodeOutcomeVariable == INTERRUPTED -->
+  <xs:element name="Interrupted" type="node-reference"/>
+
+  <!-- NodeStateVariable == ITERATION_ENDED &&
+       NodeOutcomeVariable == FAILURE -->
+  <xs:element name="IterationFailed" type="node-reference"/>
+
+  <!-- NodeStateVariable == FINISHED &&
+       NodeOutcomeVariable == FAILURE &&
+       NodeFailureVariable == INVARIANT_CONDITION_FAILED -->
+  <xs:element name="InvariantFailed" type="node-reference"/>
+
+  <!-- NodeStateVariable == FINISHED &&
+       NodeOutcomeVariable == FAILURE &&
+       NodeFailureVariable == PARENT_FAILED -->
+  <xs:element name="ParentFailed" type="node-reference"/>
+
+  <!-- NodeStateVariable == FINISHED &&
+       NodeOutcomeVariable == FAILURE &&
+       NodeFailureVariable == PRE_CONDITION_FAILED -->
+  <xs:element name="PreconditionFailed" type="node-reference"/>
+
+  <!-- Generalized lookup form expands to LookupNow or LookupOnChange
+       as appropriate for the context -->
   <xs:element name="Lookup">
     <xs:complexType>
       <xs:sequence>
@@ -522,5 +467,161 @@ that are translated into Core PLEXIL for execution (see translate.xsl).
       <xs:attributeGroup ref="SourceLocators"/>
     </xs:complexType>
   </xs:element>
+
+  <!-- Lookup can be used anywhere LookupNow or LookupOnChange is legal -->
+  <xs:group name="LookupGroup">
+    <xs:choice>
+      <xs:element ref="LookupOnChange"/>
+      <xs:element ref="LookupNow"/>
+      <xs:element ref="Lookup"/>
+    </xs:choice>
+  </xs:group>
+
+  <!-- Extended PLEXIL allows the Name of a Command or Lookup to be
+       either a literal string value, or a string-valued
+       expression. -->
+  <xs:element name="Name">
+    <xs:complexType>
+      <xs:group ref="GeneralizedStringExpression"/>
+      <xs:attributeGroup ref="SourceLocators"/>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- BooleanExpression adds the new node predicates -->
+  <xs:group name="BooleanExpression">
+    <xs:choice>
+      <xs:element ref="BooleanVariable"/>
+      <xs:element ref="BooleanValue"/>
+	  <xs:group ref="LogicalOperator"/>
+	  <xs:group ref="Equality"/>
+	  <xs:group ref="NumericComparison"/>
+      <xs:group ref="KnownTest"/>
+      <xs:group ref="NodeStatePredicate"/>
+      <xs:group ref="NodeOutcomePredicate"/>
+      <xs:group ref="NodeFailurePredicate"/>
+
+      <!-- New node predicates -->
+      <xs:element ref="IterationSucceeded"/>
+      <xs:element ref="Interrupted"/>
+      <xs:element ref="IterationFailed"/>
+      <xs:element ref="InvariantFailed"/>
+      <xs:element ref="ParentFailed"/>
+      <xs:element ref="PreconditionFailed"/>
+
+      <!-- MessageReceived macro (DEPRECATED) -->
+      <xs:element ref="MessageReceived"/>
+    </xs:choice>
+  </xs:group>
+
+  <!-- 
+       Date and duration
+  -->
+
+  <!-- DateValue accepts ISO 8601 date values -->
+  <xs:element name="DateValue">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:dateTime">
+	      <xs:attributeGroup ref="SourceLocators"/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- DurationValue accepts ISO 8601 duration values -->
+  <xs:element name="DurationValue">
+    <xs:complexType>
+      <xs:simpleContent>
+        <xs:extension base="xs:duration">
+	      <xs:attributeGroup ref="SourceLocators"/>
+        </xs:extension>
+      </xs:simpleContent>
+    </xs:complexType>
+  </xs:element>
+
+  <!-- Date and Duration typed variables -->
+  <xs:element name="DurationVariable" type="xs:NCName"/>
+  <xs:element name="DateVariable" type="xs:NCName"/>
+
+  <!-- Date and duration values and variables are legal numeric expressions -->
+  <xs:group name="NumericExpression">
+    <xs:choice>
+      <xs:group ref="ArithmeticOperator"/>
+      <xs:element ref="IntegerValue"/>
+      <xs:element ref="IntegerVariable"/>
+      <xs:element ref="RealValue"/>
+      <xs:element ref="RealVariable"/>
+      <xs:element ref="DateValue"/>
+      <xs:element ref="DateVariable"/>
+      <xs:element ref="DurationValue"/>
+      <xs:element ref="DurationVariable"/>
+      <xs:element ref="NodeTimepointValue"/>
+      <!-- array attributes -->
+      <xs:element ref="ArraySize"/>
+      <xs:element ref="ArrayMaxSize"/>
+    </xs:choice>
+  </xs:group>
+
+  <!-- DateVariable and DurationVariable can be used just like other
+       variables. -->
+  <xs:group name="DeclaredVariable">
+    <xs:choice>
+      <xs:element ref="IntegerVariable"/>
+      <xs:element ref="RealVariable"/>
+      <xs:element ref="BooleanVariable"/>
+      <xs:element ref="StringVariable"/>
+      <xs:element ref="DateVariable"/>
+      <xs:element ref="DurationVariable"/>
+      <xs:element ref="ArrayVariable"/>
+      <xs:element ref="ArrayElement"/>
+    </xs:choice>
+  </xs:group>
+
+  <!-- Legal scalar literal values -->
+  <!-- Note: ArrayValue is not included here because arrays
+       are handled independently (and NOT supported in places
+       were Value is) -->
+  <xs:group name="Value">
+    <xs:choice>
+      <xs:element ref="IntegerValue"/>
+      <xs:element ref="RealValue"/>
+      <xs:element ref="BooleanValue"/>
+      <xs:element ref="StringValue"/>
+      <xs:element ref="DateValue"/>
+      <xs:element ref="DurationValue"/>
+    </xs:choice>
+  </xs:group>
+
+  <!-- Schema types -->
+
+  <!-- AtomicTypeValues are legal types names in DeclareVariable,
+       DeclareArray, the Type attribute of ArrayValue, and Return
+       elements of CommandDeclaration and StateDeclaration.
+
+       Extended PLEXIL adds Date and Duration to the legal types. -->
+  <xs:simpleType name="AtomicTypeValues">
+    <xs:restriction base="xs:NMTOKEN">
+      <xs:enumeration value="Integer"/>
+      <xs:enumeration value="Real"/>
+      <xs:enumeration value="Boolean"/>
+      <xs:enumeration value="String"/>
+      <xs:enumeration value="Date"/>
+      <xs:enumeration value="Duration"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Legal types in parameter declarations include all of atomic
+       type values, plus the "Any" type. -->
+  <xs:simpleType name="ParameterTypeValues">
+    <xs:restriction base="xs:NMTOKEN">
+      <xs:enumeration value="Integer"/>
+      <xs:enumeration value="Real"/>
+      <xs:enumeration value="Boolean"/>
+      <xs:enumeration value="String"/>
+      <xs:enumeration value="Date"/>
+      <xs:enumeration value="Duration"/>
+      <xs:enumeration value="Any"/>
+    </xs:restriction>
+  </xs:simpleType>
 
 </xs:schema>

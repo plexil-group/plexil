@@ -3,7 +3,7 @@
 <!DOCTYPE schema PUBLIC "-//W3C//DTD XMLSCHEMA 200102//EN" "http://www.w3.org/2001/XMLSchema.dtd" >
 
 <!--
-* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -44,50 +44,35 @@
 
   <xs:include schemaLocation='plexil-base.xsd' />
 
-  <!-- Elements -->
-
+  <!-- Legal top-level elements in a PlexilPlan -->
   <xs:group name="ActionGroup">
     <xs:choice>
       <xs:element ref="Node"/>
     </xs:choice>
   </xs:group>
 
-  <!-- NodeId is required in Safe Plexil. -->
-  <xs:complexType name="NodeType">
+  <!-- The type of the Node element -->
+  <!-- NodeId is required in Safe PLEXIL. -->
+  <xs:complexType name="NodeActionType">
     <xs:all>
+      <xs:group ref="ActionOptions"/>
       <xs:element ref="NodeId"/>
-
-      <!-- Annotations for static analysis -->
-      <xs:element ref="Assume" minOccurs="0"/>
-      <xs:element ref="Desire" minOccurs="0"/>
-      <xs:element ref="Expect" minOccurs="0"/>
-
-      <!-- Variable declarations -->
-      <xs:element ref="VariableDeclarations" minOccurs="0"/>
-      <xs:element ref="Interface" minOccurs="0"/>
-
-      <!-- User conditions -->
-      <xs:element ref="StartCondition" minOccurs="0"/>
-      <xs:element ref="RepeatCondition" minOccurs="0"/>
-      <xs:element ref="PreCondition" minOccurs="0"/>
-      <xs:element ref="PostCondition" minOccurs="0"/>
-      <xs:element ref="InvariantCondition" minOccurs="0"/>
-      <xs:element ref="EndCondition" minOccurs="0"/>
-      <xs:element ref="ExitCondition" minOccurs="0"/>
-      <xs:element ref="SkipCondition" minOccurs="0"/>
-
-      <!-- Any number of Comment elements COULD be included
-           if we could implement XML Schema 1.1.
-      -->
-      <xs:element ref="Comment" minOccurs="0"/>
-
-      <!-- Currently only relevant for Assignment nodes -->
-      <xs:element name="Priority" type="xs:nonNegativeInteger" minOccurs="0"/>
-
       <xs:element ref="NodeBody" minOccurs="0"/>
     </xs:all>
-    <xs:attributeGroup ref="NodeAttributes"/>
+    <xs:attribute ref="NodeType" use="required"/>
+    <xs:attributeGroup ref="SourceLocators"/>
   </xs:complexType>
+
+  <xs:group name="LookupGroup">
+    <xs:choice>
+      <xs:element ref="LookupOnChange"/>
+      <xs:element ref="LookupNow"/>
+    </xs:choice>
+  </xs:group>
+
+  <!-- Safe PLEXIL requires the Name of a Command or Lookup to be a
+       literal string value. -->
+  <xs:element name="Name" type="xs:string"/>
 
   <xs:group name="BooleanExpression">
     <xs:choice>
@@ -103,6 +88,20 @@
     </xs:choice>
   </xs:group>
 
+  <xs:group name="NumericExpression">
+    <xs:choice>
+	  <xs:group ref="ArithmeticOperator"/>
+      <xs:element ref="IntegerVariable"/>
+      <xs:element ref="RealVariable"/>
+      <xs:element ref="IntegerValue"/>
+      <xs:element ref="RealValue"/>
+      <xs:element ref="NodeTimepointValue"/>
+      <!-- array attributes -->
+      <xs:element ref="ArraySize"/>
+      <xs:element ref="ArrayMaxSize"/>
+    </xs:choice>
+  </xs:group>
+
   <xs:group name="DeclaredVariable">
     <xs:choice>
       <xs:element ref="IntegerVariable"/>
@@ -114,29 +113,7 @@
     </xs:choice>
   </xs:group>
 
-  <xs:group name="LookupGroup">
-    <xs:choice>
-      <xs:element ref="LookupOnChange"/>
-      <xs:element ref="LookupNow"/>
-    </xs:choice>
-  </xs:group>
-
-  <xs:element name="Name" type="xs:string"/>
-
-  <xs:group name="NumericExpression">
-    <xs:choice>
-	  <xs:group ref="ArithmeticOperator"/>
-      <xs:element ref="IntegerVariable"/>
-      <xs:element ref="RealVariable"/>
-      <xs:element ref="IntegerValue"/>
-      <xs:element ref="RealValue"/>
-      <xs:element ref="NodeTimepointValue"/>
-      <!-- read operations for arrays-->
-      <xs:element ref="ArraySize"/>
-      <xs:element ref="ArrayMaxSize"/>
-    </xs:choice>
-  </xs:group>
-
+  <!-- Legal scalar literal values -->
   <!-- Note: ArrayValue is not included here because arrays
        are handled independently (and NOT supported in places
        were Value is) -->
@@ -151,6 +128,9 @@
 
   <!-- Schema types -->
 
+  <!-- AtomicTypeValues are legal types names in DeclareVariable,
+       DeclareArray, the Type attribute of ArrayValue, and Return
+       elements of CommandDeclaration and StateDeclaration. -->
   <xs:simpleType name="AtomicTypeValues">
     <xs:restriction base="xs:NMTOKEN">
       <xs:enumeration value="Integer"/>
@@ -159,7 +139,11 @@
       <xs:enumeration value="String"/>
     </xs:restriction>
   </xs:simpleType>
+
+  <!-- Legal types in parameter declarations are restricted to the
+       atomic type values above. -->
   <xs:simpleType name="ParameterTypeValues">
     <xs:restriction base="AtomicTypeValues" />
   </xs:simpleType>
+
 </xs:schema>
