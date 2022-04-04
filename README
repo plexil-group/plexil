@@ -14,9 +14,9 @@ Software requirements
 ---------------------
 
 The complete PLEXIL suite should run on most recent versions of Linux
-(including Microsoft Windows Subsystem for Linux) and Mac OS X. It
-builds on FreeBSD as well, but is not actively supported on this
-platform.
+(including Microsoft Windows Subsystem for Linux) and Mac OS X.  It is
+actively supported on these platforms.  It is known to build on
+FreeBSD as well, but is not actively supported on this platform.
 
 Building the PLEXIL tool suite from source requires the following
 software:
@@ -33,7 +33,7 @@ If you downloaded a tarball, the GNU autotools and gperf are not
 needed.
 
 The robosim example program also requires the X11 libraries freeglut,
-libxi, libxmu and their header files.
+libxi, libxmu, and their header files.
 
 
 How to build PLEXIL - Simple version
@@ -60,7 +60,7 @@ How to run PLEXIL - Simple version
   export PLEXIL_HOME='/where/i/cloned/plexil'
   . "$PLEXIL_HOME/scripts/plexil-setup.sh"
 
-2. Source the init file you just edited:
+2. Source the shell init file you just edited:
 
   . ~/.bashrc
 
@@ -96,7 +96,7 @@ If you have just updated your git clone from a previous build, you may
 need to precede the 'make all' with either of:
 
  make clean
- make squeaky-clean
+ make distclean
 
 The latter is sometimes needed when make or autotools files have
 changed.
