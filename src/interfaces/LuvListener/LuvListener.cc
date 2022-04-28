@@ -50,22 +50,6 @@ namespace PLEXIL
 	  m_block(false),
 	  m_ignoreConnectFailure(true)
   {
-    // Parse XML
-    char const *hostname = xml.attribute(LUV_HOSTNAME_ATTR()).value();
-    if (hostname && *hostname)
-      m_host = strdup(hostname);
-    else
-      m_host = strdup(LUV_DEFAULT_HOSTNAME());
-
-    pugi::xml_attribute portattr = xml.attribute(LUV_PORT_ATTR());
-    if (portattr)
-      m_port = portattr.as_uint(0);
-    if (!m_port)
-      m_port = LUV_DEFAULT_PORT();
-    
-    pugi::xml_attribute blockattr = xml.attribute(LUV_BLOCKING_ATTR());
-    if (blockattr)
-      m_block = blockattr.as_bool(false);
   }
 
   LuvListener::LuvListener(const std::string& host, 
@@ -93,22 +77,29 @@ namespace PLEXIL
   {
     // parse XML to find host, port, blocking flag
     pugi::xml_node const xml = this->getXml();
-	if (xml.empty())
-	  // Have to presume that things were constructed correctly
+	if (xml.empty()) {
+	  // Default host and port values if not set
+      if (!*m_host) {
+        free((void *) m_host);
+        m_host = strdup(LUV_DEFAULT_HOSTNAME());
+      }
+      if (!m_port) {
+        m_port = LUV_DEFAULT_PORT();
+      }
 	  return true;
+    }
 
 	pugi::xml_attribute hostAttr = xml.attribute(LUV_HOSTNAME_ATTR());
     if (hostAttr.empty()) {
 	  debugMsg("LuvListener:initialize",
 			   " no " << LUV_HOSTNAME_ATTR()
 			   << " attribute found, using default host " << LUV_DEFAULT_HOSTNAME());
-	  m_host = LUV_DEFAULT_HOSTNAME();
+      m_host = strdup(LUV_DEFAULT_HOSTNAME());
 	}
 	else {
 	  // FIXME: add sanity check?
-	  m_host = hostAttr.value();
+	  m_host = strdup(hostAttr.value());
 	}
-
 
 	pugi::xml_attribute portAttr = xml.attribute(LUV_PORT_ATTR());
     if (portAttr.empty()) {
