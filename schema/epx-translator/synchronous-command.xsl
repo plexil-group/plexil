@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,247 +36,239 @@
 
   <!-- SynchronousCommand -->
 
-  <!-- FIXME: Simplify -->
-
   <xsl:template match="SynchronousCommand">
-    <Node NodeType="NodeList" epx="SynchronousCommand">
+
+    <xsl:variable name="expandedCommand">
+      <xsl:apply-templates select="Command" />
+    </xsl:variable>
+
+    <!-- Is the command return value used? -->
+    <xsl:variable name="assignmentVariable">
+      <xsl:call-template name="assignment-variable">
+        <xsl:with-param name="context" select="$expandedCommand/Command" />
+      </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:choose>
+      <xsl:when test="$assignmentVariable/*">
+        <xsl:call-template name="sync-cmd-with-return">
+          <xsl:with-param name="assignmentVariable"
+                          select="$assignmentVariable/*" />
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="sync-cmd-base" />
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <!-- 
+       If the Command invocation assigns the return value, the Command
+       node's end condition is that the return value is known.  Since
+       the result variable's value may already be known at entry, we
+       have to declare a temporary variable to receive the return
+       value.  This means wrapping a list node around the Command
+       element.
+
+       In the case of an ArrayVariable or ArrayElement, we have to
+       find the declaration of the array to identify the element type,
+       both for the temporary variable declaration, and for
+       ArrayElement, the RHS element of the Assignment node as well.
+  -->
+
+  <xsl:template name="sync-cmd-with-return">
+    <xsl:param name="assignmentVariable" required="yes" />
+
+    <xsl:variable name="tempVarName"
+                  select="tr:prefix('SynchronousCommand_temp')" />
+
+    <xsl:choose>
+      <xsl:when test="$assignmentVariable[name()='ArrayElement']">
+        <xsl:call-template name="sync-cmd-with-array-elt-var">
+          <xsl:with-param name="assignmentVariable" select="$assignmentVariable" />
+          <xsl:with-param name="tempVarName" select="$tempVarName" />
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:when test="$assignmentVariable[name()='ArrayVariable']">
+        <xsl:call-template name="sync-cmd-with-array-result-var">
+          <xsl:with-param name="assignmentVariable" select="$assignmentVariable" />
+          <xsl:with-param name="tempVarName" select="$tempVarName" />
+        </xsl:call-template>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:call-template name="sync-cmd-with-scalar-result-var">
+          <xsl:with-param name="assignmentVariable" select="$assignmentVariable" />
+          <xsl:with-param name="tempVarName" select="$tempVarName" />
+        </xsl:call-template>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="sync-cmd-with-scalar-result-var">
+    <xsl:param name="assignmentVariable" required="yes" />
+    <xsl:param name="tempVarName" required="yes" />
+
+    <xsl:variable name="tempVarType">
+      <xsl:value-of select="fn:substring-before(name($assignmentVariable),'Variable')" />
+    </xsl:variable>
+
+    <xsl:call-template name="sync-cmd-return-common">
+      <xsl:with-param name="assignmentVariable" select="$assignmentVariable" />
+      <xsl:with-param name="tempVarType" select="$tempVarType" />
+      <xsl:with-param name="tempVarRef">
+        <xsl:element name="{$assignmentVariable/name()}">
+          <xsl:value-of select="$tempVarName" />
+        </xsl:element>
+      </xsl:with-param>
+      <xsl:with-param name="tempVarDecl">
+        <DeclareVariable>
+          <Name><xsl:value-of select="$tempVarName" /></Name>
+          <Type><xsl:value-of select="$tempVarType" /></Type>
+        </DeclareVariable>
+      </xsl:with-param>
+    </xsl:call-template>
+  </xsl:template>
+
+  <xsl:template name="sync-cmd-with-array-result-var" >
+    <xsl:param name="assignmentVariable" required="yes" />
+    <xsl:param name="tempVarName" required="yes" />
+
+    <xsl:variable name="arrayDecl">
+      <xsl:call-template name="array-declaration">
+        <xsl:with-param name="array-name"
+                        select="$assignmentVariable/text()" />
+      </xsl:call-template>
+    </xsl:variable>
+
+    <xsl:call-template name="sync-cmd-return-common">
+      <xsl:with-param name="assignmentVariable" select="$assignmentVariable" />
+      <xsl:with-param name="tempVarType">Array</xsl:with-param>
+      <xsl:with-param name="tempVarRef">
+        <xsl:element name="{name($assignmentVariable)}">
+          <xsl:value-of select="$tempVarName" />
+        </xsl:element>
+      </xsl:with-param>
+      <xsl:with-param name="tempVarDecl">
+        <DeclareArray>
+          <Name><xsl:value-of select="$tempVarName" /></Name>
+          <xsl:copy-of select="$arrayDecl/DeclareArray/Type" />
+          <xsl:copy-of select="$arrayDecl/DeclareArray/MaxSize" />
+        </DeclareArray>
+      </xsl:with-param>
+    </xsl:call-template>
+  </xsl:template>
+
+  <xsl:template name="sync-cmd-with-array-elt-var">
+    <xsl:param name="assignmentVariable" required="yes" />
+    <xsl:param name="tempVarName" required="yes" />
+
+    <!-- N.B. Anything other than a <Name> or <ArrayVariable> is doomed to fail. -->
+    <xsl:variable name="arrayDecl">
+      <xsl:call-template name="array-declaration">
+        <xsl:with-param name="array-name"
+                        select="$assignmentVariable/(Name|ArrayVariable)/text()" />
+      </xsl:call-template>
+    </xsl:variable>
+    <xsl:variable name="tempVarType"
+                  select="$arrayDecl/Type/text()" />
+
+    <xsl:call-template name="sync-cmd-return-common">
+      <xsl:with-param name="assignmentVariable" select="$assignmentVariable" />
+      <xsl:with-param name="tempVarType" select="$tempVarType" />
+      <xsl:with-param name="tempVarRef">
+        <xsl:element name="{concat($tempVarType, 'Variable')}">
+          <xsl:value-of select="$tempVarName" />
+        </xsl:element>
+      </xsl:with-param>
+      <xsl:with-param name="tempVarDecl">
+        <DeclareVariable>
+          <Name><xsl:value-of select="$tempVarName" /></Name>
+          <xsl:copy-of select="$arrayDecl/Type" />
+        </DeclareVariable>
+      </xsl:with-param>
+    </xsl:call-template>
+  </xsl:template>
+
+  <!-- Common components of above -->
+  <xsl:template name="sync-cmd-return-common">
+    <xsl:param name="assignmentVariable" required="yes" />
+    <xsl:param name="tempVarDecl" required="yes" />
+    <xsl:param name="tempVarRef" required="yes" />
+    <xsl:param name="tempVarType" required="yes" />
+
+    <xsl:variable name="commandNodeId">
+      <xsl:value-of select="tr:prefix('SynchronousCommand_cmd')" />
+    </xsl:variable>
+    <xsl:variable name="assignNodeId">
+      <xsl:value-of select="tr:prefix('SynchronousCommand_assign')"/>
+    </xsl:variable>
+
+    <xsl:variable name="userConditions">
+      <xsl:apply-templates select="tr:conditions(.)" />
+    </xsl:variable>
+
+    <xsl:variable name="resultRHS">
+      <xsl:choose>
+        <xsl:when test="$tempVarType = 'Array'
+                        or $tempVarType = 'Boolean'
+                        or $tempVarType = 'String'">
+          <xsl:value-of select="concat($tempVarType, 'RHS')" />
+        </xsl:when>
+        <xsl:otherwise>NumericRHS</xsl:otherwise>
+      </xsl:choose>
+    </xsl:variable>
+
+    <Node NodeType="NodeList" epx="SynchronousCommand_wrapper">
       <xsl:call-template name="copy-source-locator-attributes" />
       <xsl:call-template name="ensure-unique-node-id" />
-      <xsl:call-template name="standard-preamble" />
-      <NodeBody>
-        <NodeList>
-          <xsl:choose>
-            <xsl:when test="Command/*[fn:ends-with(fn:name(), 'Variable')]">
-              <xsl:call-template name="command-with-return" />
-            </xsl:when>
-            <xsl:otherwise>
-              <xsl:call-template name="command-without-return" />
-            </xsl:otherwise>
-          </xsl:choose>
-        </NodeList>
-      </NodeBody>
-    </Node>
-  </xsl:template>
+      <xsl:call-template name="handle-common-clauses" />
+      <xsl:apply-templates select="UsingMutex" />
+      <VariableDeclarations>
+        <xsl:apply-templates select="VariableDeclarations/*" />
+        <xsl:sequence select="$tempVarDecl" />
+      </VariableDeclarations>
 
-  <xsl:template name="command-with-return">
-    <Node NodeType="NodeList" epx="aux">
-      <NodeId generated="1">
-        <xsl:value-of select="tr:prefix('SynchronousCommandAux')" />
-      </NodeId>
-      <xsl:choose>
-        <xsl:when test="Command/ArrayVariable">
-          <xsl:call-template name="command-with-array-return-body" />
-        </xsl:when>
-        <xsl:otherwise>
-          <xsl:call-template name="command-with-scalar-return-body" />
-        </xsl:otherwise>
-      </xsl:choose>
-    </Node>
-  </xsl:template>
-
-  <xsl:template name="command-with-scalar-return-body">
-    <xsl:variable name="return" select="tr:prefix('return')"/>
-    <xsl:variable name="orig-ref"
-                  select="Command/(BooleanVariable|IntegerVariable|RealVariable|StringVariable)" />
-    <xsl:variable name="var-type" select="fn:substring-before(name($orig-ref), 'Variable')" />
-    <xsl:variable name="ref">
-      <xsl:element name="{name($orig-ref)}">
-        <xsl:value-of select="$return"/>
-      </xsl:element>
-    </xsl:variable>
-
-    <VariableDeclarations>
-      <xsl:call-template name="declare-variable">
-        <xsl:with-param name="name" select="$return"/>
-        <xsl:with-param name="type" select="$var-type"/>
+      <xsl:sequence select="$userConditions/* except InvariantCondition" />
+      <xsl:call-template name="sync-cmd-wrapper-invariant">
+        <xsl:with-param name="userInvariant" select="$userConditions/InvariantCondition" />
       </xsl:call-template>
-    </VariableDeclarations>
-    <xsl:if test="Timeout">
-      <InvariantCondition>
-        <xsl:call-template name="timed-out">
-          <xsl:with-param name="element" select="Timeout/*"/>
-        </xsl:call-template>
-      </InvariantCondition>
-    </xsl:if>
-    <NodeBody>
-      <NodeList>
-        <Node NodeType="Command" epx="aux">
-          <NodeId generated="1">
-            <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
-          </NodeId>
-          <EndCondition>
-            <IsKnown><xsl:sequence select="$ref"/></IsKnown>
-          </EndCondition>
-          <NodeBody>
-            <Command>
-              <xsl:sequence select="Command/ResourceList"/>
-              <xsl:sequence select="$ref"/>
-              <xsl:sequence select="Command/Name"/>
-              <xsl:sequence select="Command/Arguments"/>
-            </Command>
-          </NodeBody>
-        </Node>
-        <Node NodeType="Assignment" epx="aux">
-          <NodeId generated="1">
-            <xsl:value-of select="tr:prefix('SynchronousCommandAssignment')" />
-          </NodeId>
-          <StartCondition>
-            <Finished>
-              <NodeRef dir="sibling">
-                <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
-              </NodeRef>
-            </Finished>
-          </StartCondition>
-          <NodeBody>
-            <Assignment>
-              <xsl:sequence select="$orig-ref"/>
-              <xsl:choose>
-                <xsl:when test="Command/BooleanVariable">
-                  <BooleanRHS><xsl:sequence select="$ref"/></BooleanRHS>
-                </xsl:when>
-                <xsl:when test="Command/StringVariable">
-                  <StringRHS><xsl:sequence select="$ref"/></StringRHS>
-                </xsl:when>
-                <xsl:otherwise>
-                  <NumericRHS><xsl:sequence select="$ref"/></NumericRHS>
-                </xsl:otherwise>
-              </xsl:choose>
-            </Assignment>
-          </NodeBody>
-        </Node>
-      </NodeList>
-    </NodeBody>
-  </xsl:template>
 
-  <xsl:template name="command-with-array-return-body">
-    <xsl:variable name="return" select="tr:prefix('return')"/>
-    <xsl:variable name="array_name" select="Command/ArrayVariable"/>
-    <xsl:variable name="ref">
-      <ArrayVariable> <xsl:value-of select="$return"/> </ArrayVariable>
-    </xsl:variable>
-
-    <VariableDeclarations>
-      <DeclareArray>
-        <Name><xsl:value-of select="$return"/></Name>
-        <!-- A royal hack!  Couldn't find a more compact expression that worked. -->
-        <xsl:choose>
-          <!-- First see if the array we are proxying is local -->
-          <xsl:when test="VariableDeclarations/DeclareArray[Name = $array_name][last()]">
-            <xsl:sequence select="VariableDeclarations/DeclareArray[Name = $array_name][last()]/Type"/>
-            <xsl:sequence select="VariableDeclarations/DeclareArray[Name = $array_name][last()]/MaxSize"/>
-            <!-- Otherwise find it in the closest ancestor -->
-          </xsl:when>
-          <xsl:when test="ancestor::*/VariableDeclarations/DeclareArray[Name = $array_name][last()]">
-            <xsl:sequence select="ancestor::*/VariableDeclarations/DeclareArray[Name = $array_name][last()]/Type"/>
-            <xsl:sequence select="ancestor::*/VariableDeclarations/DeclareArray[Name = $array_name][last()]/MaxSize"/>
-          </xsl:when>
-        </xsl:choose>
-      </DeclareArray>
-    </VariableDeclarations>
-    <xsl:if test="Timeout">
-      <InvariantCondition>
-        <xsl:call-template name="timed-out">
-          <xsl:with-param name="element" select="Timeout/*"/>
-        </xsl:call-template>
-      </InvariantCondition>
-    </xsl:if>
-    <NodeBody>
-      <NodeList>
-        <Node NodeType="Command" epx="aux">
-          <NodeId generated="1">
-            <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
-          </NodeId>
-          <EndCondition>
-            <IsKnown>
-              <ArrayElement>
-                <xsl:sequence select="$ref"/>
-                <Index><IntegerValue>0</IntegerValue></Index>
-              </ArrayElement>
-            </IsKnown>
-          </EndCondition>
-          <NodeBody>
-            <Command>
-              <xsl:sequence select="Command/ResourceList"/>
-              <xsl:sequence select="$ref"/>
-              <xsl:sequence select="Command/Name"/>
-              <xsl:sequence select="Command/Arguments"/>
-            </Command>
-          </NodeBody>
-        </Node>
-        <Node NodeType="Assignment" epx="aux">
-          <NodeId generated="1">
-            <xsl:value-of select="tr:prefix('SynchronousCommandAssignment')" />
-          </NodeId>
-          <StartCondition>
-            <Finished>
-              <NodeRef dir="sibling">
-                <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
-              </NodeRef>
-            </Finished>
-          </StartCondition>
-          <NodeBody>
-            <Assignment>
-              <xsl:sequence select="$array_name"/>
-              <ArrayRHS><xsl:sequence select="$ref"/></ArrayRHS>
-            </Assignment>
-          </NodeBody>
-        </Node>
-      </NodeList>
-    </NodeBody>
-  </xsl:template>
-  
-  <xsl:template name="command-without-return">
-    <Node NodeType="NodeList" epx="aux">
-      <NodeId generated="1">
-        <xsl:value-of select="tr:prefix('SynchronousCommandAux')" />
-      </NodeId>
-      <xsl:if test="Timeout">
-        <InvariantCondition>
-          <xsl:call-template name="timed-out">
-            <xsl:with-param name="element" select="Timeout/*"/>
-          </xsl:call-template>
-        </InvariantCondition>
-      </xsl:if>
       <NodeBody>
         <NodeList>
-          <Node NodeType="Command" epx="aux">
-            <NodeId generated="1">
-              <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
-            </NodeId>
+          <Node NodeType="Command" epx="SynchronousCommandCommand">
+            <NodeId><xsl:value-of select="$commandNodeId" /></NodeId>
+            <xsl:call-template name="sync-cmd-cmd-invariant" />
             <EndCondition>
-              <OR>
-                <EQInternal>
-                  <NodeCommandHandleVariable>
-                    <NodeId>
-                      <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
-                    </NodeId>
-                  </NodeCommandHandleVariable>
-                  <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
-                </EQInternal>
-                <EQInternal>
-                  <NodeCommandHandleVariable>
-                    <NodeId>
-                      <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
-                    </NodeId>
-                  </NodeCommandHandleVariable>
-                  <NodeCommandHandleValue>COMMAND_FAILED</NodeCommandHandleValue>
-                </EQInternal>
-                <EQInternal>
-                  <NodeCommandHandleVariable>
-                    <NodeId>
-                      <xsl:value-of select="tr:prefix('SynchronousCommandCommand')" />
-                    </NodeId>
-                  </NodeCommandHandleVariable>
-                  <NodeCommandHandleValue>COMMAND_DENIED</NodeCommandHandleValue>
-                </EQInternal>
-              </OR>
+              <EQInternal>
+                <xsl:call-template name="command-handle-ref"/>
+                <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+              </EQInternal>
             </EndCondition>
+            <xsl:if test="Checked">
+              <PostCondition>
+                <IsKnown><xsl:copy-of select="$tempVarRef" /></IsKnown>
+              </PostCondition>
+            </xsl:if>
             <NodeBody>
               <Command>
-                <xsl:sequence select="Command/ResourceList"/>
-                <xsl:sequence select="Command/Name"/>
-                <xsl:sequence select="Command/Arguments"/>
+                <xsl:apply-templates select="Command/ResourceList" />                  
+                <xsl:copy-of select="$tempVarRef" />
+                <xsl:apply-templates select="Command/(Name|Arguments)" />
               </Command>
+            </NodeBody>
+          </Node>
+          <Node NodeType="Assignment" epx="SynchronousCommandAssignment">
+            <NodeId><xsl:value-of select="$assignNodeId" /></NodeId>
+            <StartCondition>
+              <IsKnown><xsl:copy-of select="$tempVarRef" /></IsKnown>
+            </StartCondition>
+            <NodeBody>
+              <Assignment>
+                <xsl:copy-of select="$assignmentVariable" />
+                <xsl:element name="{$resultRHS}">
+                  <xsl:copy-of select="$tempVarRef" />
+                </xsl:element>
+              </Assignment>
             </NodeBody>
           </Node>
         </NodeList>
@@ -284,5 +276,194 @@
     </Node>
   </xsl:template>
 
-</xsl:transform>
+  <xsl:template name="sync-cmd-wrapper-invariant">
+    <xsl:param name="userInvariant" />
 
+    <xsl:choose>
+      <xsl:when test="Checked and $userInvariant">
+        <InvariantCondition>
+          <AND>
+            <xsl:sequence select="$userInvariant/*"/>
+            <NoChildFailed>
+              <NodeRef dir="self" />
+            </NoChildFailed>
+          </AND>
+        </InvariantCondition>
+      </xsl:when>
+      <xsl:when test="Checked">
+        <InvariantCondition>
+          <NoChildFailed>
+            <NodeRef dir="self" />
+          </NoChildFailed>
+        </InvariantCondition>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:sequence select="$userInvariant"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="sync-cmd-cmd-invariant">
+    <xsl:choose>
+      <xsl:when test="Checked">
+        <InvariantCondition>
+          <AND>
+            <xsl:if test="Timeout">
+              <xsl:call-template name="sync-cmd-timeout-invariant" />
+            </xsl:if>
+            <!-- would be nice to use CommandHandleInterruptible here -->
+            <NEInternal>
+              <xsl:call-template name="command-handle-ref"/>
+              <NodeCommandHandleValue>COMMAND_DENIED</NodeCommandHandleValue>
+            </NEInternal>
+            <NEInternal>
+              <xsl:call-template name="command-handle-ref"/>
+              <NodeCommandHandleValue>COMMAND_FAILED</NodeCommandHandleValue>
+            </NEInternal>
+            <NEInternal>
+              <xsl:call-template name="command-handle-ref"/>
+              <NodeCommandHandleValue>COMMAND_INTERFACE_ERROR</NodeCommandHandleValue>
+            </NEInternal>
+          </AND>
+        </InvariantCondition>
+      </xsl:when>
+      <xsl:when test="Timeout">
+        <InvariantCondition>
+          <xsl:call-template name="sync-cmd-timeout-invariant" />
+        </InvariantCondition>
+      </xsl:when>
+    </xsl:choose>
+  </xsl:template>
+
+
+  <!-- 
+       Synchronous command without an assignment simply expands into a
+       Command node with condition wrappers
+  -->
+  <xsl:template name="sync-cmd-base">
+    <xsl:variable name="userConditions">
+      <xsl:apply-templates select="tr:conditions(.)" />
+    </xsl:variable>
+
+    <Node NodeType="Command" epx="SynchronousCommand">
+      <xsl:call-template name="copy-source-locator-attributes" />
+      <xsl:call-template name="ensure-unique-node-id" />
+      <xsl:call-template name="handle-common-clauses" />
+      <xsl:apply-templates select="(VariableDeclarations|UsingMutex)" />
+
+      <xsl:sequence select="$userConditions/(ExitCondition|PreCondition|
+                            RepeatCondition|SkipCondition|StartCondition)" />
+      <xsl:call-template name="sync-cmd-base-invariant">
+        <xsl:with-param name="userInvariant" select="$userConditions/InvariantCondition" />
+      </xsl:call-template>
+      <xsl:call-template name="sync-cmd-base-end">
+        <xsl:with-param name="userEnd" select="$userConditions/EndCondition" />
+      </xsl:call-template>
+      <xsl:call-template name="sync-cmd-base-post">
+        <xsl:with-param name="userPost" select="$userConditions/PostCondition" />
+      </xsl:call-template>
+      <NodeBody>
+        <xsl:apply-templates select="Command"/>
+      </NodeBody>
+    </Node>
+  </xsl:template>
+
+  <xsl:template name="sync-cmd-base-invariant">
+    <xsl:param name="userInvariant" />
+    <xsl:choose>
+      <xsl:when test="Timeout and $userInvariant">
+        <InvariantCondition>
+          <AND>
+            <xsl:sequence select="$userInvariant/*" />
+            <xsl:call-template name="sync-cmd-timeout-invariant" />
+          </AND>
+        </InvariantCondition>
+      </xsl:when>
+      <xsl:when test="Timeout">
+        <InvariantCondition>
+          <xsl:call-template name="sync-cmd-timeout-invariant" />
+        </InvariantCondition>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:sequence select="$userInvariant" />
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <xsl:template name="sync-cmd-base-end">
+    <xsl:param name="userEnd" />
+
+    <xsl:variable name="commandSuccessTest">
+      <EQInternal>
+        <xsl:call-template name="command-handle-ref" />
+        <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+      </EQInternal>
+    </xsl:variable>
+
+    <!-- N.B. COMMAND_DENIED, COMMAND_FAILED, COMMAND_INTERFACE_ERROR
+         are handled in the default EndCondition wrapper for user end
+         conditions, so we only need to supply COMMAND_SUCCESS -->
+    <EndCondition>
+      <xsl:choose>
+        <xsl:when test="$userEnd">
+          <OR>
+            <xsl:sequence select="$userEnd/*" />
+            <xsl:sequence select="$commandSuccessTest" />
+          </OR>
+        </xsl:when>
+        <xsl:otherwise>
+          <xsl:sequence select="$commandSuccessTest" />
+        </xsl:otherwise>
+      </xsl:choose>
+    </EndCondition>
+  </xsl:template>
+
+  <xsl:template name="sync-cmd-base-post">
+    <xsl:param name="userPost" />
+    <xsl:variable name="checkPostcondition">
+      <EQInternal>
+        <xsl:call-template name="command-handle-ref" />
+        <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+      </EQInternal>
+    </xsl:variable>
+    <xsl:choose>
+      <xsl:when test="Checked and $userPost">
+        <PostCondition>
+          <AND>
+            <xsl:sequence select="$userPost/*" />
+            <xsl:copy-of select="$checkPostcondition" />
+          </AND>
+        </PostCondition>
+      </xsl:when>
+      <xsl:when test="Checked">
+        <PostCondition>
+          <xsl:copy-of select="$checkPostcondition" />
+        </PostCondition>
+      </xsl:when>
+      <xsl:otherwise>
+        <xsl:sequence select="$userPost" />
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <!-- Timeout test for invariant condition --> 
+  <xsl:template name="sync-cmd-timeout-invariant">
+    <LT>
+      <LookupOnChange>
+        <Name>
+          <StringValue>time</StringValue>
+        </Name>
+        <xsl:apply-templates select="Timeout/Tolerance" />
+      </LookupOnChange>
+      <ADD>
+        <xsl:apply-templates select="Timeout/*[1]" />
+        <NodeTimepointValue>
+          <NodeRef dir="self" />
+          <NodeStateValue>EXECUTING</NodeStateValue>
+          <Timepoint>START</Timepoint>
+        </NodeTimepointValue>
+      </ADD>
+    </LT>
+  </xsl:template>
+
+</xsl:transform>

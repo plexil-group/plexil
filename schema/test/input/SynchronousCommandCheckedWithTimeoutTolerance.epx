@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PlexilPlan>
+  <SynchronousCommand>
+    <NodeId>SynchronousCommandCheckedWithTimeoutTolerance</NodeId>
+    <Checked/>
+    <Timeout>
+      <DurationValue>PT5S</DurationValue>
+      <Tolerance>
+        <DurationValue>PT1S</DurationValue>
+      </Tolerance>
+    </Timeout>
+    <Command>
+      <Name><StringValue>foo</StringValue></Name>
+    </Command>
+  </SynchronousCommand>
+</PlexilPlan>
