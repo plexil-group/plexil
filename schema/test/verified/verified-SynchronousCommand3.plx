@@ -58,9 +58,9 @@
                      <Node NodeType="Assignment" epx="SynchronousCommandAssignment">
                         <NodeId>ep2cp_SynchronousCommand_assign</NodeId>
                         <StartCondition>
-                           <IsKnown>
+                           <ANY_KNOWN>
                               <ArrayVariable>ep2cp_SynchronousCommand_temp</ArrayVariable>
-                           </IsKnown>
+                           </ANY_KNOWN>
                         </StartCondition>
                         <NodeBody>
                            <Assignment>
