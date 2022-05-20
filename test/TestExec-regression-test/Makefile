@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,8 +29,8 @@ run-regression-suite:
 	@./run-tests
 
 clean:
-	-$(RM) -f RegressionResults tempRegressionResults
-	-$(RM) -rf output
+	-@$(RM) RegressionResults tempRegressionResults
+	-@$(RM) -r output
 
 # Targets that should be made every time they are invoked
 .PHONY: clean run-regression-suite
