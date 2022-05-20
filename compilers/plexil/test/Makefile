@@ -73,7 +73,7 @@ SMALL_TESTS = AddArray AnyArgs_empty_test ArglistArithmeticType ArrayEquality \
  simpleIf SimpleDrive simpleIfThenElse simpleAssignment skipped1 \
  StringConcat1 StringConcat2 StringConcat3 StringConcat4 StringConcat5 \
  StringConcat6 StringConcat7 StringConcat8 strlen_test \
- succeeded1 Sum sync-cmd-test sync-cmd-test1 \
+ succeeded1 Sum sync-cmd-test sync-cmd-test1 sync-cmd-options-test \
  test-recv test-send time-lookup-test time-lookup-test1 time_tolerance_test \
  timed-iteration tolerance1 try1 \
  UnaryMinus update1 update2 update3 \

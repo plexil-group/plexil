@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -200,67 +200,6 @@
       <xsl:apply-templates select="NodeBody" />
     </Node>
   </xsl:template>
-  
-  <!-- It appears these templates are redundant with the overriding copy idiom. -->
-
-  <!-- Not clear why this is needed. -->
-  <!-- <xsl:template match="Interface"> -->
-  <!--   <Interface> -->
-  <!--     <xsl:comment>Processed by redundant Interface template</xsl:comment> -->
-  <!--     <xsl:apply-templates select="In"/>	 -->
-  <!--     <xsl:apply-templates select="InOut"/> -->
-  <!--   </Interface> -->
-  <!-- </xsl:template> -->
-
-  <!-- Not clear why this is needed. -->
-  <!-- <xsl:template match="In"> -->
-  <!--   <In> -->
-  <!--     <xsl:comment>Processed by redundant In template</xsl:comment> -->
-  <!--     <xsl:apply-templates select="*"/> -->
-  <!--   </In> -->
-  <!-- </xsl:template> -->
-
-  <!-- Not clear why this is needed. -->
-  <!-- <xsl:template match="InOut"> -->
-  <!--   <InOut> -->
-  <!--     <xsl:comment>Processed by redundant InOut template</xsl:comment> -->
-  <!--     <xsl:apply-templates select="*"/> -->
-  <!--   </InOut> -->
-  <!-- </xsl:template> -->
-  
-  <!-- Not clear why this is needed. -->
-  <!-- <xsl:template -->
-  <!--     match="EndCondition|ExitCondition|InvariantCondition| -->
-  <!--            PostCondition|PreCondition|RepeatCondition| -->
-  <!--            SkipCondition|StartCondition"> -->
-  <!--   <xsl:element name="{name()}"> -->
-  <!--     <xsl:copy select="@*"/> -->
-  <!--     <xsl:apply-templates select="*" /> -->
-  <!--   </xsl:element> -->
-  <!-- </xsl:template> -->
-
-  <!-- Boolean Expressions -->
-
-  <!-- These expressions are translated recursively. -->
-  <!-- Why is this not handled by the overriding copy idiom?? -->
-  <!-- <xsl:template match="OR|XOR|AND|NOT| -->
-  <!--                      EQNumeric|EQInternal|EQString|EQBoolean|EQArray| -->
-  <!--                      NENumeric|NEInternal|NEString|NEBoolean|NEArray| -->
-  <!--                      GT|GE|LT|LE| -->
-  <!--                      IsKnown|ALL_KNOWN|ANY_KNOWN"> -->
-  <!--   <xsl:element name="{name()}"> -->
-  <!--     <xsl:apply-templates select="*" /> -->
-  <!--   </xsl:element> -->
-  <!-- </xsl:template> -->
-
-  <!-- These expressions are deep copied. (But must also be processed
-       for dates and durations) -->
-  <!-- Why is this not handled by the overriding copy idiom?? -->
-  <!-- <xsl:template match="BooleanVariable|BooleanValue|LookupOnChange|LookupNow|ArrayElement"> -->
-  <!--   <xsl:copy> -->
-  <!--     <xsl:apply-templates /> -->
-  <!--   </xsl:copy> -->
-  <!-- </xsl:template> -->
 
   <!-- ***************** -->
   <!-- Utility templates -->
@@ -292,35 +231,6 @@
   </xsl:template>
 
   <!-- Used by Wait and SynchronousCommand -->
-
-  <xsl:template name="timed-out">
-    <xsl:param name="element"/>
-    <GE>
-      <LookupOnChange>
-        <Name>
-          <StringValue>time</StringValue>
-        </Name>
-        <xsl:choose>
-          <xsl:when test="Tolerance">
-            <xsl:apply-templates select="Tolerance"/>
-          </xsl:when>
-          <xsl:otherwise>
-            <Tolerance>
-	          <xsl:apply-templates select="$element"/>
-            </Tolerance>
-          </xsl:otherwise>
-        </xsl:choose>
-      </LookupOnChange>
-      <ADD>
-        <xsl:apply-templates select="$element"/>
-        <NodeTimepointValue>
-          <NodeRef dir="self"/>
-          <NodeStateValue>EXECUTING</NodeStateValue>
-          <Timepoint>START</Timepoint>
-        </NodeTimepointValue>
-      </ADD>
-    </GE>
-  </xsl:template>
 
   <!-- Processing for the standard parts of an action -->
 
@@ -403,6 +313,60 @@
         </InitialValue>
       </xsl:if>
     </DeclareVariable>
+  </xsl:template>
+
+  <!-- Select a variable reference as an element in context -->
+  <xsl:template name="assignment-variable">
+    <xsl:param name="context" select="." />
+
+    <xsl:copy-of select="$context/(ArrayElement|ArrayVariable|BooleanVariable|
+                         DateVariable|DurationVariable|IntegerVariable|RealVariable|
+                         StringVariable)" />
+  </xsl:template>
+
+  <!-- Find the declaration of an array variable in this node or its ancestors. -->
+  <xsl:template name="array-declaration">
+    <xsl:param name="context" select="." />
+    <xsl:param name="array-name" required="yes" />
+
+    <xsl:choose>
+      <!-- Local to $context -->
+      <xsl:when test="$context/VariableDeclarations/DeclareArray/Name[text() = $array-name]">
+        <xsl:sequence select="$context/VariableDeclarations/DeclareArray/Name[text() = $array-name]/.." />
+      </xsl:when>
+      <!-- Ancestor -->
+      <xsl:when test="$context/ancestor::*/VariableDeclarations/DeclareArray/Name[text() = $array-name]">
+        <xsl:sequence select="ancestor::*/VariableDeclarations/DeclareArray/Name[text() = $array-name]/.." />
+      </xsl:when>
+      <!-- TEMP DEBUG -->
+      <xsl:otherwise>
+        <xsl:message>
+          Declaration of array variable <xsl:value-of select="$array-name" /> not found
+        </xsl:message>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:template>
+
+  <!-- Encapsulate boilerplate for NodeCommandHandleVariable references -->
+  <xsl:template name="command-handle-ref">
+    <xsl:param name="dir" />
+    <xsl:param name="nodeId" />
+    <NodeCommandHandleVariable>
+      <xsl:choose>
+        <xsl:when test="$dir and $nodeId">
+          <NodeRef dir="{$dir}"><xsl:value-of select="$nodeId" /></NodeRef>
+        </xsl:when>
+        <xsl:when test="$dir">
+          <NodeRef dir="{$dir}" />
+        </xsl:when>
+        <xsl:when test="$nodeId">
+          <NodeId><xsl:value-of select="$nodeId" /></NodeId>
+        </xsl:when>
+        <xsl:otherwise>
+          <NodeRef dir="self" />
+        </xsl:otherwise>
+      </xsl:choose>
+    </NodeCommandHandleVariable>
   </xsl:template>
 
   <!-- ********* -->

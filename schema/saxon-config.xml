@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+
+<!-- 
+     This is a configuration file for the Extended PLEXIL translator, 
+     based on the Saxon 9.9 example configuration file.
+     
+     For documentation on the contents of a Saxon configuration file, see
+     http://www.saxonica.com/html/documentation/configuration/configuration-file/index.html
+-->
+<configuration edition="HE"
+               xmlns="http://saxon.sf.net/ns/configuration" 
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="http://saxon.sf.net/ns/configuration config.xsd">
+  <global allowExternalFunctions="false"
+          dtdValidation="false"
+          dtdValidationRecoverable="true"
+          expandAttributeDefaults="true"
+          lazyConstructionMode="false"
+          lineNumbering="true"
+          preEvaluateDoc="false"
+          recognizeUriQueryParameters="true"
+          stripSpace="ignorable"
+          useTypedValueCache="false"
+          validationWarnings="false"
+          versionOfXml="1.0"
+          xInclude="false"
+          />
+  <serialization method="xml"
+                 encoding="utf-8"
+                 indent="yes"
+                 omit-xml-declaration="no"
+                 />
+  <xslt recoveryPolicy="recoverWithWarnings"
+        schemaAware="false"
+        />   
+  <xquery allowUpdate="false"
+          moduleUriResolver="net.sf.saxon.lib.StandardModuleURIResolver"
+          inheritNamespaces="true"
+          preserveNamespaces="true"
+          constructionMode="preserve"
+          defaultFunctionNamespace="http://www.w3.org/2005/xpath-functions"
+          defaultElementNamespace=""
+          preserveBoundarySpace="false"
+          requiredContextItemType="document-node()"
+          emptyLeast="true"
+          />
+</configuration>

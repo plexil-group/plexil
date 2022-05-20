@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
   <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://plexil.svn.sourceforge.net/viewvc/plexil/trunk/schema/extended-plexil.xsd" FileName="Plan.ple">
       <Node FileName="Plan.ple" LineNo="2" ColNo="1" NodeType="NodeList">
           <VariableDeclarations>

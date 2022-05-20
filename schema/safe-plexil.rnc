@@ -1,4 +1,4 @@
-# * Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# * Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 # *  All rights reserved.
 # *
 # * Redistribution and use in source and binary forms, with or without
@@ -35,28 +35,17 @@ namespace a = "http://relaxng.org/ns/compatibility/annotations/1.0"
 namespace rng = "http://relaxng.org/ns/structure/1.0"
 
 include "plexil-base.rnc"
-# Elements
+# Legal top-level elements in a PlexilPlan
 ActionGroup = Node
-# NodeId is required in Safe Plexil.
-NodeType =
-  (NodeId
-   & Assume?
-   & Desire?
-   & Expect?
-   & VariableDeclarations?
-   & Interface?
-   & StartCondition?
-   & RepeatCondition?
-   & PreCondition?
-   & PostCondition?
-   & InvariantCondition?
-   & EndCondition?
-   & ExitCondition?
-   & SkipCondition?
-   & Comment?
-   & element Priority { xsd:nonNegativeInteger }?
-   & NodeBody?),
-  NodeAttributes
+# The type of the Node element
+
+# NodeId is required in Safe PLEXIL.
+NodeActionType =
+  (ActionOptions & NodeId & NodeBody?), attr_NodeType, SourceLocators
+LookupGroup = LookupOnChange | LookupNow
+# Safe PLEXIL requires the Name of a Command or Lookup to be a
+# literal string value.
+Name = element Name { xsd:string }
 BooleanExpression =
   BooleanVariable
   | BooleanValue
@@ -67,15 +56,6 @@ BooleanExpression =
   | NodeStatePredicate
   | NodeOutcomePredicate
   | NodeFailurePredicate
-DeclaredVariable =
-  IntegerVariable
-  | RealVariable
-  | BooleanVariable
-  | StringVariable
-  | ArrayVariable
-  | ArrayElement
-LookupGroup = LookupOnChange | LookupNow
-Name = element Name { xsd:string }
 NumericExpression =
   ArithmeticOperator
   | IntegerVariable
@@ -83,13 +63,28 @@ NumericExpression =
   | IntegerValue
   | RealValue
   | NodeTimepointValue
-  | #  read operations for arrays
+  | # array attributes
     ArraySize
   | ArrayMaxSize
+DeclaredVariable =
+  IntegerVariable
+  | RealVariable
+  | BooleanVariable
+  | StringVariable
+  | ArrayVariable
+  | ArrayElement
+# Legal scalar literal values
+
 # Note: ArrayValue is not included here because arrays
 # are handled independently (and NOT supported in places
 # were Value is)
 Value = IntegerValue | RealValue | BooleanValue | StringValue
 # Schema types
+
+# AtomicTypeValues are legal types names in DeclareVariable,
+# DeclareArray, the Type attribute of ArrayValue, and Return
+# elements of CommandDeclaration and StateDeclaration.
 AtomicTypeValues = "Integer" | "Real" | "Boolean" | "String"
+# Legal types in parameter declarations are restricted to the
+# atomic type values above.
 ParameterTypeValues = AtomicTypeValues

@@ -1,8 +1,8 @@
-#! /bin/sh
+#! /bin/sh -e
 # Test the translation of one Extended Plexil test case
 # stdout is presumed to be a log file
 
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,6 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-set -e 
-
 EPLEXIL='../../scripts/eplexil'
 
 # Slower, XML Schema 1.1 capable Python validator
@@ -39,34 +37,59 @@ VALIDATE_OPTS='--cache'
 #VALIDATE="$(command -v xmllint)"
 #VALIDATE_OPTS='--noout --schema ../core-plexil.xsd'
 
+INPUT="input/$1.epx"
+OUTPUT="output/$1.plx"
+VERIFIED="verified/verified-$1.plx"
+
+# Echo a message to both stdout and stderr
+broadcast()
+{
+    local msg="$(echo "$@")"
+    echo "$msg"
+    echo "$msg" >&2
+}
+
+if [ ! -f "$INPUT" ]
+then
+    echo "$(basename "$0"): Input file $INPUT not found" >&2
+    exit 1
+fi
 
 echo "$1"
 
-INPUT="input/$1.epx"
-OUTPUT="output/$1.plx"
-
-rm -f "$OUTPUT" "${OUTPUT}.formatted"
+# delete any previous output for this input
+rm -f "$OUTPUT"
 
 if ! "$EPLEXIL" "$INPUT" "$OUTPUT"
 then
-	test_failed=1
-	echo "*** Translation of $INPUT failed ***" >&2
-	echo "*** Translation of $INPUT failed ***"
+	broadcast "*** Translation of $1 failed due to error ***"
+	exit 1
+fi
+
+if [ ! -f "$OUTPUT" ]
+then
+	broadcast "*** Translation completed, but output file $OUTPUT not found ***"
 	exit 1
 fi
 
 if ! "$VALIDATE" $VALIDATE_OPTS "$OUTPUT"
 then
-	echo "*** Validation of $1 failed ***" >&2
-	echo "*** Validation of $1 failed ***"
-    exit 1
-elif ! ./check "$1"
-then
-	echo "*** $OUTPUT failed verification ***" >&2
-	echo "*** $OUTPUT failed verification ***"
-	xmllint --format "$OUTPUT" > "$OUTPUT.formatted"
+    broadcast "*** Validation of $1 failed ***"
     exit 1
 fi
 
-printf "%s verifies\n" "$OUTPUT" >&2
+if [ ! -f "$VERIFIED" ]
+then
+    broadcast "$1 validated; verified file not found"
+    exit 0
+fi
+
+if ! diff -B -w "$OUTPUT" "$VERIFIED"
+then
+	broadcast "*** $OUTPUT validates, but failed verification ***"
+    exit 1
+fi
+
+# Success, at last!
+broadcast "$1 validated and verified"
 exit 0

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <SynchronousCommand FileName= "foo.ple" LineNo= "104" ColNo= "1">
+    <NodeId>SynchronousCommand1Checked</NodeId>
+    <VariableDeclarations>
+      <DeclareVariable>
+        <Name>x</Name>
+        <Type>Integer</Type>
+      </DeclareVariable>
+    </VariableDeclarations>
+    <Checked/>
+    <Command>
+      <IntegerVariable>x</IntegerVariable>
+      <Name><StringValue>foo</StringValue></Name>
+    </Command>
+  </SynchronousCommand>
+</PlexilPlan>

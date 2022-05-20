@@ -1,6 +1,6 @@
-#!/bin/sh
+#! /bin/sh -e
 
-# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -32,6 +32,18 @@ then
 fi
 
 # Check environment
+
+if [ -z "$PLEXIL_HOME" ]
+then
+    # Attempt to guess location of this script (but don't try too hard)
+    PLEXILC_SCRIPT_DIR="$( cd "$(dirname "$(command -v "$0")")" && pwd -P )"
+    if [ "scripts" = "$(basename "$PLEXILC_SCRIPT_DIR")" ]
+    then
+        export PLEXIL_HOME="$(dirname "$PLEXILC_SCRIPT_DIR")"
+    fi
+    unset PLEXILC_SCRIPT_DIR
+fi
+
 if [ -z "$PLEXIL_HOME" ]
 then
     echo 'Error: Please set environment variable PLEXIL_HOME' >&2
@@ -69,4 +81,25 @@ else
     output_file="$(echo "$1" | sed -e 's|.epx$||').plx"
 fi
 
-exec "$JAVA" -jar "$PLEXIL_HOME/jars/saxon9he.jar" -xsl:"$PLEXIL_HOME/schema/epx-translator/translate-plexil.xsl" -s:"$input_file" -o:"$output_file"
+JARS_DIR="$PLEXIL_HOME/jars"
+SCHEMA_DIR="$PLEXIL_HOME/schema"
+
+#
+# Options to pass to saxon
+# See: https://www.saxonica.com/html/documentation9.9/using-xsl/commandline/
+#
+#  -config:<file>        - load configuration file
+#  -dtd:<on|off|recover> - on = error if input file lacks DTD
+#                          off = no checking for DTD
+#                          recover = warn if DTD missing
+#  -T                    - enable tracing
+#  -Tlevel:<level>       - tracing level: none, low, normal, or high
+#  -traceout:<file>      - direct tracing output to the named file
+#  -TP:<file>            - Write profiling info to an HTML file 
+#
+OPTIONS='-dtd:off'
+
+exec "$JAVA" -jar "$JARS_DIR"/saxon9he.jar \
+     -xsl:"$SCHEMA_DIR"/epx-translator/translate-plexil.xsl \
+     -config:"$SCHEMA_DIR"/saxon-config.xml $OPTIONS \
+     -s:"$input_file" -o:"$output_file"
