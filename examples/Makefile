@@ -1,6 +1,6 @@
-# Makefile for the PLEXIL examples suite
+# Dummy Makefile for the PLEXIL examples suite
 
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,15 +25,20 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-SHELL = /bin/sh
+SHELL := /bin/sh
 
-SUBDIRS = basic checkpoint multi-exec/agents multi-exec/agents/test multi-exec/udp robosim sample-app
+SUBDIRS := basic checkpoint multi-exec/agents multi-exec/agents/test multi-exec/udp robosim sample-app
+
+ifeq ($(PLEXIL_HOME),)
+# N.B.: dir leaves a trailing /
+PLEXIL_HOME := $(realpath $(join $(dir $(firstword $(MAKEFILE_LIST))),..))
+export PLEXIL_HOME
+endif
 
 all:
-
-clean-all clean-examples: clean
-	for f in $(SUBDIRS); do $(MAKE) -C $$f clean ; done
+	@echo "This Makefile doesn't build anything."
 
 clean:
+	@for f in $(SUBDIRS); do $(MAKE) -C "$$f" $@ ; done
 
-.PHONY: clean clean-all
+.PHONY: all clean
