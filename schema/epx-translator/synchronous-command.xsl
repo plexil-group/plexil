@@ -111,20 +111,28 @@
     <xsl:variable name="tempVarType">
       <xsl:value-of select="fn:substring-before(name($assignmentVariable),'Variable')" />
     </xsl:variable>
+    <xsl:variable name="tempVarRef">
+      <xsl:element name="{name($assignmentVariable)}">
+        <xsl:value-of select="$tempVarName" />
+      </xsl:element>
+    </xsl:variable>
 
     <xsl:call-template name="sync-cmd-return-common">
       <xsl:with-param name="assignmentVariable" select="$assignmentVariable" />
       <xsl:with-param name="tempVarType" select="$tempVarType" />
       <xsl:with-param name="tempVarRef">
-        <xsl:element name="{$assignmentVariable/name()}">
-          <xsl:value-of select="$tempVarName" />
-        </xsl:element>
+        <xsl:copy-of select="$tempVarRef" />
       </xsl:with-param>
       <xsl:with-param name="tempVarDecl">
         <DeclareVariable>
           <Name><xsl:value-of select="$tempVarName" /></Name>
           <Type><xsl:value-of select="$tempVarType" /></Type>
         </DeclareVariable>
+      </xsl:with-param>
+      <xsl:with-param name="tempVarKnownTest">
+        <IsKnown>
+          <xsl:copy-of select="$tempVarRef" />
+        </IsKnown>
       </xsl:with-param>
     </xsl:call-template>
   </xsl:template>
@@ -139,14 +147,17 @@
                         select="$assignmentVariable/text()" />
       </xsl:call-template>
     </xsl:variable>
+    <xsl:variable name="tempArrayRef">
+      <xsl:element name="{name($assignmentVariable)}">
+        <xsl:value-of select="$tempVarName" />
+      </xsl:element>
+    </xsl:variable>
 
     <xsl:call-template name="sync-cmd-return-common">
       <xsl:with-param name="assignmentVariable" select="$assignmentVariable" />
       <xsl:with-param name="tempVarType">Array</xsl:with-param>
       <xsl:with-param name="tempVarRef">
-        <xsl:element name="{name($assignmentVariable)}">
-          <xsl:value-of select="$tempVarName" />
-        </xsl:element>
+          <xsl:copy-of select="$tempArrayRef" />
       </xsl:with-param>
       <xsl:with-param name="tempVarDecl">
         <DeclareArray>
@@ -154,6 +165,11 @@
           <xsl:copy-of select="$arrayDecl/DeclareArray/Type" />
           <xsl:copy-of select="$arrayDecl/DeclareArray/MaxSize" />
         </DeclareArray>
+      </xsl:with-param>
+      <xsl:with-param name="tempVarKnownTest">
+        <ANY_KNOWN>
+          <xsl:copy-of select="$tempArrayRef" />
+        </ANY_KNOWN>
       </xsl:with-param>
     </xsl:call-template>
   </xsl:template>
@@ -171,20 +187,28 @@
     </xsl:variable>
     <xsl:variable name="tempVarType"
                   select="$arrayDecl/Type/text()" />
+    <xsl:variable name="tempVarRef">
+      <xsl:element name="{concat($tempVarType, 'Variable')}">
+        <xsl:value-of select="$tempVarName" />
+      </xsl:element>
+    </xsl:variable>
 
     <xsl:call-template name="sync-cmd-return-common">
       <xsl:with-param name="assignmentVariable" select="$assignmentVariable" />
       <xsl:with-param name="tempVarType" select="$tempVarType" />
       <xsl:with-param name="tempVarRef">
-        <xsl:element name="{concat($tempVarType, 'Variable')}">
-          <xsl:value-of select="$tempVarName" />
-        </xsl:element>
+        <xsl:copy-of select="$tempVarRef" />
       </xsl:with-param>
       <xsl:with-param name="tempVarDecl">
         <DeclareVariable>
           <Name><xsl:value-of select="$tempVarName" /></Name>
           <xsl:copy-of select="$arrayDecl/Type" />
         </DeclareVariable>
+      </xsl:with-param>
+      <xsl:with-param name="tempVarKnownTest">
+        <IsKnown>
+          <xsl:copy-of select="$tempVarRef" />
+        </IsKnown>
       </xsl:with-param>
     </xsl:call-template>
   </xsl:template>
@@ -195,6 +219,7 @@
     <xsl:param name="tempVarDecl" required="yes" />
     <xsl:param name="tempVarRef" required="yes" />
     <xsl:param name="tempVarType" required="yes" />
+    <xsl:param name="tempVarKnownTest" required="yes" />
 
     <xsl:variable name="commandNodeId">
       <xsl:value-of select="tr:prefix('SynchronousCommand_cmd')" />
@@ -246,7 +271,7 @@
             </EndCondition>
             <xsl:if test="Checked">
               <PostCondition>
-                <IsKnown><xsl:copy-of select="$tempVarRef" /></IsKnown>
+                <xsl:copy-of select="$tempVarKnownTest" />
               </PostCondition>
             </xsl:if>
             <NodeBody>
@@ -260,7 +285,7 @@
           <Node NodeType="Assignment" epx="SynchronousCommandAssignment">
             <NodeId><xsl:value-of select="$assignNodeId" /></NodeId>
             <StartCondition>
-              <IsKnown><xsl:copy-of select="$tempVarRef" /></IsKnown>
+              <xsl:copy-of select="$tempVarKnownTest" />
             </StartCondition>
             <NodeBody>
               <Assignment>
