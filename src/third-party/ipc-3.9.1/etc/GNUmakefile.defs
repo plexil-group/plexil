@@ -382,7 +382,9 @@ CFLAGS_LISP_Solaris	= -DALLEGRO
 CFLAGS_LISP_SunOS	= -DALLEGRO
 CFLAGS_LISP = -DLISP $(CFLAGS_LISP_$(THIS_OS))
 
-LIB_PATH_Darwin = -L$(LDIR) -L/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib
+LIB_PATH_Darwin = -L$(LDIR) \
+		-L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib \
+		-L/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib
 LIB_PATH_Mach	= 
 LIB_PATH_Linux	= -L$(LDIR) -L/lib -L/usr/X11R6/lib
 LIB_PATH_Solaris= -L$(LDIR) -L/usr/local/lib -L/usr/openwin/lib
