@@ -1,6 +1,6 @@
 #! /bin/sh -e
 
-# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -66,17 +66,19 @@ find_command()
 # Commands required for the task which are not installed by default on some platforms
 find_command ant
 find_command autoreconf
+find_command awk
 find_command git
 find_command gperf
 find_command javac
 
 STARTDIR="$PWD"
 
-WORKDIR="$(mktemp -d -t "$RELID")"
+WORKDIR="$( cd "$(mktemp -d -t "$RELID")" && pwd -P )"
 echo "Exporting to temporary directory $WORKDIR"
-git export --format=tar --prefix="$RELID/" "$rev" | ( cd "$WORKDIR" && tar xf - )
+git archive --format=tar --prefix="$RELID/" "$rev" | ( cd "$WORKDIR" && tar xf - )
+git submodule foreach "git archive --format=tar --prefix=\"$RELID/\$displaypath/\" \"\$sha1\" | ( cd \"$WORKDIR\" && tar xf - )"
 
-cd "${WORKDIR}/$RELID"
+cd "$WORKDIR/$RELID"
 PLEXIL_HOME="$PWD"
 export PLEXIL_HOME
 
@@ -92,8 +94,8 @@ gperf -m 8 --output-file=src/xml-parser/ExpressionMap.hh src/xml-parser/Expressi
 echo 'Bulding Java applications'
 ( cd compilers/plexil && ant install && ant clean )
 ( cd compilers/plexilscript && ant install && ant clean )
-( cd viewers/pv/build && ant jar && ant clean )
-( cd checker && ant jar && ant clean )
+( cd viewers/pv && ant jar && ant mostlyclean )
+( cd checker && ant jar && ant mostlyclean )
 
 # Do any additional cleanup here
 
