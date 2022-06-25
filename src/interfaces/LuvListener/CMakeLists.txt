@@ -1,4 +1,4 @@
-## Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+## Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 ##  All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -47,3 +47,8 @@ target_link_libraries(LuvListener PUBLIC
   PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec
   -L${pugixml_LIB_DIR} -lpugixml
   PlexilXmlParser PlexilAppFramework PlexilSockets)
+
+if(PlexilExec_SHLIB_INSTALL_RPATH)
+  set_target_properties(LuvListener
+    PROPERTIES INSTALL_RPATH ${PlexilExec_SHLIB_INSTALL_RPATH})
+endif()

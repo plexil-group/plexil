@@ -44,10 +44,15 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
     CACHE STRING
     "The rpath value to use when installing Plexil executables")
 else()
-  # Presumes system with ELF linker
+  # Presumes system with dynamic linking loader
   set(PlexilExec_EXE_INSTALL_RPATH "\$ORIGIN/../${CMAKE_INSTALL_LIBDIR}"
     CACHE STRING
     "The rpath value to use when installing Plexil executables")
+  if(BUILD_SHARED_LIBS)
+    set(PlexilExec_SHLIB_INSTALL_RPATH "\$ORIGIN"
+      CACHE STRING
+      "The rpath value to use when installing Plexil shared libraries")
+  endif()
 endif()
 
 #
