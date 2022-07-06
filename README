@@ -28,6 +28,7 @@ software:
  * gcc/g++, clang/clang++, or other C99 and C++03 compliant compilers
  * Java 8 or newer JDK (e.g. openjdk-11-jdk)
  * Apache ant, including the antlr module
+ * cmake 3.6 or newer (only for cmake build)
 
 If you downloaded a tarball, the GNU autotools and gperf are not
 needed.
@@ -38,6 +39,12 @@ libxi, libxmu and their header files.
 
 How to build PLEXIL - Simple version
 ------------------------------------
+
+The entire PLEXIL software suite can be built using GNU Make and
+related tools, and these instructions use this approach.
+
+Parts of the PLEXIL suite can be build with cmake, instructions for
+which are further below.
 
 To build the PLEXIL distribution:
 
