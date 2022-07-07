@@ -28,6 +28,7 @@ software:
  * gcc/g++, clang/clang++, or other C99 and C++03 compliant compilers
  * Java 8 or newer JDK (e.g. openjdk-11-jdk)
  * Apache ant, including the antlr module
+ * cmake 3.6 or newer (only for cmake build)
 
 If you downloaded a tarball, the GNU autotools and gperf are not
 needed.
@@ -38,6 +39,12 @@ libxi, libxmu and their header files.
 
 How to build PLEXIL - Simple version
 ------------------------------------
+
+The entire PLEXIL software suite can be built using GNU Make and
+related tools, and these instructions use this approach.
+
+Parts of the PLEXIL suite can be build with cmake, instructions for
+which are further below.
 
 To build the PLEXIL distribution:
 
@@ -152,16 +159,20 @@ not recommended.
   mkdir plexil-build
   cd plexil-build
 
-2. Configure the build using CMake.
+2. Configure the build using CMake. Since you changed to the build directory,
+the source (top-level) directory can be indicated with two dots
+after setting up the options. You can set the install directory to the
+current directory using one dot, as shown in the following command.
 
-  cmake "path/to/plexil/src" -DCMAKE_INSTALL_PREFIX="/install/here" ... options ...
+  cmake -DCMAKE_INSTALL_PREFIX=. other_options ..
 
   The example below includes all the optional PLEXIL components as built
   in the previous section, with binaries and libraries installed in the
-  PLEXIL installation directory.  You can omit or change options as
-  desired.
+  PLEXIL installation directory. You can omit or change options as
+  desired. You can use -S to specify the path to the source (top-level
+  or PLEXIL_HOME) directory.
 
-  cmake path/to/plexil/src -DCMAKE_INSTALL_PREFIX="$PLEXIL_HOME" \
+  cmake -S "$PLEXIL_HOME" -DCMAKE_INSTALL_PREFIX="$PLEXIL_HOME" \
     -DGANTT_LISTENER=ON -DSTANDALONE_SIMULATOR=ON -DTEST_EXEC=ON -DUDP_ADAPTER=ON
 
   Please see the CAVEATS file in this directory for advice on CMake options.
