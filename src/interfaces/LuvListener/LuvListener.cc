@@ -97,7 +97,7 @@ namespace PLEXIL
     pugi::xml_node const xml = this->getXml();
 	if (xml.empty()) {
 	  // Default host and port values if not set
-      if (!*m_host) {
+      if (!m_host || !*m_host) {
         free((void *) m_host);
         m_host = strdup(LUV_DEFAULT_HOSTNAME());
       }
