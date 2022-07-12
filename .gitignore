@@ -1,5 +1,6 @@
 bin
 include
+plexil-build
 # Emacs backup file names
 *~
 \#*#
