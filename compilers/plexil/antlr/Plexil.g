@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -185,6 +185,7 @@ ON_COMMAND_KYWD = 'OnCommand';
 ON_MESSAGE_KYWD = 'OnMessage';
 SYNCHRONOUS_COMMAND_KYWD = 'SynchronousCommand';
 TIMEOUT_KYWD = 'Timeout';
+CHECKED_KYWD = 'Checked';
 TRY_KYWD = 'Try';
 UNCHECKED_SEQUENCE_KYWD = 'UncheckedSequence';
 CHECKED_SEQUENCE_KYWD = 'CheckedSequence';
@@ -561,8 +562,18 @@ synchCmd
  :
     SYNCHRONOUS_COMMAND_KYWD^
     ( commandWithAssignment | commandInvocation )
-	( TIMEOUT_KYWD! expression ( COMMA! expression )? )?
+    synchCmdOptions?
  ;
+
+// Allow options in either order
+synchCmdOptions:
+    CHECKED_KYWD timeoutOption?
+    | timeoutOption CHECKED_KYWD?
+    ;
+
+timeoutOption:
+    TIMEOUT_KYWD! expression ( COMMA! expression )?
+    ;
 
 waitBuiltin
 @init { m_paraphrases.push("in \"Wait\" statement"); }

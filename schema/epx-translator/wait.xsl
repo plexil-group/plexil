@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -60,15 +60,13 @@
   <xsl:template name="wait-end-condition">
     <xsl:param name="original-condition" />
     <xsl:variable name="timeout-test">
-      <xsl:call-template name="timed-out">
-        <xsl:with-param name="element" select="Units/*" />
-      </xsl:call-template>
+      <xsl:call-template name="wait-timed-out" />
     </xsl:variable>
     <EndCondition>
       <xsl:choose>
         <xsl:when test="$original-condition">
           <OR>
-            <xsl:sequence select="original-condition/*" />
+            <xsl:sequence select="$original-condition/*" />
             <xsl:sequence select="$timeout-test" />
           </OR>
         </xsl:when>
@@ -77,6 +75,37 @@
         </xsl:otherwise>
       </xsl:choose>
     </EndCondition>
+  </xsl:template>
+
+  <xsl:template name="wait-timed-out">
+    <xsl:variable name="units">
+      <xsl:apply-templates select="Units/*" />
+    </xsl:variable>
+    <GE>
+      <LookupOnChange>
+        <Name>
+          <StringValue>time</StringValue>
+        </Name>
+        <xsl:choose>
+          <xsl:when test="Tolerance">
+            <xsl:apply-templates select="Tolerance"/>
+          </xsl:when>
+          <xsl:otherwise>
+            <Tolerance>
+	          <xsl:sequence select="$units" />
+            </Tolerance>
+          </xsl:otherwise>
+        </xsl:choose>
+      </LookupOnChange>
+      <ADD>
+	    <xsl:sequence select="$units" />
+        <NodeTimepointValue>
+          <NodeRef dir="self" />
+          <NodeStateValue>EXECUTING</NodeStateValue>
+          <Timepoint>START</Timepoint>
+        </NodeTimepointValue>
+      </ADD>
+    </GE>
   </xsl:template>
 
 </xsl:transform>

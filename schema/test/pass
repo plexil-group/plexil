@@ -1,6 +1,6 @@
-#! /usr/bin/env sh
+#! /bin/sh -e
 
-# Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,4 +25,4 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-exec xmllint --format output/$1.plx > verified/verified-$1.plx
+cp "output/${1}.plx" "verified/verified-${1}.plx"

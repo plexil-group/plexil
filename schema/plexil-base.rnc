@@ -1,4 +1,4 @@
-# * Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+# * Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 # *  All rights reserved.
 # *
 # * Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,7 @@
 # NOTE: this is an incomplete schema, as it doesn't define the following elements
 # and types, which differ between Safe PLEXIL, Core PLEXIL, and Extended PLEXIL:
 # 
-#  Action
+#  ActionGroup
 #  AtomicTypeValues
 #  BooleanExpression
 #  DeclaredVariable
@@ -68,21 +68,7 @@ starting_PlexilPlan =
     # Attempt to imitate rncfix
     attribute * { text }
   }
-NodeReference = NodeId | NodeRef
-node-reference = NodeReference, SourceLocators
-# Allow translators to reason about automatically generated names
-NodeId =
-  element NodeId {
-    xsd:NCName,
-    attribute generated { xsd:boolean }?,
-    SourceLocators
-  }
-NodeRef =
-  element NodeRef {
-    NCNameOrEmpty,
-    attribute dir { "parent" | "sibling" | "child" | "self" }?,
-    SourceLocators
-  }
+# GlobalDeclarations
 GlobalDeclarations =
   element GlobalDeclarations {
     (CommandDeclaration?
@@ -94,7 +80,7 @@ GlobalDeclarations =
 CommandDeclaration =
   element CommandDeclaration {
     element Name { xsd:NCName },
-    Return*,
+    Return?,
     ParameterSpec?,
     ResourceList?,
     SourceLocators
@@ -133,69 +119,39 @@ Return =
     element MaxSize { xsd:nonNegativeInteger }?,
     SourceLocators
   }
-NCNameOrEmpty = xsd:NCName | ("")
-# The basis for Node, and various Extended Plexil elements.
+# ActionGroup is defined in the schemas which include this schema
 
-# NodeType is defined in the schemata which include this file.
-Node = element Node { NodeType }
-NodeAttributes =
-  attribute NodeType {
-    "NodeList"
-    | "Command"
-    | "Assignment"
-    | "Update"
-    | "Empty"
-    | "LibraryNodeCall"
-  },
-  SourceLocators
-Comment = element Comment { xsd:string, SourceLocators }
-NodeBody =
-  element NodeBody {
-    NodeList | Command | Assignment | Update | LibraryNodeCall
-  }
-NodeList = element NodeList { ActionGroup*, SourceLocators }
+# These are elements which may be omitted from a valid Node or Action
+ActionOptions =
+  Assume?
+  & Desire?
+  & Expect?
+  & VariableDeclarations?
+  & Interface?
+  & StartCondition?
+  & RepeatCondition?
+  & PreCondition?
+  & PostCondition?
+  & InvariantCondition?
+  & EndCondition?
+  & ExitCondition?
+  & SkipCondition?
+  & Comment?
+  & element Priority { xsd:nonNegativeInteger }?
+# Annotations for static analysis
 Assume = element Assume { GeneralizedBooleanExpression, SourceLocators }
 Desire = element Desire { GeneralizedBooleanExpression, SourceLocators }
 Expect = element Expect { GeneralizedBooleanExpression, SourceLocators }
-ConditionType = GeneralizedBooleanExpression, SourceLocators
-StartCondition = element StartCondition { ConditionType }
-RepeatCondition = element RepeatCondition { ConditionType }
-PreCondition = element PreCondition { ConditionType }
-PostCondition = element PostCondition { ConditionType }
-InvariantCondition = element InvariantCondition { ConditionType }
-EndCondition = element EndCondition { ConditionType }
-ExitCondition = element ExitCondition { ConditionType }
-SkipCondition = element SkipCondition { ConditionType }
+# Local declarations
+VariableDeclarations =
+  element VariableDeclarations {
+    (DeclareVariable | DeclareArray)+, SourceLocators
+  }
 Interface = element Interface { (In? & InOut?), SourceLocators }
 In = element In { (DeclareVariable | DeclareArray)+, SourceLocators }
 InOut =
   element InOut { (DeclareVariable | DeclareArray)+, SourceLocators }
-ResourceList = element ResourceList { Resource*, SourceLocators }
-# FIXME: make these tags less verbose
-Resource =
-  element Resource {
-    (element ResourceName {
-       GeneralizedStringExpression, SourceLocators
-     }
-     & element ResourcePriority {
-         GeneralizedNumericExpression, SourceLocators
-       }
-     & element ResourceLowerBound {
-         GeneralizedNumericExpression, SourceLocators
-       }?
-     & element ResourceUpperBound {
-         GeneralizedNumericExpression, SourceLocators
-       }?
-     & element ResourceReleaseAtTermination {
-         GeneralizedBooleanExpression, SourceLocators
-       }?),
-    SourceLocators
-  }
-IntegerVariable = element IntegerVariable { xsd:NCName }
-RealVariable = element RealVariable { xsd:NCName }
-BooleanVariable = element BooleanVariable { xsd:NCName }
-StringVariable = element StringVariable { xsd:NCName }
-ArrayVariable = element ArrayVariable { xsd:NCName }
+# Common elements of VariableDeclarations and Interface
 DeclareVariable =
   element DeclareVariable {
     element Name { xsd:NCName },
@@ -220,13 +176,100 @@ DeclareArray =
     }?,
     SourceLocators
   }
-VariableDeclarations =
-  element VariableDeclarations {
-    (DeclareVariable | DeclareArray)+, SourceLocators
+# Conditions
+ConditionType = GeneralizedBooleanExpression, SourceLocators
+StartCondition = element StartCondition { ConditionType }
+RepeatCondition = element RepeatCondition { ConditionType }
+PreCondition = element PreCondition { ConditionType }
+PostCondition = element PostCondition { ConditionType }
+InvariantCondition = element InvariantCondition { ConditionType }
+EndCondition = element EndCondition { ConditionType }
+ExitCondition = element ExitCondition { ConditionType }
+SkipCondition = element SkipCondition { ConditionType }
+# Comment
+Comment = element Comment { xsd:string, SourceLocators }
+NCNameOrEmpty = xsd:NCName | ("")
+# The basis for Node and various Extended PLEXIL control structures.
+
+# NodeActionType is defined in the schemata which included this file.
+Node = element Node { NodeActionType }
+# Node requires a NodeType attribute
+attr_NodeType =
+  attribute NodeType {
+    "NodeList"
+    | "Command"
+    | "Assignment"
+    | "Update"
+    | "Empty"
+    | "LibraryNodeCall"
+  }?
+NodeBody =
+  element NodeBody {
+    NodeList | Command | Assignment | Update | LibraryNodeCall
   }
+# NodeList body
+NodeList = element NodeList { ActionGroup*, SourceLocators }
+# Command body
 Command =
   element Command {
     ResourceList?, DeclaredVariable?, Name, Arguments?, SourceLocators
+  }
+# ResourceList - common to Command and CommandDeclaration
+ResourceList = element ResourceList { Resource*, SourceLocators }
+Resource =
+  element Resource {
+    (element ResourceName {
+       GeneralizedStringExpression, SourceLocators
+     }
+     & element ResourcePriority {
+         GeneralizedNumericExpression, SourceLocators
+       }
+     & element ResourceLowerBound {
+         GeneralizedNumericExpression, SourceLocators
+       }?
+     & element ResourceUpperBound {
+         GeneralizedNumericExpression, SourceLocators
+       }?
+     & element ResourceReleaseAtTermination {
+         GeneralizedBooleanExpression, SourceLocators
+       }?),
+    SourceLocators
+  }
+# Assignment body
+Assignment =
+  element Assignment {
+    DeclaredVariable,
+    (BooleanRHS | NumericRHS | StringRHS | ArrayRHS),
+    SourceLocators
+  }
+BooleanRHS =
+  element BooleanRHS { GeneralizedBooleanExpression, SourceLocators }
+NumericRHS =
+  element NumericRHS { (GeneralizedNumericExpression), SourceLocators }
+StringRHS =
+  element StringRHS { GeneralizedStringExpression, SourceLocators }
+ArrayRHS =
+  element ArrayRHS { GeneralizedArrayExpression, SourceLocators }
+# Update body
+Update =
+  element Update {
+    element Pair {
+      element Name { xsd:NCName },
+      Expression,
+      SourceLocators
+    }*,
+    SourceLocators
+  }
+# LibraryNodeCall body
+LibraryNodeCall =
+  element LibraryNodeCall {
+    NodeId,
+    element Alias {
+      element NodeParameter { xsd:NCName },
+      Expression,
+      SourceLocators
+    }*,
+    SourceLocators
   }
 # Expression of any type
 Expression =
@@ -236,22 +279,13 @@ Expression =
   | ArrayExpression
   | LookupGroup
   | ArrayElement
-Arguments = element Arguments { Expression+, SourceLocators }
-Update = element Update { Pair*, SourceLocators }
-Pair =
-  element Pair {
-    element Name { xsd:NCName },
-    Expression,
-    SourceLocators
-  }
-LibraryNodeCall =
-  element LibraryNodeCall { NodeId, Alias*, SourceLocators }
-Alias =
-  element Alias {
-    element NodeParameter { xsd:NCName },
-    Expression,
-    SourceLocators
-  }
+# Variable references
+IntegerVariable = element IntegerVariable { xsd:NCName }
+RealVariable = element RealVariable { xsd:NCName }
+BooleanVariable = element BooleanVariable { xsd:NCName }
+StringVariable = element StringVariable { xsd:NCName }
+ArrayVariable = element ArrayVariable { xsd:NCName }
+# Literal values
 IntegerValue = element IntegerValue { xsd:integer }
 RealValue = element RealValue { xsd:double }
 BooleanValue = element BooleanValue { xsd:boolean }
@@ -264,19 +298,6 @@ ArrayValue =
   }
 GeneralizedArrayExpression = ArrayExpression | LookupGroup
 ArrayExpression = ArrayValue | ArrayVariable
-BooleanRHS =
-  element BooleanRHS { GeneralizedBooleanExpression, SourceLocators }
-NumericRHS =
-  element NumericRHS { (GeneralizedNumericExpression), SourceLocators }
-StringRHS =
-  element StringRHS { GeneralizedStringExpression, SourceLocators }
-ArrayRHS =
-  element ArrayRHS { GeneralizedArrayExpression, SourceLocators }
-assignment =
-  DeclaredVariable,
-  (BooleanRHS | NumericRHS | StringRHS | ArrayRHS),
-  SourceLocators
-Assignment = element Assignment { assignment }
 GeneralizedBooleanExpression =
   BooleanExpression | LookupGroup | ArrayElement
 LogicalOperator = OR | XOR | AND | NOT
@@ -382,6 +403,81 @@ NEArray =
     GeneralizedArrayExpression,
     SourceLocators
   }
+# References to Node state data
+
+# NodeState
+NodeState = NodeStateVariable | NodeStateValue
+NodeStateVariable = element NodeStateVariable { node-reference }
+NodeStateValue =
+  element NodeStateValue {
+    "WAITING"
+    | "EXECUTING"
+    | "FINISHING"
+    | "FAILING"
+    | "ITERATION_ENDED"
+    | "FINISHED"
+    | "INACTIVE"
+  }
+# Node state predicates are shorthand for comparisons of a
+# NodeStateVariable with a NodeStateValue
+NodeStatePredicate =
+  Executing
+  | Finished
+  | Inactive
+  | IterationEnded
+  | Waiting
+  | NoChildFailed
+Executing = element Executing { node-reference }
+Finished = element Finished { node-reference }
+Inactive = element Inactive { node-reference }
+IterationEnded = element IterationEnded { node-reference }
+Waiting = element Waiting { node-reference }
+NoChildFailed = element NoChildFailed { node-reference }
+# NodeOutcome
+NodeOutcome = NodeOutcomeVariable | NodeOutcomeValue
+NodeOutcomeVariable = element NodeOutcomeVariable { node-reference }
+NodeOutcomeValue =
+  element NodeOutcomeValue {
+    "SUCCESS" | "FAILURE" | "SKIPPED" | "INTERRUPTED"
+  }
+# Node outcome predicates are shorthand for comparisons of a
+# NodeOutcomeVariable with a NodeOutcomeValue
+NodeOutcomePredicate =
+  Failed
+  | Skipped
+  | Succeeded
+    # more to come
+    
+Failed = element Failed { node-reference }
+Skipped = element Skipped { node-reference }
+Succeeded = element Succeeded { node-reference }
+# NodeFailure
+NodeFailure = NodeFailureVariable | NodeFailureValue
+NodeFailureVariable = element NodeFailureVariable { node-reference }
+NodeFailureValue =
+  element NodeFailureValue {
+    "PRE_CONDITION_FAILED"
+    | "POST_CONDITION_FAILED"
+    | "INVARIANT_CONDITION_FAILED"
+    | "PARENT_FAILED"
+    | "PARENT_EXITED"
+    | "EXITED"
+  }
+# Node failure predicates are shorthand for comparisons of a
+# NodeFailureVariable to a NodeFailureValue
+NodeFailurePredicate =
+  PostconditionFailed
+  # more to come
+  
+PostconditionFailed = element PostconditionFailed { node-reference }
+# NodeTimepointValue refers to a state transition time
+NodeTimepointValue =
+  element NodeTimepointValue {
+    NodeReference, NodeStateValue, Timepoint, SourceLocators
+  }
+Timepoint = element Timepoint { "START" | "END" }
+# NodeCommandHandle is only relevant for Command nodes
+NodeCommandHandle = NodeCommandHandleVariable | NodeCommandHandleValue
 NodeCommandHandleVariable =
   element NodeCommandHandleVariable { node-reference }
 NodeCommandHandleValue =
@@ -396,71 +492,22 @@ NodeCommandHandleValue =
     | "COMMAND_ABORT_FAILED"
     | "COMMAND_INTERFACE_ERROR"
   }
-NodeCommandHandle = NodeCommandHandleVariable | NodeCommandHandleValue
-NodeState = NodeStateVariable | NodeStateValue
-NodeStateVariable = element NodeStateVariable { node-reference }
-NodeStateValue =
-  element NodeStateValue {
-    "WAITING"
-    | "EXECUTING"
-    | "FINISHING"
-    | "FAILING"
-    | "ITERATION_ENDED"
-    | "FINISHED"
-    | "INACTIVE"
+# NodeReference
+NodeReference = NodeId | NodeRef
+node-reference = NodeReference, SourceLocators
+# NodeId is used in Action definitions, and in references to other nodes
+NodeId =
+  element NodeId {
+    xsd:NCName,
+    attribute generated { xsd:boolean }?,
+    SourceLocators
   }
-# Node State Predicates
-NodeStatePredicate =
-  Executing
-  | Finished
-  | Inactive
-  | IterationEnded
-  | Waiting
-  | NoChildFailed
-Executing = element Executing { node-reference }
-Finished = element Finished { node-reference }
-Inactive = element Inactive { node-reference }
-IterationEnded = element IterationEnded { node-reference }
-Waiting = element Waiting { node-reference }
-NoChildFailed = element NoChildFailed { node-reference }
-NodeOutcome = NodeOutcomeVariable | NodeOutcomeValue
-NodeOutcomeVariable = element NodeOutcomeVariable { node-reference }
-NodeOutcomeValue =
-  element NodeOutcomeValue {
-    "SUCCESS" | "FAILURE" | "SKIPPED" | "INTERRUPTED"
+NodeRef =
+  element NodeRef {
+    NCNameOrEmpty,
+    attribute dir { "parent" | "sibling" | "child" | "self" }?,
+    SourceLocators
   }
-# Node Outcome Predicates
-NodeOutcomePredicate =
-  Failed
-  | Skipped
-  | Succeeded
-    # more to come
-    
-Failed = element Failed { node-reference }
-Skipped = element Skipped { node-reference }
-Succeeded = element Succeeded { node-reference }
-NodeFailure = NodeFailureVariable | NodeFailureValue
-NodeFailureVariable = element NodeFailureVariable { node-reference }
-NodeFailureValue =
-  element NodeFailureValue {
-    "PRE_CONDITION_FAILED"
-    | "POST_CONDITION_FAILED"
-    | "INVARIANT_CONDITION_FAILED"
-    | "PARENT_FAILED"
-    | "PARENT_EXITED"
-    | "EXITED"
-  }
-# Node Failure Predicates
-NodeFailurePredicate =
-  PostconditionFailed
-  # more to come
-  
-PostconditionFailed = element PostconditionFailed { node-reference }
-NodeTimepointValue =
-  element NodeTimepointValue {
-    NodeReference, NodeStateValue, Timepoint, SourceLocators
-  }
-Timepoint = element Timepoint { "START" | "END" }
 GeneralizedStringExpression =
   StringExpression | LookupGroup | ArrayElement
 StringExpression = StringVariable | StringValue | StringOperator
@@ -526,7 +573,9 @@ LookupOnChange =
     Name, Tolerance?, Arguments?, SourceLocators
   }
 LookupNow = element LookupNow { Name, Arguments?, SourceLocators }
-# This is separate because it is used in
-# Extended PLEXIL's Lookup and Wait elements
+# Common to Command, LookupNow, LookupOnChange
+Arguments = element Arguments { Expression+, SourceLocators }
+# Tolerance element is common to LookupOnChange and Extended
+# PLEXIL's Lookup, SynchronousCommand, and Wait elements
 Tolerance =
   element Tolerance { GeneralizedNumericExpression, SourceLocators }
