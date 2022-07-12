@@ -2,6 +2,7 @@ bin
 include
 # MacOS detritus
 .DS_Store
+plexil-build
 # Emacs backup file names
 *~
 \#*#
