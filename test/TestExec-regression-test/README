@@ -1,2 +1,15 @@
+Last mod: 24 Jun 2022
+
 This directory contains a regression test suite and script for the
 Plexil executive.  Type './run-tests' to run the regression tests.
+
+By default, the scripts in this directory use the executable file
+../../src/apps/TestExec/TestExec, if it exists, or ../../bin/TestExec.
+If this executable is installed in a different location, or you wish
+to substitute an alternative executive (e.g. PLEXIL5), you can set it
+with:
+
+EXEC_PROG='/location/of/TestExec'
+export EXEC_PROG
+
+prior to running tests.

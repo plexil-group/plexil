@@ -38,16 +38,20 @@ include_directories(${CMAKE_BINARY_DIR})
 
 # TODO: create compile-time environment file plexil-config.env
 
-# Set default RPATH for executables
-if(${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
-  set(PlexilExec_EXE_INSTALL_RPATH "@executable_path/../${CMAKE_INSTALL_LIBDIR}"
-    CACHE STRING
-    "The rpath value to use when installing Plexil executables")
-else()
-  # Presumes system with ELF linker
-  set(PlexilExec_EXE_INSTALL_RPATH "\$ORIGIN/../${CMAKE_INSTALL_LIBDIR}"
-    CACHE STRING
-    "The rpath value to use when installing Plexil executables")
+if(BUILD_SHARED_LIBS)
+  # Set default RUNPATH for executables, and libraries if needed
+  if(${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
+    set(PlexilExec_EXE_INSTALL_RPATH "@executable_path/../${CMAKE_INSTALL_LIBDIR}"
+      CACHE STRING
+      "The rpath value to set when installing Plexil executables")
+  else()
+    set(PlexilExec_EXE_INSTALL_RPATH "\$ORIGIN/../${CMAKE_INSTALL_LIBDIR}"
+      CACHE STRING
+      "The rpath value to set when installing Plexil executables")
+    set(PlexilExec_SHLIB_INSTALL_RPATH "\$ORIGIN"
+      CACHE STRING
+      "The rpath value to set when installing Plexil shared libraries")
+  endif()
 endif()
 
 #

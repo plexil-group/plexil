@@ -1,4 +1,4 @@
-## Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+## Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 ##  All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,11 @@ target_include_directories(PlexilExpr PRIVATE
 
 target_link_libraries(PlexilExpr PUBLIC
   PlexilUtils PlexilValue)
+
+if(PlexilExec_SHLIB_INSTALL_RPATH)
+  set_target_properties(PlexilExpr
+    PROPERTIES INSTALL_RPATH ${PlexilExec_SHLIB_INSTALL_RPATH})
+endif()
 
 if(MATH_LIBRARY)
   target_link_libraries(PlexilExpr PUBLIC ${MATH_LIBRARY})
