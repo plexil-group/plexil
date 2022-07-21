@@ -1,6 +1,6 @@
 # Top level Makefile for Plexil
 
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,9 @@ endif
 endif
 
 export PLEXIL_HOME
+
+# Files in git submodules
+SUBMODULES = src/third-party/pugixml/src
 
 include makeinclude/standard-defs.make
 
@@ -171,7 +174,7 @@ most-install: most-build src/Makefile
 	$(MAKE) -C src install
 
 # At bootstrap time, values of these variables come from makeinclude/standard-defs.make
-src/Makefile: src/configure
+src/Makefile: src/configure $(SUBMODULES)
 	cd ./src && ./configure --prefix="$(PREFIX)" --exec-prefix="$(EXEC_PREFIX)" \
  --bindir="$(BINDIR)" --includedir="$(INCLUDEDIR)" --libdir="$(LIBDIR)" \
  CC="$(CC)" CXX="$(CXX)" \
@@ -179,8 +182,12 @@ src/Makefile: src/configure
  --disable-static --enable-gantt --enable-ipc --enable-sas --enable-test-exec --enable-udp
 
 #
-# Bootstrapping autobuild files
+# Bootstrapping
 #
+
+# Ensure that submodules have been cloned as well
+$(SUBMODULES):
+	git submodule update --init
 
 # Must recreate configure if any of the Makefile.am files changes
 MAKEFILE_AMS = $(wildcard src/**/Makefile.am)

@@ -1,1 +1,33 @@
-repeat5.psx
+<PLEXILScript>
+  <InitialState>
+    <State name="time" type="real">
+      <Value>0.0</Value>
+    </State>
+    <State name="continue" type="bool">
+      <Value>1</Value>
+    </State>
+  </InitialState>
+  <Script>
+    <State name="time" type="real">
+      <Value>1.0</Value>
+    </State>
+    <CommandAck name="foo" type="string">
+      <Result>COMMAND_SUCCESS</Result>
+    </CommandAck>
+    <CommandAck name="foo" type="string">
+      <Result>COMMAND_SUCCESS</Result>
+    </CommandAck>
+    <CommandAck name="foo" type="string">
+      <Result>COMMAND_SUCCESS</Result>
+    </CommandAck>
+    <CommandAck name="foo" type="string">
+      <Result>COMMAND_SUCCESS</Result>
+    </CommandAck>
+    <State name="continue" type="bool">
+      <Value>0</Value>
+    </State>
+    <CommandAck name="foo" type="string">
+      <Result>COMMAND_SUCCESS</Result>
+    </CommandAck>
+  </Script>
+</PLEXILScript>

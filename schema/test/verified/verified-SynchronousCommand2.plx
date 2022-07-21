@@ -1,73 +1,66 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <Node NodeType="NodeList" epx="SynchronousCommand" FileName="foo.ple" LineNo="104" ColNo="1">
-    <NodeId>A</NodeId>
-    <VariableDeclarations>
-      <DeclareArray>
-        <Name>y</Name>
-        <Type>String</Type>
-        <MaxSize>20</MaxSize>
-      </DeclareArray>
-      <DeclareArray>
-        <Name>x</Name>
-        <Type>Integer</Type>
-        <MaxSize>4</MaxSize>
-      </DeclareArray>
-    </VariableDeclarations>
-    <NodeBody>
-      <NodeList>
-        <Node NodeType="NodeList" epx="aux">
-          <NodeId generated="1">ep2cp_SynchronousCommandAux</NodeId>
-          <VariableDeclarations>
-            <DeclareArray>
-              <Name>ep2cp_return</Name>
-              <Type>Integer</Type>
-              <MaxSize>4</MaxSize>
-            </DeclareArray>
-          </VariableDeclarations>
-          <NodeBody>
-            <NodeList>
-              <Node NodeType="Command" epx="aux">
-                <NodeId generated="1">ep2cp_SynchronousCommandCommand</NodeId>
-                <EndCondition>
-                  <IsKnown>
-                    <ArrayElement>
-                      <ArrayVariable>ep2cp_return</ArrayVariable>
-                      <Index>
-                        <IntegerValue>0</IntegerValue>
-                      </Index>
-                    </ArrayElement>
-                  </IsKnown>
-                </EndCondition>
-                <NodeBody>
+   <Node NodeType="NodeList"
+         epx="SynchronousCommand_wrapper"
+         FileName="foo.ple"
+         LineNo="104"
+         ColNo="1">
+      <NodeId>A</NodeId>
+      <VariableDeclarations>
+         <DeclareArray>
+            <Name>y</Name>
+            <Type>String</Type>
+            <MaxSize>20</MaxSize>
+         </DeclareArray>
+         <DeclareArray>
+            <Name>x</Name>
+            <Type>Integer</Type>
+            <MaxSize>4</MaxSize>
+         </DeclareArray>
+         <DeclareArray>
+            <Name>ep2cp_SynchronousCommand_temp</Name>
+            <Type>Integer</Type>
+            <MaxSize>4</MaxSize>
+         </DeclareArray>
+      </VariableDeclarations>
+      <NodeBody>
+         <NodeList>
+            <Node NodeType="Command" epx="SynchronousCommandCommand">
+               <NodeId>ep2cp_SynchronousCommand_cmd</NodeId>
+               <EndCondition>
+                  <EQInternal>
+                     <NodeCommandHandleVariable>
+                        <NodeRef dir="self"/>
+                     </NodeCommandHandleVariable>
+                     <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+                  </EQInternal>
+               </EndCondition>
+               <NodeBody>
                   <Command>
-                    <ArrayVariable>ep2cp_return</ArrayVariable>
-                    <Name>
-                      <StringValue>foo</StringValue>
-                    </Name>
+                     <ArrayVariable>ep2cp_SynchronousCommand_temp</ArrayVariable>
+                     <Name>
+                        <StringValue>foo</StringValue>
+                     </Name>
                   </Command>
-                </NodeBody>
-              </Node>
-              <Node NodeType="Assignment" epx="aux">
-                <NodeId generated="1">ep2cp_SynchronousCommandAssignment</NodeId>
-                <StartCondition>
-                  <Finished>
-                    <NodeRef dir="sibling">ep2cp_SynchronousCommandCommand</NodeRef>
-                  </Finished>
-                </StartCondition>
-                <NodeBody>
+               </NodeBody>
+            </Node>
+            <Node NodeType="Assignment" epx="SynchronousCommandAssignment">
+               <NodeId>ep2cp_SynchronousCommand_assign</NodeId>
+               <StartCondition>
+                  <ANY_KNOWN>
+                     <ArrayVariable>ep2cp_SynchronousCommand_temp</ArrayVariable>
+                  </ANY_KNOWN>
+               </StartCondition>
+               <NodeBody>
                   <Assignment>
-                    <ArrayVariable>x</ArrayVariable>
-                    <ArrayRHS>
-                      <ArrayVariable>ep2cp_return</ArrayVariable>
-                    </ArrayRHS>
+                     <ArrayVariable>x</ArrayVariable>
+                     <ArrayRHS>
+                        <ArrayVariable>ep2cp_SynchronousCommand_temp</ArrayVariable>
+                     </ArrayRHS>
                   </Assignment>
-                </NodeBody>
-              </Node>
-            </NodeList>
-          </NodeBody>
-        </Node>
-      </NodeList>
-    </NodeBody>
-  </Node>
+               </NodeBody>
+            </Node>
+         </NodeList>
+      </NodeBody>
+   </Node>
 </PlexilPlan>

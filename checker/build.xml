@@ -50,21 +50,28 @@
   <property name = "build-env-vol-name" value = "${app-title}Environment"/>
   <property name = "java-framework-mac" location = "/System/Library/Frameworks/JavaVM.framework/Versions/Current/Resources/MacOS"/>
 
-  <!-- remove all built files -->
-     
-  <target name = "clean" 
-          description = "remove all generated files">
+  <!-- remove all built files except the jar -->
+
+  <target name = "mostlyclean" 
+          description = "remove all generated files except the jar">
     <delete dir = "${build-dir}"/>
     <delete dir = "${doc-dir}"/>
     <delete dir = "${app-dir}"/>
     <delete dir = "${dmg-dir}"/>
     <delete dir = "${zip-dir}"/>
     <delete dir = "${build-env-dir}"/>
-    <delete file = "${jar-name}"/>
     <delete file = "${dmg-name}"/>
     <delete file = "${zip-name}"/>
     <delete file = "${build-env-dmg}"/>
     <delete file = "${build-env-zip}"/>
+  </target>
+
+  <!-- remove all built files -->
+     
+  <target name = "clean" 
+          description = "remove all generated files"
+          depends = "mostlyclean" >
+    <delete file = "${jar-name}"/>
   </target>
 
   <!-- compile java doc -->
