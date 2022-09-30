@@ -42,7 +42,11 @@ EOF
 if [ -z "$1" ]
 then
     usage >&2 
-    exit 1
+    exit 2
+elif [ "$1" = '-h' ] || [ "$1" = '-help' ] || [ "$1" = '--help' ]
+then
+    usage
+    exit 0
 fi
 
 RELID="$1"
@@ -55,8 +59,7 @@ fi
 # $1 is the name of a command required for the operation
 find_command()
 {
-    CMD="$(command -v "$1")"
-    if [ -z "$CMD" ]
+    if ! command -v "$1" > /dev/null
     then
         echo "$(basename "$0"): Required program \"$1\" not found in PATH" >&2
         exit 1
@@ -71,15 +74,26 @@ find_command git
 find_command gperf
 find_command javac
 
-STARTDIR="$PWD"
+# TEMP DEBUG
+echo 'Found all commands'
 
-WORKDIR="$( cd "$(mktemp -d -t "$RELID")" && pwd -P )"
+STARTDIR="$(pwd -P)"
+
+# N.B.: -t option is deprecated for GNU coreutils 'mktemp'
+if ! WORKDIR="$(mktemp -d -t "${RELID}_XXXXXX")"
+then
+    echo "$(basename "$0"): 'mktemp' failed. Aborting." >&2
+    exit 1
+fi
+
+# Get absolute directory path
+WORKDIR="$(cd "$WORKDIR" && pwd -P)"
 echo "Exporting to temporary directory $WORKDIR"
 git archive --format=tar --prefix="$RELID/" "$rev" | ( cd "$WORKDIR" && tar xf - )
 git submodule foreach "git archive --format=tar --prefix=\"$RELID/\$displaypath/\" \"\$sha1\" | ( cd \"$WORKDIR\" && tar xf - )"
 
 cd "$WORKDIR/$RELID"
-PLEXIL_HOME="$PWD"
+PLEXIL_HOME="$(pwd -P)"
 export PLEXIL_HOME
 
 echo 'Installing autotools files and building configure script'
@@ -87,6 +101,8 @@ make src/configure
 
 # Prebuild expression parser core
 # NOTE: this command line must track what is in src/xml-parser/Makefile.am
+# and src/xml-parser/CMakeLists.txt
+# (which suggests the gperf command should be wrapped in a script)
 echo 'Generating XML parser perfect hash function'
 gperf -m 8 --output-file=src/xml-parser/ExpressionMap.hh src/xml-parser/ExpressionMap.gperf
 
