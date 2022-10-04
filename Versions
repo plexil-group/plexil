@@ -18,8 +18,12 @@ Known bugs:
 
 Packaging:
 
- * Plexil source code has been migrated to a new git repository at
-   Sourceforge.
+ * Plexil source code has been migrated from a Subversion repository
+   at Sourceforge, to Git repositories at GitHub and Sourceforge.  The
+   GitHub repository will be the authoritative source going forward.
+   The Sourceforge Git repo will be maintained as a mirror for an
+   indefinite period.  The old Subversion repo has long since been
+   frozen.
 
  * Support for the CMake build system has been added.  This should
    simplify integration of the PLEXIL Executive into projects using
@@ -79,8 +83,9 @@ Extended PLEXIL (XML) language, schema, and translator:
    smaller XSLT files for easier maintenance, and moved to the new
    directory schema/epx-translator.
 
- * The Saxon 9 Home Edition XSL processor used in the Extended PLEXIL
-   translator has been updated to release 9.9.1.6.
+ * The Saxon Home Edition XSL processor used in the Extended PLEXIL
+   translator, Standard PLEXIL compiler, and schema format translation
+   has been updated to release 11.4.
 
  * The Extended PLEXIL schema previously did not comply with the XML
    Schema 1.0 specification.  This has been corrected.
@@ -116,10 +121,9 @@ Standard PLEXIL (C-like) language and compiler:
    output is selected by the '-p' or '--pretty-print' command line
    option to the 'plexilc' compiler driver.
 
- * The Standard PLEXIL compiler no longer uses the 'nanoxml' Java
-   library to generate its output.  The Saxon 9 Home Edition XML
-   processing package has been incorporated into the compiler build,
-   and is responsible for generating XML output.  The translation from
+ * The Standard PLEXIL compiler replaces the obsolete 'nanoxml' Java
+   library with Saxon Home Edition release 11.4.  All XML output from
+   the compiler is now generated via Saxon.  The translation from
    Extended PLEXIL to Core PLEXIL has also been integrated into the
    compiler executable, where it had previously been a separate script
    run as a post-processing phase.
@@ -178,14 +182,14 @@ Executive internals and user-defined interfaces:
 
  * The ExecListener API has one incompatible change. Was:
 
- void implementNotifyNodeTransition(NodeState prevState,
-                                    Node *node) const;
+    void implementNotifyNodeTransition(NodeState prevState,
+                                       Node *node) const;
 
    Now is:
 
- void implementNotifyNodeTransition(NodeState prevState,
-                                    NodeState newState,
-                                    Node *node) const;
+    void implementNotifyNodeTransition(NodeState prevState,
+                                       NodeState newState,
+                                       Node *node) const;
 
    Node state transitions used to be advertised to exec listeners at
    the time they were performed, during the exec's micro cycle.  The
@@ -197,6 +201,8 @@ Executive internals and user-defined interfaces:
 
  * Dynamic exception specifications have been removed from the C++
    code, as they have been deprecated in the language for some time.
+
+ * The pugixml library is now incorporated as a Git submodule.
 
  * Various other internal cleanups.
 

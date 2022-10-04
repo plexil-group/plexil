@@ -29,16 +29,22 @@ if [ -z "$PLEXIL_HOME" ]
 then
     # Derive PLEXIL_HOME from $0
     PLEXIL_HOME="$(cd "$(dirname "$0")" ; cd ../.. ; pwd)"
+    export PLEXIL_HOME
 fi
 
 . "$PLEXIL_HOME"/scripts/plexil-setup.sh
 
-JARS_DIR="$PLEXIL_HOME"/jars
-ANTLR_RUNTIME_JAR=antlr-3.5.2-complete-no-st3.jar
+JARS_DIR="${PLEXIL_HOME}/jars"
+PLEXIL_COMPILER_JAR="${JARS_DIR}/PlexilCompiler.jar"
+ANTLR_RUNTIME_JAR="${JARS_DIR}/antlr-3.5.3-complete-no-st3.jar"
+SAXON_HE_JAR="${JARS_DIR}/saxon-he-11.4.jar"
+XMLRESOLVER_JAR="${JARS_DIR}/xmlresolver-4.4.3.jar"
 JAVA="$(command -v java)"
 if [ -n "$JAVA_HOME" ]
 then
     JAVA="$JAVA_HOME"/bin/java
 fi
 
-exec "$JAVA" -classpath "$JARS_DIR/PlexilCompiler.jar:$JARS_DIR/$ANTLR_RUNTIME_JAR:$JARS_DIR/saxon9he.jar" plexil.Compiler "$@"
+exec "$JAVA" \
+     -classpath "${PLEXIL_COMPILER_JAR}:${ANTLR_RUNTIME_JAR}:${SAXON_HE_JAR}:${XMLRESOLVER_JAR}" \
+     plexil.Compiler "$@"
