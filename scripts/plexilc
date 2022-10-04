@@ -85,7 +85,8 @@ then
     PLEXILC_SCRIPT_DIR="$( cd "$(dirname "$(command -v "$0")")" && pwd -P )"
     if [ "scripts" = "$(basename "$PLEXILC_SCRIPT_DIR")" ]
     then
-        export PLEXIL_HOME="$(dirname "$PLEXILC_SCRIPT_DIR")"
+        PLEXIL_HOME="$(dirname "$PLEXILC_SCRIPT_DIR")"
+        export PLEXIL_HOME
     fi
     unset PLEXILC_SCRIPT_DIR
 fi
@@ -129,8 +130,8 @@ JARS_DIR="$PLEXIL_HOME"/jars
 PLEXILSCRIPT_JAR="$JARS_DIR"/plexilscript.jar
 ANTLR2_JAR="$JARS_DIR"/antlr.jar
 # Standard PLEXIL
-PLEXIL_COMPILER_JAR="$JARS_DIR"/PlexilCompiler.jar
-ANTLR3_JAR="$JARS_DIR"/antlr-3.5.2-complete-no-st3.jar
+PLEXIL_COMPILER_JAR="${JARS_DIR}/PlexilCompiler.jar"
+ANTLR3_JAR="${JARS_DIR}/antlr-3.5.3-complete-no-st3.jar"
 SAXON_JAR="$JARS_DIR"/saxon9he.jar
 
 # Commands to execute
