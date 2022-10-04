@@ -7,13 +7,19 @@
   <!-- application specific build variables (change these) -->
 
   <property environment="env"/>
+
+  <!-- Java versions for compatibility -->
+  <property name="ant.build.javac.source" value="1.8"/>
+  <property name="ant.build.javac.target" value="1.8"/>
+
   <property name = "app-name"           value = "global-decl-checker"/>
   <property name = "app-title"          value = "GlobalDeclChecker"/>
   <property name = "domain"             value = ""/>
   <property name = "domain-scope"       value = "main"/>
   <property name = "domain-scope-dir"   value = ""/>
   <property name = "main-class"         value = "DeclMain"/>
-  <property name = "lib-dir"            location = "${env.PLEXIL_HOME}/jars"/>
+  <property name = "plexil_home"        location = ".."/>
+  <property name = "lib-dir"            location = "${plexil_home}/jars"/>
   <property name = "resources"          location = "."/>
   <property name = "compile-includes"   location = "reader/**,main/**,model/**"/>
   <property name = "compile-excludes"   location = ""/>
