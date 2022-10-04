@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
    <Node NodeType="NodeList" epx="Sequence">
-      <NodeId generated="1">ep2cp_Sequence_d13e3</NodeId>
+      <NodeId generated="1">ep2cp_Sequence_d14e3</NodeId>
       <VariableDeclarations>
          <DeclareVariable>
             <Name>x</Name>
@@ -19,10 +19,10 @@
       <NodeBody>
          <NodeList>
             <Node NodeType="Empty"
-                  epx="Wait"
-                  FileName="foo.ple"
-                  LineNo="104"
-                  ColNo="1">
+                   epx="Wait"
+                   FileName="foo.ple"
+                   LineNo="104"
+                   ColNo="1">
                <NodeId>Wait1</NodeId>
                <EndCondition>
                   <GE>
@@ -46,10 +46,10 @@
                </EndCondition>
             </Node>
             <Node NodeType="Empty"
-                  epx="Wait"
-                  FileName="foo.ple"
-                  LineNo="108"
-                  ColNo="1">
+                   epx="Wait"
+                   FileName="foo.ple"
+                   LineNo="108"
+                   ColNo="1">
                <NodeId>Wait2</NodeId>
                <StartCondition>
                   <Finished>

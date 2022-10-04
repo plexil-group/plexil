@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
    <Node NodeType="NodeList" epx="Sequence">
-      <NodeId generated="1">ep2cp_Sequence_d13e3</NodeId>
+      <NodeId generated="1">ep2cp_Sequence_d14e3</NodeId>
       <InvariantCondition>
          <NoChildFailed>
             <NodeRef dir="self"/>
@@ -10,10 +10,10 @@
       <NodeBody>
          <NodeList>
             <Node NodeType="Command"
-                  epx="SynchronousCommand"
-                  FileName="foo.ple"
-                  LineNo="104"
-                  ColNo="1">
+                   epx="SynchronousCommand"
+                   FileName="foo.ple"
+                   LineNo="104"
+                   ColNo="1">
                <NodeId>A</NodeId>
                <EndCondition>
                   <EQInternal>
