@@ -57,7 +57,7 @@
   <property name="jar.antlr"
             location="${dir.source.jars}/antlr-3.5.3-complete-no-st3.jar"/>
   <file id="jar.saxon"
-        file="${dir.source.jars}/saxon9he.jar"/>
+        file="${dir.source.jars}/saxon-he-11.4.jar"/>
 
   <path id="plexil.sourcepath">
     <pathelement location="${dir.source.java}"/>

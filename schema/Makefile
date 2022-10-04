@@ -43,7 +43,7 @@
 # into RELAX NG form. See https://github.com/chucko58/XSDtoRNG .
 # Licensed under Apache License 2.0.
 #
-# Saxon 9 Home Edition (saxon9he) - XSL processor, free edition,
+# Saxon 11 Home Edition (saxon-he-11) - XSL processor, free edition,
 # from http://saxonica.com/ .
 # 
 # trang - Trang converts, among other things, a RELAX NG schema to
@@ -56,7 +56,7 @@
 # Given a PlexilPlan XML Schema called PLEXIL_schema.xsd,
 # to convert it to RELAX NG Compact format:
 #
-# $ java -jar ../jars/saxon9he.jar -xsl:XSDtoRNG.xsl -s:PLEXIL_schema.xsd  -o:PLEXIL_schema.rng
+# $ java -classpath ../jars/saxon-he-11.4.jar:../jars/xmlresolver-4.4.3.jar net.sf.saxon.Transform -xsl:XSDtoRNG.xsl -s:PLEXIL_schema.xsd  -o:PLEXIL_schema.rng
 # $ java -jar ../jars/trang.jar -I rng -O rnc PLEXIL_schema.rng PLEXIL_schema.rnc
 #
 #------------------------------------------------------------------------------
@@ -72,7 +72,10 @@ SCHEMA_V2_RNC = $(SCHEMA_V2_XSD:.xsd=.rnc)
 PLEXILSCRIPT_XSD = plexil-script.xsd
 PLEXILSCRIPT_RNC = $(PLEXILSCRIPT_XSD:.xsd=.rnc)
 
-SAXON_JAR = ../jars/saxon9he.jar
+SAXON_HE_JAR = ../jars/saxon-he-11.4.jar
+XMLRESOLVER_JAR = ../jars/xmlresolver-4.4.3.jar
+
+SAXON = $(JAVA) -classpath $(SAXON_HE_JAR):$(XMLRESOLVER_JAR) net.sf.saxon.Transform
 
 # Most recent version is 20181222
 TRANG_JAR = ../jars/trang.jar
@@ -104,15 +107,15 @@ extended-plexil.rnc core-plexil.rnc : plexil-base.rng
 extended-plexil-v2.rnc core-plexil-v2.rnc : plexil-base-v2.rng
 
 $(SCHEMA_V1_XSD:.xsd=.rng) $(SCHEMA_V2_XSD:.xsd=.rng): %.rng: %.xsd | invalidate-validator-cache
-	$(JAVA) -jar $(SAXON_JAR) -xsl:XSDtoRNG.xsl -s:$< -o:$@ start=PlexilPlan
+	$(SAXON) -xsl:XSDtoRNG.xsl -s:$< -o:$@ start=PlexilPlan
 
 # Special rule for Plexilscript only
 plexil-script.rng: plexil-script.xsd
-	$(JAVA) -jar $(SAXON_JAR) -xsl:XSDtoRNG.xsl -s:$< -o:$@ start=PLEXILScript
+	$(SAXON) -xsl:XSDtoRNG.xsl -s:$< -o:$@ start=PLEXILScript
 
 # General rule to create a RELAX NG schema from an XML schema.
 # %.rng: %.xsd
-# 	$(JAVA) -jar $(SAXON_JAR) -xsl:XSDtoRNG.xsl -s:$< -o:$@
+# 	$(SAXON) -xsl:XSDtoRNG.xsl -s:$< -o:$@
 
 # The rule creates a RELAX NG compact schema from a RELAX NG schema.
 %.rnc: %.rng
