@@ -1,5 +1,5 @@
 <!--
-* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,13 +32,20 @@
   </description>
 
   <property environment="env"/>
-  <property name="dir.antlr" location="${env.PLEXIL_HOME}/jars"/>
+
+  <!-- Java versions for compatibility -->
+  <property name="ant.build.javac.source" value="1.8"/>
+  <property name="ant.build.javac.target" value="1.8"/>
+
+  <property name="dir.plexil_home" location="../.."/>
+
+  <property name="dir.antlr" location="${dir.plexil_home}/jars"/>
   <property name="dir.grammars" location="antlr"/>
   <property name="dir.java" location="java"/>
   <property name="dir.generated" location="generated"/>
   <property name="dir.classes" location="classes"/>
   <property name="dir.jars" location="jars"/>
-  <property name="dir.install" location="${env.PLEXIL_HOME}"/>
+  <property name="dir.install" location="${dir.plexil_home}"/>
   <property name="dir.install.jars" location="${dir.install}/jars"/>
 
   <path id="antlr.classpath">
