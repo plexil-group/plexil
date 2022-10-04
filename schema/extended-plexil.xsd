@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!DOCTYPE xs:schema PUBLIC "-//W3C//DTD XSD 1.1//EN" "XMLSchema.dtd" >
+<!DOCTYPE xs:schema PUBLIC "-//W3C//DTD XSD 1.1//EN" "http://www.w3.org/2009/XMLSchema/XMLSchema.dtd" >
 
 <!--
 * Copyright (c) 2006-2022, Universities Space Research Association (USRA).
