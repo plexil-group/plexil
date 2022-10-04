@@ -2,6 +2,11 @@
 <project default="create_run_jar" name="Create Runnable Jar for Project plexil-decompiler-java">
     <!--this file was created by Eclipse Runnable JAR Export Wizard-->
     <!--ANT 1.7 is required                                        -->
+
+    <!-- Java versions for compatibility -->
+    <property name="ant.build.javac.source" value="1.8"/>
+    <property name="ant.build.javac.target" value="1.8"/>
+
     <!--define folder properties-->
     <property name="dir.buildfile" value="."/>
     <property name="dir.workspace" value="${dir.buildfile}/.."/>
