@@ -39,7 +39,8 @@ then
     PLEXILC_SCRIPT_DIR="$( cd "$(dirname "$(command -v "$0")")" && pwd -P )"
     if [ "scripts" = "$(basename "$PLEXILC_SCRIPT_DIR")" ]
     then
-        export PLEXIL_HOME="$(dirname "$PLEXILC_SCRIPT_DIR")"
+        PLEXIL_HOME="$(dirname "$PLEXILC_SCRIPT_DIR")"
+        export PLEXIL_HOME
     fi
     unset PLEXILC_SCRIPT_DIR
 fi

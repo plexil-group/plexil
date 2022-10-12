@@ -29,12 +29,13 @@ if [ -z "$PLEXIL_HOME" ]
 then
     # Derive PLEXIL_HOME from $0
     PLEXIL_HOME="$(cd "$(dirname "$0")" ; cd ../.. ; pwd)"
+    export PLEXIL_HOME
 fi
 
 . "$PLEXIL_HOME"/scripts/plexil-setup.sh
 
 JARS_DIR="$PLEXIL_HOME"/jars
-ANTLR_RUNTIME_JAR=antlr-3.5.2-complete-no-st3.jar
+ANTLR_RUNTIME_JAR=antlr-3.5.3-complete-no-st3.jar
 JAVA="$(command -v java)"
 if [ -n "$JAVA_HOME" ]
 then
