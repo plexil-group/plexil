@@ -1,4 +1,4 @@
-## Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+## Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 ##  All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -62,7 +62,7 @@ if(MODULE_TESTS)
   install(TARGETS exec-module-tests
     DESTINATION ${CMAKE_INSTALL_BINDIR})
 
-  if(WITH_JNI)
+  if(JAVA_NATIVE_INTERFACE)
     get_target_property(exec-module-tests_SOURCES exec_module_tests SOURCES)
     list(APPEND exec-module-tests_SOURCES test/jni-adapter.cc)
     set_target_properties(exec-module-tests

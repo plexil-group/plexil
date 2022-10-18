@@ -211,8 +211,8 @@ PING_STATUS initPing(PING_THREAD_PTR ping)
 
 static int32 setPinged (const void *key, const void *data, void *table)
 {
-  if ((DATA_STATUS)data != Data_Ready &&
-      *(pthread_t *)key != pthread_self()) {
+  if ((DATA_STATUS)data != Data_Ready
+      && *(pthread_t *)key != pthread_self()) {
     x_ipc_hashTableInsert(key, sizeof(pthread_t),
 			  (void *)Data_Ready, table);
   }

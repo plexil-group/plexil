@@ -310,9 +310,10 @@ MKDIR           = mkdir -p
 # You can also override the default DEFINES with DEFINES="-DMYDEFINE"
 #
 
-TCL_INC_DIR = /afs/cs/local/tcl/common/beta/include
-TCL_LIB_DIR = /afs/cs/local/tcl/@sys/beta/lib
-TK_LIB_DIR  = /afs/cs/local/tk/@sys/beta/lib
+# This may require tweaking for Darwin
+TCL_INC_DIR ?= /usr/include
+TCL_LIB_DIR ?= /usr/lib
+TK_LIB_DIR  ?= /usr/lib
 
 INC_PATH_OSF1	= -I/usr/local/include
 INC_PATH_Mach	= 
@@ -381,16 +382,13 @@ CFLAGS_LISP_Solaris	= -DALLEGRO
 CFLAGS_LISP_SunOS	= -DALLEGRO
 CFLAGS_LISP = -DLISP $(CFLAGS_LISP_$(THIS_OS))
 
+LIB_PATH_Darwin = -L$(LDIR) \
+		-L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib \
+		-L/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib
 LIB_PATH_Mach	= 
-LIB_PATH_Linux	= -L$(BASE_DIR)/$(LDIR) -L/lib -L/usr/X11R6/lib
-LIB_PATH_Solaris= -L$(BASE_DIR)/$(LDIR) -L/usr/local/lib -L/usr/openwin/lib
-LIB_PATH_SunOS	= -L$(BASE_DIR)/$(LDIR) -L/usr/local/lib -L/usr/openwin/lib
-ifeq ($(THIS_OS),Darwin)
-ifeq ($(sort 20.0 $(THIS_RELEASE)),20.0 $(THIS_RELEASE))
-# macOS Big Sur has moved /usr/lib
-LIB_PATH_Darwin = -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib
-endif
-endif
+LIB_PATH_Linux	= -L$(LDIR) -L/lib -L/usr/X11R6/lib
+LIB_PATH_Solaris= -L$(LDIR) -L/usr/local/lib -L/usr/openwin/lib
+LIB_PATH_SunOS	= -L$(LDIR) -L/usr/local/lib -L/usr/openwin/lib
 LIB_PATH_DBMALLOC= -L$(DBMALLOC_DIR)/lib
 LIB_PATH	= -L$(PWD) -L$(LDIR) -L$(PUBLIC_LIB_DIR) \
 		-L$(MODULE_LIB_DIR) -L$(TCL_LIB_DIR) -L$(TK_LIB_DIR) \

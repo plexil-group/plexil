@@ -23,49 +23,50 @@
 ## TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 ## USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-add_executable(TestExec
-  exec-test-runner.cc TestExternalInterface.cc)
+cmake_minimum_required(VERSION 3.6 FATAL_ERROR)
 
-install(TARGETS TestExec
-  DESTINATION ${CMAKE_INSTALL_BINDIR})
+# explicitly set certain policies
+cmake_policy(VERSION 3.6)
 
-target_include_directories(TestExec PRIVATE
-  ${PlexilExec_SOURCE_DIR}/utils
-  ${PlexilExec_SOURCE_DIR}/value
-  ${PlexilExec_SOURCE_DIR}/expr
-  ${PlexilExec_SOURCE_DIR}/intfc
-  ${PlexilExec_SOURCE_DIR}/exec
-  ${pugixml_SOURCE_DIR}
-  ${PlexilExec_SOURCE_DIR}/xml-parser
-  ${PlexilExec_SOURCE_DIR}/app-framework
-  )
+project(Plexil
+  DESCRIPTION "An executive for the PLEXIL language"
+  LANGUAGES CXX C)
 
-target_link_libraries(TestExec PRIVATE
-  PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec
-  -L${pugixml_LIB_DIR} -lpugixml
-  PlexilXmlParser PlexilAppFramework)
+# cmake modules
+include(CMakeDependentOption)
+include(ExternalProject)
+include(GNUInstallDirs)
 
-if(${JAVA_NATIVE_INTERFACE})
-  target_sources(TestExec PRIVATE
-    jni-adapter.cc)
-endif()
+#
+# Options
+#
 
-if(PLAN_DEBUG_LISTENER)
-  target_include_directories(TestExec PRIVATE
-    ${PlexilExec_SOURCE_DIR}/interfaces/PlanDebugListener)
-  target_link_libraries(TestExec PRIVATE
-    PlanDebugListener)
-endif()
+#
+# How to build it
+option(BUILD_SHARED_LIBS "Build shared instead of static libraries" ON)
+#
+# What to build
+option(UNIVERSAL_EXEC "Build the universalExec application" ON)
+option(TEST_EXEC "Build the TestExec application" ON)
+option(UDP_ADAPTER "Build adapter for interfacing via UDP" OFF)
+option(PLAN_DEBUG_LISTENER "Build the PlanDebugListener module" ON)
+option(VIEWER_LISTENER "Build interface for Plexil Viewer" ON)
+#
+# Not strictly exec code
+option(STANDALONE_SIMULATOR "Build the StandAloneSimulator application" OFF)
+option(MODULE_TESTS "Build unit test executables for submodules" OFF)
 
-if(VIEWER_LISTENER)
-  target_include_directories(TestExec PRIVATE
-    ${PlexilExec_SOURCE_DIR}/interfaces/LuvListener
-    ${PlexilExec_SOURCE_DIR}/interfaces/Sockets)
-  target_link_libraries(TestExec PRIVATE
-    PlexilSockets LuvListener)
-endif()
+#
+# Implementation choices
+option(JAVA_NATIVE_INTERFACE "Support for calling PlexilExec from Java" OFF)
+option(DEBUG_MESSAGES "Support for tracing internals at runtime" ON)
 
-if(PlexilExec_EXE_INSTALL_RPATH)
-  set_target_properties(TestExec
-    PROPERTIES INSTALL_RPATH ${PlexilExec_EXE_INSTALL_RPATH})
-endif()
+# Dependent options
+CMAKE_DEPENDENT_OPTION(IPC_ADAPTER "Build TCA-IPC and adapter for interapp comms" ON
+  "NOT STANDALONE_SIMULATOR" ON)
+CMAKE_DEPENDENT_OPTION(WITH_THREADS "Include multithreading support" ON
+  "NOT IPC_ADAPTER; NOT UNIVERSAL_EXEC" ON)
+
+# set PlexilExec_SOURCE_DIR to the src subdirectory
+set(PlexilExec_SOURCE_DIR  ${PROJECT_SOURCE_DIR}/src)
+add_subdirectory(src)

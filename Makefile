@@ -197,7 +197,7 @@ src/Makefile: src/configure $(SUBMODULES)
 
 # Ensure that submodules have been cloned as well
 $(SUBMODULES):
-	git submodule update --init
+	git submodule update --init --recursive
 
 # Must recreate configure if any of the Makefile.am files changes
 MAKEFILE_AMS := $(shell find src -name Makefile.am -print)

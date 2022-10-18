@@ -1,4 +1,4 @@
-## Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+## Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 ##  All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -23,51 +23,6 @@
 ## TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 ## USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 3.6 FATAL_ERROR)
-
-project(PlexilExec
-  DESCRIPTION "An executive for the PLEXIL language"
-  LANGUAGES CXX C)
-
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)  
-
-# cmake modules
-include(CMakeDependentOption)
-include(ExternalProject)
-include(GNUInstallDirs)
-
-#
-# Options
-#
-
-#
-# How to build it
-option(BUILD_SHARED_LIBS "Build shared instead of static libraries" ON)
-
-# Built-in featulres
-option(DEBUG_MESSAGES "Support for tracing internals at runtime" ON)
-option(WITH_THREADS "Use POSIX thread support" ON)
-
-# What to build
-option(UNIVERSAL_EXEC "Build the universalExec application" ON)
-option(TEST_EXEC "Build the TestExec application" ON)
-option(UDP_ADAPTER "Build adapter for interfacing via UDP" OFF)
-option(PLAN_DEBUG_LISTENER "Build the PlanDebugListener module" ON)
-option(VIEWER_LISTENER "Build interface for Plexil Viewer" ON)
-option(MODULE_TESTS "Build unit test executables for submodules" OFF)
-#
-# Not strictly exec code
-option(STANDALONE_SIMULATOR "Build the StandAloneSimulator application" OFF)
-
-#
-# Implementation choices
-option(JAVA_NATIVE_INTERFACE "Support for calling PlexilExec from Java" OFF)
-
-# Dependent options
-CMAKE_DEPENDENT_OPTION(IPC_ADAPTER "Build TCA-IPC and adapter for interapp comms" ON
-  "NOT STANDALONE_SIMULATOR" ON)
-
 #
 # Create plexil-config.h from platform characteristics and options
 #
@@ -83,24 +38,20 @@ include_directories(${CMAKE_BINARY_DIR})
 
 # TODO: create compile-time environment file plexil-config.env
 
-#
-# If building shared libraries, define macro PIC for all source code 
-# for consistency with GNU libtool
-#
 if(BUILD_SHARED_LIBS)
-  add_definitions(-DPIC)
-endif()
-
-# Set default RPATH for executables
-if(${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
-  set(PlexilExec_EXE_INSTALL_RPATH "@executable_path/../${CMAKE_INSTALL_LIBDIR}"
-    CACHE STRING
-    "The rpath value to use when installing Plexil executables")
-else()
-  # Presumes system with ELF linker
-  set(PlexilExec_EXE_INSTALL_RPATH "\$ORIGIN/../${CMAKE_INSTALL_LIBDIR}"
-    CACHE STRING
-    "The rpath value to use when installing Plexil executables")
+  # Set default RUNPATH for executables, and libraries if needed
+  if(${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
+    set(PlexilExec_EXE_INSTALL_RPATH "@executable_path/../${CMAKE_INSTALL_LIBDIR}"
+      CACHE STRING
+      "The rpath value to set when installing Plexil executables")
+  else()
+    set(PlexilExec_EXE_INSTALL_RPATH "\$ORIGIN/../${CMAKE_INSTALL_LIBDIR}"
+      CACHE STRING
+      "The rpath value to set when installing Plexil executables")
+    set(PlexilExec_SHLIB_INSTALL_RPATH "\$ORIGIN"
+      CACHE STRING
+      "The rpath value to set when installing Plexil shared libraries")
+  endif()
 endif()
 
 #
