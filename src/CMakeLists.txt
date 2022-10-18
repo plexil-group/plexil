@@ -68,11 +68,11 @@ endif()
 ExternalProject_add(pugixml
 
   # When included as separate checkout
-  # GIT_REPOSITORY https://github.com/zeux/pugixml
-  # GIT_TAG v1.10
+  GIT_REPOSITORY https://github.com/zeux/pugixml
+  GIT_TAG v1.12.1
   
   # When checked out as part of plexil
-  SOURCE_DIR ${PlexilExec_SOURCE_DIR}/third-party/pugixml
+  # SOURCE_DIR ${PlexilExec_SOURCE_DIR}/third-party/pugixml
 
   # Common
   PREFIX third-party/pugixml
