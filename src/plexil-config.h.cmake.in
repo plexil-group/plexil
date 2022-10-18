@@ -132,6 +132,7 @@
 // Build time options
 //
 
+#cmakedefine PIC 1
 #cmakedefine NO_DEBUG_MESSAGE_SUPPORT 1
 #cmakedefine PLEXIL_WITH_THREADS 1
 #cmakedefine HAVE_DEBUG_LISTENER 1

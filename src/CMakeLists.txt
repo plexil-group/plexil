@@ -27,6 +27,13 @@
 # Create plexil-config.h from platform characteristics and options
 #
 
+project(PlexilExec
+  DESCRIPTION "An executive for the PLEXIL language"
+  LANGUAGES CXX C)
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 include(plexil-config.cmake)
 
 install(FILES ${CMAKE_BINARY_DIR}/plexil-config.h

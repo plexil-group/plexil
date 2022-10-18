@@ -29,7 +29,7 @@ cmake_minimum_required(VERSION 3.6 FATAL_ERROR)
 cmake_policy(VERSION 3.6)
 
 project(Plexil
-  DESCRIPTION "An executive for the PLEXIL language"
+  DESCRIPTION "The PLEXIL Executive package"
   LANGUAGES CXX C)
 
 # cmake modules
@@ -67,6 +67,5 @@ CMAKE_DEPENDENT_OPTION(IPC_ADAPTER "Build TCA-IPC and adapter for interapp comms
 CMAKE_DEPENDENT_OPTION(WITH_THREADS "Include multithreading support" ON
   "NOT IPC_ADAPTER; NOT UNIVERSAL_EXEC" ON)
 
-# set PlexilExec_SOURCE_DIR to the src subdirectory
-set(PlexilExec_SOURCE_DIR  ${PROJECT_SOURCE_DIR}/src)
+# PlexilExec subproject
 add_subdirectory(src)

@@ -261,6 +261,13 @@ endif()
 
 # These set corresponding macros in plexil-config.h
 
+if(BUILD_SHARED_LIBS)
+  # Mimic GNU autotools behavior
+  set(PIC ON)
+else()
+  unset(PIC CACHE)
+endif()
+
 if(DEBUG_MESSAGES)
   unset(NO_DEBUG_MESSAGE_SUPPORT CACHE)
 else()
