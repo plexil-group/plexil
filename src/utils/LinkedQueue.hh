@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,11 +31,7 @@
 
 #include "Error.hh"
 
-#if defined(HAVE_CSTDDEF)
 #include <cstddef> // size_t
-#elif defined(HAVE_STDDEF_H)
-#include <stddef.h> // size_t
-#endif
 
 namespace
 {
@@ -46,13 +42,18 @@ namespace
 
 namespace PLEXIL
 {
-  //*
-  // @class LinkedQueue
-  // @brief Simple unidirectional linked-list queue implementation.
-  //        Participant classes must only provide two member functions:
-  //        T *next() const and T **nextPtr()
-  //
 
+  //! @class LinkedQueue
+  //! @brief Simple singly-linked queue template.
+
+  //! LinkedQueue implements a classic singly-linked queue,
+  //! with head and tail pointers.
+  //! Classes which participate in the queue need only provide
+  //! two member functions:
+  //! - T *next() - return pointer to the next item in the queue
+  //! - const T **nextPtr() - return pointer to the pointer to next 
+  //! \see PriorityQueue
+  //! \ingroup Utils
   template <typename T>
   class LinkedQueue
   {
@@ -61,21 +62,20 @@ namespace PLEXIL
 
   protected: // for use by PriorityQueue
 
-    T *m_head;
-    T *m_tail;
-    size_t m_count;
+    //
+    // Member variables
+    // 
 
-  private:
-    LinkedQueue(LinkedQueue const &) = delete;
-    LinkedQueue(LinkedQueue &&) = delete;
-    LinkedQueue &operator=(LinkedQueue const &) = delete;
-    LinkedQueue &operator=(LinkedQueue &&) = delete;
+    T *m_head;      //!< Pointer to queue head. Accessible to derived classes.
+    T *m_tail;      //!< Pointer to queue tail. Accessible to derived classes.
+    size_t m_count; //!< The number of items in the queue.
 
   public:
 
     using iterator = LinkedQueueIterator<T>;
     using const_iterator = LinkedQueueConstIterator<T>;
     
+    //! \brief Default constructor. Constructs an empty queue.
     LinkedQueue()
       : m_head(nullptr),
         m_tail(nullptr),
@@ -83,45 +83,61 @@ namespace PLEXIL
     {
     }
     
-    virtual ~LinkedQueue()
-    {
-    }
+    //! \brief Virtual destructor.
+    virtual ~LinkedQueue() = default;
 
+    //! \brief Get the first item in the queue.
+    //! \return Pointer to the first item, if any; null if queue is empty.
     T *front() const
     {
       return m_head; // may be null
     }
 
+    //! \brief Return the number of items in the queue.
+    //! \return The number of items in the queue.
+    //! \note Executes in O(1) time.
     size_t size() const
     {
       return m_count;
     }
 
+    //! \brief Query whether the queue is empty.
+    //! \return true if empty, false if non-empty.
     bool empty() const
     {
       return (m_head == nullptr);
     }
 
+    //! \brief Get an iterator to the first element of the list.
+    //! \return The iterator.
     iterator begin()
     {
       return iterator(m_head);
     }
 
+    //! \brief Get an iterator to the element following the last element of the list.
+    //! \return The iterator.
     iterator end()
     {
       return iterator();
     }
 
+    //! \brief Get a const iterator to the first element of the list.
+    //! \return The iterator.
     const_iterator begin() const
     {
       return const_iterator(m_head);
     }
 
+    //! \brief Get a const iterator to the element following the last element of the list.
+    //! \return The iterator.
     const_iterator end() const
     {
       return const_iterator();
     }
 
+    //! \brief Remove the first item from the queue. If empty, do nothing.
+    //! \note Clears the 'next' pointer of the item removed.
     void pop()
     {
       if (empty())
@@ -130,7 +146,8 @@ namespace PLEXIL
       T *oldHead = m_head; // temp? see below
       if (m_head == m_tail) {
         // Exactly one item was in queue, is now empty
-        m_head = m_tail = nullptr;
+        m_head = nullptr;
+        m_tail = nullptr;
       }
       else {
         m_head = m_head->next();
@@ -143,6 +160,9 @@ namespace PLEXIL
       --m_count; // better be 0 if empty!
     }
 
+    //! \brief Insert an item on the tail end of the queue.
+    //! \param item Pointer to the item to be inserted.
+    //! \note Clears the 'next' pointer of the new item.
     void push(T *item)
     {
       assertTrue_1(item);
@@ -157,6 +177,9 @@ namespace PLEXIL
       ++m_count;
     }
 
+    //! \brief Insert the item in the queue, at the location just past the iterator.
+    //! \param it Iterator to the insertion point.
+    //! \param item Pointer to the item to be inserted.
     iterator insert_after(iterator it, T* item)
     {
       if (!it) {
@@ -174,6 +197,10 @@ namespace PLEXIL
       return iterator(item);
     }
 
+    //! \brief Remove the given item from the queue, if it exists.
+    //! \param item Pointer to the item to be removed.
+    //! \note If the item is found, clears its 'next' pointer.
+    //! \note If the item is not found, no side effects are performed.
     void remove(T *item)
     {
       if (item == nullptr || empty())
@@ -200,13 +227,9 @@ namespace PLEXIL
       --m_count;
     }
  
-    /**
-     * @brief Find an item satisfying a predicate.
-     * @param pred The predicate object. Must have an operator() method with the signature:
-     *    bool operator()(T* item)
-     * @return The first item satisfying the predicate, or null if not found.
-     */
-
+    //! \brief Find an item satisfying a predicate.
+    //! \param pred A function object with the signature bool operator()(T* item).
+    //! \return Pointer to the first item satisfying the predicate; nullptr if not found.
     template <typename Predicate>
     T* find_if(Predicate const &pred)
     {
@@ -221,14 +244,10 @@ namespace PLEXIL
       // not found
       return nullptr;
     }
- 
-    /**
-     * @brief Remove the first item satisfying the predicate.
-     * @param pred The predicate object. Must have an operator() method with the signature:
-     *    bool operator()(T* item)
-     * @return The removed queue item, or null if not found.
-     */
 
+    //! \brief Remove the first item satisfying the predicate.
+    //! \param pred A function object  with the signature bool operator()(T* item)
+    //! \return The removed queue item, or nullptr if not found.
     template <typename Predicate>
     T* remove_if(Predicate const &pred)
     {
@@ -260,7 +279,7 @@ namespace PLEXIL
       return result;
     }
 
-    // Unlink all in queue
+    //! \brief Unlink all items in the queue, and reset the queue to empty.
     void clear()
     {
       T *cur = m_head;
@@ -274,11 +293,19 @@ namespace PLEXIL
       m_count = 0;
     }
 
+  private:
+    LinkedQueue(LinkedQueue const &) = delete;
+    LinkedQueue(LinkedQueue &&) = delete;
+    LinkedQueue &operator=(LinkedQueue const &) = delete;
+    LinkedQueue &operator=(LinkedQueue &&) = delete;
+
   };
 }
 
 namespace
 {
+  //! \class LinkedQueueIterator
+  //! \brief An implementation of a simple non-const iterator for LinkedQueue.
   template <typename T>
   class LinkedQueueIterator final
   {
@@ -309,7 +336,8 @@ namespace
     // prefix ++
     LinkedQueueIterator &operator++()
     {
-      m_ptr = m_ptr->next();
+      if (m_ptr)
+        m_ptr = m_ptr->next();
       return *this;
     }
 
@@ -317,7 +345,8 @@ namespace
     LinkedQueueIterator operator++(int)
     {
       LinkedQueueIterator result(*this);
-      m_ptr = m_ptr->next();
+      if (m_ptr)
+        m_ptr = m_ptr->next();
       return result;
     }
 
@@ -338,6 +367,8 @@ namespace
 
   };
 
+  //! \class LinkedQueueConstIterator
+  //! \brief An implementation of a simple const iterator for LinkedQueue.
   template <typename T>
   class LinkedQueueConstIterator final
   {
@@ -372,7 +403,8 @@ namespace
     // prefix ++
     LinkedQueueConstIterator &operator++()
     {
-      m_ptr = m_ptr->next();
+      if (m_ptr)
+        m_ptr = m_ptr->next();
       return *this;
     }
 
@@ -380,7 +412,8 @@ namespace
     LinkedQueueConstIterator operator++(int)
     {
       LinkedQueueConstIterator result(*this);
-      m_ptr = m_ptr->next();
+      if (m_ptr)
+        m_ptr = m_ptr->next();
       return result;
     }
 
@@ -404,30 +437,31 @@ namespace
 namespace PLEXIL
 {
 
-  /**
-   * @class PriorityQueue
-   * @brief A variant of LinkedQueue that stores its entries in nondecreasing sorted order
-   *        as determined by Compare.
-   * @note Compare must implement a strict less-than comparison.
-   * @note Callers should not use push() member function!!
-   */
-
+  //! \class PriorityQueue
+  //! \brief A variant of LinkedQueue which stores its entries in nondecreasing sorted order
+  //!        as determined by the Compare class.
+  //! \note Compare must implement a strict less-than comparison.
+  //! \note Callers should not use push() member function!!
+  //! \ingroup Utils
   template <typename T, typename Compare = std::less<T> >
   class PriorityQueue final :
     public LinkedQueue<T>
   {
   public:
 
+    //! \brief Default constructor. Constructs an empy queue.
     PriorityQueue()
       : LinkedQueue<T>()
     {
     }
 
+    //! \brief Virtual destructor.
     ~PriorityQueue()
     {
     }
 
-    // Inserts item after all entries less than or equal to item.
+    //! \brief Insert item in sorted order, after all entries less than or equal to item.
+    //! \param item Pointer to the item to insert.
     void insert(T *item)
     {
       if (!this->m_head) {
@@ -460,10 +494,8 @@ namespace PLEXIL
       ++this->m_count;
     }
 
-    /**
-     * @brief Get count of items that compare equal to front().
-     * @return 0 if empty, otherwise the count.
-     */
+    //! \brief Get count of items that compare equal to front().
+    //! \return 0 if empty, otherwise the count.
     size_t front_count() const
     {
       if (this->m_count <= 1)

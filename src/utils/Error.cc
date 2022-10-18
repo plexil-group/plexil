@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -46,17 +46,10 @@
 
 #include "plexil-config.h"
 
-#ifndef PLEXIL_NO_ERROR_EXCEPTIONS
-/* Contains the rest of this file */
-
 #include "Error.hh"
 #include "Logging.hh"
 
-#if defined(HAVE_CASSERT)
 #include <cassert>
-#elif defined(HAVE_ASSERT_H)
-#include <assert.h>
-#endif
 
 namespace PLEXIL
 {
@@ -253,7 +246,5 @@ namespace PLEXIL
     err.print(ostr);
     return ostr;
   }
-
-#endif /* PLEXIL_NO_ERROR_EXCEPTIONS */
 
 } // namespace PLEXIL

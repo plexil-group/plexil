@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -66,23 +66,25 @@
 #include <string>
 #include <sstream>
 
-// Helper macro for telling compiler that error handler won't return
-#if (__cplusplus >= 201103L)
-// This version for modern compilers
-#define PLEXIL_NORETURN [[noreturn]]
-#else
-// fallback (no-op for now)
+// Helper macro for advising compiler that error handler won't return
+#ifdef __has_cpp_attribute
+ #if __has_cpp_attribute(noreturn)
+ // This version for modern compilers
+ #define PLEXIL_NORETURN [[noreturn]]
+ #endif
+#endif
+#ifndef PLEXIL_NORETURN
 #define PLEXIL_NORETURN
 #endif
 
 // Helper macro for noexcept specification
 // Some compilers use non-standard _NOEXCEPT and declare it to be more stringent
 // than the C++11 standard 'noexpect' keyword.
-#if defined(_NOEXCEPT)
-#define PLEXIL_NOEXCEPT _NOEXCEPT
-#elif __cplusplus >= 201103L
+#if __cplusplus >= 201103L
 #define PLEXIL_NOEXCEPT noexcept
-#else // older than C++11
+#elif defined(_NOEXCEPT)
+#define PLEXIL_NOEXCEPT _NOEXCEPT
+#else // shouldn't be many of these left
 #define PLEXIL_NOEXCEPT throw ()
 #endif
 
