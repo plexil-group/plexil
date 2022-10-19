@@ -67,5 +67,26 @@ CMAKE_DEPENDENT_OPTION(IPC_ADAPTER "Build TCA-IPC and adapter for interapp comms
 CMAKE_DEPENDENT_OPTION(WITH_THREADS "Include multithreading support" ON
   "NOT IPC_ADAPTER; NOT UNIVERSAL_EXEC" ON)
 
+# If source directory is a git clone, fetch submodules.
+# Derived from https://cliutils.gitlab.io/modern-cmake/chapters/projects/submodule.html
+if(EXISTS "${PROJECT_SOURCE_DIR}/.git")
+  find_package(Git QUIET)
+  if(GIT_FOUND)
+    # Update submodules as needed
+    option(GIT_SUBMODULE "Update submodules during build" ON)
+    if(GIT_SUBMODULE)
+      message(STATUS "Submodule update")
+      execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+        WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+        RESULT_VARIABLE GIT_SUBMOD_RESULT)
+      if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+        message(FATAL_ERROR "Fetching submodules failed with ${GIT_SUBMOD_RESULT}")
+      endif()
+    endif()
+  else()
+    message(WARNING "'git' command not found. Skipping submodule update.")
+  endif()
+endif()
+
 # PlexilExec subproject
 add_subdirectory(src)

@@ -40,7 +40,6 @@ install(FILES ${CMAKE_BINARY_DIR}/plexil-config.h
   DESTINATION include)
 
 # This is the build time location of plexil-config.h
-# This is global for a good reason!
 include_directories(${CMAKE_BINARY_DIR})
 
 # TODO: create compile-time environment file plexil-config.env
@@ -65,14 +64,19 @@ endif()
 # pugixml as an external project
 #
 
+# From https://cliutils.gitlab.io/modern-cmake/chapters/projects/submodule.html
+if(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/third-party/pugixml/CMakeLists.txt")
+    message(FATAL_ERROR "Submodule pugixml not found at ${CMAKE_CURRENT_LIST_DIR}/third-party/pugixml")
+endif()
+
 ExternalProject_add(pugixml
 
   # When included as separate checkout
-  GIT_REPOSITORY https://github.com/zeux/pugixml
-  GIT_TAG v1.12.1
-  
+  # GIT_REPOSITORY https://github.com/zeux/pugixml
+  # GIT_TAG v1.12.1
+
   # When checked out as part of plexil
-  # SOURCE_DIR ${PlexilExec_SOURCE_DIR}/third-party/pugixml
+  SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/third-party/pugixml
 
   # Common
   PREFIX third-party/pugixml
