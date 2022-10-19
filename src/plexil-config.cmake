@@ -193,7 +193,10 @@ CHECK_FUNCTION_EXISTS(setitimer HAVE_SETITIMER) # ItimerTimebase, StandAloneSimu
 # using the normal tools.
 #
 
-cmake_policy(SET CMP0075 NEW)
+# This policy first appeared in CMake 3.12.
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.12")
+  cmake_policy(SET CMP0075 NEW)
+endif()
 set(CMAKE_REQUIRED_LIBRARIES "rt")
 CHECK_CXX_SOURCE_COMPILES(
   "
