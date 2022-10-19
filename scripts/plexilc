@@ -49,8 +49,8 @@ usage ()
 Usage: $(basename "$0") [options] file...
   Compile Plexil plans or simulator scripts to XML
  Options for information:
-  -h, -help, --help                Print this help and exit
-  -v, -version                     Print translator version and exit
+  -h, -help, --help                 Print this help and exit
+  -v, -version                      Print translator version and exit
  Options for all file types:
   -q, -quiet                       Parse files quietly
   -o, -output <outfile>            Write translator output to <outfile>
@@ -85,7 +85,8 @@ then
     PLEXILC_SCRIPT_DIR="$( cd "$(dirname "$(command -v "$0")")" && pwd -P )"
     if [ "scripts" = "$(basename "$PLEXILC_SCRIPT_DIR")" ]
     then
-        export PLEXIL_HOME="$(dirname "$PLEXILC_SCRIPT_DIR")"
+        PLEXIL_HOME="$(dirname "$PLEXILC_SCRIPT_DIR")"
+        export PLEXIL_HOME
     fi
     unset PLEXILC_SCRIPT_DIR
 fi
@@ -129,8 +130,8 @@ JARS_DIR="$PLEXIL_HOME"/jars
 PLEXILSCRIPT_JAR="$JARS_DIR"/plexilscript.jar
 ANTLR2_JAR="$JARS_DIR"/antlr.jar
 # Standard PLEXIL
-PLEXIL_COMPILER_JAR="$JARS_DIR"/PlexilCompiler.jar
-ANTLR3_JAR="$JARS_DIR"/antlr-3.5.2-complete-no-st3.jar
+PLEXIL_COMPILER_JAR="${JARS_DIR}/PlexilCompiler.jar"
+ANTLR3_JAR="${JARS_DIR}/antlr-3.5.3-complete-no-st3.jar"
 SAXON_JAR="$JARS_DIR"/saxon9he.jar
 
 # Commands to execute
@@ -304,7 +305,6 @@ compile_ext_plexil()
 # $2: Where to put the result
 compile_plexilscript()
 {
-    # Plexilscript
     if [ ! -r "$PLEXILSCRIPT_JAR" ]
     then
         cat >&2 <<EOF
@@ -317,6 +317,7 @@ EOF
         exit 1
     fi
 
+    # Plexilscript
     "$JAVA" -classpath "$PLEXILSCRIPT_JAR:$ANTLR2_JAR" plexilscript.PlexilScriptParse < "$1" > "$2"
     local status=$?
     if [ $status -ne 0 ]
@@ -353,16 +354,17 @@ compile_plp()
             return $status
         fi
     fi
-
-    # Can exit if exit_on_fail set; always prints error message
+    
     compile_std_plexil "$ple_fname" "$2"
-    status=$?
-
+    local status=$?
+    
     # Delete preprocessor output file if successful
-    if [ $status -eq 0 ]
-    then
-        /bin/rm -f "$ple_fname"
-    fi
+    # TEMP Comment this out until the compiler is capable of reporting
+    # line numbers correctly.
+    # if [ $status -eq 0 ]
+    # then
+    #     /bin/rm -f "$ple_fname"
+    # fi
 
     return $status
 }
@@ -381,6 +383,7 @@ compile_one_file()
     then
         dest="$(safe_name "$specified_output")"
     else
+        # TODO: destination directory
         dest_dir="${dest_dir:-$(dirname "$1")}"
         local base="$(basename "$1")"
         case "$in_ext" in
@@ -435,12 +438,21 @@ compile_one_file()
             fi
             ;;
     esac
-    local status=$?
+    status=$?
 
-    if [ $status -eq 0 ] && [ -n "$check" ] && [ "$in_ext" != 'pst' ] && [ -r "$output" ]
+    if [ $status -eq 0 ]
     then
-        $plexil_checker "$output"
-        status=$?
+        if [ -n "$check" ]
+        then
+            if [ "$in_ext" != "pst" ]
+            then
+                test -z "$quiet" && echo "Warning: Not checking Plexilscript file $(display_name "$dest")"
+            elif [ -r "$dest" ]
+            then
+                $plexil_checker "$dest"
+                status=$?
+            fi      
+        fi
     fi
     return $status
 }
@@ -468,23 +480,22 @@ do
 
         -I )
             pp_args="$pp_args $1 $2"
-            shift
+            shift 
             ;;
 
         -k | -keep-epx )
             keep_epx="$1"
             ;;
-
+        
         -o | -output )
             if [ -z "$2" ] || [ "$2" != "${2#-}" ]
             then
                 echo "Error: output filename missing for $1 option" >&2
-
                 usage >&2
                 exit 2
             fi
             specified_output="$2"
-            shift 
+            shift
             ;;
 
         -O | -output-directory )
