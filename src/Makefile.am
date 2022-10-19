@@ -66,9 +66,9 @@ endif
 
 # pugixml
 
-lib_LTLIBRARIES = libpugixml.la
+lib_LTLIBRARIES = third-party/pugixml/src/libpugixml.la
 include_HEADERS += third-party/pugixml/src/pugiconfig.hpp third-party/pugixml/src/pugixml.hpp
-libpugixml_la_SOURCES = third-party/pugixml/src/pugixml.cpp
+third_party_pugixml_src_libpugixml_la_SOURCES = third-party/pugixml/src/pugixml.cpp
 
 ##
 ## ORDER OF THE FOLLOWING IS SIGNIFICANT 
