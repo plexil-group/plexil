@@ -360,12 +360,12 @@ $(LDIR)/libipc.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR).dylib: $(SHAREDOBJS) $(
 	$(LD_SHARED) -o $@ $(SHAREDOBJS) $(LIB_PATH) $(LIBS_$(THIS_OS))
 
 $(LDIR)/libipc.dylib $(LDIR)/libipc.$(IPC_VERSION_MAJOR).dylib: $(LDIR)/libipc.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR).dylib
-	cd $(LDIR) && ln -s $(notdir $<) $(notdir $@)
+	cd $(LDIR) && ln -fs $(notdir $<) $(notdir $@)
 
 $(PUBLIC_LIB_DIR)/libipc.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR).dylib: $(SHAREDOBJS)
 
 $(PUBLIC_LIB_DIR)/libipc.dylib $(PUBLIC_LIB_DIR)/libipc.$(IPC_VERSION_MAJOR).dylib: $(PUBLIC_LIB_DIR)/libipc.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR).dylib
-	cd $(PUBLIC_LIB_DIR) && ln -s $(notdir $<) $(notdir $@)
+	cd $(PUBLIC_LIB_DIR) && ln -fs $(notdir $<) $(notdir $@)
 else # not Darwin
 $(LDIR)/libipc.so.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR): $(SHAREDOBJS) $(LDIR)/.force
 	$(LD_SHARED) -o \
@@ -373,12 +373,12 @@ $(LDIR)/libipc.so.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR): $(SHAREDOBJS) $(LDI
 		$(SHAREDOBJS) $(LIB_PATH) $(LIBS_$(THIS_OS))
 
 $(LDIR)/libipc.so $(LDIR)/libipc.so.$(IPC_VERSION_MAJOR): $(LDIR)/libipc.so.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR)
-	cd $(LDIR) && ln -s $(notdir $<) $(notdir $@)
+	cd $(LDIR) && ln -fs $(notdir $<) $(notdir $@)
 
 $(PUBLIC_LIB_DIR)/libipc.so.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR): $(SHAREDOBJS)
 
 $(PUBLIC_LIB_DIR)/libipc.so $(PUBLIC_LIB_DIR)/libipc.so.$(IPC_VERSION_MAJOR): $(PUBLIC_LIB_DIR)/libipc.so.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR)
-	cd $(PUBLIC_LIB_DIR) && ln -s $(notdir $<) $(notdir $@)
+	cd $(PUBLIC_LIB_DIR) && ln -fs $(notdir $<) $(notdir $@)
 
 $(LDIR)/libipc.sa.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR): $(MODULEDATA)
 	$(RM) $@
@@ -400,7 +400,7 @@ $(LDIR)/libipc_lisp.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR).dylib: $(SHAREDOBJ
 $(PUBLIC_LIB_DIR)/libipc_lisp.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR).dylib: $(SHAREDOBJS)
 
 $(PUBLIC_LIB_DIR)/libipc_lisp.$(IPC_VERSION_MAJOR).dylib $(PUBLIC_LIB_DIR)/libipc_lisp.dylib : $(PUBLIC_LIB_DIR)/libipc_lisp.$(IPC_VERSION_MAJOR).$(IPC_VERSION_MINOR).dylib
-	ln -s $< $@
+	ln -fs $< $@
 else
 $(LDIR)/libipc_lisp.so: $(SHAREDOBJS)
 	$(LD_SHARED) -o $@ $(SHAREDOBJS) $(LIB_PATH) $(LIBACL)

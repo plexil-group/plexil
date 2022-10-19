@@ -311,9 +311,9 @@ MKDIR           = mkdir -p
 #
 
 # This may require tweaking for Darwin
-TCL_INC_DIR ?= /usr/include
-TCL_LIB_DIR ?= /usr/lib
-TK_LIB_DIR  ?= /usr/lib
+TCL_INC_DIR ?=
+TCL_LIB_DIR ?=
+TK_LIB_DIR  ?=
 
 INC_PATH_OSF1	= -I/usr/local/include
 INC_PATH_Mach	= 
@@ -386,7 +386,7 @@ LIB_PATH_Darwin = -L$(LDIR) \
 		-L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/lib \
 		-L/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/lib
 LIB_PATH_Mach	= 
-LIB_PATH_Linux	= -L$(LDIR) -L/lib -L/usr/X11R6/lib
+LIB_PATH_Linux	= -L$(LDIR) -L/usr/X11R6/lib
 LIB_PATH_Solaris= -L$(LDIR) -L/usr/local/lib -L/usr/openwin/lib
 LIB_PATH_SunOS	= -L$(LDIR) -L/usr/local/lib -L/usr/openwin/lib
 LIB_PATH_DBMALLOC= -L$(DBMALLOC_DIR)/lib
