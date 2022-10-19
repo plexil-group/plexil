@@ -23,16 +23,18 @@
 ## TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 ## USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#
-# Create plexil-config.h from platform characteristics and options
-#
-
 project(PlexilExec
   DESCRIPTION "An executive for the PLEXIL language"
   LANGUAGES CXX C)
 
+include(GNUInstallDirs)
+
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+#
+# Create plexil-config.h from platform characteristics and options
+#
 
 include(plexil-config.cmake)
 
@@ -69,27 +71,6 @@ if(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/third-party/pugixml/CMakeLists.txt")
     message(FATAL_ERROR "Submodule pugixml not found at ${CMAKE_CURRENT_LIST_DIR}/third-party/pugixml")
 endif()
 
-ExternalProject_add(pugixml
-
-  # When included as separate checkout
-  # GIT_REPOSITORY https://github.com/zeux/pugixml
-  # GIT_TAG v1.12.1
-
-  # When checked out as part of plexil
-  SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/third-party/pugixml
-
-  # Common
-  PREFIX third-party/pugixml
-  CMAKE_ARGS -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
-  -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-  -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-  STEP_TARGETS build
- )
-
-ExternalProject_Get_Property(pugixml SOURCE_DIR BINARY_DIR)
-set(pugixml_SOURCE_DIR ${SOURCE_DIR}/src)
-set(pugixml_LIB_DIR ${BINARY_DIR})
-
 if(BUILD_SHARED_LIBS)
   set(PlexilExec_SHARED_OR_STATIC SHARED)
 else()
@@ -103,6 +84,7 @@ add_subdirectory(value)
 add_subdirectory(expr)
 add_subdirectory(intfc)
 add_subdirectory(exec)
+add_subdirectory(third-party/pugixml)
 add_subdirectory(xml-parser)
 add_subdirectory(app-framework)
 
@@ -125,21 +107,7 @@ if(UDP_ADAPTER)
 endif()
 
 if(IPC_ADAPTER)
-  ExternalProject_Add(
-    ipc
-
-    SOURCE_DIR ${PlexilExec_SOURCE_DIR}/third-party/ipc
-    PREFIX third-party/ipc
-    CMAKE_ARGS -DTHREADED=ON -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
-    -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-    -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-    STEP_TARGETS build
-    )
-
-  ExternalProject_Get_Property(ipc SOURCE_DIR BINARY_DIR)
-  set(ipc_SOURCE_DIR ${SOURCE_DIR}/src)
-  set(ipc_LIB_DIR ${BINARY_DIR})
-
+  add_subdirectory(third-party/ipc)
   add_subdirectory(interfaces/IpcUtils)
   add_subdirectory(interfaces/IpcAdapter)
 

@@ -1,4 +1,4 @@
-## Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+## Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 ##  All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -34,21 +34,16 @@ target_include_directories(IpcAdapter PUBLIC
   ${PlexilExec_SOURCE_DIR}/expr
   ${PlexilExec_SOURCE_DIR}/intfc
   ${PlexilExec_SOURCE_DIR}/exec
+  ${PlexilExec_SOURCE_DIR}/third-party/pugixml/src
   ${PlexilExec_SOURCE_DIR}/xml-parser
   ${PlexilExec_SOURCE_DIR}/app-framework
-  ${pugixml_SOURCE_DIR}
-  ${ipc_SOURCE_DIR}
+  ${PlexilExec_SOURCE_DIR}/third-party/ipc/src
   ${PlexilExec_SOURCE_DIR}/interfaces/IpcUtils
   )
 
 target_link_libraries(IpcAdapter PUBLIC
-  PlexilUtils PlexilValue PlexilIntfc PlexilExec
-  -L${pugixml_LIB_DIR} -lpugixml
-  PlexilXmlParser PlexilAppFramework
-  IpcUtils
-  -L${ipc_LIB_DIR} -lipc)
-
-add_dependencies(IpcAdapter ipc-build)
+  PlexilUtils PlexilValue PlexilIntfc PlexilExec pugixml PlexilXmlParser
+  PlexilAppFramework IpcUtils ipc)
 
 install(TARGETS IpcAdapter
   DESTINATION ${CMAKE_INSTALL_LIBDIR})

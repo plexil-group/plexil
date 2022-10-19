@@ -34,8 +34,6 @@ project(Plexil
 
 # cmake modules
 include(CMakeDependentOption)
-include(ExternalProject)
-include(GNUInstallDirs)
 
 #
 # Options
@@ -75,7 +73,7 @@ if(EXISTS "${PROJECT_SOURCE_DIR}/.git")
     # Update submodules as needed
     option(GIT_SUBMODULE "Update submodules during build" ON)
     if(GIT_SUBMODULE)
-      message(STATUS "Submodule update")
+      message(STATUS "Updating Plexil submodules")
       execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
         WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
         RESULT_VARIABLE GIT_SUBMOD_RESULT)

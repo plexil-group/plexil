@@ -42,14 +42,13 @@ include_directories(
   ${PlexilExec_SOURCE_DIR}/expr
   ${PlexilExec_SOURCE_DIR}/intfc
   ${PlexilExec_SOURCE_DIR}/exec
-  ${pugixml_SOURCE_DIR}
+  ${PlexilExec_SOURCE_DIR}/third-party/pugixml/src
   ${PlexilExec_SOURCE_DIR}/xml-parser
   )
 
 target_link_libraries(PlexilAppFramework PUBLIC
   PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec
-  -L${pugixml_LIB_DIR} -lpugixml
-  PlexilXmlParser)
+  pugixml PlexilXmlParser)
 
 if(WITH_THREADS AND HAVE_LIBPTHREAD)
   target_link_libraries(PlexilAppFramework PUBLIC pthread)
@@ -121,9 +120,7 @@ if(MODULE_TESTS AND WITH_THREADS)
     )
 
   target_link_libraries(timebase-test
-    PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec
-    -L${pugixml_LIB_DIR} -lpugixml
-    )
+    PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec pugixml)
 
   if(HAVE_LIBRT)
     target_link_libraries(timebase-test rt)

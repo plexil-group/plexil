@@ -1,4 +1,4 @@
-## Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+## Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 ##  All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -56,16 +56,12 @@ include_directories(
   ${PlexilExec_SOURCE_DIR}/expr
   ${PlexilExec_SOURCE_DIR}/intfc
   ${PlexilExec_SOURCE_DIR}/exec
-  ${pugixml_SOURCE_DIR}
+  ${PlexilExec_SOURCE_DIR}/third-party/pugixml/src
   ${CMAKE_CURRENT_BINARY_DIR} # ExpresssionMap.hh
   )
 
 target_link_libraries(PlexilXmlParser PUBLIC
-  PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec
-  -L${pugixml_LIB_DIR} -lpugixml
-  )
-
-add_dependencies(PlexilXmlParser pugixml-build)
+  PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec pugixml)
 
 # Public includes
 install(FILES 
@@ -81,8 +77,7 @@ install(TARGETS analyzePlan
 
 target_link_libraries(analyzePlan PRIVATE
   PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec
-  -L${pugixml_LIB_DIR} -lpugixml
-  PlexilXmlParser)
+  pugixml PlexilXmlParser)
 
 if(PlexilExec_EXE_INSTALL_RPATH)
   set_target_properties(analyzePlan
@@ -108,8 +103,7 @@ if(MODULE_TESTS)
 
   target_link_libraries(parser-module-tests PRIVATE
     PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec
-    -L${pugixml_LIB_DIR} -lpugixml
-    PlexilXmlParser)
+    pugixml PlexilXmlParser)
 
   if(PlexilExec_EXE_INSTALL_RPATH)
     set_target_properties(parser-module-tests
@@ -128,8 +122,7 @@ if(MODULE_TESTS)
 
   target_link_libraries(parser-benchmark PRIVATE
     PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec
-    -L${pugixml_LIB_DIR} -lpugixml
-    PlexilXmlParser)
+    pugixml PlexilXmlParser)
 
   if(PlexilExec_EXE_INSTALL_RPATH)
     set_target_properties(parser-benchmark

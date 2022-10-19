@@ -35,15 +35,14 @@ target_include_directories(TestExec PRIVATE
   ${PlexilExec_SOURCE_DIR}/expr
   ${PlexilExec_SOURCE_DIR}/intfc
   ${PlexilExec_SOURCE_DIR}/exec
-  ${pugixml_SOURCE_DIR}
+  ${PlexilExec_SOURCE_DIR}/third-party/pugixml/src
   ${PlexilExec_SOURCE_DIR}/xml-parser
   ${PlexilExec_SOURCE_DIR}/app-framework
   )
 
 target_link_libraries(TestExec PRIVATE
   PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec
-  -L${pugixml_LIB_DIR} -lpugixml
-  PlexilXmlParser PlexilAppFramework)
+  pugixml PlexilXmlParser PlexilAppFramework)
 
 if(${JAVA_NATIVE_INTERFACE})
   target_sources(TestExec PRIVATE

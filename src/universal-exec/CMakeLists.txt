@@ -1,4 +1,4 @@
-## Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+## Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 ##  All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -37,15 +37,14 @@ target_include_directories(universalExec PRIVATE
   ${PlexilExec_SOURCE_DIR}/expr
   ${PlexilExec_SOURCE_DIR}/intfc
   ${PlexilExec_SOURCE_DIR}/exec
-  ${pugixml_SOURCE_DIR}
+  ${PlexilExec_SOURCE_DIR}/third-party/pugixml/src
   ${PlexilExec_SOURCE_DIR}/xml-parser
   ${PlexilExec_SOURCE_DIR}/app-framework
   )
 
 target_link_libraries(universalExec PRIVATE
-  PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec
-  -L${pugixml_LIB_DIR} -lpugixml
-  PlexilXmlParser PlexilAppFramework)
+  PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec pugixml PlexilXmlParser
+  PlexilAppFramework)
 
 # These are required whether or not the build is statically linked, if
 # support for the PLEXIL Viewer is enabled.
@@ -68,8 +67,7 @@ if(NOT BUILD_SHARED_LIBS)
     target_include_directories(universalExec PRIVATE
       ${PlexilExec_SOURCE_DIR}/interfaces/IpcAdapter)
     target_link_libraries(universalExec PRIVATE
-      IpcAdapter IpcUtils
-      -L${ipc_LIB_DIR} -lipc
+      IpcAdapter IpcUtils ipc
       )
   endif()
 
