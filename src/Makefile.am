@@ -1,4 +1,4 @@
-## Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+## Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 ##  All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,9 @@
 ## USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ACLOCAL_AMFLAGS = -I m4
+
+# Required for pugixml
+AUTOMAKE_OPTIONS = subdir-objects
 
 include_HEADERS = plexil-config.h
 
@@ -58,11 +61,21 @@ if UDP_OPT
 endif
 
 ##
+## Third-party libraries
+##
+
+# pugixml
+
+lib_LTLIBRARIES = libpugixml.la
+include_HEADERS += third-party/pugixml/src/pugiconfig.hpp third-party/pugixml/src/pugixml.hpp
+libpugixml_la_SOURCES = third-party/pugixml/src/pugixml.cpp
+
+##
 ## ORDER OF THE FOLLOWING IS SIGNIFICANT 
 ##
 
 SUBDIRS = utils value expr intfc exec \
- third-party/pugixml/src xml-parser app-framework \
+ . xml-parser app-framework \
  $(MAYBE_DEBUG_LISTENER_SUBDIRS) $(MAYBE_VIEWER_SUBDIRS) \
  $(MAYBE_TEST_EXEC_SUBDIRS) \
  $(MAYBE_IPC_SUBDIRS) $(MAYBE_SAS_SUBDIRS) \
