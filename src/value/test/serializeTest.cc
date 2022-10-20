@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -25,7 +25,6 @@
 */
 
 #include "ArrayImpl.hh"
-#include "CommandHandle.hh"
 #include "TestSupport.hh"
 #include "Value.hh"
 
@@ -989,12 +988,12 @@ static bool testCommandHandleValueSerDes()
   CommandHandleValue const fal = COMMAND_FAILED;
   CommandHandleValue const den = COMMAND_DENIED;
   CommandHandleValue const suc = COMMAND_SUCCESS;
-  Value const vsts(sts, COMMAND_HANDLE_TYPE);
-  Value const vacc(acc, COMMAND_HANDLE_TYPE);
-  Value const vrcv(rcv, COMMAND_HANDLE_TYPE);
-  Value const vfal(fal, COMMAND_HANDLE_TYPE);
-  Value const vden(den, COMMAND_HANDLE_TYPE);
-  Value const vsuc(suc, COMMAND_HANDLE_TYPE);
+  Value const vsts(sts);
+  Value const vacc(acc);
+  Value const vrcv(rcv);
+  Value const vfal(fal);
+  Value const vden(den);
+  Value const vsuc(suc);
 
   assertTrueMsg(serialSize(sts) == serialSize(vsts),
 		"serialSize differs between Value " << serialSize(vsts)
