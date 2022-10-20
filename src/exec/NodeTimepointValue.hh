@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,6 @@
 #define PLEXIL_NODE_TIMEPOINT_VALUE_HH
 
 #include "GetValueImpl.hh"
-#include "NodeConstants.hh"
 #include "Notifier.hh"
 
 #include <memory> // std::unique_ptr
