@@ -12,20 +12,27 @@ learned there may be applicable to plexil-6 as well.
 
 ### Build system
 
-* Minor tweaks to the top level Makefile.  First pass complete, some
-  changes must wait for other build system updates.
+* Top level Makefile successfully updated.
 
 * makeinclude directory changes require careful review
 
-* GNU autotools build system has been fairly stable
+* GNU autotools build system has been fairly stable, but we can remove
+  some of the checks for C include files.
 
-* There's a new top level CMakeLists.txt file, relocated from src
-  directory
+* CMake build structure had to be overhauled to build PLEXIL as an
+  external project.  Most of those changes should be rolled back into
+  plexil-4.6 as well.
+
+* Found and fixed problems with the UdpAdapter in the CMake statically
+  linked build.
 
 ### PLEXIL Executive
 
 * Most significant change is the source level documentation added in
   the PLEXIL-73 work.
+
+* Also worth importing from PLEXIL-73: some of the tweaks to abstract
+  base classes.
 
 * General issue of `#if defined(HAVE_Cxxxx)` needing to go away.  It's
   a **standard** include file, there shouldn't be a need to test for
@@ -48,10 +55,15 @@ learned there may be applicable to plexil-6 as well.
 Sadly, `std::variant` is a C++17 feature.  (Maybe can adopt for
 develop branch?)
 
-* CommandHandle has 2 new values: `COMMAND_ABORTED` and
-  `COMMAND_ABORT_FAILED`
+* Doxygen comments added from PLEXIL-73 branch.
 
-* Minor differences in Value.cc?
+* CommandHandle has 2 new values: `COMMAND_ABORTED` and
+  `COMMAND_ABORT_FAILED` (Done)
+
+* Value class constructor for typed unknown now only takes one
+  parameter, the ValueType. (Done)
+
+* Unit tests updated.
 
 * Maybe later: think about using templates to reduce boilerplate
 
@@ -139,6 +151,8 @@ plexil-4.6, so caution is even more important here.
 
 #### Standard interface library
 
+* IPC build system had to be updated again for Linux.
+
 #### TestExec
 
 ### TestExec test suite
@@ -153,20 +167,24 @@ Changes appear negligible.
 
 ### Compilers and translators
 
-* Jar files need updating: ANTLR 3, Saxon HE (see feature/PLEXIL-123
-  branch)
+* Jar files need updating: ANTLR 3 (done), Saxon HE (see
+  feature/PLEXIL-123 branch)
+  
+* Standard PLEXIL compiler has been updated with ant build system.
+  PlexilCompiler and PlexilCompilerDebug scripts have also been
+  updated.
 
-* Standard PLEXIL compiler needs to be merged - many changes in
+* Standard PLEXIL compiler merger in progress - many changes in
   plexil-4 branches, but the mutex features introduced in plexil-6
   must be retained.
-  
+
 * Plexilscript compiler?
 
 * Extended PLEXIL translator also requires some care
 
 ### Scripts
 
-
+* plexilc script updated
 
 ### Examples
 
