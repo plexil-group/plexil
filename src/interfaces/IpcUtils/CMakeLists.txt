@@ -31,6 +31,11 @@ add_library(IpcUtils ${PlexilExec_SHARED_OR_STATIC}
 install(TARGETS IpcUtils
   DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
+if(PlexilExec_SHLIB_INSTALL_RPATH)
+  set_target_properties(IpcUtils
+    PROPERTIES INSTALL_RPATH ${PlexilExec_SHLIB_INSTALL_RPATH})
+endif()
+
 target_include_directories(IpcUtils PUBLIC
   ${PlexilExec_SOURCE_DIR}/utils
   ${PlexilExec_SOURCE_DIR}/value

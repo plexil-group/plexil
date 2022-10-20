@@ -31,6 +31,11 @@ add_library(PlanDebugListener ${PlexilExec_SHARED_OR_STATIC}
 install(TARGETS PlanDebugListener
   DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
+if(PlexilExec_SHLIB_INSTALL_RPATH)
+  set_target_properties(PlanDebugListener
+    PROPERTIES INSTALL_RPATH ${PlexilExec_SHLIB_INSTALL_RPATH})
+endif()
+
 target_include_directories(PlanDebugListener PRIVATE
   ${PlexilExec_SOURCE_DIR}/utils
   ${PlexilExec_SOURCE_DIR}/value

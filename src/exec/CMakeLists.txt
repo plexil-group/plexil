@@ -45,6 +45,11 @@ include_directories(
 target_link_libraries(PlexilExec PUBLIC
   PlexilUtils PlexilValue PlexilExpr PlexilIntfc)
 
+if(PlexilExec_SHLIB_INSTALL_RPATH)
+  set_target_properties(PlexilExec
+    PROPERTIES INSTALL_RPATH ${PlexilExec_SHLIB_INSTALL_RPATH})
+endif()
+
 # Public includes
 install(FILES 
   Assignment.hh AssignmentNode.hh CommandNode.hh ExecListenerBase.hh

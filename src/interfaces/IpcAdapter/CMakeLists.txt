@@ -48,6 +48,11 @@ target_link_libraries(IpcAdapter PUBLIC
 install(TARGETS IpcAdapter
   DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
+if(PlexilExec_SHLIB_INSTALL_RPATH)
+  set_target_properties(IpcAdapter
+    PROPERTIES INSTALL_RPATH ${PlexilExec_SHLIB_INSTALL_RPATH})
+endif()
+
 install(FILES
   IpcAdapter.h
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

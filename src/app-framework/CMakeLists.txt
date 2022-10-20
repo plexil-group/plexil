@@ -50,6 +50,11 @@ target_link_libraries(PlexilAppFramework PUBLIC
   PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec
   pugixml PlexilXmlParser)
 
+if(PlexilExec_SHLIB_INSTALL_RPATH)
+  set_target_properties(PlexilAppFramework
+    PROPERTIES INSTALL_RPATH ${PlexilExec_SHLIB_INSTALL_RPATH})
+endif()
+
 if(WITH_THREADS AND HAVE_LIBPTHREAD)
   target_link_libraries(PlexilAppFramework PUBLIC pthread)
 endif()

@@ -86,6 +86,11 @@ target_link_libraries(UdpAdapter PUBLIC
 install(TARGETS UdpUtils UdpAdapter
   DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
+if(PlexilExec_SHLIB_INSTALL_RPATH)
+  set_target_properties(UdpAdapter
+    PROPERTIES INSTALL_RPATH ${PlexilExec_SHLIB_INSTALL_RPATH})
+endif()
+
 install(FILES 
   MessageQueueMap.hh UdpAdapter.h
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
