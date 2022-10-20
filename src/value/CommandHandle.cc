@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,8 @@ namespace PLEXIL
    "COMMAND_FAILED",
    "COMMAND_DENIED",
    "COMMAND_SUCCESS",
+   "COMMAND_ABORTED",
+   "COMMAND_ABORT_FAILED",
    "COMMAND_INTERFACE_ERROR"
   };
 
