@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -61,7 +61,7 @@ namespace PLEXIL
     if ((*this)(temp, command))
       return Value(temp);
     else
-      return Value(0, PlexilValueType<R>::value);
+      return Value(PlexilValueType<R>::value);
   }
  
   // Array variants unlikely to be used any time soon
