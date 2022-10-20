@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,9 +28,6 @@
 #define PLEXIL_NODE_CONSTANT_EXPRESSIONS_HH
 
 #include "Constant.hh"
-
-#include "CommandHandle.hh"
-#include "NodeConstants.hh"
 
 namespace PLEXIL
 {
