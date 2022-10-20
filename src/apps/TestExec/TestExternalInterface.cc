@@ -401,7 +401,7 @@ namespace PLEXIL
         t = BOOLEAN_TYPE;
       else if (type == "string")
         t = STRING_TYPE;
-      return Value(0, t);
+      return Value(t);
     }
     else if (type == "int") {
       Integer value;
