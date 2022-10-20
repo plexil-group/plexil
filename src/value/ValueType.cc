@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,10 +27,8 @@
 #include "ValueType.hh"
 
 #include "ArrayImpl.hh"
-#include "CommandHandle.hh"
-#include "Error.hh"
 #include "map-utils.hh"
-#include "NodeConstants.hh"
+#include "ParserException.hh"
 #include "stricmp.h"
 
 // TEMP DEBUG
@@ -41,29 +39,10 @@
 #include <limits>
 #include <sstream>
 
-#if defined(HAVE_CERRNO)
 #include <cerrno>
-#elif defined(HAVE_ERRNO_H)
-#include <errno.h>
-#endif
-
-#if defined(HAVE_CMATH)
 #include <cmath>   // HUGE_VAL
-#elif defined(HAVE_MATH_H)
-#include <math.h>   // HUGE_VAL
-#endif
-
-#if defined(HAVE_CSTDLIB)
 #include <cstdlib> // strtod(), strtol()
-#elif defined(HAVE_STDLIB_H)
-#include <stdlib.h> // strtod(), strtol()
-#endif
-
-#if defined(HAVE_CSTRING)
 #include <cstring> // strlen(), strcmp() etc.
-#elif defined(HAVE_STRING_H)
-#include <string.h> // strlen(), strcmp() etc.
-#endif
 
 
 namespace PLEXIL
@@ -424,14 +403,6 @@ namespace PLEXIL
   DEFINE_PRINT_VALUE_ARRAY_METHOD(String)
 
 #undef DEFINE_PRINT_VALUE_ARRAY_METHOD
-
-  /**
-   * @brief Parse one value from the incoming stream.
-   * @param s Input stream.
-   * @param result Reference to the place to store the result.
-   * @return True if known, false if unknown.
-   * @note If false, the result variable will not be modified.
-   */
 
   template <>
   bool parseValue(char const *str, Boolean &result)
