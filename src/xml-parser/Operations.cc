@@ -27,6 +27,7 @@
 #include "Operations.hh"
 
 #include "CachedFunction.hh"
+#include "Error.hh"
 #include "Function.hh"
 
 #include <limits>
