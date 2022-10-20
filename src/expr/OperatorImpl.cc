@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -270,7 +270,7 @@ namespace PLEXIL
     if (exprs.getValue(temp))
       return Value(temp);
     else
-      return Value(0, PlexilValueType<R>::value);
+      return Value(PlexilValueType<R>::value);
   }
 
   Value OperatorImpl<Integer>::toValue(Function const &exprs) const
@@ -279,7 +279,7 @@ namespace PLEXIL
     if (exprs.getValue(temp))
       return Value(temp);
     else
-      return Value(0, INTEGER_TYPE);
+      return Value(INTEGER_TYPE);
   }
 
   template <typename R>
@@ -289,7 +289,7 @@ namespace PLEXIL
     if (exprs.getValue(temp))
       return Value(temp);
     else
-      return Value(0, PlexilValueType<ArrayImpl<R> >::value);
+      return Value(PlexilValueType<ArrayImpl<R> >::value);
   }
 
   // Default methods
