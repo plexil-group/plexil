@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,9 +40,10 @@ namespace PLEXIL {
   // Node state
   //
 
-  /**
-   * @brief Node state enumeration.
-   */
+  //! \brief Internal representation of node states.
+  //! \note Order must be consistent with ALL_STATE_NAMES array.
+  //! \see ALL_STATE_NAMES
+  //! \ingroup Values
   enum NodeState : uint8_t {
     NO_NODE_STATE = 0,
       INACTIVE_STATE,
@@ -55,36 +56,40 @@ namespace PLEXIL {
       NODE_STATE_MAX
       };
 
-  /**
-   * @brief Table of state names.
-   * @note Must be in same order as NodeState enum above.
-   */
+  //! \brief Table of state names.
+  //! \note Order must be consistent with NodeState enum.
+  //! \see NodeState
+  //! \ingroup Values
   extern std::string const ALL_STATE_NAMES[];
 
-  /**
-   * @brief Parse the given string as a node state name.
-   * @param The name.
-   * @return The state, or NO_NODE_STATE if not found.
-   */
+  //! \brief Parse the given string as a node state name.
+  //! \param name Const reference to the string.
+  //! \return The named state, or NO_NODE_STATE if not found.
+  //! \ingroup Values
   extern NodeState parseNodeState(std::string const &name);
+
+  //! \brief Parse the given string as a node state name.
+  //! \param name Pointer to a const character string.
+  //! \return The named state, or NO_NODE_STATE if not found.
+  //! \ingroup Values
   extern NodeState parseNodeState(char const *name);
 
-  /**
-   * @brief Get the name of this state.
-   * @return Const reference to one of the state names.
-   */
+  //! \brief Get the name of a NodeState value.
+  //! \param s The value.
+  //! \return name Const reference to the name.
+  //! \ingroup Values
   extern std::string const &nodeStateName(NodeState s);
 
-  /**
-   * @brief Test whether the value is a valid NodeState value.
-   * @param val The value to check.
-   * @return True if valid, false otherwise.
-   */
+  //! \brief Test whether the given integer is a valid NodeState value.
+  //! \param val The integer to check.
+  //! \return True if valid, false otherwise.
+  //! \ingroup Values
   extern bool isNodeStateValid(unsigned int val);
 
-  /**
-   * @brief Outcome enumeration.
-   */
+  //! \brief Outcome enumeration.
+  //! \note Order must be consistent with ALL_OUTCOME_NAMES array.
+  //! \see ALL_OUTCOME_NAMES
+  //! \ingroup Values
   enum NodeOutcome : uint8_t {
     NO_OUTCOME = 16,
     SUCCESS_OUTCOME,
@@ -94,36 +99,40 @@ namespace PLEXIL {
     OUTCOME_MAX
   };
 
-  /**
-   * @brief Table of outcome names.
-   * @note Must be in same order as NodeOutcome enum above.
-   */
+  //! \brief Table of outcome name strings.
+  //! \note Order must be consistent with NodeOutcome enum.
+  //! \see NodeOutcome
+  //! \ingroup Values
   extern std::string const ALL_OUTCOME_NAMES[];
 
-  /**
-   * @brief Parse the given string as a node outcome name.
-   * @param The name.
-   * @return The outcome value, or NO_OUTCOME if not found.
-   */
+  //! \brief Parse the given string as a node outcome name.
+  //! \param name Const reference to the string.
+  //! \return The outcome value, or NO_OUTCOME if not found.
+  //! \ingroup Values
   extern NodeOutcome parseNodeOutcome(std::string const &name);
+
+  //! \brief Parse the given string as a node outcome name.
+  //! \param name Pointer to a const character string.
+  //! \return The outcome value, or NO_OUTCOME if not found.
+  //! \ingroup Values
   extern NodeOutcome parseNodeOutcome(char const *name);
 
-  /**
-   * @brief Get the name of this outcome.
-   * @return Const reference to one of the outcome names.
-   */
+  //! \brief Get the name of this NodeOutcome value.
+  //! \param o The value.
+  //! \return Const reference to one of the outcome names.
+  //! \ingroup Values
   extern std::string const &outcomeName(NodeOutcome o);
 
-  /**
-   * @brief Test whether the value is a valid NodeOutcome value.
-   * @param val The value to check.
-   * @return True if valid, false otherwise.
-   */
+  //! \brief Test whether the given integer is a valid NodeOutcome value.
+  //! \param val The integer to check.
+  //! \return True if valid, false otherwise.
+  //! \ingroup Values
   extern bool isNodeOutcomeValid(unsigned int val);
 
-  /**
-   * @brief Node failure type enumeration.
-   */
+  //! \brief Node failure type enumeration.
+  //! \note Order must be consistent with ALL_FAILURE_TYPE_NAMES array.
+  //! \see ALL_FAILURE_TYPE_NAMES
+  //! \ingroup Values
   enum FailureType : uint8_t {
     NO_FAILURE = 32,
     PRE_CONDITION_FAILED,
@@ -135,31 +144,34 @@ namespace PLEXIL {
     FAILURE_TYPE_MAX
   };
 
-  /**
-   * @brief Table of failure type names.
-   * @note Must be in same order as FailureType enum above.
-   */
+  //! \brief Table of failure type names.
+  //! \note Order mst be consistent with FailureType enum.
+  //! \see FailureType
+  //! \ingroup Values
   extern std::string const ALL_FAILURE_NAMES[];
 
-  /**
-   * @brief Parse the given string as a failure type name.
-   * @param The name.
-   * @return The FailureType value, or NO_FAILURE if not found.
-   */
+  //! \brief Parse the given string as a failure type name.
+  //! \param name Const reference to the string.
+  //! \return The FailureType value, or NO_FAILURE if not found.
+  //! \ingroup Values
   extern FailureType parseFailureType(std::string const &name);
+
+  //! \brief Parse the given string as a failure type name.
+  //! \param name Pointer to a const character string.
+  //! \return The FailureType value, or NO_FAILURE if not found.
+  //! \ingroup Values
   extern FailureType parseFailureType(char const *name);
 
-  /**
-   * @brief Get the name of this failure type.
-   * @return Pointer to one of the names.
-   */
+  //! \brief Get the name of a FailureType value.
+  //! \param f The value.
+  //! \return Const reference to the name string.
+  //! \ingroup Values
   extern std::string const &failureTypeName(FailureType f);
 
-  /**
-   * @brief Test whether the value is a valid FailureType value.
-   * @param val The value to check.
-   * @return True if valid, false otherwise.
-   */
+  //! \brief Test whether an integer value is a valid FailureType value.
+  //! \param val The integer
+  //! \return True if valid, false otherwise.
+  //! \ingroup Values
   extern bool isFailureTypeValid(unsigned int val);
 
 } // namespace PLEXIL
