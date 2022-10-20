@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -344,7 +344,7 @@ namespace PLEXIL
     bool known = this->getValue(temp);
     if (known)
       return Value(temp);
-    return Value(0, this->valueType());
+    return Value(this->valueType());
   }
 
   Value CachedValueImpl<Integer>::toValue() const
@@ -353,7 +353,7 @@ namespace PLEXIL
     bool known = this->getValue(temp);
     if (known)
       return Value(temp);
-    return Value(0, this->valueType());
+    return Value(this->valueType());
   }
 
   Value CachedValueImpl<Real>::toValue() const
@@ -362,7 +362,7 @@ namespace PLEXIL
     bool known = this->getValue(temp);
     if (known)
       return Value(temp);
-    return Value(0, this->valueType());
+    return Value(this->valueType());
   }
 
   Value CachedValueImpl<String>::toValue() const
@@ -371,7 +371,7 @@ namespace PLEXIL
     bool known = this->getValuePointer(ptr);
     if (known)
       return Value(*ptr);
-    return Value(0, this->valueType());
+    return Value(this->valueType());
   }
 
   template <typename T>
@@ -381,7 +381,7 @@ namespace PLEXIL
     bool known = this->getValuePointer(ptr);
     if (known)
       return Value(*ptr);
-    return Value(0, this->valueType());
+    return Value(this->valueType());
   }
 
   template <typename T>
