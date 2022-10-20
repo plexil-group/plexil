@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -32,45 +32,46 @@
 namespace PLEXIL
 {
 
-  /**
-   * @brief Command handle state enumeration.
-   */
-  enum CommandHandleValue : uint8_t {
-    NO_COMMAND_HANDLE = 48,
+  //! \brief Command handle state enumeration.
+  //! \note Order must be consistent with ALL_COMMAND_HANDLE_NAMES array.
+  //! \see ALL_COMMAND_HANDLE_NAMES
+  //! \ingroup Values
+  enum CommandHandleValue : uint8_t
+    {
+      NO_COMMAND_HANDLE = 48,
       COMMAND_SENT_TO_SYSTEM,
       COMMAND_ACCEPTED,
       COMMAND_RCVD_BY_SYSTEM,
       COMMAND_FAILED,
       COMMAND_DENIED,
       COMMAND_SUCCESS,
+      COMMAND_ABORTED,
+      COMMAND_ABORT_FAILED,
       COMMAND_INTERFACE_ERROR,
       COMMAND_HANDLE_MAX
-      };
+    };
 
-  /**
-   * @brief Parse the given string as a command handle name.
-   * @param The name.
-   * @return The CommandHandle value, or NO_COMMAND_HANDLE if not found.
-   */
+  //! \brief Parse the given string as a command handle name.
+  //! \param name Const reference to the string.
+  //! \return The CommandHandle value, or NO_COMMAND_HANDLE if not found.
+  //! \ingroup Values
   extern CommandHandleValue parseCommandHandleValue(std::string const &name);
 
-  /**
-   * @brief Table of command handle value names.
-   * @note Must be in same order as CommandHandleValue enum.
-   */
+  //! \brief Table of command handle value names.
+  //! \note Order must be consistent with CommandHandleValue enum.
+  //! \see CommandHandleValue
+  //! \ingroup Values
   extern std::string const ALL_COMMAND_HANDLE_NAMES[];
 
-  /**
-   * @brief Get the name of this command handle value.
-   * @return Const reference to one of the names.
-   */
+  //! \brief Get the name of this command handle value.
+  //! \return Const reference to the name string.
+  //! \ingroup Values
   extern std::string const &commandHandleValueName(CommandHandleValue c);
 
-  /**
-   * @brief Test whether the value is a valid CommandHandle value.
-   * @param val The value to check.
-   * @return True if valid, false otherwise.
-   */
+  //! \brief Test whether the value is a valid CommandHandle value.
+  //! \param val The value to check.
+  //! \return True if valid, false otherwise.
+  //! \ingroup Values
   extern bool isCommandHandleValid(unsigned int val);
 
 } // namespace PLEXIL
