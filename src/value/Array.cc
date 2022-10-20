@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,8 @@
 #include "PlanError.hh"
 #include "PlexilTypeTraits.hh"
 
-#include <memory> // std::move()
+#include <algorithm> // std::fill()
+#include <memory>    // std::move()
 
 namespace PLEXIL
 {
