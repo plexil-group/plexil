@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,6 @@
 #ifndef Luv_Format_hh
 #define Luv_Format_hh
 
-#include "NodeConstants.hh"
 #include "Value.hh"
 #include "pugixml.hpp"
 
