@@ -73,7 +73,7 @@ if(NOT BUILD_SHARED_LIBS)
 
   if(UDP_ADAPTER)
     target_include_directories(universalExec PRIVATE
-      ${PlexilExec_SOURCE_DIR}/interfaces/LuvListener)
+      ${PlexilExec_SOURCE_DIR}/interfaces/UdpAdapter)
     target_link_libraries(universalExec PRIVATE
       UdpAdapter)
   endif()

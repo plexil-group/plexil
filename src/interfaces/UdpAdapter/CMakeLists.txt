@@ -26,7 +26,7 @@
 # UDP interface module for PlexilExec
 
 add_library(UdpUtils ${PlexilExec_SHARED_OR_STATIC}
-  udp-utils.cc)
+   UdpEventLoop.cc udp-utils.cc)
 
 target_include_directories(UdpUtils PUBLIC
   ${PlexilExec_SOURCE_DIR}/utils)
@@ -36,7 +36,7 @@ target_include_directories(UdpUtils PUBLIC
 #   )
 
 install(FILES 
-  udp-utils.hh
+  UdpEventLoop.hh udp-utils.hh
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 if(MODULE_TESTS)
