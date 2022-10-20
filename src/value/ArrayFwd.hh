@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,10 @@
 #ifndef PLEXIL_ARRAY_FWD_HH
 #define PLEXIL_ARRAY_FWD_HH
 
-// Forward declarations for array types
+//! \file ArrayFwd.hh
+//! \brief Contains forward declarations for Array, ArrayImpl<T>, and
+//!        typedefs for ArrayImpl specializations.
+//! \ingroup Values
 
 #include "plexil-stdint.h" // int32_t
 #include <string>
