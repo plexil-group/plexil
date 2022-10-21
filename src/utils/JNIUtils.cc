@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -65,11 +65,7 @@ namespace PLEXIL
     return *this;
   }
 
-  /**
-   * @brief Returns a freshly allocated copy of the Java string.
-   * @param javaString The JNI string object.
-   * @return A freshly allocated copy of the Java string, or nullptr.
-   */
+
   char* JNIUtils::getJavaStringCopy(jstring javaString)
   {
     if (!javaString)
@@ -82,14 +78,6 @@ namespace PLEXIL
     return ourString;
   }
 
-  /**
-   * @brief Extract the strings from a Java string array in argc/argv format.
-   * @param javaArgv The JNI string array.
-   * @param argcReturn A reference to an int variable to hold the argument count.
-   * @param argvReturn A reference to a char** variable to hold the newly allocated argument vector.
-   * @return true if the operation was successful, false otherwise.
-   * @note Both the strings and the string array are freshly allocated and must be deleted by the caller.
-   */
   bool JNIUtils::getArgcArgv(jobjectArray javaArgv, int &argcReturn, char** &argvReturn)
   {
     // Get argv length
@@ -116,23 +104,11 @@ namespace PLEXIL
     return true;
   }
 
-
-  /**
-   * @brief Constructs a Java String object from the given C char* object.
-   * @param cstr Pointer to a C character string.
-   * @return A freshly allocated Java jstring object.
-   */
   jstring JNIUtils::makeJavaString(const char* cstr)
   {
     return m_env->NewStringUTF(cstr);
   }
 
-
-  /**
-   * @brief Constructs a Java array of String objects.
-   * @param size The number of elements in the array.
-   * @return A freshly allocated Java string array object.
-   */
   jobjectArray JNIUtils::makeJavaStringArray(jsize size)
   {
     if (!m_stringClass)
@@ -143,11 +119,6 @@ namespace PLEXIL
     return m_env->NewObjectArray(size, m_stringClass, nullptr);
   }
 
-  /**
-   * @brief Given a Java String[], return an array of char*.
-   * @param The Java String[] object.
-   * @return A freshly allocated vector of strings.
-   */
   std::vector<std::string>* JNIUtils::getJavaStringArray(jobjectArray ary)
   {
     assertTrue_1(ary);
