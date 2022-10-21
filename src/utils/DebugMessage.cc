@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,16 +28,9 @@
 
 #include "Error.hh"
 
-#include "plexil-config.h"
-
+#include <cstring> // strstr()
 #include <iostream>
 #include <vector>
-
-#if defined(HAVE_CSTRING)
-#include <cstring> // strstr()
-#elif defined(HAVE_STRING_H)
-#include <string.h> // strstr()
-#endif
 
 namespace PLEXIL
 {
