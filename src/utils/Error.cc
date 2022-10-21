@@ -44,8 +44,6 @@
    @brief Numerous declarations related to error generation and handling.
 */
 
-#include "plexil-config.h"
-
 #include "Error.hh"
 #include "Logging.hh"
 
