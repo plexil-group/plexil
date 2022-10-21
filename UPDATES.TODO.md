@@ -23,6 +23,9 @@ learned there may be applicable to plexil-6 as well.
   external project.  Most of those changes should be rolled back into
   plexil-4.6 as well.
 
+* ...And several additional changes had to be merged forward, notably
+  setting RPATH (RUNPATH) on shared libraries.
+
 * Found and fixed problems with the UdpAdapter in the CMake statically
   linked build.
 
@@ -48,7 +51,9 @@ learned there may be applicable to plexil-6 as well.
 
 * LinkedQueue.hh has had Doxygen comments added from PLEXIL-73 branch.
 
-* Review unit tests.
+* Unit tests reviewed.
+
+* Cleaned up conditional includes.
 
 #### src/value
 
@@ -65,7 +70,7 @@ develop branch?)
 
 * Unit tests updated.
 
-* Maybe later: think about using templates to reduce boilerplate
+* Maybe later: think about using templates to reduce boilerplate.
 
 #### src/expr
 
@@ -100,7 +105,10 @@ develop branch?)
   error checking to the parser as practical.
 
 * NodeConnector class moved from src/expr to src/intfc in 2018, then
-  to src/exec (plexil-4), back in 2021 (plexil-6)!
+  to src/exec (plexil-4), back in 2021 (plexil-6)!  It belongs here
+  because it's referenced from Reservable.cc.
+
+* Updates seem to be complete and working.
 
 #### src/intfc
 
