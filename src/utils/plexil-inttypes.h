@@ -24,17 +24,19 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* Including the right version of inttypes.h */
-
 #ifndef PLEXIL_INTTYPES_H
 #define PLEXIL_INTTYPES_H
 
-#include "plexil-config.h"
-
-/*
- * Search on __STDC_LIMIT_MACROS, __STDC_CONSTANT_MACROS, __STDC_FORMAT_MACROS
- * to understand the issues being abstracted away here.
+/**
+ * \file plexil-inttypes.h
+ * \brief Deals with complexities related to C(++) standard versions and compiler quirks
+ *        around the C standard inttypes.h include file.
+ * \note Search on __STDC_LIMIT_MACROS, __STDC_CONSTANT_MACROS, __STDC_FORMAT_MACROS
+ *       to understand the issues being abstracted away here.
+ * \ingroup Utils
  */
+
+#include "plexil-config.h"
 
 #if defined(__cplusplus) && defined(HAVE_INTTYPES_H) && !defined(HAVE_GOOD_INTTYPES_H)
 #define __STDC_FORMAT_MACROS

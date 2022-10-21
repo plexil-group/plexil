@@ -29,12 +29,16 @@
 #ifndef PLEXIL_STDINT_H
 #define PLEXIL_STDINT_H
 
-#include "plexil-config.h"
-
-/*
- * Search on __STDC_LIMIT_MACROS, __STDC_CONSTANT_MACROS, __STDC_FORMAT_MACROS
- * to understand the issues being abstracted away here.
+/**
+ * \file plexil-stdint.h
+ * \brief Deals with complexities related to C(++) standard versions and compiler quirks
+ *        around the C standard stdint.h include file.
+ * \note Search on __STDC_LIMIT_MACROS, __STDC_CONSTANT_MACROS, __STDC_FORMAT_MACROS
+ *       to understand the issues being abstracted away here.
+ * \ingroup Utils
  */
+
+#include "plexil-config.h"
 
 #if defined(__cplusplus) && defined(HAVE_STDINT_H) && !defined(HAVE_GOOD_STDINT_H) 
 #define __STDC_LIMIT_MACROS 
