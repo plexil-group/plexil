@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -31,29 +31,15 @@
 #include "SimulatorScriptReader.hh"
 
 #include "Debug.hh"
+#include "Error.hh"
 #include "IpcCommRelay.hh"
 #include "ThreadSemaphore.hh"
 
+#include <cassert>
+#include <csignal>
+#include <cstring>
 #include <fstream>
 #include <memory>
-
-#if defined(HAVE_CASSERT)
-#include <cassert>
-#elif defined(HAVE_ASSERT_H)
-#include <assert.h>
-#endif
-
-#if defined(HAVE_CSIGNAL)
-#include <csignal>
-#elif defined(HAVE_SIGNAL_H)
-#include <signal.h>
-#endif
-
-#if defined(HAVE_CSTRING)
-#include <cstring>
-#elif defined(HAVE_STRING_H)
-#include <string.h>
-#endif
 
 static PLEXIL::ThreadSemaphore doneSemaphore;
 
