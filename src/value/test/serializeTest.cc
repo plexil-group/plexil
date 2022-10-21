@@ -28,11 +28,7 @@
 #include "TestSupport.hh"
 #include "Value.hh"
 
-#if defined(HAVE_CSTRING)
 #include <cstring> // memset()
-#elif defined(HAVE_STRING_H)
-#include <string.h> // memset()
-#endif
 
 using namespace PLEXIL;
 
