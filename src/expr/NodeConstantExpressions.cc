@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -120,5 +120,8 @@ namespace PLEXIL
   DEFINE_EXPRESSION_CONSTANT(CommandHandleConstant, COMMAND_FAILED_CONSTANT, COMMAND_FAILED);
   DEFINE_EXPRESSION_CONSTANT(CommandHandleConstant, COMMAND_DENIED_CONSTANT, COMMAND_DENIED);
   DEFINE_EXPRESSION_CONSTANT(CommandHandleConstant, COMMAND_SUCCESS_CONSTANT, COMMAND_SUCCESS);
+  DEFINE_EXPRESSION_CONSTANT(CommandHandleConstant, COMMAND_ABORTED_CONSTANT, COMMAND_ABORTED);
+  DEFINE_EXPRESSION_CONSTANT(CommandHandleConstant, COMMAND_ABORT_FAILED_CONSTANT, COMMAND_ABORT_FAILED);
+  DEFINE_EXPRESSION_CONSTANT(CommandHandleConstant, COMMAND_INTERFACE_ERROR_CONSTANT, COMMAND_INTERFACE_ERROR);
 
 } // namespace PLEXIL

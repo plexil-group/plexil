@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -92,11 +92,6 @@ namespace PLEXIL
     return m_array->isConstant() && m_index->isConstant();
   }
 
-  bool ArrayReference::isAssignable() const
-  {
-    return false;
-  }
-
   Expression const *ArrayReference::getBaseExpression() const
   {
     return m_array->getBaseExpression();
@@ -154,8 +149,8 @@ namespace PLEXIL
   DEFINE_AREF_GET_VALUE_METHOD(String)
 
 #undef DEFINE_AREF_GET_VALUE_METHOD
-
-#define DEFINE_AREF_GET_VALUE_TYPE_ERROR_METHOD(_type_) \
+ 
+ #define DEFINE_AREF_GET_VALUE_TYPE_ERROR_METHOD(_type_) \
   bool ArrayReference::getValue(_type_ &result) const   \
     { checkPlanError(ALWAYS_FAIL, \
                      "Array references not implemented for return type " \
@@ -194,23 +189,6 @@ namespace PLEXIL
       return false;
     return ary->getElementPointer(idx, ptr);
   }
-
-  // Error for arrays and any other types we can think of.
-#define DEFINE_AREF_GET_VALUE_PTR_ERROR_METHOD(_type_) \
-  bool ArrayReference::getValuePointer(_type_ const *&ptr) const \
-  { \
-    errorMsg("getValuePointer: trying to get a " << PlexilValueType<_type_>::typeName \
-             << " pointer value from an ArrayReference"); \
-    return false; \
-  }
-
-  DEFINE_AREF_GET_VALUE_PTR_ERROR_METHOD(Array)
-  DEFINE_AREF_GET_VALUE_PTR_ERROR_METHOD(BooleanArray)
-  DEFINE_AREF_GET_VALUE_PTR_ERROR_METHOD(IntegerArray)
-  DEFINE_AREF_GET_VALUE_PTR_ERROR_METHOD(RealArray)
-  DEFINE_AREF_GET_VALUE_PTR_ERROR_METHOD(StringArray)
-
-#undef DEFINE_AREF_GET_VALUE_PTR_ERROR_METHOD
 
   Value ArrayReference::toValue() const
   {
@@ -252,25 +230,6 @@ namespace PLEXIL
       m_mutableArray(dynamic_cast<ArrayVariable *>(ary->getBaseExpression())),
       m_saved(false)
   {
-  }
-
-  MutableArrayReference::~MutableArrayReference()
-  {
-  }
-
-  bool MutableArrayReference::isAssignable() const
-  {
-    return true;
-  }
-
-  Assignable const *MutableArrayReference::asAssignable() const
-  {
-    return static_cast<Assignable const *>(this);
-  }
-
-  Assignable *MutableArrayReference::asAssignable()
-  {
-    return static_cast<Assignable *>(this);
   }
 
   bool MutableArrayReference::mutableSelfCheck(size_t &idx)
@@ -321,8 +280,9 @@ namespace PLEXIL
     size_t idx;
     if (!mutableSelfCheck(idx) || !m_saved) 
       return;
-    if (m_savedValue != m_mutableArray->getElementValue(idx))
+    if (m_savedValue != m_mutableArray->getElementValue(idx)) {
       m_mutableArray->setElement(idx, m_savedValue);
+    }
     m_saved = false;
   }
 

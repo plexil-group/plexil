@@ -160,20 +160,20 @@ namespace PLEXIL
   }
 
   template <typename R>
-  bool OperatorImpl<R>::operator()(R &result, Function const &args) const
+  bool OperatorImpl<R>::operator()(R &result, Function const &fn) const
   {
-    return this->calc(result, args);
+    return this->calc(result, fn);
   }
 
-  bool OperatorImpl<Integer>::operator()(Integer &result, Function const &args) const
+  bool OperatorImpl<Integer>::operator()(Integer &result, Function const &fn) const
   {
-    return this->calc(result, args);
+    return this->calc(result, fn);
   }
 
   template <typename R>
-  bool OperatorImpl<ArrayImpl<R> >::operator()(ArrayImpl<R> &result, Function const &args) const
+  bool OperatorImpl<ArrayImpl<R> >::operator()(ArrayImpl<R> &result, Function const &fn) const
   {
-    return this->calc(result, args);
+    return this->calc(result, fn);
   }
 
   //
@@ -375,7 +375,6 @@ namespace PLEXIL
   //
 
   template class OperatorImpl<Real>;
-  // template class OperatorImpl<Integer>; // redundant?
   template class OperatorImpl<Boolean>;
   template class OperatorImpl<String>;
 

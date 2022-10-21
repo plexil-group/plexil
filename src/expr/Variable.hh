@@ -47,12 +47,14 @@ namespace PLEXIL
 
     //! @brief Get the real variable for which this expression may be a proxy.
     //! @return Pointer to the base variable.
-    virtual Variable *getBaseVariable() override
+    virtual Variable *getBaseVariable()
     {
       return this;
     }
     
-    virtual Variable const *getBaseVariable() const override
+    //! \brief Get the real variable for which this may be a proxy.
+    //! \return Const pointer to the base variable.
+    virtual Variable const *getBaseVariable() const
     {
       return const_cast<Variable const *>(this);
     }

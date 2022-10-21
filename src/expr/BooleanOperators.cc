@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,6 +35,17 @@ namespace PLEXIL
   {
   }
 
+  bool BooleanNot::checkArgCount(size_t count) const
+  {
+    return count == 1;
+  }
+
+  bool BooleanNot::checkArgTypes(std::vector<ValueType> const &typeVec) const
+  {
+    ValueType typ = typeVec.at(0);
+    return typ == BOOLEAN_TYPE || typ == UNKNOWN_TYPE;
+  }
+
   bool BooleanNot::operator()(Boolean &result, Expression const *arg) const
   {
     bool temp;
@@ -47,6 +58,16 @@ namespace PLEXIL
   BooleanOr::BooleanOr()
     : OperatorImpl<bool>("OR")
   {
+  }
+
+  bool BooleanOr::checkArgCount(size_t count) const
+  {
+    return count > 0;
+  }
+
+  bool BooleanOr::checkArgTypes(std::vector<ValueType> const &typeVec) const
+  {
+    return allSameTypeOrUnknown(BOOLEAN_TYPE, typeVec);
   }
 
   bool BooleanOr::operator()(Boolean &result, Expression const *arg) const
@@ -105,6 +126,16 @@ namespace PLEXIL
   {
   }
 
+  bool BooleanAnd::checkArgCount(size_t count) const
+  {
+    return count > 0;
+  }
+
+  bool BooleanAnd::checkArgTypes(std::vector<ValueType> const &typeVec) const
+  {
+    return allSameTypeOrUnknown(BOOLEAN_TYPE, typeVec);
+  }
+
   bool BooleanAnd::operator()(Boolean &result, Expression const *arg) const
   {
     return arg->getValue(result);
@@ -157,6 +188,16 @@ namespace PLEXIL
   BooleanXor::BooleanXor()
     : OperatorImpl<bool>("XOR")
   {
+  }
+
+  bool BooleanXor::checkArgCount(size_t count) const
+  {
+    return count > 0;
+  }
+
+  bool BooleanXor::checkArgTypes(std::vector<ValueType> const &typeVec) const
+  {
+    return allSameTypeOrUnknown(BOOLEAN_TYPE, typeVec);
   }
 
   bool BooleanXor::operator()(Boolean &result, Expression const *arg) const

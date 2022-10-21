@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,19 +36,8 @@
 #include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
-#include <algorithm> // std::remove
-
-#if defined(HAVE_CSTDLIB)
 #include <cstdlib> // free()
-#elif defined(HAVE_STDLIB_H)
-#include <stdlib.h> // free()
-#endif
-
-#if defined(HAVE_CSTRING)
 #include <cstring> // strdup()
-#elif defined(HAVE_STRING_H)
-#include <cstring> // strdup()
-#endif
 
 namespace PLEXIL
 {
@@ -131,11 +120,7 @@ namespace PLEXIL
       m_initializerIsGarbage(false)
   {
   }
-    
-  /**
-   * @brief Destructor.
-   * @note Specializations may have more work to do.
-   */
+
   template <typename T>
   UserVariable<T>::~UserVariable()
   {
@@ -167,39 +152,6 @@ namespace PLEXIL
   //
   // Essential Expression API
   //
-
-  template <typename T>
-  bool UserVariable<T>::isAssignable() const
-  {
-    return true;
-  }
-
-  bool UserVariable<String>::isAssignable() const
-  {
-    return true;
-  }
-
-  template <typename T>
-  Assignable const *UserVariable<T>::asAssignable() const
-  {
-    return static_cast<Assignable const *>(this);
-  }
-
-  Assignable const *UserVariable<String>::asAssignable() const
-  {
-    return static_cast<Assignable const *>(this);
-  }
-
-  template <typename T>
-  Assignable *UserVariable<T>::asAssignable()
-  {
-    return static_cast<Assignable *>(this);
-  }
-
-  Assignable *UserVariable<String>::asAssignable()
-  {
-    return static_cast<Assignable *>(this);
-  }
 
   template <typename T>
   char const *UserVariable<T>::getName() const
@@ -284,7 +236,7 @@ namespace PLEXIL
       m_initializer->activate();
       m_known = m_initializer->getValue(m_value);
       if (m_known)
-        publishChange();
+        this->publishChange();
     }
     else
       m_known = false;
@@ -296,11 +248,11 @@ namespace PLEXIL
 
     if (m_initializer) {
       m_initializer->activate();
-      std::string const *valptr;
+      String const *valptr = nullptr;
       m_known = m_initializer->getValuePointer(valptr);
       if (m_known) {
         m_value = *valptr;
-        publishChange();
+        this->publishChange();
       }
     }
     else
@@ -376,16 +328,16 @@ namespace PLEXIL
    m_value = value;
    m_known = true;
    if (changed)
-     publishChange();
+     this->publishChange();
   }
 
-  void UserVariable<String>::setValueImpl(std::string const &value)
+  void UserVariable<String>::setValueImpl(String const &value)
   {
    bool changed = !m_known || value != m_value;
    m_value = value;
    m_known = true;
    if (changed)
-     publishChange();
+     this->publishChange();
   }
 
   template <typename T>
@@ -394,7 +346,7 @@ namespace PLEXIL
    bool changed = m_known;
    m_known = false;
    if (changed)
-     publishChange();
+     this->publishChange();
   }
 
   void UserVariable<String>::setUnknown()
@@ -402,7 +354,7 @@ namespace PLEXIL
    bool changed = m_known;
    m_known = false;
    if (changed)
-     publishChange();
+     this->publishChange();
   }
 
   template <typename T>
@@ -426,7 +378,7 @@ namespace PLEXIL
    m_value = m_savedValue;
    m_known = m_savedKnown;
    if (changed)
-     publishChange();
+     this->publishChange();
   }
 
   void UserVariable<String>::restoreSavedValue()
@@ -435,7 +387,7 @@ namespace PLEXIL
    m_value = m_savedValue;
    m_known = m_savedKnown;
    if (changed)
-     publishChange();
+     this->publishChange();
   }
 
   template <typename T>

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,30 +27,19 @@
 #include "ArrayVariable.hh"
 
 #include "ArrayImpl.hh"
-#include "Constant.hh"
 #include "PlanError.hh"
 #include "PlexilTypeTraits.hh"
 #include "Value.hh"
 
-#include <algorithm> // std::remove()
-
-#if defined(HAVE_CSTDLIB)
 #include <cstdlib> // free()
-#elif defined(HAVE_STDLIB_H)
-#include <stdlib.h> // free()
-#endif
-
-#if defined(HAVE_CSTRING)
 #include <cstring> // strdup()
-#elif defined(HAVE_STRING_H)
-#include <string.h> // strdup()
-#endif
 
 namespace PLEXIL
 {
 
   ArrayVariable::ArrayVariable()
-    : Notifier(),
+    : Variable(),
+      Notifier(),
       m_value(),
       m_savedValue(),
       m_size(nullptr),
@@ -69,7 +58,8 @@ namespace PLEXIL
   ArrayVariable::ArrayVariable(char const *name,
                                Expression *size,
                                bool sizeIsGarbage)
-    : Notifier(),
+    : Variable(),
+      Notifier(),
       m_value(),
       m_savedValue(),
       m_size(size),
@@ -102,21 +92,6 @@ namespace PLEXIL
   //
   // Essential Expression API
   //
-
-  bool ArrayVariable::isAssignable() const
-  {
-    return true;
-  }
-
-  Assignable const *ArrayVariable::asAssignable() const
-  {
-    return static_cast<Assignable const *>(this);
-  }
-
-  Assignable *ArrayVariable::asAssignable()
-  {
-    return static_cast<Assignable *>(this);
-  }
 
   char const *ArrayVariable::getName() const
   {
@@ -156,30 +131,16 @@ namespace PLEXIL
 
     if (m_initializer) {
       m_initializer->activate();
-      if (m_initializer->isKnown()) {
-        if (isArrayType(m_initializer->valueType())) {
-          Array const *valuePtr;
-          m_initializer->getValuePointer(valuePtr); // for effect; value is known
-            // Initial value is known. If there is a max size, enforce it.
-            if (m_size) {
-              checkPlanError(valuePtr->size() <= m_maxSize,
-                             "Initial value for " << this->getName()
-                             << " is larger than declared max size " << m_maxSize);
-            }
-          m_known = false; // to ensure change is published
-          this->setValueImpl(valuePtr); // delegate
+      Array const *valuePtr;
+      if (m_initializer->getValuePointer(valuePtr)) {
+        // Initial value is known. If there is a max size, enforce it.
+        if (m_size) {
+          checkPlanError(valuePtr->size() <= m_maxSize,
+                         "Initial value for " << this->getName()
+                         << " is larger than declared max size " << m_maxSize);
         }
-        else if (areTypesCompatible(arrayElementType(this->valueType()),
-                                    m_initializer->valueType())) {
-          // Case of scalar literal as initializer
-          m_known = true;
-          m_value.reset(this->makeArray()); // reset value pointer
-          this->publishChange();
-        }
-        else {
-          reportPlanError("Internal error: invalid initializer for array variable "
-                          << this->getName());
-        }
+        m_known = false; // to ensure change is published
+        this->setValueImpl(valuePtr); // delegate
       }
       else {
         // Initial value is unknown, no need to publish change
@@ -191,12 +152,12 @@ namespace PLEXIL
       // No initializer, preallocate or resize as appropriate
       if (m_size && m_maxSize) {
         if (m_value) {
-          m_value->reset(); // reset array to all unknown
+          m_value->reset(); // to all unknown
           if (m_value->size() < m_maxSize)
             m_value->resize(m_maxSize);
         }
         else {
-          m_value.reset(this->makeArray()); // delegate to derived class
+          m_value.reset(this->makeArray(m_maxSize)); // delegate to derived class
         }
         m_known = true; // array is known, not its contents
         this->publishChange();
@@ -248,21 +209,21 @@ namespace PLEXIL
     return Value();
   }
 
+  // *** FIXME ***
   void ArrayVariable::setInitializer(Expression *expr, bool garbage)
   {
+    checkPlanError(expr->valueType() == this->valueType()
+                   || expr->valueType() == UNKNOWN_TYPE,
+                   "Type of array variable " << this->getName()
+                   << ", " << valueTypeName(this->valueType())
+                   << ", differs from initializer's type, "
+                   << valueTypeName(expr->valueType()));
     Integer size;
     Array const *temp;
-    if (isArrayType(expr->valueType())) {
-      // Check is required because ArrayVariable size may not be known at plan load time
-      if (m_size && m_size->getValue(size) && expr->getValuePointer(temp))
+    if (m_size && m_size->getValue(size) && expr->getValuePointer(temp)) {
         checkPlanError(temp->size() <= (size_t) size,
                        "Array variable " << this->getName()
                        << " initial value is larger than declared array size " << size);
-    }
-    // Check is for scalar literal initial value
-    else if (!areTypesCompatible(arrayElementType(this->valueType()), expr->valueType())) {
-      reportPlanError("Invalid or unimplemented initializer for array variable "
-                      << this->getName());
     }
     m_initializer = expr;
     m_initializerIsGarbage = garbage;
@@ -544,73 +505,19 @@ namespace PLEXIL
   }
 
   template <typename T>
-  Array *ArrayVariableImpl<T>::makeArray() const
+  Array *ArrayVariableImpl<T>::makeArray(size_t n) const
   {
-    // Easy case first
-    if (!m_initializer)
-      return new ArrayImpl<T>(m_maxSize);
-    // Initializer has scalar value compatible with this array
-    if (areTypesCompatible(arrayElementType(this->valueType()),
-                           m_initializer->valueType())) {
-      T initialElement;
-      checkPlanError(!m_initializer->getValue(initialElement),
-                     "Array initializer is unknown");
-      return new ArrayImpl<T>(m_maxSize, initialElement);
-    }
-    // If an array, simply clone it
-    if (m_initializer->valueType() == this->valueType()) {
-      Array const *ary;
-      checkPlanError(!m_initializer->getValuePointer(ary),
-                     "Array initializer is unknown");
-      return ary->clone();
-    }
-    reportPlanError("Internal error: Array initializer has incompatible type");
+    return new ArrayImpl<T>(n);
   }
 
-  Array *ArrayVariableImpl<Integer>::makeArray() const
+  Array *ArrayVariableImpl<Integer>::makeArray(size_t n) const
   {
-    // Easy case first
-    if (!m_initializer)
-      return new ArrayImpl<Integer>(m_maxSize);
-    // Initializer has scalar value compatible with this array
-    if (areTypesCompatible(arrayElementType(this->valueType()),
-                           m_initializer->valueType())) {
-      Integer initialElement;
-      checkPlanError(!m_initializer->getValue(initialElement),
-                     "Array initializer is unknown");
-      return new ArrayImpl<Integer>(m_maxSize, initialElement);
-    }
-    // If an array, simply clone it
-    if (m_initializer->valueType() == this->valueType()) {
-      Array const *ary;
-      checkPlanError(!m_initializer->getValuePointer(ary),
-                     "Array initializer is unknown");
-      return ary->clone();
-    }
-    reportPlanError("Internal error: Array initializer has incompatible type");
+    return new ArrayImpl<Integer>(n);
   }
 
-  Array *ArrayVariableImpl<String>::makeArray() const
+  Array *ArrayVariableImpl<String>::makeArray(size_t n) const
   {
-    // Easy case first
-    if (!m_initializer)
-      return new ArrayImpl<String>(m_maxSize);
-    // Initializer has scalar value compatible with this array
-    if (areTypesCompatible(arrayElementType(this->valueType()),
-                           m_initializer->valueType())) {
-      String initialElement;
-      checkPlanError(!m_initializer->getValue(initialElement),
-                     "Array initializer is unknown");
-      return new ArrayImpl<String>(m_maxSize, initialElement);
-    }
-    // If an array, simply clone it
-    if (m_initializer->valueType() == this->valueType()) {
-      Array const *ary;
-      checkPlanError(!m_initializer->getValuePointer(ary),
-                     "Array initializer is unknown");
-      return ary->clone();
-    }
-    reportPlanError("Internal error: Array initializer has incompatible type");
+    return new ArrayImpl<String>(n);
   }
 
   template <typename T>
@@ -901,9 +808,7 @@ namespace PLEXIL
 
   // Instantiate specializations not explicitly declared
   template class ArrayVariableImpl<Boolean>;
-  // template class ArrayVariableImpl<Integer>;
   template class ArrayVariableImpl<Real>;
-  // template class ArrayVariableImpl<String>;
 
 } // namespace PLEXIL
 

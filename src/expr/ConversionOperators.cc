@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,18 +26,13 @@
 
 #include "ConversionOperators.hh"
 
-#include "plexil-config.h"
+#include "plexil-config.h" // HAVE_* macros
 
 #include "Function.hh"
 #include "PlanError.hh"
 
-#include <limits>
-
-#if defined(HAVE_CMATH)
 #include <cmath>
-#elif defined(HAVE_MATH_H)
-#include <math.h>
-#endif
+#include <limits>
 
 namespace PLEXIL
 {
@@ -75,6 +70,18 @@ namespace PLEXIL
     reportPlanError("Operator " << this->getName()
                     << " only implemented for one-argument case");
     return false;
+  }
+
+  template <typename NUM>
+  bool ConversionOperator<NUM>::checkArgCount(size_t count) const
+  {
+    return count == 1;
+  }
+
+  template <typename NUM>
+  bool ConversionOperator<NUM>::checkArgTypes(std::vector<ValueType> const &typeVec) const
+  {
+    return isNumericType(typeVec.at(0)) || typeVec.at(0) == UNKNOWN_TYPE;
   }
 
   template <typename NUM>
@@ -202,6 +209,16 @@ namespace PLEXIL
   RealToInteger::RealToInteger()
     : OperatorImpl<Integer>("REAL_TO_INT")
   {
+  }
+
+  bool RealToInteger::checkArgCount(size_t count) const
+  {
+    return count == 1;
+  }
+
+  bool RealToInteger::checkArgTypes(std::vector<ValueType> const &typeVec) const
+  {
+    return isNumericType(typeVec.at(0)) || typeVec.at(0) == UNKNOWN_TYPE;
   }
 
   bool RealToInteger::calc(Integer & result,

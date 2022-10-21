@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,6 @@
 #include "ArithmeticOperators.hh"
 #include "CachedFunction.hh"
 #include "Constant.hh"
-#include "ExpressionConstants.hh" // INT_ONE_EXP()
 #include "Function.hh"
 #include "TestSupport.hh"
 #include "test/TrivialListener.hh"
@@ -142,8 +141,7 @@ static bool testUnaryBasics()
 static bool testUnaryPropagation()
 {
   {
-    BooleanVariable treu;
-    treu.setValue(true);
+    BooleanVariable treu(true);
     Function *boule = makeFunction(&ptb, 1);
     boule->setArgument(0, &treu, false);
     bool bchanged = false;
@@ -168,8 +166,7 @@ static bool testUnaryPropagation()
   }
 
   {
-    IntegerVariable fortytwo;
-    fortytwo.setValue((Integer) 42);
+    IntegerVariable fortytwo(42);
 
     {
       Function *inty = makeFunction(&pti, 1);
@@ -221,8 +218,7 @@ static bool testUnaryPropagation()
   }
 
   {
-    RealVariable pie;
-    pie.setValue(3.14);
+    RealVariable pie(3.14);
     Function *dub = makeFunction(&ptd, 1);
     dub->setArgument(0, &pie, false);
     bool rchanged = false;
@@ -247,8 +243,7 @@ static bool testUnaryPropagation()
   }
 
   {
-    StringVariable fou;
-    fou.setValue("Foo");
+    StringVariable fou("Foo");
     Function *str = makeCachedFunction(&pts, 1);
     str->setArgument(0, &fou, false);
     bool schanged = false;
@@ -278,11 +273,10 @@ static bool testUnaryPropagation()
 static bool testBinaryBasics()
 {
   {
-    Addition<Integer> intAdd;
-    IntegerVariable won;
-    won.setInitializer(INT_ONE_EXP(), false);
+    Operator const *intAdd = Addition<Integer>::instance();
+    IntegerVariable won(1);
     IntegerConstant too(2);
-    Function *intFn = makeFunction(&intAdd, 2);
+    Function *intFn = makeFunction(intAdd, 2);
     intFn->setArgument(0, &won, false);
     intFn->setArgument(1, &too, false);
     Integer itemp;
@@ -331,11 +325,10 @@ static bool testBinaryBasics()
   }
 
   {
-    Addition<Real> realAdd;
-    RealVariable tree;
-    tree.setInitializer(new RealConstant(3), true);
+    Operator const *realAdd = Addition<Real>::instance();
+    RealVariable tree(3);
     RealConstant fore(4);
-    Function *realFn = makeFunction(&realAdd, 2);
+    Function *realFn = makeFunction(realAdd, 2);
     realFn->setArgument(0, &tree, false);
     realFn->setArgument(1, &fore, false);
     Real rtemp;
@@ -393,13 +386,11 @@ static bool testNaryBasics()
   const std::vector<Boolean> garbage(3, false);
 
   {
-    Addition<Integer> intAdd;
-    IntegerVariable won;
-    won.setInitializer(INT_ONE_EXP(), false);
+    Operator const *intAdd = Addition<Integer>::instance();
+    IntegerVariable won(1);
     IntegerConstant too(2);
-    IntegerVariable tree;
-    tree.setInitializer(new IntegerConstant(3), true);
-    Function *intFn = makeFunction(&intAdd, 3);
+    IntegerVariable tree(3);
+    Function *intFn = makeFunction(intAdd, 3);
     intFn->setArgument(0, &won, false);
     intFn->setArgument(1, &too, false);
     intFn->setArgument(2, &tree, false);
@@ -447,13 +438,11 @@ static bool testNaryBasics()
   }
 
   {
-    Addition<Real> realAdd;
+    Operator const *realAdd = Addition<Real>::instance();
     RealConstant fore(4);
-    RealVariable fivefive;
-    fivefive.setInitializer(new RealConstant(5.5), true);
-    RealVariable sixfive;
-    sixfive.setInitializer(new RealConstant(6.5), true);
-    Function *realFn = makeFunction(&realAdd, 3);
+    RealVariable fivefive(5.5);
+    RealVariable sixfive(6.5);
+    Function *realFn = makeFunction(realAdd, 3);
     realFn->setArgument(0, &fore, false);
     realFn->setArgument(1, &fivefive, false);
     realFn->setArgument(2, &sixfive, false);

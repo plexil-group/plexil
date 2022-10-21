@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,17 +24,11 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "plexil-config.h"
-
 #include "ArithmeticOperators.hh"
 #include "Function.hh"
 #include "PlanError.hh"
 
-#if defined(HAVE_CMATH)
 #include <cmath>
-#elif defined(HAVE_MATH_H)
-#include <math.h>
-#endif
 
 namespace PLEXIL
 {
@@ -50,6 +44,12 @@ namespace PLEXIL
   Addition<NUM>::Addition()
     : OperatorImpl<NUM>("ADD")
   {
+  }
+
+  template <typename NUM>
+  bool Addition<NUM>::checkArgCount(size_t /* count */) const
+  {
+    return true;
   }
 
   template <typename NUM>
@@ -93,6 +93,12 @@ namespace PLEXIL
   Subtraction<NUM>::Subtraction()
     : OperatorImpl<NUM>("SUB")
   {
+  }
+
+  template <typename NUM>
+  bool Subtraction<NUM>::checkArgCount(size_t count) const
+  {
+    return count >= 1;
   }
 
   // TODO:
@@ -155,6 +161,12 @@ namespace PLEXIL
   }
 
   template <typename NUM>
+  bool Multiplication<NUM>::checkArgCount(size_t count) const
+  {
+    return count > 0;
+  }
+
+  template <typename NUM>
   bool Multiplication<NUM>::calc(NUM &result, Expression const *arg) const
   {
     return arg->getValue(result);
@@ -198,6 +210,12 @@ namespace PLEXIL
   {
   }
 
+  template <typename NUM>
+  bool Division<NUM>::checkArgCount(size_t count) const
+  {
+    return count == 2;
+  }
+
   // TODO: warn on zero divisor?
   template <typename NUM>
   bool Division<NUM>::calc(NUM &result, Expression const *arg0, Expression const *arg1) const
@@ -218,6 +236,12 @@ namespace PLEXIL
   Modulo<NUM>::Modulo()
     : OperatorImpl<NUM>("MOD")
   {
+  }
+
+  template <typename NUM>
+  bool Modulo<NUM>::checkArgCount(size_t count) const
+  {
+    return count == 2;
   }
 
   // Integer implementation
@@ -252,6 +276,12 @@ namespace PLEXIL
   Minimum<NUM>::Minimum()
     : OperatorImpl<NUM>("MIN")
   {
+  }
+
+  template <typename NUM>
+  bool Minimum<NUM>::checkArgCount(size_t count) const
+  {
+    return count >= 1;
   }
 
   template <typename NUM>
@@ -299,6 +329,12 @@ namespace PLEXIL
   }
 
   template <typename NUM>
+  bool Maximum<NUM>::checkArgCount(size_t count) const
+  {
+    return count >= 1;
+  }
+
+  template <typename NUM>
   bool Maximum<NUM>::calc(NUM &result, Expression const *arg) const
   {
     return arg->getValue(result);
@@ -342,6 +378,12 @@ namespace PLEXIL
   {
   }
 
+  template <typename NUM>
+  bool AbsoluteValue<NUM>::checkArgCount(size_t count) const
+  {
+    return count == 1;
+  }
+
   // TODO: Unsigned numeric types need a simple passthrough method
 
   template <typename NUM>
@@ -365,9 +407,22 @@ namespace PLEXIL
   {
   }
 
+  template <typename NUM>
+  bool SquareRoot<NUM>::checkArgCount(size_t count) const
+  {
+    return count == 1;
+  }
+
+  template <typename NUM>
+  bool SquareRoot<NUM>::checkArgTypes(std::vector<ValueType> const &typeVec) const
+  {
+    ValueType typ = typeVec.at(0);
+    return isNumericType(typ) || typ == UNKNOWN_TYPE;
+  }
+
   template <>
   bool SquareRoot<Real>::calc(Real &result,
-                              Expression const *arg) const
+                                Expression const *arg) const
   {
 #ifdef HAVE_SQRT    
     Real temp;
