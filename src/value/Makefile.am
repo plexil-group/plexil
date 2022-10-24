@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,7 +29,7 @@ lib_LTLIBRARIES = libPlexilValue.la
 
 libPlexilValue_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/utils
 
-include_HEADERS = Array.hh ArrayFwd.hh ArrayImpl.hh CommandHandle.hh \
+include_HEADERS = Array.hh ArrayImpl.hh CommandHandle.hh \
  NodeConstants.hh PlexilTypeTraits.hh Value.hh ValueType.hh
 
 libPlexilValue_la_SOURCES = Array.cc ArrayImpl.cc CommandHandle.cc \

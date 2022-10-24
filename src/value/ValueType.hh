@@ -26,12 +26,13 @@
 #ifndef PLEXIL_VALUE_TYPE_HH
 #define PLEXIL_VALUE_TYPE_HH
 
-#include "ArrayFwd.hh" 
 #include "CommandHandle.hh"
 #include "NodeConstants.hh"
+#include "plexil-stdint.h" // int32_t
 
 #include <cstddef> // size_t
 #include <iosfwd>  // std::ostream
+#include <string>
 
 namespace PLEXIL
 {
@@ -45,22 +46,22 @@ namespace PLEXIL
   //! \typedef Boolean
   //! \brief The PLEXIL Boolean type.
   //! \ingroup Values
-  typedef bool        Boolean;
+  using Boolean = bool;
 
   //! \typedef Integer
   //! \brief The PLEXIL Integer type.
   //! \ingroup Values
-  typedef int32_t     Integer;
+  using Integer = int32_t;
 
   //! \typedef Real
   //! \brief The PLEXIL Real type.
   //! \ingroup Values
-  typedef double      Real;
+  using Real = double;
 
   //! \typedef String
   //! \brief The PLEXIL String type.
   //! \ingroup Values
-  typedef std::string String;
+  using String = std::string;
 
   // Subject to change in the future.
 
@@ -68,19 +69,39 @@ namespace PLEXIL
   //! \brief The PLEXIL Duration type is represented as a Real.
   //! \note The implementation of this type may change in future releases.
   //! \ingroup Values
-  typedef double      Duration;
+  using Duration = Real;
 
   //! \typedef Time
   //! \brief The PLEXIL Time type is represented as a Real.
   //! \note The implementation of this type may change in future releases.
   //! \ingroup Values
-  typedef double      Time;
+  using Time = Real;
 
-  // Array types declared in ArrayFwd.hh, defined in ArrayImpl.hh:
-  // BooleanArray
-  // IntegerArray
-  // RealArray
-  // StringArray
+  // Array types defined in ArrayImpl.hh
+
+  // Forward references
+  class Array;
+  template <typename T> class ArrayImpl;
+
+  //! \typedef BooleanArray
+  //! \brief PLEXIL array type containing Boolean elements.
+  //! \ingroup Values
+  using BooleanArray = ArrayImpl<Boolean>;
+
+  //! \typedef IntegerArray
+  //! \brief PLEXIL array type containing Integer elements.
+  //! \ingroup Values
+  using IntegerArray = ArrayImpl<Integer>;
+
+  //! \typedef RealArray
+  //! \brief PLEXIL array type containing Real elements.
+  //! \ingroup Values
+  using RealArray    = ArrayImpl<Real>;
+
+  //! \typedef StringArray
+  //! \brief PLEXIL array type containing String elements.
+  //! \ingroup Values
+  using StringArray  = ArrayImpl<String>;
 
   //
   // PLEXIL expression data types
