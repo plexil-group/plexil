@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,28 +40,30 @@
 namespace PLEXIL
 {
 
+  //! \class StateCacheEntryImpl
+  //! \brief Concrete implementation of the StateCacheEntry API.
   class StateCacheEntryImpl final : public StateCacheEntry
   {
   private:
 
-    //
-    // Local typedefs
-    //
-
+    //! \brief Convenience typedef.
     using CachedValuePtr = std::unique_ptr<CachedValue>;
 
   public:
 
+    //! \brief Default constructor.
     StateCacheEntryImpl()
-      : StateCacheEntry(),
-        m_value(),
+      : m_value(),
         m_lowThreshold(),
         m_highThreshold()
     {
     }
 
+    //! \brief Virtual destructor.
     virtual ~StateCacheEntryImpl() = default;
 
+    //! \brief Return the type of the cached value.
+    //! \return The value type.
     virtual ValueType const valueType() const
     {
       if (m_value)
@@ -69,6 +71,8 @@ namespace PLEXIL
       return UNKNOWN_TYPE;
     }
 
+    //! \brief Determine whether the cached value is known or unknown.
+    //! \return true if known, false otherwise.
     virtual bool isKnown() const
     {
       if (m_value)
@@ -76,11 +80,17 @@ namespace PLEXIL
       return false;
     }
 
+    //! \brief Determine if there are any Lookups currently registered
+    //!        for this state.
+    //! \return true if Lookups are currently registered, false otherwise.
     virtual bool hasRegisteredLookups() const
     {
       return !m_lookups.empty();
     }
 
+    //! \brief Register a Lookup expression with this State.
+    //! \param s Const reference to the state.
+    //! \param l Pointer to the Lookup.
     virtual void registerLookup(State const &state, Lookup *lkup)
     {
       m_lookups.push_back(lkup);
@@ -93,6 +103,9 @@ namespace PLEXIL
       }
     }
 
+    //! \brief Remove the association between a Lookup expression and this State.
+    //! \param s Const reference to the state.
+    //! \param l Pointer to the Lookup.
     virtual void unregisterLookup(State const &state, Lookup *lkup)
     {
       debugMsg("StateCacheEntry:unregisterLookup", ' ' << state);
@@ -132,6 +145,8 @@ namespace PLEXIL
       }
     }
 
+    //! \brief Update the LookupOnChange thresholds for the given state.
+    //! \param s Const reference to the state.
     virtual void updateThresholds(State const &state)
     {
       // Survey lookups to determine if the thresholds
@@ -168,15 +183,18 @@ namespace PLEXIL
       }
     }
 
+    //! \brief Get the CachedValue instance associated with this entry.
+    //! \return Const pointer to the CachedValue.
+    //! \note Read access to the actual value is through the helper object.
     virtual CachedValue const *cachedValue() const
     {
       return m_value.get();
     }
 
-    //! Update with the given value and timestamp.
-    //! @param val The new value.
-    //! @param timestamp The cycle count at the time of update.
-    //! @note Optimization for StateCache::lookupReturn()
+    //! \brief Update the cache entry with the given new value.
+    //! \param val Const reference to the new value.
+    //! \note If the new value differs from the old, notifies all active lookups of the new value.
+    //! \note Optimization for StateCache::lookupReturn()
     virtual void updateValue(Value const &val, unsigned int timestamp)
     {
       if (!ensureCachedValue(val.valueType()))
@@ -189,6 +207,8 @@ namespace PLEXIL
     // LookupReceiver API
     //
 
+    //! \brief Assign a new value to this Lookup.
+    //! \param val Const reference to the new Value.
     virtual void update(Value const &val)
     {
       if (!ensureCachedValue(val.valueType()))
@@ -197,12 +217,16 @@ namespace PLEXIL
         notify();
     }
     
+    //! \brief Make the value of this Lookup unknown.
     virtual void setUnknown()
     {
       if (m_value && m_value->setUnknown(StateCache::instance().getCycleCount()))
         notify();
     }
 
+    //! \brief Assign a new value of a specific type to this Lookup.
+    //! \param val The new value.
+    ///@{
     virtual void update(Boolean val)
     {
       if (!ensureCachedValue(BOOLEAN_TYPE))
@@ -226,7 +250,11 @@ namespace PLEXIL
       if (m_value->update(StateCache::instance().getCycleCount(), val))
         notify();
     }
+    ///@}
 
+    //! \brief Assign a new string value to this Lookup.
+    //! \param val The new value.
+    ///@{
     virtual void update(String const &val)
     {
       if (!ensureCachedValue(STRING_TYPE))
@@ -242,7 +270,12 @@ namespace PLEXIL
       if (m_value->update(StateCache::instance().getCycleCount(), String(val)))
         notify();
     }
+    ///@}
 
+    //! \brief Assign a new array value to this Lookup.
+    //! \param ary The array.
+    //! \param size The number of elements in the array.
+    ///@{
     virtual void update(Boolean const ary[], size_t size)
     {
       std::vector<Boolean> v(size);
@@ -278,11 +311,17 @@ namespace PLEXIL
       StringArray array(v);
       updatePtr(&array);
     }
+    ///@}
 
     //
     // StateCacheEntry API
     //
 
+    //! Update the cache entry with the given new value.
+    //! @param valPtr The new value.
+    //! @note Notifies all lookups of the new value.
+    //! @note The caller is responsible for deleting the object pointed to upon return.
+    ///@{
     virtual void updatePtr(String const *valPtr)
     {
       if (!ensureCachedValue(STRING_TYPE))
@@ -322,6 +361,7 @@ namespace PLEXIL
       if (m_value->updatePtr(StateCache::instance().getCycleCount(), valPtr))
         notify();
     }
+    ///@}
 
   private:
 
@@ -337,16 +377,19 @@ namespace PLEXIL
     // Internal functions
     //
 
+    //! \brief Notify all subscribed Lookups of a change in value.
     void notify() const
     {
       for (Lookup *lkup : m_lookups)
         lkup->valueChanged();
     }
 
-    //! If there is no cached value or it is a placeholder VoidCachedValue,
-    //! construct the appropriate CachedValue instance and return true.
-    //! If there is a CachedValue, and it's of a compatible type, return true.
-    //! Otherwise return false.
+    //! \brief Ensure the state cache entry has a CachedValue object
+    //!        of the appropriate type.  If there is no cached value
+    //!        or it is a placeholder VoidCachedValue, construct the
+    //!        appropriate CachedValue instance and return true.
+    //! \return If there is a CachedValue, and it's of a compatible
+    //!         type, return true.  Otherwise return false.
     bool ensureCachedValue(ValueType typ)
     {
       if (!m_value) {
@@ -381,6 +424,11 @@ namespace PLEXIL
       return false;
     }
 
+    //! \brief Update all change lookup thresholds registered to an
+    //!        Integer valued state cache entry.
+    //! \param state Const reference to the State of the lookup.
+    //! \return true if any of the Lookups had change thresholds,
+    //!         false otherwise.
     bool integerUpdateThresholds(State const &state)
     {
       bool hasThresholds = false;
@@ -422,6 +470,11 @@ namespace PLEXIL
       return hasThresholds;
     }
 
+    //! \brief Update all change lookup thresholds registered to an
+    //!        Integer valued state cache entry.
+    //! \param state Const reference to the State of the lookup.
+    //! \return true if any of the Lookups had change thresholds,
+    //!         false otherwise.
     bool realUpdateThresholds(State const &state)
     {
       bool hasThresholds = false;
@@ -467,12 +520,23 @@ namespace PLEXIL
     // Member variables
     //
 
+    //! \brief All the lookups registered on this state cache entry.
     std::vector<Lookup *> m_lookups;
+
+    //! \brief Pointer to the value cache
     CachedValuePtr m_value;
+
+    //! \brief Pointer to the highest low threshold currently in
+    //!        effect.  May be null.
     CachedValuePtr m_lowThreshold;
+
+    //! \brief Pointer to the lowest high threshold currently in
+    //!        effect.  May be null.
     CachedValuePtr m_highThreshold;
   };
 
+  //! \brief Construct a StateCacheEntry instance.
+  //! \return Unique pointer to the new instance.
   std::unique_ptr<StateCacheEntry> makeStateCacheEntry()
   {
     return std::unique_ptr<StateCacheEntry>(new StateCacheEntryImpl());

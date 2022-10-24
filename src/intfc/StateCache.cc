@@ -55,25 +55,21 @@ namespace PLEXIL
     return currentTime();
   }
 
+  //! \class StateCacheImpl
+  //! \brief Implements the StateCache API.
   class StateCacheImpl final : public StateCache
   {
+    friend StateCache &StateCache::instance();
+
   private:
 
-    using EntryMap = std::map<State, std::unique_ptr<StateCacheEntry> >;
-    EntryMap m_map;
-    StateCacheEntry *m_timeEntry;
-    unsigned int m_cycleCount;
+    //! \typedef EntryMap
+    //! \brief Abbreviation for the type of the map structure.
+    using EntryMap = std::map<State, std::unique_ptr<StateCacheEntry>>;
 
   public:
 
-    StateCacheImpl()
-      : StateCache(),
-        m_map(),
-        m_timeEntry(nullptr),
-        m_cycleCount(1)
-    {
-    }
-
+    //! \brief Virtual destructor.
     virtual ~StateCacheImpl() = default;
 
     //! Return the number of "macro steps" since this instance was constructed.
@@ -83,12 +79,14 @@ namespace PLEXIL
       return m_cycleCount;
     }
 
-    //! Increment the macro step count.
+    //! \brief Increment the Exec macro step count.
     virtual void incrementCycleCount()
     {
       ++m_cycleCount;
     }
 
+    //! \brief Return the StateCacheEntry corresponding to the time state.
+    //! \return Pointer to the entry.
     virtual StateCacheEntry *ensureTimeEntry()
     {
       if (!m_timeEntry) {
@@ -99,14 +97,18 @@ namespace PLEXIL
       return m_timeEntry;
     }
 
-    //! Update the value for this state's Lookup.
-    //! @param state The state.
-    //! @param value The new value.
+    //! \brief Update the value for this state's Lookup.
+    //! \param state The state.
+    //! \param value The new value.
     virtual void lookupReturn(State const &state, Value const &value)
     {
       ensureStateCacheEntry(state)->updateValue(value, m_cycleCount);
     }
 
+    //! \brief Construct or find the cache entry for this state.
+    //! \param state The state being looked up.
+    //! \return Pointer to the StateCacheEntry for the state.
+    //! \note Return value can be presumed to be non-null.
     virtual StateCacheEntry *ensureStateCacheEntry(State const &state)
     {
       EntryMap::iterator iter = m_map.find(state);
@@ -115,6 +117,10 @@ namespace PLEXIL
       return iter->second.get();
     }
 
+    //! \brief Get the object which should receive lookup result
+    //!        notifications for this state.
+    //! \param state Const reference to the State.
+    //! \return Pointer to a LookupReceiver instance.
     virtual LookupReceiver *getLookupReceiver(State const &state)
     {
       return static_cast<LookupReceiver *>(ensureStateCacheEntry(state));
@@ -124,8 +130,8 @@ namespace PLEXIL
     // Message API to external interfaces
     //
 
-    //! Receive notification of a message becoming available.
-    //! @param msg Const pointer to the new message.
+    //! \brief Process a newly received Message.
+    //! \param msg Const pointer to the new message.
     virtual void messageReceived(Message const *msg)
     {
       ensureStateCacheEntry(s_haveMessage)->update(true);
@@ -133,7 +139,8 @@ namespace PLEXIL
       ensureStateCacheEntry(s_peekAtMessageSender)->update(msg->sender);
     }
 
-    //! Receive notification that the message queue is empty.
+    //! \brief Perform the appropriate actions when the message queue
+    //!        becomes empty.
     virtual void messageQueueEmpty()
     {
       ensureStateCacheEntry(s_haveMessage)->update(false);
@@ -141,10 +148,9 @@ namespace PLEXIL
       ensureStateCacheEntry(s_peekAtMessageSender)->setUnknown();
     }
 
-    //! Accept an incoming message and associate it with the handle.
-    //! @param msg Pointer to the message. StateCache takes ownership of the message.
-    //! @param handle String used as a handle for the message.
-    //! @note The message can be deleted as soon as this method is done.
+    //! \brief Accept an incoming message and associate it with the handle.
+    //! \param msg Pointer to the message.  StateCache takes ownership of the message.
+    //! \param handle String used as a handle for the message.
     virtual void assignMessageHandle(Message *msg, std::string const &handle)
     {
       Value handleValue(handle);
@@ -165,9 +171,9 @@ namespace PLEXIL
       delete msg;
     }
 
-    //! Release the message handle, and clear the message data
-    //! associated with that handle.
-    //! @param handle The handle being released.
+    //! \brief Release the message handle, and clear the message data
+    //!        associated with that handle.
+    //! \param handle The handle being released.
     virtual void releaseMessageHandle(std::string const &handle)
     {
       // Need the parameter count to delete all the parameters
@@ -201,6 +207,17 @@ namespace PLEXIL
 
   private:
 
+    //! \brief Default constructor.  Only accessible to StateCache::instance().
+    StateCacheImpl()
+      : m_map(),
+        m_timeEntry(nullptr),
+        m_cycleCount(1)
+    {
+    }
+
+    //! \brief Get or construct a state cache entry for the given state.
+    //! \param state Const reference to the state.
+    //! \return Pointer to the entry.
     virtual StateCacheEntry *getStateCacheEntry(State const &state)
     {
       EntryMap::iterator iter = m_map.find(state);
@@ -209,6 +226,8 @@ namespace PLEXIL
       return iter->second.get();
     }
 
+    //! \brief Delete the state cache entry for the named state.
+    //! \param state Const reference to the state.
     void deleteStateCacheEntry(State const &state)
     {
       EntryMap::iterator iter = m_map.find(state);
@@ -227,7 +246,19 @@ namespace PLEXIL
     StateCacheImpl &operator=(StateCacheImpl const &) = delete;
     StateCacheImpl &operator=(StateCacheImpl &&) = delete;
 
+    //! \brief The actual map.
+    EntryMap m_map;
+
+    //! \brief Pointer to the state cache entry for the time state.
+    StateCacheEntry *m_timeEntry;
+
+    //! \brief The Exec major cycle counter.
+    unsigned int m_cycleCount;
+
+    //
     // Static member variables for messaging
+    //
+    
     static const State s_haveMessage;
     static const State s_peekAtMessage;
     static const State s_peekAtMessageSender;
@@ -237,6 +268,7 @@ namespace PLEXIL
   const State StateCacheImpl::s_peekAtMessage = State("PeekAtMessage");
   const State StateCacheImpl::s_peekAtMessageSender = State("PeekAtMessageSender");
 
+  //! \brief Singleton accessor.
   StateCache &StateCache::instance()
   {
     static StateCacheImpl sl_instance;
