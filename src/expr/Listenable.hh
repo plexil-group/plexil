@@ -147,7 +147,10 @@ namespace PLEXIL
     //! (e.g. Lookups, random number generators) may also
     //! generate changes of their own accord.
 
-    //! \return True if the object can change of its own accord, false if not.
+    //! \brief Can this expression generate change notifications even
+    //!        if none of its subexpressions change?
+    //! \return True if the object can generate its own change
+    //!         notifications, false if not.
     //! \note The default method returns false.
     virtual bool isPropagationSource() const
     {
