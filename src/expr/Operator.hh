@@ -28,6 +28,8 @@
 
 #include "ValueType.hh"
 
+#include <vector>
+
 namespace PLEXIL
 {
   // Forward references
