@@ -540,7 +540,6 @@ namespace PLEXIL
     assertTrue_1(m_command);
     m_command->activate();
     m_command->fixValues();
-    m_command->fixResourceValues();
     exec->enqueueCommand(m_command.get());
   }
 

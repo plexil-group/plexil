@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -41,71 +41,60 @@ namespace PLEXIL
   class State;
   class Update;
 
-  //! @class Dispatcher
-  //! Virtual base class for requests/commands from the PLEXIL Exec to
-  //! the outside world.
-
+  //! \class Dispatcher
+  //! \brief Stateless abstract base class for requests/commands from
+  //!        the PLEXIL Exec to the outside world.
   class Dispatcher
   {
   public:
 
+    //! \brief Virtual destructor.
     virtual ~Dispatcher() = default;
 
     //
     // API to Lookup
     //
 
-    /**
-     * @brief Perform an immediate lookup on an existing state.
-     * @param state The state.
-     * @param receiver Callback object to receive the lookup result.
-     * @note Value is returned via methods on the LookupReceiver callback.
-     */
+    //! \brief Perform an immediate lookup on an existing state.
+    //! \param state The state.
+    //! \param receiver Callback object to receive the lookup result.
+    //! \note Value is returned via methods on the LookupReceiver callback.
     virtual void lookupNow(State const &state, LookupReceiver *receiver) = 0;
 
-    //!
-    // @brief Advise the interface of the current thresholds to use when reporting this state.
-    // @param state The state.
-    // @param hi The upper threshold, at or above which to report changes.
-    // @param lo The lower threshold, at or below which to report changes.
-    //
-    // @note This is a kludge which is only used for the 'time' state, to set
-    //       wakeups in tickless systems.
-    //
+    //! \brief Advise the interface of the current thresholds to use when reporting this state.
+    //! \param state The state.
+    //! \param hi The upper threshold, at or above which to report changes.
+    //! \param lo The lower threshold, at or below which to report changes.
+    //! \note This is a kludge, mostly used for the 'time' state, to
+    //!       schedule wakeups in tickless systems.
     virtual void setThresholds(const State& state, Real hi, Real lo) = 0;
     virtual void setThresholds(const State& state, Integer hi, Integer lo) = 0;
 
-    //!
-    // @brief Tell the interface that thresholds are no longer in effect
-    //        for this state.
-    // @param state The state.
-    //
+    //! \brief Tell the interface that thresholds are no longer in effect
+    //!        for this state.
+    //! \param state The state.
     virtual void clearThresholds(const State& state) = 0;
 
     //
     // API to Exec
-    // All delegated to derived classes
     //
 
-    //! Delegate this command for execution.
-    //! @param cmd The command.
+    //! \brief Delegate this command for execution.
+    //! \param cmd The command.
     virtual void executeCommand(Command *cmd) = 0;
 
-    //! Report the failure in the appropriate way for the application.
-    //! @param cmd Command which has been rejected.
+    //! \brief Report a command arbitration failure in the appropriate
+    //!        way for the application.
+    //! \param cmd The rejected Command.
     virtual void reportCommandArbitrationFailure(Command *cmd) = 0;
 
-    //! Delegate this command to be aborted.
-    //! @param cmd The command.
+    //! \brief Delegate this command to be aborted.
+    //! \param cmd The command.
     virtual void invokeAbort(Command *cmd) = 0;
 
-    //! Delegate this update for execution.
-    //1 @param update The update.
+    //! \brief Delegate this update for execution.
+    //! \param update The update.
     virtual void executeUpdate(Update *update) = 0;
-
-  protected:
-
-    Dispatcher() = default;
 
   }; // class Dispatcher
 

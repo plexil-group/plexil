@@ -32,7 +32,6 @@
 #include <cstring> // strdup()
 #include <iostream>
 
-
 namespace PLEXIL
 {
 
@@ -40,10 +39,10 @@ namespace PLEXIL
   // CommandHandleVariable
   //
 
-  CommandHandleVariable::CommandHandleVariable(CommandImpl const &cmd)
+  CommandHandleVariable::CommandHandleVariable(CommandImpl const &cmd, std::string const &nodeName)
     : Notifier(),
-    m_command(cmd),
-    m_name(nullptr)
+      m_command(cmd),
+      m_name(strdup(nodeName.c_str()))
   {
   }
 
@@ -62,13 +61,6 @@ namespace PLEXIL
     if (m_name)
       return m_name;
     return "";
-  }
-
-  void CommandHandleVariable::setName(std::string const &name)
-  {
-    if (m_name)
-      free((void *) m_name);
-    m_name = strdup(name.c_str());
   }
 
   bool CommandHandleVariable::isKnown() const

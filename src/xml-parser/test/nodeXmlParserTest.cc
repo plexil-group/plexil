@@ -949,7 +949,6 @@ static bool commandNodeXmlParserTest()
     assertTrue_1(cmd->getName() == "foo");
     assertTrue_1(cmd->getArgValues().empty());
     assertTrue_1(!cmd->getDest());
-    cmd->fixResourceValues();
     assertTrue_1(cmd->getResourceValues().empty());
 
     delete basicCmd;
@@ -994,8 +993,6 @@ static bool commandNodeXmlParserTest()
     assertTrue_1(cmd->getName() == "goo");
     assertTrue_1(cmd->getArgValues().empty());
     assertTrue_1(!cmd->getDest());
-
-    cmd->fixResourceValues();
     ResourceValueList res = cmd->getResourceValues();
     assertTrue_1(!res.empty());
     ResourceValue &res1 = res[0];
@@ -1057,8 +1054,6 @@ static bool commandNodeXmlParserTest()
     assertTrue_1(args[1] == Value((int32_t) 5));
     assertTrue_1(args[2] == Value(3.14));
     assertTrue_1(args[3] == Value("hi there"));
-
-    cmd->fixResourceValues();
     assertTrue_1(cmd->getResourceValues().empty());
 
     delete cmdWithArgs;
@@ -1113,7 +1108,6 @@ static bool commandNodeXmlParserTest()
     assertTrue_1(dest);
     assertTrue_1(dest->valueType() == INTEGER_TYPE);
     assertTrue_1(dest->isAssignable());
-    cmd->fixResourceValues();
     assertTrue_1(cmd->getResourceValues().empty());
 
     delete listNode;
@@ -1180,8 +1174,6 @@ static bool commandNodeXmlParserTest()
     assertTrue_1(args[1] == Value((int32_t) 5));
     assertTrue_1(args[2] == Value(3.14));
     assertTrue_1(args[3] == Value("hi there"));
-
-    cmd->fixResourceValues();
     assertTrue_1(cmd->getResourceValues().empty());
 
     delete listNode;
@@ -1244,8 +1236,6 @@ static bool commandNodeXmlParserTest()
     assertTrue_1(dest);
     assertTrue_1(dest->valueType() == INTEGER_TYPE);
     assertTrue_1(dest->isAssignable());
-
-    cmd->fixResourceValues();
     ResourceValueList res = cmd->getResourceValues();
     assertTrue_1(!res.empty());
     ResourceValue &res1 = res[0];
@@ -1336,8 +1326,6 @@ static bool commandNodeXmlParserTest()
     assertTrue_1(!args[1].isKnown());
     assertTrue_1(args[2] == Value(3.14));
     assertTrue_1(args[3] == Value("hi there"));
-
-    cmd->fixResourceValues();
     ResourceValueList res = cmd->getResourceValues();
     assertTrue_1(!res.empty());
     ResourceValue &res1 = res[0];
