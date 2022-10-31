@@ -265,7 +265,7 @@ namespace PLEXIL
     }
     
     debugMsg("InterfaceManager:handleUpdateAck",
-             " for node " << upd->getSource()->getNodeId()
+             " for node " << upd->getNodeId()
              << ", ack = " << (ack ? "true" : "false"));
 
     assertTrue_1(m_inputQueue);
@@ -527,7 +527,7 @@ namespace PLEXIL
           debugMsg("InterfaceManager:processQueue",
                    " received update ack " << (ack ? "true" : "false")
                    << " for node "
-                   << entry->update->getSource()->getNodeId());
+                   << entry->update->getNodeId());
           entry->update->acknowledge(ack);
         }
         needsStep = true;

@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,13 +30,17 @@ lib_LTLIBRARIES = libPlexilExec.la
 libPlexilExec_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/intfc \
  -I@top_srcdir@/expr -I@top_srcdir@/value -I@top_srcdir@/utils
 
+# FIXME Divide into public vs internal interfaces
 include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
  ExecListenerBase.hh InterfaceSchema.hh \
  LibraryCallNode.hh ListNode.hh Mutex.hh Node.hh NodeImpl.hh NodeFactory.hh \
  NodeFunction.hh NodeOperator.hh NodeOperatorImpl.hh \
  NodeOperators.hh NodeTimepointValue.hh NodeTransition.hh \
  NodeVariableMap.hh NodeVariables.hh \
- PlexilExec.hh PlexilNodeType.hh UpdateNode.hh plan-utils.hh
+ PlexilExec.hh PlexilNodeType.hh UpdateImpl.hh UpdateNode.hh plan-utils.hh
+
+# Implementation details which don't need to be advertised
+# noinst_HEADERS = 
 
 libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc CommandNode.cc \
  InterfaceSchema.cc LibraryCallNode.cc \

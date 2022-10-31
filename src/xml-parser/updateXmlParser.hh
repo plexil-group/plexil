@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -39,7 +39,7 @@ namespace PLEXIL
 {
   // Forward declarations
   class NodeConnector;
-  class Update;
+  class UpdateImpl;
   class UpdateNode;
 
   //
@@ -48,10 +48,10 @@ namespace PLEXIL
 
   extern void checkUpdateBody(char const *nodeId, pugi::xml_node const updXml);
 
-  extern Update *constructUpdate(NodeConnector *node,
-                                 pugi::xml_node const updXml);
+  extern UpdateImpl *constructUpdate(NodeConnector *node,
+                                     pugi::xml_node const updXml);
 
-  extern void finalizeUpdate(Update *upd,
+  extern void finalizeUpdate(UpdateImpl *upd,
                              NodeConnector *node,
                              pugi::xml_node const updXml);
 

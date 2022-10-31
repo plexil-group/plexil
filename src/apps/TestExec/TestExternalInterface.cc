@@ -582,7 +582,7 @@ namespace PLEXIL
     Update::PairValueMap const &pairs = update->getPairs();
     for (Update::PairValueMap::const_iterator pairIt = pairs.begin(); pairIt != pairs.end(); ++pairIt)
       debugMsg("Test:testOutput", " " << pairIt->first << " => " << pairIt->second);
-    m_waitingUpdates.insert(std::make_pair(update->getSource()->getNodeId(), update));
+    m_waitingUpdates.insert(std::make_pair(update->getNodeId(), update));
   }
 
   static std::string getText(const State& c)

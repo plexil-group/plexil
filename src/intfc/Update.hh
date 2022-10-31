@@ -1,97 +1,78 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
-*  All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*     * Redistributions of source code must retain the above copyright
-*       notice, this list of conditions and the following disclaimer.
-*     * Redistributions in binary form must reproduce the above copyright
-*       notice, this list of conditions and the following disclaimer in the
-*       documentation and/or other materials provided with the distribution.
-*     * Neither the name of the Universities Space Research Association nor the
-*       names of its contributors may be used to endorse or promote products
-*       derived from this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
-* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
-* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
+//  All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//     * Neither the name of the Universities Space Research Association nor the
+//       names of its contributors may be used to endorse or promote products
+//       derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+// OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+// TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+// USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #ifndef PLEXIL_UPDATE_HH
 #define PLEXIL_UPDATE_HH
 
-#include "SimpleBooleanVariable.hh"
-#include "Value.hh"
-
 #include "SimpleMap.hh"
+#include "Value.hh"
 
 namespace PLEXIL
 {
-  // Forward declarations in PLEXIL namespace
-  class NodeConnector;
 
-  struct Pair;
-
-  class Update final
+  //! \class Update
+  //! \brief Stateless abstract base class representing the
+  //!        information transmitted by a PLEXIL Update node.
+  //! \ingroup External-Interface
+  class Update
   {
   public:
-    typedef SimpleMap<std::string, Value> PairValueMap;
 
-    Update(NodeConnector *node);
+    //! \typedef Shorthand for the name-value data structure type
+    using PairValueMap = SimpleMap<std::string, Value>;
 
-    ~Update();
+    //! \brief Virtual destructor.
+    virtual ~Update() = default;
 
     //
-    // Parser API
+    // API to external interfaces
     //
 
-    void reservePairs(size_t n);
-    void addPair(std::string const &name, Expression *exp, bool expIsGarbage);
+    //! \brief Get the map of name-value pairs.
+    //! \return Const reference to the map.
+    virtual const PairValueMap &getPairs() const = 0;
 
-    Expression *getAck() {return &m_ack;}
-    const PairValueMap& getPairs() const {return m_valuePairs;}
-    NodeConnector *getSource() {return m_source;}
-    NodeConnector const *getSource() const {return m_source;}
-    void activate();
-    void fixValues();
+    //! \brief Get the node ID of the owning node.
+    //! \return Const pointer to the node, as a NodeConnector.
+    virtual std::string const &getNodeId() const = 0;
 
-    void acknowledge(bool ack);
+    //! \brief Return an acknowledgement value for the update.
+    //! \param ack The value.
+    virtual void acknowledge(bool ack) = 0;
 
-    void deactivate();
+    //
+    // LinkedQueue item API for PlexilExec
+    //
 
-    void cleanUp();
+    //! \brief Get the pointer to the next Update in the queue.
+    //! \return Pointer to the Update.
+    virtual Update *next() const = 0;
 
-    // LinkedQueue item API
-    Update *next() const
-    {
-      return m_next;
-    }
-
-    Update **nextPtr()
-    {
-      return &m_next;
-    }
-
-  private:
-    // Deliberately unimplemented
-    Update() = delete;
-    Update(Update const &) = delete;
-    Update(Update &&) = delete;
-    Update& operator=(Update const &) = delete;
-    Update& operator=(Update &&) = delete;
-
-    Update *m_next;
-    NodeConnector *m_source;
-    SimpleBooleanVariable m_ack;
-    Pair *m_pairs;
-    PairValueMap m_valuePairs;
+    //! \brief Get the pointer to the pointer to the next Update in the queue.
+    //! \return Pointer to the next poitner.
+    virtual Update **nextPtr() = 0;
   };
 
 }

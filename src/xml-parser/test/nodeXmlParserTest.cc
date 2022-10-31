@@ -35,7 +35,7 @@
 #include "ParserException.hh"
 #include "planLibrary.hh"
 #include "TestSupport.hh"
-#include "Update.hh"
+#include "UpdateImpl.hh"
 #include "UpdateNode.hh"
 #include "Variable.hh"
 #include "test/FactoryTestNodeConnector.hh"
@@ -1381,7 +1381,7 @@ static bool updateNodeXmlParserTest()
     assertTrue_1(unode);
 
     finalizeNode(emptyUpd, emptyUpdXml);
-    Update *upd = unode->getUpdate();
+    UpdateImpl *upd = unode->getUpdate();
     assertTrue_1(upd);
     upd->activate();
     upd->fixValues();
@@ -1414,7 +1414,7 @@ static bool updateNodeXmlParserTest()
     assertTrue_1(unode);
 
     finalizeNode(literalUpd, literalUpdXml);
-    Update *upd = unode->getUpdate();
+    UpdateImpl *upd = unode->getUpdate();
     assertTrue_1(upd);
     upd->activate();
     upd->fixValues();
@@ -1482,7 +1482,7 @@ static bool updateNodeXmlParserTest()
     assertTrue_1(unode);
 
     finalizeNode(listNode, listNodeXml);
-    Update *upd = unode->getUpdate();
+    UpdateImpl *upd = unode->getUpdate();
     assertTrue_1(upd);
 
     ivar->activate();

@@ -576,7 +576,7 @@ namespace PLEXIL {
       }
       debugMsg("AdapterConfiguration:updatePlanner",
                " sending planner update for node "
-               << update->getSource()->getNodeId());
+               << update->getNodeId());
       (handler)(update, m_manager);
     }
 

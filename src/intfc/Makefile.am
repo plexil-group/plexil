@@ -44,7 +44,7 @@ libPlexilIntfc_la_SOURCES = CachedValue.cc CachedValueImpl.cc \
  CommandFunction.cc CommandHandleVariable.cc CommandImpl.cc \
  Dispatcher.cc ExprVec.cc \
  InterfaceError.cc Lookup.cc QueueEntry.cc ResourceArbiterInterface.cc \
- State.cc StateCacheEntry.cc StateCache.cc Update.cc
+ State.cc StateCacheEntry.cc StateCache.cc
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/intfc-module-tests
