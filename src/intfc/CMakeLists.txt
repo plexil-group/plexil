@@ -23,11 +23,11 @@
 ## TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 ## USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Interface module subproject of PLEXIL_EXEC
+# External interface module of PLEXIL_EXEC
 
 add_library(PlexilIntfc ${PlexilExec_SHARED_OR_STATIC}
   CachedValue.cc CachedValueImpl.cc CommandFunction.cc CommandHandleVariable.cc
-  CommandImpl.cc CommandOperator.cc CommandOperatorImpl.cc commandUtils.cc
+  CommandImpl.cc commandUtils.cc
   Dispatcher.cc ExprVec.cc InterfaceError.cc Lookup.cc QueueEntry.cc
   ResourceArbiterInterface.cc State.cc StateCacheEntry.cc StateCache.cc
   Update.cc)

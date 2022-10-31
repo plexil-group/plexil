@@ -26,7 +26,7 @@
 
 #include "CommandImpl.hh"
 
-#include "CommandOperatorImpl.hh"
+#include "CommandOperator.hh"
 #include "Assignable.hh"
 #include "ExprVec.hh"
 #include "InterfaceError.hh"
@@ -141,19 +141,61 @@ namespace PLEXIL
   //! \class CommandHandleKnown
   //! \brief A CommandOperator that returns true if the command handle
   //!        is known, false otherwise.
-  class CommandHandleKnown : public CommandOperatorImpl<Boolean>
+  class CommandHandleKnown : public CommandOperator
   {
   public:
 
     //! \brief Virtual destructor.
     virtual ~CommandHandleKnown() = default;
     
+    //! \brief Singleton accessor, implemented as a static member function.
+    //! \return Pointer to the const singleton.
     DECLARE_COMMAND_OPERATOR_STATIC_INSTANCE(CommandHandleKnown)
 
-    bool operator()(Boolean &result, CommandImpl const *command) const
+    //! \brief Get the type of the operator's return value.
+    //! \return The ValueType.
+    virtual ValueType valueType() const
     {
-      result = (NO_COMMAND_HANDLE != command->getCommandHandle());
+      return BOOLEAN_TYPE;
+    }
+
+    //! \brief Compute the result of applying this operator to the Command
+    //!        and store it in the appropriately typed result variable.
+    //! \param result Reference to the result variable.
+    //! \param arg Const pointer to the Command.
+    //! \return true if the result is known, false if not.
+    virtual bool operator()(Boolean &result, CommandImpl const *arg) const
+    {
+      result = (NO_COMMAND_HANDLE != arg->getCommandHandle());
       return true;
+    }
+
+    //! \brief Is the value of this operator applied to this command known?
+    //! \param command Const pointer to the Command.
+    //! \return true if known, false if unknown.
+    virtual bool isKnown(CommandImpl const *command) const
+    {
+      return true;
+    }
+
+    //! \brief Print the value of this operator applied to this command.
+    //! \param s The output stream.
+    //! \param command Const pointer to the Command.
+    virtual void printValue(std::ostream &s, CommandImpl const *command) const
+    {
+      Boolean temp;
+      ((*this)(temp, command)); // for effect
+      PLEXIL::printValue(temp, s);
+    }
+
+    //! \brief Get the value of this operator applied to this command.
+    //! \param command Const pointer to the command.
+    //! \return The Value.
+    virtual Value toValue(CommandImpl const *command) const
+    {
+      Boolean temp;
+      ((*this)(temp, command)); // for effect
+      return Value(temp);
     }
 
     void doPropagationSources(CommandImpl *command, ListenableUnaryOperator const &oper) const
@@ -163,8 +205,9 @@ namespace PLEXIL
 
   private:
 
+    //! \brief Default constructor, only accessible to singleton accessor function.
     CommandHandleKnown()
-      : CommandOperatorImpl<Boolean>("CommandHandleKnown")
+      : CommandOperator("CommandHandleKnown")
     {
     }
 

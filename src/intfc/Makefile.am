@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -41,8 +41,8 @@ noinst_HEADERS = CachedValue.hh CachedValueImpl.hh CommandOperator.hh \
  StateCacheEntry.hh
 
 libPlexilIntfc_la_SOURCES = CachedValue.cc CachedValueImpl.cc \
- CommandFunction.cc CommandHandleVariable.cc CommandImpl.cc CommandOperator.cc \
- CommandOperatorImpl.cc commandUtils.cc Dispatcher.cc ExprVec.cc \
+ CommandFunction.cc CommandHandleVariable.cc CommandImpl.cc \
+ commandUtils.cc Dispatcher.cc ExprVec.cc \
  InterfaceError.cc Lookup.cc QueueEntry.cc ResourceArbiterInterface.cc \
  State.cc StateCacheEntry.cc StateCache.cc Update.cc
 
