@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -63,8 +63,20 @@ namespace PLEXIL
   {
   }
 
+  State::State(std::string &&name, size_t n)
+    : m_name(std::move(name)),
+      m_parameters(n)
+  {
+  }
+
   State::State(std::string const &name, Value const &arg0)
     : m_name(name),
+      m_parameters(1, arg0)
+  {
+  }
+
+  State::State(std::string &&name, Value const &arg0)
+    : m_name(std::move(name)),
       m_parameters(1, arg0)
   {
   }
@@ -77,9 +89,35 @@ namespace PLEXIL
     m_parameters[1] = arg1;
   }
 
+  State::State(std::string &&name, Value const &arg0, Value const &arg1)
+    : m_name(std::move(name)),
+      m_parameters(2)
+  {
+    m_parameters[0] = arg0;
+    m_parameters[1] = arg1;
+  }
+
   State::State(std::string const &name, std::vector<Value> const &args)
     : m_name(name),
       m_parameters(args)
+  {
+  }
+
+  State::State(std::string &&name, std::vector<Value> const &args)
+    : m_name(std::move(name)),
+      m_parameters(args)
+  {
+  }
+
+  State::State(std::string const &name, std::vector<Value> &&args)
+    : m_name(name),
+      m_parameters(std::move(args))
+  {
+  }
+
+  State::State(std::string &&name, std::vector<Value> &&args)
+    : m_name(std::move(name)),
+      m_parameters(std::move(args))
   {
   }
 
