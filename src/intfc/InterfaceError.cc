@@ -29,11 +29,7 @@
 #include "Logging.hh"
 #include "plexil-config.h"
 
-#if defined(HAVE_CASSERT)
 #include <cassert>
-#elif defined(HAVE_ASSERT_H)
-#include <assert.h>
-#endif
 
 namespace PLEXIL
 {
@@ -65,17 +61,6 @@ namespace PLEXIL
                                  const int& line)
     : Error(condition, msg, file, line)
   {
-  }
-    
-  InterfaceError::InterfaceError(const InterfaceError &orig)
-    : Error(orig)
-  {
-  }
-
-  InterfaceError &InterfaceError::operator=(const InterfaceError &other)
-  {
-    Error::operator=(other);
-    return *this;
   }
 
   bool InterfaceError::operator==(const InterfaceError &other)
