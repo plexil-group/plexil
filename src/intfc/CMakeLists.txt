@@ -52,7 +52,7 @@ target_link_libraries(PlexilIntfc PUBLIC
 # Public includes
 install(FILES 
   Command.hh CommandFunction.hh CommandHandleVariable.hh CommandImpl.hh
-  commandUtils.hh Dispatcher.hh ExprVec.hh InputQueue.hh
+  Dispatcher.hh ExprVec.hh InputQueue.hh
   InterfaceError.hh Lookup.hh LookupReceiver.hh Message.hh QueueEntry.hh
   ResourceArbiterInterface.hh State.hh StateCache.hh Update.hh
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
