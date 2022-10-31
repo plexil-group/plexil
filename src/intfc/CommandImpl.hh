@@ -49,6 +49,7 @@ namespace PLEXIL
     std::string name;
 
     //! \brief The lower bound of the resource.
+    //! \deprecated Resource lower bound will be removed in a future PLEXIL release.
     double lowerBound;
 
     //! \brief The upper bound of the resource.
@@ -116,6 +117,7 @@ namespace PLEXIL
     //! \param e Pointer to the Expression.
     //! \param isGarbage If true, the expression will be deleted with
     //!        the ResourceSpec.
+    //! \deprecated Resource lower bound will be removed in a future PLEXIL release.
     void setLowerBoundExpression(Expression *e, bool isGarbage);
 
     //! \brief Set the resource upper bound expression.
@@ -134,9 +136,11 @@ namespace PLEXIL
     Expression *nameExp;
 
     //! \brief The expression giving the resource priority.
+    //! \deprecated Resource priority will be removed in a future PLEXIL release.
     Expression *priorityExp;
 
     //! \brief The expression giving the resource lower bound.
+    //! \deprecated Resource lower bound will be removed in a future PLEXIL release.
     Expression *lowerBoundExp;
 
     //! \brief The expression giving the resource upper bound.
