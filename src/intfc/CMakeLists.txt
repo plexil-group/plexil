@@ -27,7 +27,7 @@
 
 add_library(PlexilIntfc ${PlexilExec_SHARED_OR_STATIC}
   CachedValue.cc CachedValueImpl.cc CommandFunction.cc CommandHandleVariable.cc
-  CommandImpl.cc commandUtils.cc
+  CommandImpl.cc
   Dispatcher.cc ExprVec.cc InterfaceError.cc Lookup.cc QueueEntry.cc
   ResourceArbiterInterface.cc State.cc StateCacheEntry.cc StateCache.cc
   Update.cc)

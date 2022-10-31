@@ -547,4 +547,29 @@ namespace PLEXIL
     }
   }
 
+  //
+  // Public functions for returning command status and values
+  //
+  
+  void commandReturn(Command *cmd, Value const &value)
+  {
+    CommandImpl *impl = dynamic_cast<CommandImpl *>(cmd);
+    assertTrue_1(impl);
+    impl->returnValue(value);
+  }
+
+  void commandHandleReturn(Command *cmd, CommandHandleValue val)
+  {
+    CommandImpl *impl = dynamic_cast<CommandImpl *>(cmd);
+    assertTrue_1(impl);
+    impl->setCommandHandle(val);
+  }
+
+  void commandAbortAcknowledge(Command *cmd, bool ack)
+  {
+    CommandImpl *impl = dynamic_cast<CommandImpl *>(cmd);
+    assertTrue_1(impl);
+    impl->acknowledgeAbort(ack);
+  }
+
 }

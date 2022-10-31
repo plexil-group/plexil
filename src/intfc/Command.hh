@@ -64,6 +64,25 @@ namespace PLEXIL
 
   };
 
+  //
+  // Public functions for returning command status and values
+  //
+
+  //! \brief Return a value from a command
+  //! \param cmd Pointer to the Command.
+  //! \param value Const reference to the value.
+  void commandReturn(Command *cmd, Value const &value);
+
+  //! \brief Return a command handle value for a command.
+  //! \param cmd Pointer to the Command.
+  //! \param val The command handle value.
+  void commandHandleReturn(Command *cmd, CommandHandleValue val);
+
+  //! \brief Return an abort-acknowledge value for a command.
+  //! \param cmd Pointer to the Command.
+  //! \param ack The acknowledgement value.
+  void commandAbortAcknowledge(Command *cmd, bool ack);
+
 }
 
 #endif // PLEXIL_COMMAND_HH

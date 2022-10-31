@@ -32,7 +32,7 @@ libPlexilIntfc_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/expr \
 
 # Exposed APIs
 include_HEADERS = Command.hh CommandFunction.hh CommandHandleVariable.hh \
- CommandImpl.hh commandUtils.hh Dispatcher.hh ExprVec.hh InputQueue.hh \
+ CommandImpl.hh Dispatcher.hh ExprVec.hh InputQueue.hh \
  InterfaceError.hh Lookup.hh LookupReceiver.hh Message.hh \
  QueueEntry.hh ResourceArbiterInterface.hh State.hh StateCache.hh Update.hh
 
@@ -42,7 +42,7 @@ noinst_HEADERS = CachedValue.hh CachedValueImpl.hh CommandOperator.hh \
 
 libPlexilIntfc_la_SOURCES = CachedValue.cc CachedValueImpl.cc \
  CommandFunction.cc CommandHandleVariable.cc CommandImpl.cc \
- commandUtils.cc Dispatcher.cc ExprVec.cc \
+ Dispatcher.cc ExprVec.cc \
  InterfaceError.cc Lookup.cc QueueEntry.cc ResourceArbiterInterface.cc \
  State.cc StateCacheEntry.cc StateCache.cc Update.cc
 
