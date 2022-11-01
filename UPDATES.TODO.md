@@ -75,30 +75,30 @@ develop branch?)
 #### src/expr
 
 * Would seem to be a lot of opportunity for refactoring with
-  templates.
+  templates.  Think about where function templates would make more
+  sense.
 
 * PLEXIL-73 work removed constructors, destructor from these stateless
   abstract base classes: Expression, Assignable, GetValueImpl
   (class template),
 
 * ExpressionListener, Listenable, and Operator in PLEXIL-73 still have
-  virtual destructors, though they has no state of their own.
-  Probably because they are bases of widely used types.  Expression
-  derives from Listenable, so this is probably the rationale I used.
+  virtual destructors, though they have no state of their own, because
+  they are base classes with many widely used derived classes.
+  (Done.)
 
 * Active checks were deliberately removed in 2016.  See plexil-6
-  (plexil-x?)  commit 160a0196ba7e79d981446f465d87cdcd03e9ea72.
+  (plexil-x?) commit 160a0196ba7e79d981446f465d87cdcd03e9ea72.
 
 * checkArgCount(), checkArgTypes() methods on operator classes.  The
   latter were added in a 2016 plexil-4 commit:
-  a597d3897cc1305b0a49218c526f137d44890d3b.
+  a597d3897cc1305b0a49218c526f137d44890d3b.  (Done.)
 
-* Variable (base class) in plexil-6 defines API for concrete
-  variables.
-
-* The change of return type for Assignable::getBaseVariable() from
-  Assignable to Variable in plexil-6 was deliberate, in 2021: see
-  commit 460efb055f6f0ac12f2ade0d870e67c645bc6635.
+* New Variable abstract base class in plexil-6 defines API for
+  concrete variables.  The change of return type for
+  Assignable::getBaseVariable() from Assignable to Variable in
+  plexil-6 was deliberate, in 2021: see commit
+  460efb055f6f0ac12f2ade0d870e67c645bc6635.
 
 * ArrayVariableImpl initializer type checks seem to have been removed
   from plexil-4 branch.  This would be consistent with moving as much
@@ -119,26 +119,37 @@ plexil-4.6, so caution is even more important here.
 
 * Better use of type aliases (e.g. Integer) in plexil-4.6 version of
   CachedValueImpl.cc.
-  
+
 * Command class looks to have evolved quite a bit in plexil-4.6
-  relative to plexil-6.
+  relative to plexil-6.  Worth a second look.
 
-* CommandFunction, CommandOperator classes in plexil-4.6.
+* CommandFunction, CommandOperator classes in plexil-6 had far more
+  complexity than was justified, and have now been trimmed back.
+  CommandOperatorImpl has been deleted altogether.
 
-* CommandHandleVariable in plexil-6 has not been updated to use
-  CommandHandle enum!
+* CommandHandleVariable in plexil-6 had not been updated to use
+  CommandHandle enum!  (Fixed.)
 
 * Some differences in Lookup classes may reflect improvements in
-  plexil-4.6.
+  plexil-4.6?
 
-* Resource arbitration will require a careful review.
+* As part of this update, commandUtils.hh was merged into Command.hh,
+  and commandUtils.cc was merged into CommandImpl.cc.
+
+* As part of this work, the Update class was split into interface and
+  implementation, and the implementation class moved into the Exec
+  module.
+
+* Resource arbitration has now been gone over with a fine toothed
+  comb, tuned somewhat, and documentation has been added.
 
 #### src/exec
 
 * Significant refactoring of Node classes in plexil-4.6.  Maybe more
   significant in PLEXIL-73 branch.
 
-* PLEXIL-73 moved NodeConnector class here.
+* PLEXIL-73 moved NodeConnector class here.  plexil-6 moved it back to
+  the expr module.  Leave it there.
 
 * PLEXIL-73 made Node a pure virtual base class.  Not even a
   destructor.  This is the interface seen by e.g. expressions and
@@ -167,11 +178,11 @@ plexil-4.6, so caution is even more important here.
 
 ### Schema
 
-* 
-
 ### Schema validator
 
-Changes appear negligible.
+* Changes appear negligible.
+
+* Probably needs updating for latest version of xmlschema package.
 
 ### Compilers and translators
 
@@ -188,7 +199,7 @@ Changes appear negligible.
 
 * Plexilscript compiler?
 
-* Extended PLEXIL translator also requires some care
+* Extended PLEXIL translator also requires some care.
 
 ### Scripts
 
