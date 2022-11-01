@@ -341,7 +341,7 @@ namespace PLEXIL
       const ResourceValueList &resList = cmd->getResourceValues();
       if (resList.empty()) {
         debugMsg("ResourceArbiter:partitionCommands",
-                 " accepting " << cmd->getName() << " with no resource requests");
+                 " accepting command \"" << cmd->getName() << "\" with no resource requests");
         acceptCmds.push(cmd);
       }
       else {
@@ -487,7 +487,7 @@ namespace PLEXIL
           std::string const cName(data, ws);
 
           debugMsg("ResourceArbiter:readResourceHierarchy",
-                   " got dependent resource value " << d << ", name " << cName);
+                   "  got dependent resource value " << d << ", name " << cName);
           
           children.emplace_back(ChildResourceNode(d, cName));
 
@@ -536,24 +536,33 @@ namespace PLEXIL
     //! \param[in] cmd Pointer to the command.
     virtual void releaseResourcesForCommand(CommandImpl *cmd)
     {
-      // loop through all the resources used by the command and remove each of them
-      // from the locked list as well as the command list if there are releasable.
+      // Review all resources used by the command and remove
+      // releaseable reservations from the allocated list.
       ResourceMap::iterator resListIter = m_cmdResMap.find(cmd);
-      if (resListIter != m_cmdResMap.end()) {
-        for (ResourceSet::const_iterator resIter = resListIter->second.begin();
-             resIter != resListIter->second.end();
-             ++resIter) {
-          if (resIter->release) 
-            m_allocated[resIter->name] -= resIter->weight;
-          if (m_allocated[resIter->name] == 0)
-            m_allocated.erase(resIter->name); // why remove it, if it might get used again?
+      if (resListIter == m_cmdResMap.end())
+        return;
+
+      for (ChildResourceNode const &res : resListIter->second) {
+        if (res.release) {
+          m_allocated[res.name] -= res.weight;
+          if (m_allocated[res.name] == 0.0)
+            m_allocated.erase(res.name);
         }
-        m_cmdResMap.erase(resListIter);
       }
+      m_cmdResMap.erase(resListIter);
     
-      debugMsg("ResourceArbiter:releaseResourcesForCommand", 
-               "remaining locked resources after releasing for command " << cmd->getName());
-      printAllocatedResources();
+      condDebugMsg(m_allocated.empty(),
+                   "ResourceArbiter:releaseResourcesForCommand", 
+                   " released command " << cmd->getName()
+                   << ", no resources currently allocated");
+      condDebugMsg(!m_allocated.empty(),
+                   "ResourceArbiter:releaseResourcesForCommand", 
+                   " released command " << cmd->getName()
+                   << ", remaining resource allocations:");
+      condDebugStmt(!m_allocated.empty(),
+                   "ResourceArbiter:releaseResourcesForCommand", 
+                    printAllocatedResources();
+                    );
     }
 
   private:
@@ -577,9 +586,9 @@ namespace PLEXIL
       EstimateMap estimates;
 
       // Prepare estimate map and ensure entries in allocated map based on requests
-      for (CommandPriorityEntry const entry : sortedCommands) {
+      for (CommandPriorityEntry const &entry : sortedCommands) {
         ResourceSet const &requests = entry.resources;
-        for (ChildResourceNode res : requests) {
+        for (ChildResourceNode const &res : requests) {
           std::string const &resName = res.name;
           double value = 0.0;
           if (m_allocated.find(resName) == m_allocated.end())
@@ -597,9 +606,9 @@ namespace PLEXIL
         bool invalid = false;
         
         debugMsg("ResourceArbiter:optimalResourceArbitration",
-                 " considering " << cmd->getName());
+                 " considering \"" << cmd->getName() << '"');
 
-        for (ChildResourceNode res : requests) {
+        for (ChildResourceNode const &res : requests) {
           ResourceEstimate &est = estimates[res.name];
 
           debugMsg("ResourceArbiter:optimalResourceArbitration",
@@ -643,7 +652,7 @@ namespace PLEXIL
           m_cmdResMap[cmd] = requests;
 
           // Update the allocated resource map to include the chosen command
-          for (ChildResourceNode res : requests)
+          for (ChildResourceNode const &res : requests)
             m_allocated[res.name] += res.weight;
         }
       }
@@ -658,19 +667,18 @@ namespace PLEXIL
 
     void printSortedCommands(CommandPriorityList &sortedCommands) const
     {
-      for (CommandPriorityList::const_iterator iter = sortedCommands.begin();
-           iter != sortedCommands.end();
-           ++iter)
+      for (CommandPriorityEntry const &cmd : sortedCommands) {
         debugMsg("ResourceArbiter:printSortedCommands", 
-                 "CommandName: " << iter->command->getName()
-                 << " Priority: " << iter->priority);
+                 " command \"" << cmd.command->getName()
+                 << "\", priority " << cmd.priority);
+      }
     }
 
     void printAllocatedResources() const
     {
-      for (std::map<std::string, double>::const_iterator it = m_allocated.begin(); 
-           it != m_allocated.end(); ++it)
-        debugMsg("ResourceArbiter:printAllocatedResources", ' ' << it->first << " = " << it->second);
+      for (std::pair<std::string, double> const &pr : m_allocated) {
+        debugMsg("ResourceArbiter:printAllocatedResources", ' ' << pr.first << " = " << pr.second);
+      }
     }
 
     void printAcceptedCommands(LinkedQueue<CommandImpl> const &acceptCmds)
@@ -678,14 +686,19 @@ namespace PLEXIL
       // Print accepted commands and the resources they consume.
       CommandImpl *cmd = acceptCmds.front();
       while (cmd) {
-        debugMsg("ResourceArbiter:printAcceptedCommands", 
-                 " Accepted command: " << cmd->getName()
-                 << " uses resources:");
-        ResourceSet const &res = m_cmdResMap[cmd];
-        for (ResourceSet::const_iterator resIter = res.begin();
-             resIter != res.end();
-             ++resIter)
-          debugMsg("ResourceArbiter:printAcceptedCommands", "  " << resIter->name);
+        ResourceMap::const_iterator resMapIt = m_cmdResMap.find(cmd);
+        if (resMapIt != m_cmdResMap.end()) {
+          debugMsg("ResourceArbiter:printAcceptedCommands",
+                   " Accepted command \"" << cmd->getName()
+                   << "\" uses resources:");
+          for (ChildResourceNode const &res : resMapIt->second) {
+            debugMsg("ResourceArbiter:printAcceptedCommands", "  " << res.name);
+          }
+        }
+        else {
+          debugMsg("ResourceArbiter:printAcceptedCommands",
+                   " Accepted command \"" << cmd->getName() << '"');
+        }
         cmd = cmd->next();
       }
     }
