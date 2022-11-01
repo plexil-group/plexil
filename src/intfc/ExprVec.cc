@@ -318,10 +318,4 @@ namespace PLEXIL
     }
   }
 
-  // Redundant with the above?
-  // template class FixedExprVec<1>;
-  // template class FixedExprVec<2>;
-  // template class FixedExprVec<3>;
-  // template class FixedExprVec<4>;
-
 } // namespace PLEXIL
