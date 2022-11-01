@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -577,7 +577,7 @@ namespace PLEXIL
       assertTrue_2(m_dispatcher,
                    "PlexilExec: attempt to execute without an ExternalInterface!");
 
-      if (m_arbiter) {
+      if (m_arbiter && !m_commandsToExecute.empty()) {
         // Arbitrate commands to be executed
         LinkedQueue<CommandImpl> accepted, rejected;
         m_arbiter->arbitrateCommands(m_commandsToExecute, accepted, rejected);
