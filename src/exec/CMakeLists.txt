@@ -26,7 +26,7 @@
 # Executive module subproject of PLEXIL_EXEC
 
 add_library(PlexilExec ${PlexilExec_SHARED_OR_STATIC}
-  Assignment.cc AssignmentNode.cc CommandNode.cc InterfaceSchema.cc
+  Assignment.cc AssignmentNode.cc CommandNode.cc
   LibraryCallNode.cc ListNode.cc Mutex.cc NodeImpl.cc NodeFactory.cc NodeFunction.cc
   NodeOperator.cc NodeOperatorImpl.cc NodeOperators.cc NodeTimepointValue.cc
   NodeVariableMap.cc NodeVariables.cc PlexilExec.cc PlexilNodeType.cc
@@ -53,7 +53,7 @@ endif()
 # FIXME Divide into public vs internal interfaces
 install(FILES 
   Assignment.hh AssignmentNode.hh CommandNode.hh ExecListenerBase.hh
-  InterfaceSchema.hh LibraryCallNode.hh ListNode.hh Mutex.hh Node.hh
+  LibraryCallNode.hh ListNode.hh Mutex.hh Node.hh
   NodeFactory.hh NodeFunction.hh NodeImpl.hh NodeOperator.hh NodeOperatorImpl.hh
   NodeOperators.hh NodeTimepointValue.hh NodeTransition.hh
   NodeVariableMap.hh NodeVariables.hh PlexilExec.hh PlexilNodeType.hh

@@ -32,7 +32,7 @@ libPlexilExec_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/intfc \
 
 # FIXME Divide into public vs internal interfaces
 include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
- ExecListenerBase.hh InterfaceSchema.hh \
+ ExecListenerBase.hh \
  LibraryCallNode.hh ListNode.hh Mutex.hh Node.hh NodeImpl.hh NodeFactory.hh \
  NodeFunction.hh NodeOperator.hh NodeOperatorImpl.hh \
  NodeOperators.hh NodeTimepointValue.hh NodeTransition.hh \
@@ -43,8 +43,7 @@ include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
 # noinst_HEADERS = 
 
 libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc CommandNode.cc \
- InterfaceSchema.cc LibraryCallNode.cc \
- ListNode.cc Mutex.cc NodeImpl.cc NodeFactory.cc \
+ LibraryCallNode.cc ListNode.cc Mutex.cc NodeImpl.cc NodeFactory.cc \
  NodeFunction.cc NodeOperator.cc NodeOperatorImpl.cc \
  NodeOperators.cc NodeTimepointValue.cc NodeVariableMap.cc NodeVariables.cc \
  PlexilExec.cc PlexilNodeType.cc UpdateNode.cc plan-utils.cc
