@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -39,21 +39,29 @@ namespace PLEXIL
   // Condition operators only used by ListNode
   //
 
+  //! \class AllFinished
+  //! \brief A specialized NodeOperator for ListNode which returns true
+  //!        when all child nodes are in FINISHED node state.
+  //! \see ListNode::specializedCreateConditionWrappers
+  //! \ingroup Exec-Core
   class AllFinished : public NodeOperatorImpl<Boolean>
   {
   public:
-    ~AllFinished()
-    {
-    }
+
+    //! \brief Virtual destructor.
+    virtual ~AllFinished() = default;
 
     DECLARE_NODE_OPERATOR_STATIC_INSTANCE(AllFinished);
 
-    bool operator()(Boolean &result, NodeImpl const *node) const
+    //! \brief Calculate the function's value.
+    //! \param result Reference to a Boolean variable.
+    //! \param node Pointer to the node whose children are to be checked.
+    //! \result True if the value is known, false otherwise.
+    //! \note The result of this operator is always known.
+    bool operator()(Boolean &result, NodeImpl const *node) const override
     {
-      std::vector<NodeImplPtr> const &kids = node->getChildren();
-      size_t total = kids.size();
-      for (size_t i = 0; i < total; ++i) {
-        if (kids[i]->getState() != FINISHED_STATE) {
+      for (NodeImplPtr const &child : node->getChildren()) {
+        if (child->getState() != FINISHED_STATE) {
           result = false;
           debugMsg("AllFinished", "result = false");
           return true;
@@ -64,7 +72,10 @@ namespace PLEXIL
       return true; // always known
     }
 
-    void doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const
+    //! \brief Map the operator over the children of the node.
+    //! \param node Pointer to a node.
+    //! \param oper A functor of one parameter to map over the child nodes.
+    void doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const override
     {
       for (NodeImplPtr &child : node->getChildren())
         (oper)(child.get());
@@ -72,12 +83,14 @@ namespace PLEXIL
 
   private:
 
+    //! \brief Default constructor.
+    //! \note Should only be called from instance() static member function.
     AllFinished()
       : NodeOperatorImpl<Boolean>("AllChildrenFinished")
     {
     }
 
-    // Disallow copy, assign
+    // Copy, move constructors, assignment operators not implemented.
     AllFinished(AllFinished const &) = delete;
     AllFinished(AllFinished &&) = delete;
     AllFinished &operator=(AllFinished const &) = delete;
@@ -85,21 +98,30 @@ namespace PLEXIL
 
   };
 
+  //! \class AllWaitingOrFinished
+  //! \brief A specialized NodeOperator for ListNode which returns true
+  //!        when all child nodes are in either WAITING or FINISHED node state.
+  //! \see ListNode::specializedCreateConditionWrappers
+  //! \ingroup Exec-Core
+  //! \ingroup Expression
   class AllWaitingOrFinished : public NodeOperatorImpl<Boolean>
   {
   public:
-    ~AllWaitingOrFinished()
-    {
-    }
+
+    //! \brief Virtual destructor.
+    virtual ~AllWaitingOrFinished() = default;
 
     DECLARE_NODE_OPERATOR_STATIC_INSTANCE(AllWaitingOrFinished);
 
-    bool operator()(Boolean &result, NodeImpl const *node) const
+    //! \brief Calculate the function's value.
+    //! \param result Reference to a Boolean variable.
+    //! \param node Pointer to the node whose children are to be checked.
+    //! \result True if the value is known, false otherwise.
+    //! \note The result of this operator is always known.
+    bool operator()(Boolean &result, NodeImpl const *node) const override
     {
-      std::vector<NodeImplPtr> const &kids = node->getChildren();
-      size_t total = kids.size();
-      for (size_t i = 0; i < total; ++i) {
-        switch (kids[i]->getState()) {
+      for (NodeImplPtr const &child : node->getChildren()) {
+        switch (child->getState()) {
         case WAITING_STATE:
         case FINISHED_STATE:
           break;
@@ -115,22 +137,29 @@ namespace PLEXIL
       return true; // always known
     }
 
-    void doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const
+    //! \brief Map the operator over the children of the node.
+    //! \param node Pointer to a node.
+    //! \param oper A functor of one parameter to map over the child nodes.
+    void doPropagationSources(NodeImpl *node, ListenableUnaryOperator const &oper) const override
     {
       for (NodeImplPtr &child : node->getChildren())
         (oper)(child.get());
     }
 
   private:
-    // Should only be called from instance() static member function
+
+    //! \brief Default constructor.
+    //! \note Should only be called from instance() static member function.
     AllWaitingOrFinished()
       : NodeOperatorImpl<Boolean>("AllChildrenWaitingOrFinished")
     {
     }
 
-    // Disallow copy, assign
-    AllWaitingOrFinished(AllWaitingOrFinished const &);
-    AllWaitingOrFinished &operator=(AllWaitingOrFinished const &);
+    // Copy, move constructors, assignment operators not implemented.
+    AllWaitingOrFinished(AllWaitingOrFinished const &) = delete;
+    AllWaitingOrFinished(AllWaitingOrFinished &&) = delete;
+    AllWaitingOrFinished &operator=(AllWaitingOrFinished const &) = delete;
+    AllWaitingOrFinished &operator=(AllWaitingOrFinished &&) = delete;
   };
 
   //
@@ -144,10 +173,6 @@ namespace PLEXIL
   {
   }
 
-  /**
-   * @brief Alternate constructor.
-   * Used only by Exec test module, where all conditions are guaranteed to exist.
-   */
   ListNode::ListNode(const std::string& type,
                      const std::string& name, 
                      NodeState state,
@@ -308,16 +333,13 @@ namespace PLEXIL
     }
   }
 
-  /**
-   * @brief Destructor.  Cleans up this entire part of the node tree.
-   */
   ListNode::~ListNode()
   {
     debugMsg("ListNode:~ListNode", " destructor for " << m_nodeId);
 
     cleanUpConditions();
 
-    cleanUpNodeBody();
+    this->cleanUpNodeBody(); // LibraryCallNode wraps this ListNode method
   }
 
   void ListNode::cleanUpConditions()
@@ -381,12 +403,6 @@ namespace PLEXIL
     m_children.emplace_back(NodeImplPtr(node));
   }
 
-  //! Sets the state variable to the new state.
-  //! @param exec The PlexilExec instance.
-  //! @param newValue The new node state.
-  //! @param tym Time of the transition.
-  //! @note This wrapper method notifies the children of a change in
-  //! the parent node's state.
   void ListNode::setState(PlexilExec *exec, NodeState newValue, double tym)
   {
     NodeImpl::setState(exec, newValue, tym);
@@ -427,9 +443,9 @@ namespace PLEXIL
 
   void ListNode::transitionToExecuting()
   {
-    // From WAITING, AncestorExit, AncestorInvariant, Exit are active
     activateLocalVariables();
 
+    // From WAITING, AncestorExit, AncestorInvariant, Exit are already active
     activateInvariantCondition();
     activateEndCondition();
 
@@ -708,8 +724,8 @@ namespace PLEXIL
 
   void ListNode::transitionToFailing(PlexilExec * /* exec */)
   {
-    // From EXECUTING: ActionComplete active (see transitionFromExecuting() above)
-    // From FINISHING: ActionComplete active
+    // From EXECUTING: ActionComplete is already active (see transitionFromExecuting() above)
+    // From FINISHING: ActionComplete is already active
   }
 
   bool ListNode::getDestStateFromFailing()

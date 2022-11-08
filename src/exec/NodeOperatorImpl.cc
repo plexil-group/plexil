@@ -29,6 +29,7 @@
 
 namespace PLEXIL
 {
+
   // Default method for unspecialized types
   template <typename R>
   ValueType NodeOperatorImpl<R>::valueType() const
@@ -63,52 +64,11 @@ namespace PLEXIL
     else
       return Value(PlexilValueType<R>::value);
   }
- 
-  // Array variants unlikely to be used any time soon
-
-  // template <typename R>
-  // bool NodeOperatorImpl<ArrayImpl<R> >::calcNative(void *cache, NodeImpl const *node) const
-  // {
-  //   return (*this)(*(static_cast<ArrayImpl<R> *>(cache)), node);
-  // }
-
-  // template <typename R>
-  // void NodeOperatorImpl<ArrayImpl<R> >::printValue(std::ostream &s, void *cache, NodeImpl const *node) const
-  // {
-  //   if (calcNative(cache, node))
-  //     PLEXIL::printValue(*(static_cast<ArrayImpl<R> const *>(cache)), s);
-  //   else
-  //     s << "[unknown_value]";
-  // }
-
-  // template <typename R>
-  // Value NodeOperatorImpl<ArrayImpl<R> >::toValue(void *cache, NodeImpl const *node) const
-  // {
-  //   bool known = calcNative(cache, node);
-  //   if (known)
-  //     return Value(*(static_cast<ArrayImpl<R> const *>(cache)));
-  //   else
-  //     return Value();
-  // }
 
   //
   // Explicit instantiations
   //
 
   template class NodeOperatorImpl<Boolean>;
-
-  // later?
-  // template class NodeOperatorImpl<NodeState>;
-  // template class NodeOperatorImpl<NodeOutcome>;
-  // template class NodeOperatorImpl<FailureType>;
-  // template class NodeOperatorImpl<CommandHandleValue>;
-  // template class NodeOperatorImpl<Integer>;
-  // template class NodeOperatorImpl<Real>;
-  // template class NodeOperatorImpl<String>;
-
-  // template class NodeOperatorImpl<BooleanArray>;
-  // template class NodeOperatorImpl<IntegerArray>;
-  // template class NodeOperatorImpl<RealArray>;
-  // template class NodeOperatorImpl<StringArray>;
 
 } // namespace PLEXIL
