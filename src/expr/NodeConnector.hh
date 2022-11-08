@@ -41,14 +41,21 @@ namespace PLEXIL
   {
   public:
 
-    //! \brief Virtual desructor.
+    //! \brief Virtual destructor.
     virtual ~NodeConnector() = default;
 
-    // Used by parser tests
+    //! \brief Get the node's name.
+    //! \return Const reference to the name string.
     virtual std::string const &getNodeId() const = 0;
+
+    //! \brief Look up a declared variable by name.
+    //! \param name Name of the variable, as a const pointer to character string.
+    //! \return Pointer to the variable, as an expression.  Will be null if not found.
+    //! \note Used only by XML parser and its unit tests.
     virtual Expression *findVariable(char const *name) = 0;
 
-    // Used by Reservable
+    //! \brief Notify the node that a resource on which it is pending has become available.
+    //! \note Used by Reservable as part of the resource contention resolution logic.
     virtual void notifyResourceAvailable() = 0;
   };
 
