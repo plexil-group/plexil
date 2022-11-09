@@ -50,7 +50,7 @@ namespace PLEXIL
     char const *exprName() const;
 
   private:
-    // Disallow default, copy, assign
+    // Disallow default, copy, move, assign
     NodeStateConstant() = delete;
     NodeStateConstant(NodeStateConstant const &) = delete;
     NodeStateConstant(NodeStateConstant &&) = delete;
@@ -58,10 +58,10 @@ namespace PLEXIL
     NodeStateConstant &operator=(NodeStateConstant &&) = delete;
   };
 
+  ///@{
   //! \brief Singleton accessor for a NodeState literal.
   //! \return Pointer to the Expression.
   //! \ingroup Expressions
-  ///@{
   extern Expression *INACTIVE_CONSTANT();
   extern Expression *WAITING_CONSTANT();
   extern Expression *EXECUTING_CONSTANT();
@@ -98,10 +98,10 @@ namespace PLEXIL
     NodeOutcomeConstant &operator=(NodeOutcomeConstant &&) = delete;
   };
 
+  ///@{
   //! \brief Singleton accessor for a NodeOutcome literal.
   //! \return Pointer to the Expression.
   //! \ingroup Expressions
-  ///@{
   extern Expression *SUCCESS_CONSTANT();
   extern Expression *FAILURE_CONSTANT();
   extern Expression *SKIPPED_CONSTANT();
@@ -135,10 +135,10 @@ namespace PLEXIL
     FailureTypeConstant &operator=(FailureTypeConstant &&) = delete;
   };
 
+  ///@{
   //! \brief Singleton accessor for a NodeFailureType literal.
   //! \return Pointer to the Expression.
   //! \ingroup Expressions
-  ///@{
   extern Expression *PRE_CONDITION_FAILED_CONSTANT();
   extern Expression *POST_CONDITION_FAILED_CONSTANT();
   extern Expression *INVARIANT_CONDITION_FAILED_CONSTANT();
@@ -174,10 +174,10 @@ namespace PLEXIL
     CommandHandleConstant &operator=(CommandHandleConstant &&) = delete;
   };
 
+  ///@{
   //! \brief Singleton accessor for a NodeCommandHandle literal.
   //! \return Pointer to the Expression.
   //! \ingroup Expressions
-  ///@{
   extern Expression *COMMAND_SENT_TO_SYSTEM_CONSTANT();
   extern Expression *COMMAND_ACCEPTED_CONSTANT();
   extern Expression *COMMAND_RCVD_BY_SYSTEM_CONSTANT();
