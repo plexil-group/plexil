@@ -103,10 +103,10 @@ namespace PLEXIL
     //!        Type is set to Q_UNINITED, value to unknown, the union to NULL.
     void reset();
 
+    ///@{
     //! \brief Prepare the entry for a lookup value return.
     //! \param st The State whose value is being returned.
     //! \param val The return value.
-    ///@{
     void initForLookup(State const &st, Value const &val);
     void initForLookup(State const &st, Value &&val);
     void initForLookup(State &&st, Value const &val);

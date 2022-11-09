@@ -55,25 +55,25 @@ namespace PLEXIL
     //! \brief Make the value of this Lookup unknown.
     virtual void setUnknown() = 0;
 
+    ///@{
     //! \brief Assign a new value of a specific type to this Lookup.
     //! \param val The new value.
-    ///@{
     virtual void update(Boolean val) = 0;
     virtual void update(Integer val) = 0;
     virtual void update(Real val) = 0;
     ///@}
 
+    ///@{
     //! \brief Assign a new string value to this Lookup.
     //! \param val The new value.
-    ///@{
-    virtual void update(String const &) = 0;
-    virtual void update(char const *) = 0;
+    virtual void update(String const &val) = 0;
+    virtual void update(char const *val) = 0;
     ///@}
 
+    ///@{
     //! \brief Assign a new array value to this Lookup.
     //! \param ary The array.
     //! \param size The number of elements in the array.
-    ///@{
     virtual void update(Boolean const ary[], size_t size) = 0;
     virtual void update(Integer const ary[], size_t size) = 0;
     virtual void update(Real const ary[], size_t size) = 0;

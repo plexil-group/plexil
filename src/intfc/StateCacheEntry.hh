@@ -96,11 +96,11 @@ namespace PLEXIL
     //! \note Optimization for StateCache::lookupReturn()
     virtual void updateValue(Value const &val, unsigned int timestamp) = 0;
 
+    ///@{
     //! Update the cache entry with the given new value.
     //! @param valPtr The new value.
     //! @note Notifies all lookups of the new value.
     //! @note The caller is responsible for deleting the object pointed to upon return.
-    ///@{
     virtual void updatePtr(String const *valPtr) = 0;
     virtual void updatePtr(BooleanArray const *valPtr) = 0;
     virtual void updatePtr(IntegerArray const *valPtr) = 0;

@@ -86,6 +86,7 @@ namespace PLEXIL
     //! \return True if known, false otherwise.
     virtual bool isKnown() const = 0;
 
+    ///@{
     //! \brief Store the value of this object in the typed result variable.
     //! \param Reference to the result variable.
     //! \return true if the value is known; false if the the value is
@@ -93,13 +94,13 @@ namespace PLEXIL
     //! \note The value is not copied if the return value is false.
     //! \note Derived classes should implement only the appropriate methods.
     //! \note Default methods report a type error.
-    ///@{
     virtual bool getValue(Boolean &result) const;
     virtual bool getValue(Integer &result) const;
     virtual bool getValue(Real &result) const;
     virtual bool getValue(String &result) const;
     ///@}
 
+    ///@{
     //! \brief Copy a pointer to the (const) value of this object to
     //! the result variable.
     //! \param ptr Reference to the result pointer variable.
@@ -108,7 +109,6 @@ namespace PLEXIL
     //! \note The pointer is not copied if the return value is false.
     //! \note Derived classes should implement only the appropriate methods.
     //! \note Default methods report a type error.
-    ///@{
     virtual bool getValuePointer(String const *&ptr) const;
     virtual bool getValuePointer(Array const *&ptr) const;
     virtual bool getValuePointer(BooleanArray const *&ptr) const;
@@ -131,6 +131,7 @@ namespace PLEXIL
     //! \note Delegated to derived classes.
     virtual bool setUnknown(unsigned int timestamp) = 0;
 
+    ///@{
     //! \brief Update the cache entry with the given new value.
     //! \param timestamp Sequence number.
     //! \param val Const reference to the new value.
@@ -138,20 +139,19 @@ namespace PLEXIL
     //! \note If the type of the new value is inconsistent with the object's type,
     //!       the object's value is set to unknown.
     //! \note Default methods report a type error.
-    ///@{
     virtual bool update(unsigned int timestamp, Boolean const &val);
     virtual bool update(unsigned int timestamp, Integer const &val);
     virtual bool update(unsigned int timestamp, Real const &val);
     virtual bool update(unsigned int timestamp, String const &val);
     ///@}
 
+    ///@{
     //! \brief Update the cache entry with the given new value.
     //! \param timestamp Sequence number.
     //! \param valPtr Const pointer to the new value.
     //! \return True if the new value differs from the old, false otherwise.
     //! \note The caller is responsible for deleting the object pointed to upon return.
     //! \note Default methods report a type error.
-    ///@{
     virtual bool updatePtr(unsigned int timestamp, String const *valPtr);
     virtual bool updatePtr(unsigned int timestamp, BooleanArray const *valPtr);
     virtual bool updatePtr(unsigned int timestamp, IntegerArray const *valPtr);
@@ -173,8 +173,8 @@ namespace PLEXIL
 
   private:
 
-    // Unimplemented
-    CachedValue(CachedValue && orig) = delete;
+    // Move operators unimplemented
+    CachedValue(CachedValue &&) = delete;
     CachedValue &operator=(CachedValue &&) = delete;
   };
 

@@ -156,10 +156,10 @@ namespace PLEXIL
     ResourceSpec(ResourceSpec const &) = delete;
     ResourceSpec &operator=(ResourceSpec const &) = delete;
 
+    ///@{
     //! \brief If true, the destructor should delete the associated
     //!        expression; if false, the expression is owned by another
     //!        object.
-    ///@{
     bool nameIsGarbage;
     bool priorityIsGarbage;
     bool lowerBoundIsGarbage;

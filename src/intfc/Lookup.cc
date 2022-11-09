@@ -806,11 +806,11 @@ namespace PLEXIL
       }
     }
 
+    ///@{
     //! \brief Get this lookup's high and low thresholds.
     //! \param high Place to store the high threshold value.
     //! \param low Place to store the low threshold value.
     //! \return True if this lookup has active thresholds, false otherwise.
-    ///@{
     virtual bool getThresholds(Integer &high, Integer &low) const override
     {
       if (!this->isActive()) {
