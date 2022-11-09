@@ -35,7 +35,6 @@
 #include "parser-utils.hh"
 #include "ParserException.hh"
 #include "PlexilSchema.hh"
-#include "PlexilTypeTraits.hh"
 #include "UserVariable.hh"
 
 #include "pugixml.hpp"
