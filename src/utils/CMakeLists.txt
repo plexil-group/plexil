@@ -35,7 +35,7 @@ install(TARGETS PlexilUtils
 # Public APIs
 install(FILES
   Debug.hh DynamicLoader.h Error.hh Logging.hh ParserException.hh PlanError.hh
-  SimpleMap.hh lifecycle-utils.h plexil-stdint.h
+  SimpleMap.hh lifecycle-utils.h plexil-stdint.h stricmp.h
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 if(${JAVA_NATIVE_INTERFACE})

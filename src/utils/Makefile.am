@@ -31,11 +31,11 @@ libPlexilUtils_la_CPPFLAGS = $(AM_CPPFLAGS)
 
 # Public APIs
 include_HEADERS = Debug.hh DynamicLoader.h Error.hh ParserException.hh \
- PlanError.hh SimpleMap.hh lifecycle-utils.h plexil-stdint.h
+ PlanError.hh SimpleMap.hh lifecycle-utils.h plexil-stdint.h stricmp.h
 
 # Implementation details which don't need to be publicly advertised
 noinst_HEADERS = LinkedQueue.hh Logging.hh SimpleSet.hh TestSupport.hh \
- bitsetUtils.hh map-utils.hh stricmp.h timespec-utils.hh timeval-utils.hh
+ bitsetUtils.hh map-utils.hh timespec-utils.hh timeval-utils.hh
 
 libPlexilUtils_la_SOURCES = DynamicLoader.cc Error.cc Logging.cc \
  ParserException.cc PlanError.cc bitsetUtils.cc lifecycle-utils.c \
