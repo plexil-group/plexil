@@ -25,7 +25,6 @@
 
 #include "PlexilExec.hh"
 
-// #include "Assignable.hh"
 #include "Assignment.hh"
 #include "CommandImpl.hh"
 #include "Debug.hh"
