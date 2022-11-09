@@ -115,7 +115,7 @@ namespace PLEXIL
 } // namespace PLEXIL
 
 //! \brief Helper macro, intended to implement "boilerplate" singleton accessors
-//!        for classes derived from CommandOperatorImpl<R>.
+//!        for classes derived from CommandOperator.
 //! \param CLASS The class of the object returned from the singleton accessor.
 //! \ingroup External-Interface
 #define DECLARE_COMMAND_OPERATOR_STATIC_INSTANCE(CLASS) \
