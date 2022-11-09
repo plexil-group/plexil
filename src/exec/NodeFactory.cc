@@ -79,9 +79,9 @@ namespace PLEXIL
 
   };
 
+  ///@{
   //! \internal
   //! \ingroup Exec-Core
-  ///@{
 
   //! \brief The array of node factories, indexed by PlexilNodeType.
   static NodeFactory* s_nodeFactories[NodeType_error];

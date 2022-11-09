@@ -534,18 +534,18 @@ namespace PLEXIL
     // Condition accessors
     // These are public only to appease the module test
 
+    ///@{
     //! \brief Accessor for the named ancestor condition.
     //! \return Pointer to the condition expression.  May be null.
     //! \note The condition expression is owned by the parent node.
-    ///@{
     Expression *getAncestorEndCondition()               { return getCondition(ancestorEndIdx); }
     Expression *getAncestorExitCondition()              { return getCondition(ancestorExitIdx); }
     Expression *getAncestorInvariantCondition()         { return getCondition(ancestorInvariantIdx); }
     ///@}
 
+    ///@{
     //! \brief Accessor for the named user condition.
     //! \return Pointer to the condition expression.  May be null.
-    ///@{
     Expression *getSkipCondition()                      { return m_conditions[skipIdx]; }
     Expression *getStartCondition()                     { return m_conditions[startIdx]; }
     Expression *getEndCondition()                       { return m_conditions[endIdx]; }
@@ -557,9 +557,9 @@ namespace PLEXIL
     ///@}
 
 
+    ///@{
     //! \brief Accessor for the named user condition.
     //! \return Pointer to the condition expression.  May be null.
-    ///@{
     Expression *getActionCompleteCondition()            { return m_conditions[actionCompleteIdx]; }
     Expression *getAbortCompleteCondition()             { return m_conditions[abortCompleteIdx]; }
     ///#}
