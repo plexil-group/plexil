@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -30,28 +30,28 @@ namespace PLEXIL
 {
   class Expression;
 
+  ///@{
   //! \brief Singleton accessor for Boolean typed constant.
   //! \return Pointer to the Expression.
   //! \ingroup Expressions
-  ///@{
   extern Expression *FALSE_EXP();
   extern Expression *TRUE_EXP();
   extern Expression *UNKNOWN_BOOLEAN_EXP();
   ///@}
 
+  ///@{
   //! \brief Singleton accessor for Integer typed constant.
   //! \return Pointer to the Expression.
   //! \ingroup Expressions
-  ///@{
   extern Expression *INT_ONE_EXP();
   extern Expression *INT_ZERO_EXP();
   extern Expression *INT_MINUS_ONE_EXP();
   ///@}
 
+  ///@{
   //! \brief Singleton accessor for Real typed constant.
   //! \return Pointer to the Expression.
   //! \ingroup Expressions
-  ///@{
   extern Expression *REAL_ONE_EXP();
   extern Expression *REAL_ZERO_EXP();
   extern Expression *REAL_MINUS_ONE_EXP();
