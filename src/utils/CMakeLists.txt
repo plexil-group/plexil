@@ -32,13 +32,10 @@ add_library(PlexilUtils ${PlexilExec_SHARED_OR_STATIC}
 install(TARGETS PlexilUtils
   DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-# Public includes
+# Public APIs
 install(FILES
-  Debug.hh DynamicLoader.h Error.hh
-  LinkedQueue.hh Logging.hh ParserException.hh PlanError.hh
-  SimpleMap.hh SimpleSet.hh TestSupport.hh 
-  bitsetUtils.hh lifecycle-utils.h map-utils.hh plexil-inttypes.h
-  plexil-stdint.h stricmp.h timespec-utils.hh timeval-utils.hh
+  Debug.hh DynamicLoader.h Error.hh Logging.hh ParserException.hh PlanError.hh
+  SimpleMap.hh lifecycle-utils.h plexil-stdint.h
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 if(${JAVA_NATIVE_INTERFACE})

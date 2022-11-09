@@ -43,10 +43,9 @@ include_directories(
 
 target_link_libraries(PlexilValue PUBLIC PlexilUtils)
 
-# Public includes
+# Public APIs
 install(FILES
-  Array.hh ArrayImpl.hh CommandHandle.hh NodeConstants.hh
-  PlexilTypeTraits.hh Value.hh ValueType.hh
+  Array.hh ArrayImpl.hh CommandHandle.hh NodeConstants.hh Value.hh ValueType.hh
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 if(MODULE_TESTS)

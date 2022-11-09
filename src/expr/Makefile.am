@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,12 +30,15 @@ lib_LTLIBRARIES = libPlexilExpr.la
 libPlexilExpr_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/value \
  -I@top_srcdir@/utils
 
-include_HEADERS = Alias.hh ArrayReference.hh ArrayVariable.hh \
- Assignable.hh CachedFunction.hh Constant.hh ConversionOperators.hh \
- Expression.hh ExpressionConstants.hh ExpressionListener.hh Function.hh \
- GetValueImpl.hh Listenable.hh NodeConnector.hh NodeConstantExpressions.hh \
- Notifier.hh Operator.hh Propagator.hh Reservable.hh SimpleBooleanVariable.hh \
- UserVariable.hh
+# Public APIs
+include_HEADERS = Assignable.hh Expression.hh ExpressionListener.hh \
+ GetValueImpl.hh Listenable.hh NodeConnector.hh Notifier.hh
+
+# Implementation details which don't need to be publicly advertised
+noinst_HEADERS = Alias.hh ArrayReference.hh ArrayVariable.hh CachedFunction.hh \
+ Constant.hh ConversionOperators.hh ExpressionConstants.hh Function.hh \
+ NodeConstantExpressions.hh Operator.hh Propagator.hh Reservable.hh \
+ SimpleBooleanVariable.hh UserVariable.hh
 
 libPlexilExpr_la_SOURCES = Alias.cc \
  ArithmeticOperators.cc ArrayReference.cc ArrayVariable.cc ArrayOperators.cc \
@@ -47,7 +50,7 @@ libPlexilExpr_la_SOURCES = Alias.cc \
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/expr-module-tests
-  noinst_HEADERS = test/TrivialListener.hh
+  noinst_HEADERS += test/TrivialListener.hh
   test_expr_module_tests_SOURCES = test/aliasTest.cc \
  test/arithmeticTest.cc test/arrayConstantTest.cc test/arrayOperatorsTest.cc \
  test/arrayReferenceTest.cc test/arrayVariableTest.cc \

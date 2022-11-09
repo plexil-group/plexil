@@ -49,12 +49,11 @@ include_directories(
 target_link_libraries(PlexilIntfc PUBLIC
   PlexilUtils PlexilValue PlexilExpr)
 
-# Public includes
+# Public APIs
 install(FILES 
-  Command.hh CommandFunction.hh CommandHandleVariable.hh CommandImpl.hh
-  Dispatcher.hh ExprVec.hh InputQueue.hh
-  InterfaceError.hh Lookup.hh LookupReceiver.hh Message.hh QueueEntry.hh
-  ResourceArbiterInterface.hh State.hh StateCache.hh Update.hh
+  Command.hh Dispatcher.hh ExprVec.hh InputQueue.hh InterfaceError.hh Lookup.hh
+  LookupReceiver.hh Message.hh QueueEntry.hh ResourceArbiterInterface.hh
+  State.hh StateCache.hh Update.hh
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 if(MODULE_TESTS)

@@ -30,17 +30,15 @@ lib_LTLIBRARIES = libPlexilExec.la
 libPlexilExec_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/intfc \
  -I@top_srcdir@/expr -I@top_srcdir@/value -I@top_srcdir@/utils
 
-# FIXME Divide into public vs internal interfaces
-include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
- ExecListenerBase.hh \
- LibraryCallNode.hh ListNode.hh Mutex.hh Node.hh NodeImpl.hh NodeFactory.hh \
- NodeFunction.hh NodeOperator.hh NodeOperatorImpl.hh \
- NodeOperators.hh NodeTimepointValue.hh NodeTransition.hh \
- NodeVariableMap.hh NodeVariables.hh \
- PlexilExec.hh PlexilNodeType.hh UpdateImpl.hh UpdateNode.hh plan-utils.hh
+# Public interfaces, i.e. those a PLEXIL application developer may need for interfacing.
+include_HEADERS = ExecListenerBase.hh Node.hh NodeImpl.hh NodeTransition.hh \
+ NodeVariables.hh PlexilExec.hh PlexilNodeType.hh plan-utils.hh
 
-# Implementation details which don't need to be advertised
-# noinst_HEADERS = 
+# Implementation details which don't need to be publicly advertised
+noinst_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
+ LibraryCallNode.hh ListNode.hh Mutex.hh NodeFactory.hh NodeFunction.hh \
+ NodeOperator.hh NodeOperatorImpl.hh NodeOperators.hh NodeTimepointValue.hh \
+ NodeVariableMap.hh UpdateImpl.hh UpdateNode.hh
 
 libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc CommandNode.cc \
  LibraryCallNode.cc ListNode.cc Mutex.cc NodeImpl.cc NodeFactory.cc \
@@ -50,7 +48,7 @@ libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc CommandNode.cc \
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/exec-module-tests
-  noinst_HEADERS =
+  noinst_HEADERS +=
   test_exec_module_tests_SOURCES = test/exec-test-module.cc test/module-tests.cc
   test_exec_module_tests_CPPFLAGS = -I@top_srcdir@/intfc -I@top_srcdir@/expr \
  -I@top_srcdir@/value -I@top_srcdir@/utils

@@ -30,14 +30,14 @@ lib_LTLIBRARIES = libPlexilIntfc.la
 libPlexilIntfc_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/expr \
  -I@top_srcdir@/value -I@top_srcdir@/utils
 
-# Exposed APIs
-include_HEADERS = Command.hh CommandFunction.hh CommandHandleVariable.hh \
- CommandImpl.hh Dispatcher.hh ExprVec.hh InputQueue.hh \
+# Public APIs
+include_HEADERS = Command.hh Dispatcher.hh ExprVec.hh InputQueue.hh \
  InterfaceError.hh Lookup.hh LookupReceiver.hh Message.hh \
  QueueEntry.hh ResourceArbiterInterface.hh State.hh StateCache.hh Update.hh
 
 # Implementation details which don't need to be advertised
-noinst_HEADERS = CachedValue.hh CachedValueImpl.hh CommandOperator.hh \
+noinst_HEADERS = CachedValue.hh CachedValueImpl.hh CommandFunction.hh \
+ CommandHandleVariable.hh CommandImpl.hh CommandOperator.hh \
  StateCacheEntry.hh
 
 libPlexilIntfc_la_SOURCES = CachedValue.cc CachedValueImpl.cc \

@@ -54,13 +54,10 @@ if(MATH_LIBRARY)
   target_link_libraries(PlexilExpr PUBLIC ${MATH_LIBRARY})
 endif()
 
-# Public includes
+# Public APIs
 install(FILES
-  Alias.hh ArrayReference.hh ArrayVariable.hh Assignable.hh CachedFunction.hh
-  Constant.hh ConversionOperators.hh Expression.hh ExpressionConstants.hh
-  ExpressionListener.hh Function.hh GetValueImpl.hh Listenable.hh
-  NodeConnector.hh NodeConstantExpressions.hh Notifier.hh Operator.hh
-  Propagator.hh Reservable.hh SimpleBooleanVariable.hh UserVariable.hh
+  Assignable.hh Expression.hh ExpressionListener.hh GetValueImpl.hh
+  Listenable.hh NodeConnector.hh Notifier.hh
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 if(MODULE_TESTS)

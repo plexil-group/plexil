@@ -51,13 +51,10 @@ if(PlexilExec_SHLIB_INSTALL_RPATH)
 endif()
 
 # FIXME Divide into public vs internal interfaces
+# See Makefile.am in this directory
 install(FILES 
-  Assignment.hh AssignmentNode.hh CommandNode.hh ExecListenerBase.hh
-  LibraryCallNode.hh ListNode.hh Mutex.hh Node.hh
-  NodeFactory.hh NodeFunction.hh NodeImpl.hh NodeOperator.hh NodeOperatorImpl.hh
-  NodeOperators.hh NodeTimepointValue.hh NodeTransition.hh
-  NodeVariableMap.hh NodeVariables.hh PlexilExec.hh PlexilNodeType.hh
-  UpdateImpl.hh UpdateNode.hh plan-utils.hh
+  ExecListenerBase.hh Node.hh NodeImpl.hh NodeTransition.hh
+  NodeVariables.hh PlexilExec.hh PlexilNodeType.hh plan-utils.hh
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 if(MODULE_TESTS)
