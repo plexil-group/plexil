@@ -55,7 +55,8 @@ public class NodeVariableNode extends ExpressionNode
         case PlexilLexer.NODE_TIMEPOINT_VALUE:
             // We can't know yet whether time is Real or Date
             // This is determined in the type checking pass (check())
-            m_dataType = PlexilDataType.UNKNOWN_TYPE;
+            // Default to Real.
+            m_dataType = PlexilDataType.REAL_TYPE;
             break;
 
         default:
@@ -81,8 +82,9 @@ public class NodeVariableNode extends ExpressionNode
 	}
 
     @Override
-    protected void checkSelf(NodeContext context, CompilerState state)
+    protected void earlyCheckSelf(NodeContext context, CompilerState state)
     {
+        // Get base type of node timepoints from compiler state
         if (this.getToken().getType() == PlexilLexer.NODE_TIMEPOINT_VALUE)
             m_dataType = state.getGlobalContext().getTimeType();
     }
