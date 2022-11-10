@@ -28,8 +28,12 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
+import org.w3c.dom.Document;
+
 public class GlobalDeclarationsNode extends PlexilTreeNode
 {
+    private GlobalContext m_context = null;
+
     public GlobalDeclarationsNode(Token t)
     {
         super(t);
@@ -45,6 +49,29 @@ public class GlobalDeclarationsNode extends PlexilTreeNode
 	{
 		return new GlobalDeclarationsNode(this);
 	}
+
+    // Capture the global context and check that it is in fact global.
+    @Override
+    protected void earlyCheckSelf(NodeContext context, CompilerState state)
+    {
+        if (context.isGlobalContext())
+            m_context = (GlobalContext) context;
+        else
+            state.addDiagnostic(this,
+                                "Internal error: GlobalDeclarationsNode context is not global!",
+                                Severity.FATAL);
+    }
+
+    // Add global mutex declarations.
+    @Override
+    protected void constructXML(Document root)
+    {
+        super.constructXML(root);
+        if (m_context != null) {
+            for (MutexName mn : m_context.getMutexes())
+                m_xml.appendChild(mn.makeDeclarationXML(root));
+        }
+    }
 
     @Override
     protected void addSourceLocatorAttributes()
