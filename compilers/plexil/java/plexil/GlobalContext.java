@@ -119,7 +119,7 @@ public class GlobalContext
     }
 
     public void addLookupName(PlexilTreeNode declaration, 
-                              String name, 
+                              String name,
                               List<VariableName> parm_spec,
                               VariableName return_spec)
     {
@@ -181,6 +181,15 @@ public class GlobalContext
                                                NameType.LIBRARY_NODE_NAME,
                                                parm_spec,
                                                null));
+    }
+
+    @Override
+    public MutexName getMutex(String name) 
+    {
+        for (MutexName m : m_mutexes)
+            if (m.getName().equals(name))
+                return m;
+        return null;
     }
 
 };
