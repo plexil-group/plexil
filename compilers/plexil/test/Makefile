@@ -1,6 +1,6 @@
 # Makefile for Plexil compiler test suite
 
-# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -24,6 +24,22 @@
 # ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+SHELL = /bin/sh
+
+# Check environment, in case the user has somehow forgotten to set PLEXIL_HOME
+
+TOP_DIR := $(realpath $(join $(dir $(firstword $(MAKEFILE_LIST))),../../..))
+
+ifeq ($(PLEXIL_HOME),)
+PLEXIL_HOME := $(TOP_DIR)
+else
+ifneq ($(PLEXIL_HOME),$(TOP_DIR))
+$(error Environment variable PLEXIL_HOME is in error. It must be set to $(TOP_DIR) before proceeding)
+endif
+endif
+
+export PLEXIL_HOME
 
 SMALL_TESTS = AddArray AnyArgs_empty_test ArglistArithmeticType ArrayEquality \
  ArrayLookup array-add array-complex array-copy array_size_test \
@@ -57,7 +73,7 @@ SMALL_TESTS = AddArray AnyArgs_empty_test ArglistArithmeticType ArrayEquality \
  simpleIf SimpleDrive simpleIfThenElse simpleAssignment skipped1 \
  StringConcat1 StringConcat2 StringConcat3 StringConcat4 StringConcat5 \
  StringConcat6 StringConcat7 StringConcat8 strlen_test \
- succeeded1 Sum sync-cmd-test sync-cmd-test1 \
+ succeeded1 Sum sync-cmd-test sync-cmd-test1 sync-cmd-options-test \
  test-recv test-send time-lookup-test time-lookup-test1 time_tolerance_test \
  timed-iteration tolerance1 try1 \
  UnaryMinus update1 update2 update3 \
