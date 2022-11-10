@@ -369,7 +369,7 @@ def validateWithErrorMessages(schm, infile, verbose):
             if verbose:
                 print('  ', str(err))
             elif err.path is not None:
-                print('  ', err.message, '\n  at', err.path)
+                print(' ', err.message, '\n ', err.reason, '\n  at', err.path)
             else:
                 print('  ', err.message)
         return errorCount
