@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -79,15 +79,21 @@ TRANG_JAR = ../jars/trang.jar
 
 plexil-default: $(SCHEMA_V1_RNC) $(PLEXILSCRIPT_RNC)
 
-plexil-v2: $(SCHEMA_V2_RNC) 
+plexil-v2: $(SCHEMA_V2_RNC)
 
-plexil-script: plexil-script.rnc
+plexil-script: $(PLEXISCRIPT_RNC)
 
 dust:
 	@$(RM) -f *.rng
 
 clean: dust
 	@$(RM) -f *.rnc
+
+# Schema validator cache must be invalidated if any PLEXIL schema changes
+invalidate-validator-cache:
+	@$(RM) -rf validator/schema_cache
+
+.PHONY: invalidate-validator-cache
 
 $(SCHEMA_V1_RNC_IN) : plexil-base.xsd
 
@@ -97,7 +103,7 @@ $(SCHEMA_V2_RNC_IN) : plexil-base-v2.xsd
 extended-plexil.rnc core-plexil.rnc : plexil-base.rng
 extended-plexil-v2.rnc core-plexil-v2.rnc : plexil-base-v2.rng
 
-$(SCHEMA_V1_XSD:.xsd=.rng) $(SCHEMA_V2_XSD:.xsd=.rng): %.rng: %.xsd
+$(SCHEMA_V1_XSD:.xsd=.rng) $(SCHEMA_V2_XSD:.xsd=.rng): %.rng: %.xsd | invalidate-validator-cache
 	$(JAVA) -jar $(SAXON_JAR) -xsl:XSDtoRNG.xsl -s:$< -o:$@ start=PlexilPlan
 
 # Special rule for Plexilscript only
@@ -105,8 +111,8 @@ plexil-script.rng: plexil-script.xsd
 	$(JAVA) -jar $(SAXON_JAR) -xsl:XSDtoRNG.xsl -s:$< -o:$@ start=PLEXILScript
 
 # General rule to create a RELAX NG schema from an XML schema.
-%.rng: %.xsd
-	$(JAVA) -jar $(SAXON_JAR) -xsl:XSDtoRNG.xsl -s:$< -o:$@
+# %.rng: %.xsd
+# 	$(JAVA) -jar $(SAXON_JAR) -xsl:XSDtoRNG.xsl -s:$< -o:$@
 
 # The rule creates a RELAX NG compact schema from a RELAX NG schema.
 %.rnc: %.rng

@@ -2,53 +2,49 @@ This directory contains the PLEXIL schemas and related files.  Look
 inside the files for more comments.
 
 All schemas are provided in two formats: XSD and RNC (Compact Relax
-NG).  We use two third-party tools, Saxon and trang, and an XSLT
-stylesheet to create the RNC schemas.
+NG).  We use two third-party tools, Saxon Home Edition and trang, and
+an XSLT stylesheet to create the RNC schemas.
 
-The Makefile generates .rnc schemas from .xsd.  This process is
-described within Makefile.  'make' regenerates the .rnc files.  This
-is a tool intended for use by the PLEXIL development team; no user
-should expect to need to run it.
+The .xsd versions of the schemas are the authoritative sources.  The
+Makefile generates .rnc schemas from .xsd.  This process is described
+within Makefile.  No user should need to run 'make'; this is a tool
+intended for use by the PLEXIL development team;
 
 Schemas provided here:
 
-- core-plexil.xsd defines the Core PLEXIL language as currently
-executed by the Plexil Executive.
+- core-plexil.xsd defines the Core PLEXIL language which the PLEXIL
+  Executive can directly execute.
 
 - extended-plexil.xsd defines the Extended PLEXIL language, a superset
-of Core PLEXIL with additional convenience macros.
+  of Core PLEXIL with additional convenience macros.  This must be
+  translated to Core PLEXIL prior to execution by the Executive.
 
 - safe-plexil.xsd defines a restricted subset of Core PLEXIL that is
-easier to verify using static analysis tools.
+  easier to verify using static analysis tools.
 
 - plexil-base.xsd is the common subset of the above three schemas.
 
 - plexil-script.xsd is the schema for the Test Executive simulation script.
 
 - core-plexil-v2.xsd, extended-plexil-v2.xsd, plexil-base-v2.xsd, and
-safe-plexil-v2.xsd describe a more compact version of the PLEXIL
-language.  The Plexil Executive will be modified at some future date to
-parse this Core PLEXIL variant.
+  safe-plexil-v2.xsd describe a more compact version of the PLEXIL
+  language.  The Plexil Executive will be modified at some future date
+  to parse this Core PLEXIL variant.
 
-The file schemas.xml is used by (e.g.) GNU Emacs's nxml-mode, to
+The file schemas.xml is used by tools (e.g. GNU Emacs's nxml-mode) to
 locate schemas for the various XML document types found here.  For
 more information, see the following chapter of the PLEXIL manual:
 
   https://sourceforge.net/apps/mediawiki/plexil/index.php?title=PLEXIL,_XML,_and_Emacs
 
-A variety of XML translators, implemented with XSLT stylesheets, are
-provided here:
+Several XSLT stylesheets are provided here:
 
-- XSDtoRNG.xsl translates .xsd schema files into RELAX NG format.
-This is an intermediate step in the XSD to Relax NG Compact
-translation.
-
-- The epx-translator directory contains a set of stylesheets which
-translate Extended Plexil into Core Plexil.  The root stylesheet is
-translate-plexil.xsd.  The translator can be run conveniently with the
-'eplexil' script found in plexil/scripts (see that directory for more
-information), though in normal usage it is run automatically when
-Standard PLEXIL files are compiled.
+- The epx-translator subdirectory contains stylesheets which translate
+Extended Plexil into Core Plexil.  The root stylesheet is
+translate-plexil.xsd.  The Standard PLEXIL compiler uses these
+stylesheets internally.  If desired, the translator can be run
+manually by the 'eplexil' or 'plexilc' scripts found in the
+plexil/scripts directory.
 
 - canonicalize-v1.xsl reformats a Core PLEXIL plan into a standardized
 format, which facilitates comparisons during translator and compiler
@@ -56,13 +52,17 @@ debugging.
 
 - summarize-plexil.xsl generates a concise textual summary of a Core
 PLEXIL file.  To use it, run the script file found at
-scripts/summarize-plexil .
+plexil/scripts/summarize-plexil.
 
 - plexil-v1-to-v2.xsl translates the current Core PLEXIL XML into
 the version 2 form.
 
 - plexil-v2-to-v1.xsl translates Core PLEXIL version 2 XML into the
 version 1 form.
+
+- XSDtoRNG.xsl translates .xsd schema files into RELAX NG format.
+This is an intermediate step in the XSD to Relax NG Compact
+translation.
 
 The test directory contains a regression test suite for the Extended
 Plexil translator.
