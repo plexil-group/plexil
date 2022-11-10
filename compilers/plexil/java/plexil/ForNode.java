@@ -78,21 +78,16 @@ public class ForNode extends NodeTreeNode implements PlexilNode
     }
 
     // Always creates a new NodeContext.
-    public void initializeContext(NodeContext parentContext)
+    private void initializeLoopBodyContext(NodeContext parentContext)
     {
-        // FIXME: do we care about NodeId?
-        // String nodeId = null;
-        // if (this.hasNodeId()) {
-        //     nodeId = ((ActionNode) this.getParent()).getNodeId();
-        // }
-        m_loopContext = new NodeContext(parentContext, "FOR_BODY");
+        m_loopContext = new NodeContext(parentContext, m_nodeId + "__FOR_BODY");
     }
 
     @Override
     protected void earlyCheckSelf(NodeContext parentContext, CompilerState state)
     {
         super.earlyCheckSelf(parentContext, state); // NodeTreeNode method
-        initializeContext(parentContext);
+        initializeLoopBodyContext(parentContext);
     }
 
     @Override
@@ -155,6 +150,7 @@ public class ForNode extends NodeTreeNode implements PlexilNode
         action.appendChild(this.getChild(3).getXML(root));
     }
 
+    @Override
     protected String getXMLElementName() { return "For"; }
 
 }
