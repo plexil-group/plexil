@@ -41,8 +41,6 @@ import org.w3c.dom.Element;
 
 public class ActionNode extends PlexilTreeNode
 {
-    protected String m_nodeId = null;
-
     //
     // Constructors
     //
@@ -55,7 +53,6 @@ public class ActionNode extends PlexilTreeNode
 	public ActionNode(ActionNode n)
 	{
 		super(n);
-		m_nodeId = n.m_nodeId;
 	}
 
     @Override
@@ -66,7 +63,9 @@ public class ActionNode extends PlexilTreeNode
 
     public String getNodeId()
     {
-        return m_nodeId; 
+        if (this.getChild(0).getType() != PlexilLexer.NCNAME)
+            return null;
+        return this.getChild(0).getText();
     }
 
     @Override
@@ -82,23 +81,19 @@ public class ActionNode extends PlexilTreeNode
         PlexilTreeNode firstChild = this.getChild(0);
         // If supplied, get the node ID
         if (hasNodeId()) {
-            m_nodeId = firstChild.getText();
+            String nodeId = getNodeId();
             // Check that node ID is locally unique
-            if (context.isChildNodeId(m_nodeId)) {
+            if (context.isChildNodeId(nodeId)) {
                 state.addDiagnostic(firstChild,
-                                    "Node ID \"" + m_nodeId + "\" defined more than once in this context",
+                                    "Node ID \"" + nodeId + "\" defined more than once in this context",
                                     Severity.ERROR);
-                state.addDiagnostic(context.getChildNodeId(m_nodeId),
-                                    "Original definition of node ID \"" + m_nodeId + "\" is here",
+                state.addDiagnostic(context.getChildNodeId(nodeId),
+                                    "Original definition of node ID \"" + nodeId + "\" is here",
                                     Severity.NOTE);
             }
             else {
                 context.addChildNodeId(firstChild);
             }
-        }
-        else {
-            // Gensym a name but don't log it, since it never appeared in the source
-            m_nodeId = context.generateChildNodeName(firstChild.getText());
         }
     }
 
@@ -111,12 +106,13 @@ public class ActionNode extends PlexilTreeNode
 
         this.addSourceLocatorAttributes();
 
-        // Insert Node ID element if was explicitly supplied
-        // or child didn't already have one
-        if (hasNodeId()
-            || DOMUtils.getFirstElementNamed(m_xml, "NodeId") == null) {
+        // Insert Node ID element if child didn't already have one
+        // and we have a NodeId.
+        // *** Shouldn't be necessary any more -- see NodeTreeNode.initializeNodeId() ***
+        if (DOMUtils.getFirstElementNamed(m_xml, "NodeId") == null
+            && hasNodeId()) {
             Element nodeIdElt = root.createElement("NodeId");
-            nodeIdElt.appendChild(root.createTextNode(m_nodeId));
+            nodeIdElt.appendChild(root.createTextNode(getNodeId()));
             m_xml.insertBefore(nodeIdElt, m_xml.getFirstChild());
         }
     }
