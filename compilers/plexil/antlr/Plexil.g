@@ -449,9 +449,10 @@ mutexDeclaration :
 action
 @init { m_paraphrases.push("in action"); }
 @after { m_paraphrases.pop(); }
- :
-    (actionId=NCNAME COLON)?
-	rest=baseAction
+ : namedAction | baseAction ;
+
+namedAction :
+    actionId=NCNAME COLON rest=baseAction
     -> ^(ACTION $actionId? $rest)
  ;
 
@@ -514,9 +515,8 @@ ifAction
 // This prevents ambiguous constructs like
 // if <expr1> if <expr2> then <action2> else <action3> ;
 consequentAction :
-    (actionId=NCNAME COLON)?
-	rest=consequent
-    -> ^(ACTION $actionId? $rest)
+    actionId=NCNAME COLON rest=consequent -> ^(ACTION $actionId? $rest)
+  |	consequent
  ;
 
 consequent :
