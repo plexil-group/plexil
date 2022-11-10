@@ -70,11 +70,30 @@ public class CommandNode
         return m_context;
     }
 
+    // See NodeTreeNode.hasNodeId()
+    @Override
     public boolean hasNodeId()
     {
+        // Check ancestry
         PlexilTreeNode parent = this.getParent();
-        return parent != null && parent instanceof ActionNode
-            && parent.hasNodeId();
+        if (parent == null)
+            return false; // shouldn't happen
+
+        // If directly wrapped in an action, check the action.
+        if (parent.getType() == PlexilLexer.ACTION)
+            return parent.hasNodeId();
+
+        // If directly wrapped in block, and we're its only body child,
+        // check the block.
+        if (parent instanceof BlockNode
+            && ((BlockNode) parent).isSimpleNode())
+            return parent.hasNodeId();
+
+        // If directly wrapped in an assignment, ask the assignment.
+        if (parent.getType() == PlexilLexer.ASSIGNMENT)
+            return parent.hasNodeId();
+
+        return false;
     }
 
     @Override
@@ -83,17 +102,10 @@ public class CommandNode
         PlexilTreeNode parent = this.getParent();
         if (parent == null)
             return false; // no parent - shouldn't happen
-        if (parent instanceof AssignmentNode)
-            return true;  // command w/ assignment
-        if (!(parent instanceof ActionNode))
-            return false; // shouldn't happen
-        if (parent.hasNodeId())
-            return false;
-        PlexilTreeNode grandparent = parent.getParent();
-        if (grandparent == null)
-            return false;
-        if (grandparent instanceof BlockNode)
-            return ((BlockNode) grandparent).isSimpleNode();
+        if (parent instanceof BlockNode)
+            return true;
+        if (parent.getType() == PlexilLexer.ASSIGNMENT)
+            return true;  // command w/ assignment, get its context
         return false;
     }
 
@@ -104,9 +116,9 @@ public class CommandNode
         }
         else {
             String nodeId = null;
-            if (hasNodeId()) {
+            PlexilTreeNode parent = this.getParent();
+            if (parent != null && parent instanceof ActionNode && parent.hasNodeId())
                 nodeId = ((ActionNode) this.getParent()).getNodeId();
-            }
             m_context = new NodeContext(parentContext, nodeId);
         }
     }
@@ -295,7 +307,8 @@ public class CommandNode
         }
     }
 
-    protected String getXMLElementName() { return "Node"; }
+    @Override
+    protected String getXMLElementName() {return "Node"; }
 
     // TODO: extend to return true for constant string expressions
     private boolean isCommandNameLiteral()
