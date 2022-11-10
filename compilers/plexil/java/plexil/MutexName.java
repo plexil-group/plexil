@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,6 +26,7 @@
 
 package plexil;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class MutexName extends PlexilName
@@ -43,11 +44,11 @@ public class MutexName extends PlexilName
         return m_context;
     }
 
-    public Element makeDeclarationXML()
+    public Element makeDeclarationXML(Document root)
     {
-        Element nameElt = CompilerState.newElement("Name");
-        nameElt.appendChild(CompilerState.newTextNode(getName()));
-        Element result = CompilerState.newElement("DeclareMutex");
+        Element nameElt = root.createElement("Name");
+        nameElt.appendChild(root.createTextNode(getName()));
+        Element result = root.createElement("DeclareMutex");
         result.appendChild(nameElt);
         if (m_declaration != null) {
             result.setAttribute("LineNo",
@@ -59,10 +60,10 @@ public class MutexName extends PlexilName
     }
 
     // TODO: add null/empty string checks
-    public Element asReference()
+    public Element asReference(Document root)
     {
-        Element result = CompilerState.newElement("Name");
-        result.appendChild(CompilerState.newTextNode(getName()));
+        Element result = root.createElement("Name");
+        result.appendChild(root.createTextNode(getName()));
         return result;
     }
 }

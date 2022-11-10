@@ -26,74 +26,64 @@
 
 // *** To do:
 //  - add array support
+//  - add resource declaration support
 
 package plexil;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 public class GlobalDeclaration extends PlexilName
 {
     protected NameType m_declarationType;
-    protected Vector<VariableName> m_paramSpecs;
-    protected Vector<VariableName> m_returnSpecs;
+    protected List<VariableName> m_paramSpecs;
+    protected VariableName m_returnSpec;
 
     // TODO: handle resource list
     public GlobalDeclaration(PlexilTreeNode declaration,
                              String myName,
                              NameType declType,
-                             Vector<VariableName> paramSpecs,
-                             Vector<VariableName> returnSpecs)
+                             List<VariableName> paramSpecs,
+                             VariableName returnSpec)
     {
         super(myName, declType, declaration);
         m_declarationType = declType;
         m_paramSpecs = paramSpecs;
-        m_returnSpecs = returnSpecs;
+        m_returnSpec = returnSpec;
     }
 
     // returns first return type or null
     public PlexilDataType getReturnType()
     {
-        if (m_returnSpecs == null)
+        if (m_returnSpec == null)
             return null;
-        return m_returnSpecs.firstElement().getVariableType();
+        return m_returnSpec.getVariableType();
     }
-
-    // returns vector of return types, or null
-    public Vector<PlexilDataType> getReturnTypes()
-    {
-        if (m_returnSpecs == null)
-            return null;
-        Vector<PlexilDataType> result = new Vector<PlexilDataType>();
-        for (VariableName v : m_returnSpecs)
-            result.add(v.getVariableType());
-        return result;
-    }
-
-    // returns vector of return variables, or null
-    public Vector<VariableName> getReturnVariables() { return m_returnSpecs;}
 
     // returns return variable, or null
     public VariableName getReturnVariable()
     {
-        if (m_returnSpecs != null && m_returnSpecs.size() != 0)
-            return m_returnSpecs.firstElement();
-        else
+        if (m_returnSpec == null)
             return null;
+        return m_returnSpec;
     }
 
     // returns vector of parameter types, or null
-    public Vector<PlexilDataType> getParameterTypes()
+    public List<PlexilDataType> getParameterTypes()
     {
         if (m_paramSpecs == null)
             return null;
-        Vector<PlexilDataType> result = new Vector<PlexilDataType>();
+        List<PlexilDataType> result = new ArrayList<PlexilDataType>();
         for (VariableName v : m_paramSpecs)
             result.add(v.getVariableType());
         return result;
     }
 
     // returns vector of parameter variables, or null
-    public Vector<VariableName> getParameterVariables() { return m_paramSpecs; }
+    public List<VariableName> getParameterVariables()
+    {
+        return m_paramSpecs;
+    }
 
     // returns parameter variable descriptor, or null
     public VariableName getParameterByName(String name)

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,18 +25,26 @@
 
 package plexil;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.Vector;
 
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+// ParameterSpecNode is used in Lookup and Command declarations.
+// Structure:
+// (PARAMETERS ( (paramTypeName NCNAME?)
+//             | (ARRAY_TYPE baseTypeName INT NCNAME?) )*
+//             ELLIPSIS?)
 
 public class ParameterSpecNode extends PlexilTreeNode
 {
-    private Vector<VariableName> m_parameterSpecs = null;
+    private List<VariableName> m_parameterSpecs = null;
 
     public ParameterSpecNode(Token t)
     {
@@ -54,38 +62,22 @@ public class ParameterSpecNode extends PlexilTreeNode
         return new ParameterSpecNode(this);
     }
 
-    public void earlyCheck(NodeContext context, CompilerState state)
+    @Override
+    protected void earlyCheckChildren(NodeContext context, CompilerState state)
     {
         boolean ellipsisSeen = false;
         Set<String> names = new TreeSet<String>();
         if (this.getChildCount() > 0)
-            m_parameterSpecs = new Vector<VariableName>();
+            m_parameterSpecs = new ArrayList<VariableName>();
 
-        for (int parmIdx = 0; parmIdx < this.getChildCount(); parmIdx++) {
+        int parmIdx = 0; // only used to generate placeholders for erroneous decls
+        for (PlexilTreeNode parm : this.getChildren()) {
             String typeName = null;
             PlexilTreeNode nameSpec = null;
             String sizeSpec = null;
 
-            PlexilTreeNode parm = this.getChild(parmIdx);
             int parmType = parm.getType();
-            if (parmType == PlexilLexer.IN_KYWD
-                || parmType == PlexilLexer.IN_OUT_KYWD) {
-                // Library interface spec
-                // ^((In | InOut) typename NCNAME INT?)
-                typeName = parm.getChild(0).getText();
-                nameSpec = parm.getChild(1);
-                if (parm.getChild(2) != null) {
-                    sizeSpec = parm.getChild(2).getText(); // array dimension
-                    // check spec'd size
-                    int arySiz = LiteralNode.parseIntegerValue(sizeSpec);
-                    if (arySiz < 0) {
-                        state.addDiagnostic(parm.getChild(1),
-                                            "Array size must not be negative",
-                                            Severity.ERROR);
-                    }
-                }
-            }
-            else if (parmType == PlexilLexer.ARRAY_TYPE) {
+            if (parmType == PlexilLexer.ARRAY_TYPE) {
                 // ^(ARRAY_TYPE eltTypeName INT NCNAME?)
                 typeName = parm.getChild(0).getText();
                 sizeSpec = parm.getChild(1).getText();
@@ -105,16 +97,15 @@ public class ParameterSpecNode extends PlexilTreeNode
                     nameSpec = parm.getChild(0);
             }
 
-            String nam =
-                (nameSpec == null) ? null : nameSpec.getText();
-
             // check for duplicate names and warn
-            if (nam != null) {
+            String nam = null;
+            if (nameSpec != null) {
+                nam = nameSpec.getText();
                 if (names.contains(nam)) {
-                    // Report duplicate name warning
+                    // Report duplicate name error
                     state.addDiagnostic(nameSpec,
                                         "Parameter name \"" + nam + "\" was used more than once",
-                                        Severity.WARNING);
+                                        Severity.ERROR);
                 }
                 else {
                     names.add(nam);
@@ -131,35 +122,6 @@ public class ParameterSpecNode extends PlexilTreeNode
             // Construct parameter spec
             VariableName newParmVar = null;
             switch (parmType) {
-                // In and InOut are only valid for library node declarations
-            case PlexilLexer.IN_KYWD:
-            case PlexilLexer.IN_OUT_KYWD:
-                if (sizeSpec != null) {
-                    // Array case
-                    newParmVar = 
-                        new InterfaceVariableName(parm,
-                                                  nam,
-                                                  parmType == PlexilLexer.IN_OUT_KYWD,
-                                                  PlexilDataType.findByName(typeName).arrayType(),
-                                                  sizeSpec,
-                                                  null);
-                }
-                else {
-                    newParmVar =
-                        new InterfaceVariableName(parm,
-                                                  nam,
-                                                  parmType == PlexilLexer.IN_OUT_KYWD,
-                                                  PlexilDataType.findByName(typeName));
-                }
-                break;
-
-            case PlexilLexer.ARRAY_TYPE:
-                newParmVar = new VariableName(parm,
-                                              nam,
-                                              PlexilDataType.findByName(typeName).arrayType(),
-                                              sizeSpec,
-                                              null);
-                break;
 
             case PlexilLexer.ANY_KYWD:
             case PlexilLexer.BOOLEAN_KYWD:
@@ -171,6 +133,14 @@ public class ParameterSpecNode extends PlexilTreeNode
                 newParmVar = new VariableName(parm,
                                               nam,
                                               PlexilDataType.findByName(typeName));
+                break;
+
+            case PlexilLexer.ARRAY_TYPE:
+                newParmVar = new VariableName(parm,
+                                              nam,
+                                              PlexilDataType.findByName(typeName).arrayType(),
+                                              sizeSpec,
+                                              null);
                 break;
 
             case PlexilLexer.ELLIPSIS:
@@ -190,10 +160,11 @@ public class ParameterSpecNode extends PlexilTreeNode
             }
 
             m_parameterSpecs.add(newParmVar);
+            ++parmIdx;
         }
     }
 
-    public Vector<VariableName> getParameterVector() { return m_parameterSpecs; }
+    public List<VariableName> getParameterList() { return m_parameterSpecs; }
 
     public boolean containsAnyType()
     {
@@ -205,44 +176,14 @@ public class ParameterSpecNode extends PlexilTreeNode
         return false;
     }
 
-    // For command and lookup
-    public void constructParameterXML(Element parent)
+    public void constructParameterXML(Document root, Element parent)
     {
         if (m_parameterSpecs != null) {
             for (VariableName vn : m_parameterSpecs) 
-                parent.appendChild(vn.makeGlobalDeclarationElement("Parameter"));
+                parent.appendChild(vn.makeGlobalDeclarationElement(root, "Parameter"));
         }
     }
 
-    // For library node
-    @Override
-    protected void constructXML()
-    {
-        m_xml = CompilerState.newElement(this.getXMLElementName()); // no source locators desired
-        if (m_parameterSpecs != null) {
-            Vector<VariableName> inVars = new Vector<VariableName>();
-            Vector<VariableName> inOutVars = new Vector<VariableName>();
-            for (VariableName vn : m_parameterSpecs) {
-                if (vn.isAssignable())
-                    inOutVars.add(vn);
-                else
-                    inVars.add(vn);
-            }
-            if (inVars.size() > 0) {
-                Element inXML = CompilerState.newElement("In");
-                m_xml.appendChild(inXML);
-                for (VariableName inVar : inVars)
-                    inXML.appendChild(inVar.makeDeclarationXML());
-            }
-            if (inOutVars.size() > 0) {
-                Element inOutXML = CompilerState.newElement("InOut");
-                m_xml.appendChild(inOutXML);
-                for (VariableName inOutVar : inOutVars)
-                    inOutXML.appendChild(inOutVar.makeDeclarationXML());
-            }
-        }
-    }
-
-    public String getXMLElementName() { return "Interface"; }
+    public String getXMLElementName() { return "Parameters"; }
 
 }

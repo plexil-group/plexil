@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -30,12 +30,11 @@ import java.util.Vector;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class IfNode extends PlexilTreeNode
+public class IfNode extends NodeTreeNode
 {
-    private Vector<NodeContext> m_bodyContexts = null;
-
     public IfNode(Token t)
     {
         super(t);
@@ -44,130 +43,52 @@ public class IfNode extends PlexilTreeNode
 	public IfNode(IfNode n)
 	{
 		super(n);
-		m_bodyContexts = n.m_bodyContexts;
+        m_context = n.m_context;
 	}
 
+    @Override
 	public Tree dupNode()
 	{
 		return new IfNode(this);
 	}
 
-    //
-    // N.B. The extra complexity in the checking logic is to ensure each consequent body
-    // is contained in a separate name binding context from the if statement as a whole.
-    //
-
-    /**
-     * @brief Prepare for the semantic check.
-     */
-    public void earlyCheck(NodeContext parentContext, CompilerState state)
-    {
-        earlyCheckSelf(parentContext, state);
-        this.getChild(0).earlyCheck(parentContext, state); // test
-
-        // See if we have a node ID
-        String nodeId = null;
-        PlexilTreeNode parent = this.getParent();
-        if (parent != null && parent instanceof ActionNode) {
-            nodeId = ((ActionNode) parent).getNodeId();
-        }
-        else {
-            // should never happen
-            state.addDiagnostic(this,
-                                "Internal error: IfNode instance has no parent ActionNode",
-                                Severity.FATAL);
-        }
-
-        // Allocate context vector
-        int nContexts = (getChildCount() + 1) / 2;
-        m_bodyContexts = new Vector<NodeContext>(nContexts);
-
-        // Construct contexts for clauses
-        // FIXME: change suffixes to match generated code!
-        NodeContext tempCtxt = new NodeContext(parentContext, nodeId + "_THEN_CLAUSE");
-        m_bodyContexts.add(tempCtxt);
-        getChild(1).earlyCheck(tempCtxt, state); // then body
-
-        int nkids = this.getChildCount();
-        for (int i = 2; i < nkids; i += 2) {
-            if (nkids - i > 1) {
-                // Elseif test & clause
-                getChild(i).earlyCheck(parentContext, state); // elseif test
-                tempCtxt = new NodeContext(parentContext, nodeId + "_ELSEIF_CLAUSE_" + Integer.toString(i / 2));
-                m_bodyContexts.add(tempCtxt);
-                getChild(i + 1).earlyCheck(tempCtxt, state); // elseif body
-            }
-            else {
-                // Final else clause
-                tempCtxt = new NodeContext(parentContext, nodeId + "_ELSE_CLAUSE");
-                m_bodyContexts.add(tempCtxt);
-                getChild(i).earlyCheck(tempCtxt, state); // else body
-            }
-        }
-    }
-
-    /**
-     * @brief Semantic check.
-     * @note Uses separate contexts for then and else bodies.
-     */
     @Override
-    public void check(NodeContext parentContext, CompilerState myState)
+    protected void checkChildren(NodeContext parentContext, CompilerState state)
     {
-        checkSelf(parentContext, myState);
-        getChild(0).check(parentContext, myState); // test
-        getChild(1).check(m_bodyContexts.elementAt(0), myState); // then body
-        int nkids = getChildCount();
-        int ctxt = 1;
-        for (int i = 2; i < nkids; i += 2) {
-            if (nkids - i > 1) {
-                // Elseif test & clause
-                getChild(i).check(parentContext, myState); // elseif test
-                getChild(i + 1).check(m_bodyContexts.elementAt(ctxt), myState); // elseif body
-            }
-            else {
-                // Final else clause
-                getChild(i).check(m_bodyContexts.elementAt(ctxt), myState); // else body
-            }
-            ctxt++;
-        }
-    }
+        super.checkChildren(parentContext, state); // NodeTreeNode method
 
-    @Override
-    protected void checkSelf(NodeContext context, CompilerState myState)
-    {
         // Assert Boolean type on tests
-        if (!((ExpressionNode) getChild(0)).assumeType(PlexilDataType.BOOLEAN_TYPE, myState)) {
-            myState.addDiagnostic(getChild(0),
-                                  "If test expression is not Boolean",
-                                  Severity.ERROR);
+        if (!((ExpressionNode) getChild(0)).assumeType(PlexilDataType.BOOLEAN_TYPE, state)) {
+            state.addDiagnostic(getChild(0),
+                                "If test expression is not Boolean",
+                                Severity.ERROR);
         }
-        // Type check remaining tests
         int nkids = getChildCount();
         for (int i = 2; i < nkids; i += 2) {
             if (nkids - i > 1) {
                 // Elseif test & clause
-                if (!((ExpressionNode)getChild(i)).assumeType(PlexilDataType.BOOLEAN_TYPE, myState)) {
-                    myState.addDiagnostic(getChild(i),
-                                          "ElseIf test expression is not Boolean",
-                                          Severity.ERROR);
+                if (!((ExpressionNode) getChild(i)).assumeType(PlexilDataType.BOOLEAN_TYPE, state)) {
+                    state.addDiagnostic(getChild(i),
+                                        "ElseIf test expression is not Boolean",
+                                        Severity.ERROR);
                 }
             }
         }
     }
 
     @Override
-    protected void constructXML()
+    protected void constructXML(Document root)
     {
-        super.constructXMLBase(); // constructs "If" element
+        super.constructXMLBase(root); // constructs "If" element
 
         // Insert if-condition
-        Element condition = CompilerState.newElement("Condition");
-        condition.appendChild(getChild(0).getXML());
+        Element condition = root.createElement("Condition");
+        condition.appendChild(getChild(0).getXML(root));
         m_xml.appendChild(condition);
 
         // Insert then clause
-        Element consequent = CompilerState.newElement("Then");
-        consequent.appendChild(getChild(1).getXML());
+        Element consequent = root.createElement("Then");
+        consequent.appendChild(getChild(1).getXML(root));
         m_xml.appendChild(consequent);
 
         int nkids = getChildCount();
@@ -178,19 +99,19 @@ public class IfNode extends PlexilTreeNode
         for (; i < nkids; i += 2) {
             if (nkids - i > 1) {
                 // Insert ElseIf clause(s)
-                Element elseIfClause = CompilerState.newElement("ElseIf");
-                Element elseIfCondition = CompilerState.newElement("Condition");
-                elseIfCondition.appendChild(getChild(i).getXML());
+                Element elseIfClause = root.createElement("ElseIf");
+                Element elseIfCondition = root.createElement("Condition");
+                elseIfCondition.appendChild(getChild(i).getXML(root));
                 elseIfClause.appendChild(elseIfCondition);
-                Element elseIfConsequent = CompilerState.newElement("Then");
-                elseIfConsequent.appendChild(getChild(i + 1).getXML());
+                Element elseIfConsequent = root.createElement("Then");
+                elseIfConsequent.appendChild(getChild(i + 1).getXML(root));
                 elseIfClause.appendChild(elseIfConsequent);
                 m_xml.appendChild(elseIfClause);
             }
             else {
                 // insert final Else clause
-                Element elseClause = CompilerState.newElement("Else");
-                elseClause.appendChild(getChild(i).getXML());
+                Element elseClause = root.createElement("Else");
+                elseClause.appendChild(getChild(i).getXML(root));
                 m_xml.appendChild(elseClause);
             }
         }

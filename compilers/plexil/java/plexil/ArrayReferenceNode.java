@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,7 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class ArrayReferenceNode extends VariableNode
@@ -99,16 +100,16 @@ public class ArrayReferenceNode extends VariableNode
 
     // N.B. Can't use super.constructXML because of conflict with VariableNode method
     @Override
-    protected void constructXML()
+    protected void constructXML(Document root)
     {
-        this.constructXMLBase();
+        this.constructXMLBase(root);
 
         // Construct array expression
-        m_xml.appendChild(this.getChild(0).getXML());
+        m_xml.appendChild(this.getChild(0).getXML(root));
 
         // Construct index
-        Element idx = CompilerState.newElement("Index");
-        idx.appendChild(this.getChild(1).getXML());
+        Element idx = root.createElement("Index");
+        idx.appendChild(this.getChild(1).getXML(root));
         m_xml.appendChild(idx);
     }
 

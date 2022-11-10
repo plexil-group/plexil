@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,9 +26,6 @@
 
 package plexil;
 
-import org.antlr.runtime.*;
-import org.antlr.runtime.tree.*;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -43,6 +40,10 @@ import java.time.format.ResolverStyle;
 
 import java.time.temporal.TemporalAccessor;
 
+import org.antlr.runtime.*;
+import org.antlr.runtime.tree.*;
+
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 // 
@@ -67,31 +68,6 @@ public class TemporalLiteralNode extends LiteralNode
 		return new TemporalLiteralNode(this);
 	}
 
-    // Override LiteralNode method
-    @Override
-    protected void setInitialDataTypeFromTokenType()
-    {
-        switch (this.getType()) {
-
-        case PlexilLexer.DATE_LITERAL:
-            m_dataType = PlexilDataType.DATE_TYPE;
-            break;
-
-        case PlexilLexer.DURATION_LITERAL:
-            m_dataType = PlexilDataType.DURATION_TYPE;
-            break;
-
-        default:
-            // debug aid
-            CompilerState.getCompilerState().addDiagnostic(this,
-                                                           "Internal error: TemporalLiteralNode has no data type for \""
-                                                           + this.getText() + "\"",
-                                                           Severity.FATAL);
-            m_dataType = PlexilDataType.ERROR_TYPE;
-            break;
-        }
-    }
-
     // Overrides method on PlexilTreeNode
     @Override
     public void earlyCheck(NodeContext context, CompilerState state)
@@ -101,7 +77,7 @@ public class TemporalLiteralNode extends LiteralNode
         // Do syntax checking on children as required
         switch (this.getType()) {
 
-        case PlexilLexer.DATE_LITERAL:
+        case PlexilLexer.DATE_KYWD:
             if (this.getChild(0).getType() == PlexilLexer.STRING) {
                 String val = ((StringLiteralNode) this.getChild(0)).getStringValue();
                 if (!val.isEmpty()) {
@@ -133,7 +109,7 @@ public class TemporalLiteralNode extends LiteralNode
             }
             break;
 
-        case PlexilLexer.DURATION_LITERAL:
+        case PlexilLexer.DURATION_KYWD:
             if (this.getChild(0).getType() == PlexilLexer.STRING) {
                 String val = ((StringLiteralNode) this.getChild(0)).getStringValue();
                 if (!val.isEmpty()) {
@@ -157,6 +133,31 @@ public class TemporalLiteralNode extends LiteralNode
 
             // Extend later?
         default:
+            break;
+        }
+    }
+
+    // Override LiteralNode method
+    @Override
+    protected void earlyCheckSelf(NodeContext context, CompilerState state)
+    {
+        switch (this.getType()) {
+
+        case PlexilLexer.DATE_KYWD:
+            m_dataType = PlexilDataType.DATE_TYPE;
+            break;
+
+        case PlexilLexer.DURATION_KYWD:
+            m_dataType = PlexilDataType.DURATION_TYPE;
+            break;
+
+        default:
+            // debug aid
+            state.addDiagnostic(this,
+                                "Internal error: TemporalLiteralNode has no data type for \""
+                                + this.getText() + "\"",
+                                Severity.FATAL);
+            m_dataType = PlexilDataType.ERROR_TYPE;
             break;
         }
     }
@@ -193,10 +194,10 @@ public class TemporalLiteralNode extends LiteralNode
 
     // Override LiteralNode method
     @Override
-    protected void constructXML()
+    protected void constructXML(Document root)
     {
-        super.constructXMLBase();
-        m_xml.appendChild(CompilerState.newTextNode(((StringLiteralNode) this.getChild(0)).getStringValue()));
+        super.constructXMLBase(root);
+        m_xml.appendChild(root.createTextNode(((StringLiteralNode) this.getChild(0)).getStringValue()));
     }
 
 }

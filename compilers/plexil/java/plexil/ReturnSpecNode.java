@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,16 +25,15 @@
 
 package plexil;
 
-import java.util.Vector;
-
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class ReturnSpecNode extends PlexilTreeNode
 {
-    private Vector<VariableName> m_returnSpecs = new Vector<VariableName>();
+    private VariableName m_returnSpec = null;
 
     public ReturnSpecNode(Token t)
     {
@@ -44,7 +43,7 @@ public class ReturnSpecNode extends PlexilTreeNode
 	public ReturnSpecNode(ReturnSpecNode n)
 	{
 		super(n);
-		m_returnSpecs = n.m_returnSpecs;
+		m_returnSpec = n.m_returnSpec;
 	}
 
 	public Tree dupNode()
@@ -52,7 +51,10 @@ public class ReturnSpecNode extends PlexilTreeNode
 		return new ReturnSpecNode(this);
 	}
 
-    public Vector<VariableName> getReturnVector() { return m_returnSpecs; }
+    public VariableName getReturnSpec()
+    {
+        return m_returnSpec;
+    }
 
     public void earlyCheck(NodeContext context, CompilerState state)
     {
@@ -69,25 +71,24 @@ public class ReturnSpecNode extends PlexilTreeNode
                                         Severity.ERROR);
                     arySize = 0; // to support further checking
                 }
-                m_returnSpecs.add(new VariableName(retn,
-                                                   nam,
-                                                   PlexilDataType.findByName(typeName).arrayType(),
-                                                   sizeSpec.getText(),
-                                                   null));
+                m_returnSpec = new VariableName(retn,
+                                                nam,
+                                                PlexilDataType.findByName(typeName).arrayType(),
+                                                sizeSpec.getText(),
+                                                null);
             }
             else {
                 String typeName = retn.getToken().getText();
-                m_returnSpecs.add(new VariableName(retn,
-                                                   nam,
-                                                   PlexilDataType.findByName(typeName)));
+                m_returnSpec = new VariableName(retn,
+                                                nam,
+                                                PlexilDataType.findByName(typeName));
             }
         }
     }
 
-    public void constructReturnXML(Element parent)
+    public void constructReturnXML(Document root, Element parent)
     {
-        for (VariableName vn : m_returnSpecs)
-            parent.appendChild(vn.makeGlobalDeclarationElement("Return"));
+        parent.appendChild(m_returnSpec.makeGlobalDeclarationElement(root, "Return"));
     }
 
 }

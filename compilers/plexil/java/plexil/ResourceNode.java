@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,7 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class ResourceNode extends PlexilTreeNode
@@ -58,6 +59,18 @@ public class ResourceNode extends PlexilTreeNode
 		return new ResourceNode(this);
 	}
 
+    // format is:
+    // ^(RESOURCE_KYWD name_expr [ option_kywd value_expr ]* )
+
+    @Override
+    protected void earlyCheckChildren(NodeContext context, CompilerState state)
+    {
+        for (int i = 0; i < this.getChildCount(); i += 2) {
+            // Perform early checks on the expressions
+            this.getChild(i).earlyCheck(context, state);
+        }
+    }
+
     @Override
 	protected void earlyCheckSelf(NodeContext context, CompilerState state)
 	{
@@ -68,7 +81,6 @@ public class ResourceNode extends PlexilTreeNode
 			PlexilTreeNode kywd = this.getChild(i);
 			ExpressionNode valueExpr = (ExpressionNode) this.getChild(i + 1);
 			if (valueExpr == null) {
-				// TODO: complain if valueExpr null
 				if (this.getChild(i + 1) != null) {
 					state.addDiagnostic(this.getChild(i + 1),
 										"The value supplied for the Resource option "
@@ -150,6 +162,14 @@ public class ResourceNode extends PlexilTreeNode
 	}
 
     @Override
+    protected void checkChildren(NodeContext context, CompilerState state)
+    {
+        for (int i = 0; i < this.getChildCount(); i += 2) {
+            this.getChild(i).check(context, state);
+        }
+    }
+
+    @Override
 	protected void checkSelf(NodeContext context, CompilerState state)
 	{
 		// Type check name
@@ -190,31 +210,31 @@ public class ResourceNode extends PlexilTreeNode
 		}
 	}
 
-	@Override
-    protected void constructXML()
+    @Override
+	protected void constructXML(Document root)
 	{
-		super.constructXMLBase();
-		Element nameElt = CompilerState.newElement("ResourceName");
-		nameElt.appendChild(m_name.getXML());
+		super.constructXMLBase(root);
+		Element nameElt = root.createElement("ResourceName");
+		nameElt.appendChild(m_name.getXML(root));
 		m_xml.appendChild(nameElt);
 
-        Element prio = CompilerState.newElement("ResourcePriority");
-        prio.appendChild(m_priority.getXML());
+        Element prio = root.createElement("ResourcePriority");
+        prio.appendChild(m_priority.getXML(root));
         m_xml.appendChild(prio);
 
 		if (m_lowerBound != null) {
-			Element lbound = CompilerState.newElement("ResourceLowerBound");
-			lbound.appendChild(m_lowerBound.getXML());
+			Element lbound = root.createElement("ResourceLowerBound");
+			lbound.appendChild(m_lowerBound.getXML(root));
 			m_xml.appendChild(lbound);
 		}
 		if (m_upperBound != null) {
-			Element ubound = CompilerState.newElement("ResourceUpperBound");
-			ubound.appendChild(m_upperBound.getXML());
+			Element ubound = root.createElement("ResourceUpperBound");
+			ubound.appendChild(m_upperBound.getXML(root));
 			m_xml.appendChild(ubound);
 		}
 		if (m_releaseAtTermination != null) {
-			Element rat = CompilerState.newElement("ResourceReleaseAtTermination");
-			rat.appendChild(m_releaseAtTermination.getXML());
+			Element rat = root.createElement("ResourceReleaseAtTermination");
+			rat.appendChild(m_releaseAtTermination.getXML(root));
 			m_xml.appendChild(rat);
 		}
 	}

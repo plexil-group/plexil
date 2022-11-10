@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,8 @@ package plexil;
 
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
+
+import org.w3c.dom.Document;
 
 public class VariableNode extends ExpressionNode
 {
@@ -72,10 +74,10 @@ public class VariableNode extends ExpressionNode
     }
 
     @Override
-    protected void constructXML()
+    protected void constructXML(Document root)
     {
-        super.constructXMLBase();
-        m_xml.appendChild(CompilerState.newTextNode(this.getText()));
+        super.constructXMLBase(root);
+        m_xml.appendChild(root.createTextNode(this.getText()));
     }
 
     @Override

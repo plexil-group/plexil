@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,12 +25,19 @@
 
 package plexil;
 
+import plexil.xml.DOMUtils;
+
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import plexil.xml.DOMUtils;
+// ActionNode is a wrapper around an executable PLEXIL statement.
+// It mainly serves as a place to hang a NodeId.
+
+// Structure is:
+// (ACTION NCName? baseAction)
 
 public class ActionNode extends PlexilTreeNode
 {
@@ -51,6 +58,7 @@ public class ActionNode extends PlexilTreeNode
 		m_nodeId = n.m_nodeId;
 	}
 
+    @Override
     public boolean hasNodeId()
     {
         return this.getChild(0).getType() == PlexilLexer.NCNAME;
@@ -61,24 +69,18 @@ public class ActionNode extends PlexilTreeNode
         return m_nodeId; 
     }
 
+    @Override
 	public Tree dupNode()
 	{
 		return new ActionNode(this);
 	}
 
-    public PlexilTreeNode getBaseAction()
-    {
-        return this.getChild(this.getChildCount() - 1);
-    }
-
-    //
-    // Format is
-    // (ACTION NCName? baseAction)
-
+    @Override
     protected void earlyCheckSelf(NodeContext context, CompilerState state)
     {
-        // If supplied, get the node ID
+        // Look at the first child
         PlexilTreeNode firstChild = this.getChild(0);
+        // If supplied, get the node ID
         if (hasNodeId()) {
             m_nodeId = firstChild.getText();
             // Check that node ID is locally unique
@@ -100,6 +102,25 @@ public class ActionNode extends PlexilTreeNode
         }
     }
 
+    @Override
+    protected void constructXML(Document root)
+    {
+        // Get XML body from last child
+        PlexilTreeNode child = this.getChild(this.getChildCount() - 1);
+        m_xml = child.getXML(root);
+
+        this.addSourceLocatorAttributes();
+
+        // Insert Node ID element if was explicitly supplied
+        // or child didn't already have one
+        if (hasNodeId()
+            || DOMUtils.getFirstElementNamed(m_xml, "NodeId") == null) {
+            Element nodeIdElt = root.createElement("NodeId");
+            nodeIdElt.appendChild(root.createTextNode(m_nodeId));
+            m_xml.insertBefore(nodeIdElt, m_xml.getFirstChild());
+        }
+    }
+
     /**
      * @brief Add new source locator attributes to m_xml, or replace the existing ones.
      * @note Use the first child's location as ours.
@@ -112,24 +133,6 @@ public class ActionNode extends PlexilTreeNode
         Token t = getChild(0).getToken();
         m_xml.setAttribute("LineNo", String.valueOf(t.getLine()));
         m_xml.setAttribute("ColNo", String.valueOf(t.getCharPositionInLine()));
-    }
-
-    @Override
-    protected void constructXML()
-    {
-        // Get XML body from last child
-        PlexilTreeNode child = this.getChild(this.getChildCount() - 1);
-        m_xml = child.getXML();
-        addSourceLocatorAttributes();
-
-        // Insert Node ID element if was explicitly supplied
-        // or child didn't already have one
-        if (hasNodeId()
-            || DOMUtils.getFirstElementNamed(m_xml, "NodeId") == null) {
-            Element nodeIdElt = CompilerState.newElement("NodeId");
-            nodeIdElt.appendChild(CompilerState.newTextNode(m_nodeId));
-            m_xml.insertBefore(nodeIdElt, m_xml.getFirstChild());
-        }
     }
 
 }

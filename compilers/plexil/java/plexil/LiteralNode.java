@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,7 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 // 
@@ -41,8 +42,6 @@ public class LiteralNode extends ExpressionNode
     public LiteralNode(Token t) 
     {
         super(t);
-        // Move this to earlyCheckSelf()?
-        setInitialDataTypeFromTokenType();
     }
 
 	public LiteralNode(LiteralNode n)
@@ -55,7 +54,8 @@ public class LiteralNode extends ExpressionNode
 		return new LiteralNode(this);
 	}
 
-    protected void setInitialDataTypeFromTokenType()
+    @Override
+    protected void earlyCheckSelf(NodeContext context, CompilerState state)
     {
         switch (this.getType()) {
 
@@ -126,10 +126,10 @@ public class LiteralNode extends ExpressionNode
 
         default:
             // debug aid
-            CompilerState.getCompilerState().addDiagnostic(this,
-                                                           "Internal error: LiteralNode cannot determine data type for \""
-                                                           + this.getText() + "\"",
-                                                           Severity.FATAL);
+            state.addDiagnostic(this,
+                                "Internal error: LiteralNode cannot determine data type for \""
+                                + this.getText() + "\"",
+                                Severity.FATAL);
             m_dataType = PlexilDataType.ERROR_TYPE;
             break;
         }
@@ -234,26 +234,26 @@ public class LiteralNode extends ExpressionNode
 
     // Specialized types (e.g. String, Date) have their own methods, so ignore them here.
     @Override
-    protected void constructXML()
+    protected void constructXML(Document root)
     {
-        super.constructXMLBase();
+        super.constructXMLBase(root);
 
         String txt = this.getText();
         String childTxt = (this.getChildCount() >= 1) ? this.getChild(0).getText() : null;
         switch (this.getType()) {
         case PlexilLexer.NEG_INT:
-            m_xml.appendChild(CompilerState.newTextNode("-" + Integer.toString(parseIntegerValue(childTxt))));
+            m_xml.appendChild(root.createTextNode("-" + Integer.toString(parseIntegerValue(childTxt))));
             break;
 
         case PlexilLexer.NEG_DOUBLE:
-            m_xml.appendChild(CompilerState.newTextNode("-" + childTxt));
+            m_xml.appendChild(root.createTextNode("-" + childTxt));
             break;
 
         default:
             if (this.getType() == PlexilLexer.INT)
-                m_xml.appendChild(CompilerState.newTextNode(Integer.toString(parseIntegerValue(txt))));
+                m_xml.appendChild(root.createTextNode(Integer.toString(parseIntegerValue(txt))));
             else
-                m_xml.appendChild(CompilerState.newTextNode(txt));
+                m_xml.appendChild(root.createTextNode(txt));
             break;
         }
     }

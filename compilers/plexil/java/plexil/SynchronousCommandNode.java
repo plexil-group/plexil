@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,20 +28,31 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import plexil.xml.DOMUtils;
 
-public class SynchronousCommandNode extends PlexilTreeNode
+public class SynchronousCommandNode extends NodeTreeNode
 {
+    private ExpressionNode m_timeout = null;
+    private ExpressionNode m_tolerance = null;
+    private boolean m_checked = false;
+    
     public SynchronousCommandNode(Token t)
     {
         super(t);
+        m_timeout = null;
+        m_tolerance = null;
+        m_checked = false;
     }
 
     public SynchronousCommandNode(SynchronousCommandNode n)
     {
         super(n);
+        m_timeout = n.m_timeout;
+        m_tolerance = n.m_tolerance;
+        m_checked = n.m_checked;
     }
 
     public Tree dupNode()
@@ -51,104 +62,147 @@ public class SynchronousCommandNode extends PlexilTreeNode
 
     //
     // Format is
-    // (SYNCHRONOUS_COMMAND_KYWD (assignment | commandInvocation) (expression expression?)? )
+    // (SYNCHRONOUS_COMMAND_KYWD (assignment | commandInvocation)
+    //   ( CHECKED_KYWD | (timeout-expression tolerance-expression?) )*
+    // The grammar allows Checked and Timeout options in either order,
+    // but only one of each.
+    //
 
-    //  N.B. Refactor the following with WaitNode.java!
+    // Timeout and tolerance expressions can be cached here
     @Override
-    public void check (NodeContext context, CompilerState state)
+    protected void earlyCheckChildren(NodeContext parentContext, CompilerState state)
     {
-        if (this.getChildCount() > 1) {
-            ExpressionNode timeout = (ExpressionNode) this.getChild(1);
-            timeout.check (context, state);
-
-            if (timeout.assumeType(PlexilDataType.DURATION_TYPE, state)) {
-                checkForDuration (context, state);
+        super.earlyCheckChildren(parentContext, state); // NodeTreeNode method
+        int childCount = this.getChildCount();
+        if (childCount > 1) {
+            // Process options
+            // Tolerance expression must directly follow timeout expression.
+            int i = 1;
+            boolean expectingTolerance = false;
+            while (i < childCount) {
+                PlexilTreeNode child = this.getChild(i);
+                if (child.getType() == PlexilParser.CHECKED_KYWD) {
+                    m_checked = true;
+                    // Ensure that if timeout w/o tolerance has been seen,
+                    // any additional expressions are treated as errors
+                    if (m_timeout != null)
+                        expectingTolerance = false;
+                }
+                // From here down, grammar ensures child is an expression
+                else if (m_timeout == null) {
+                    m_timeout = (ExpressionNode) child;
+                    expectingTolerance = true;
+                }
+                else if (expectingTolerance) {
+                    m_tolerance = (ExpressionNode) child;
+                    expectingTolerance = false;
+                }
+                else {
+                    state.addDiagnostic(child,
+                                        "Internal error: unexpected expression in SynchronousCommand AST",
+                                        Severity.FATAL);
+                    return;
+                }
+                i++;
             }
-            else if (timeout.assumeType (PlexilDataType.REAL_TYPE, state) ||
-                     timeout.assumeType (PlexilDataType.INTEGER_TYPE, state)) {
-                checkForReal (context, state);
-            }
-            else state.addDiagnostic(timeout,
-                                     "The timeout argument to SynchronousCommand, \""
-                                     + timeout.getText()
-                                     + "\", is not a duration or number",
-                                     Severity.ERROR);
-            this.checkChildren(context, state); // Necessary? (copied from old code)
         }
     }
-
-    private void checkForDuration (NodeContext context, CompilerState state)
-    {
-        if (this.getChildCount() > 2) {
-            ExpressionNode toleranceExp = (ExpressionNode) this.getChild(2);
-            if (toleranceExp instanceof LiteralNode
-                && toleranceExp.assumeType(PlexilDataType.DURATION_TYPE, state)) {
-                // it's good
-            }
-            else if (toleranceExp instanceof VariableNode
-                     // simple variable reference:
-                     && toleranceExp.getType() == PlexilLexer.NCNAME 
-                     && toleranceExp.getDataType() == PlexilDataType.DURATION_TYPE) {
-                // that's good too
-            }
-            else {
-                state.addDiagnostic(toleranceExp,
-                                    "The tolerance argument to SynchronousCommand, \""
-                                    + toleranceExp.getText()
-                                    + "\", is not a Duration value or variable.",
-                                    Severity.ERROR);
-            }
-            // check the delay expression for other faults
-            toleranceExp.check(context, state);
-        }
-    }
-
-
-    private void checkForReal (NodeContext context, CompilerState state)
-    {
-        if (this.getChildCount() > 2) {
-            ExpressionNode toleranceExp = (ExpressionNode) this.getChild(2);
-            if (toleranceExp instanceof LiteralNode
-                && toleranceExp.assumeType(PlexilDataType.REAL_TYPE, state)) {
-                // it's good
-            }
-            else if (toleranceExp instanceof VariableNode
-                     // simple variable reference:
-                     && toleranceExp.getType() == PlexilLexer.NCNAME 
-                     && toleranceExp.getDataType() == PlexilDataType.REAL_TYPE) {
-                // that's good too
-            }
-            else {
-                state.addDiagnostic(toleranceExp,
-                                    "The tolerance argument to SynchronousCommand, \""
-                                    + toleranceExp.getText()
-                                    + "\", is not a Real value or variable.",
-                                    Severity.ERROR);
-            }
-            // check the delay expression for other faults
-            toleranceExp.check(context, state);
-        }
-    }
+    
+    // TODO:
+    //  Refactor common timeout functionality with WaitNode.java ?
 
     @Override
-    protected void constructXML()
+    protected void checkChildren(NodeContext parentContext, CompilerState state)
     {
-        super.constructXMLBase();
+        super.checkChildren(parentContext, state); // NodeTreeNode method
+
+        // Options were partitioned in earlyCheckChildren()
+        if (m_timeout != null) {
+            if (m_timeout.assumeType(PlexilDataType.DURATION_TYPE, state)) {
+                if (m_tolerance != null)
+                    checkToleranceForDuration(state);
+            }
+            else if (m_timeout.assumeType(PlexilDataType.REAL_TYPE, state) ||
+                     m_timeout.assumeType(PlexilDataType.INTEGER_TYPE, state)) {
+                if (m_tolerance != null)
+                    checkToleranceForReal(state);
+            }
+            else {
+                state.addDiagnostic(m_timeout,
+                                    "The timeout argument to SynchronousCommand, \""
+                                    + m_timeout.getText()
+                                    + "\", is not a Duration or number",
+                                    Severity.ERROR);
+            }
+        }
+    }
+
+    private void checkToleranceForDuration(CompilerState state)
+    {
+        if (m_tolerance instanceof LiteralNode
+            && m_tolerance.assumeType(PlexilDataType.DURATION_TYPE, state)) {
+            // it's good
+        }
+        else if (m_tolerance instanceof VariableNode
+                 // simple variable reference:
+                 && m_tolerance.getType() == PlexilLexer.NCNAME 
+                 && m_tolerance.getDataType() == PlexilDataType.DURATION_TYPE) {
+            // that's good too
+        }
+        else {
+            state.addDiagnostic(m_tolerance,
+                                "The tolerance argument to SynchronousCommand, \""
+                                + m_tolerance.getText()
+                                + "\", is not a Duration value or variable.",
+                                Severity.ERROR);
+        }
+    }
+
+    private void checkToleranceForReal(CompilerState state)
+    {
+        if (m_tolerance instanceof LiteralNode
+            && m_tolerance.assumeType(PlexilDataType.REAL_TYPE, state)) {
+            // it's good
+        }
+        else if (m_tolerance instanceof VariableNode
+                 // simple variable reference:
+                 && m_tolerance.getType() == PlexilLexer.NCNAME 
+                 && m_tolerance.getDataType() == PlexilDataType.REAL_TYPE) {
+            // that's good too
+        }
+        else {
+            state.addDiagnostic(m_tolerance,
+                                "The tolerance argument to SynchronousCommand, \""
+                                + m_tolerance.getText()
+                                + "\", is not a Real value or variable.",
+                                Severity.ERROR);
+        }
+    }
+
+    @Override
+    protected void constructXML(Document root)
+    {
+        super.constructXMLBase(root);
+
+        // Generate XML for checked option if supplied
+        if (m_checked) {
+            m_xml.appendChild(root.createElement("Checked"));
+        }
 
         // Generate XML for timeout if supplied
-        if (this.getChildCount() > 1) {
-            Element timeoutXML = CompilerState.newElement("Timeout");
+        if (m_timeout != null) {
+            Element timeoutXML = root.createElement("Timeout");
             m_xml.appendChild(timeoutXML);
-            timeoutXML.appendChild(this.getChild(1).getXML());
-            if (this.getChildCount() > 2) {
-                Element tolXML = CompilerState.newElement("Tolerance");
-                m_xml.appendChild(tolXML);
-                tolXML.appendChild(this.getChild(2).getXML());
+            timeoutXML.appendChild(m_timeout.getXML(root));
+            if (m_tolerance != null) {
+                Element tolXML = root.createElement("Tolerance");
+                timeoutXML.appendChild(tolXML);
+                tolXML.appendChild(m_tolerance.getXML(root));
             }
         }
-		
+        
         // Construct command XML by extracting from command node XML
-        Element commandNodeXML = this.getChild(0).getXML();
+        Element commandNodeXML = this.getChild(0).getXML(root);
         // command is inside NodeBody element
         Element commandXML =
             (Element) DOMUtils.getFirstElementNamed(commandNodeXML, "NodeBody").getFirstChild();
@@ -156,4 +210,3 @@ public class SynchronousCommandNode extends PlexilTreeNode
     }
 
 }
-

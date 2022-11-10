@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,7 @@ package plexil;
 import plexil.PlexilName;
 import plexil.PlexilDataType;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class VariableName extends PlexilName
@@ -142,34 +143,34 @@ public class VariableName extends PlexilName
     // For code generation purposes
     // Subclasses may override this method
 
-    public Element makeGlobalDeclarationElement(String elementType)
+    public Element makeGlobalDeclarationElement(Document root, String elementType)
     {
-        Element result = CompilerState.newElement(elementType);
+        Element result = root.createElement(elementType);
         if (m_name != null) {
-            Element nameXML = CompilerState.newElement("Name");
-            nameXML.appendChild(CompilerState.newTextNode(getName()));
+            Element nameXML = root.createElement("Name");
+            nameXML.appendChild(root.createTextNode(getName()));
             result.appendChild(nameXML);
         }
-        Element typeXML = CompilerState.newElement("Type");
+        Element typeXML = root.createElement("Type");
         result.appendChild(typeXML);
         if (m_variableType.isArray()) {
-            typeXML.appendChild(CompilerState.newTextNode(m_variableType.arrayElementType().typeName()));
-            Element sizeXML = CompilerState.newElement("MaxSize");
-            sizeXML.appendChild(CompilerState.newTextNode(Integer.toString(m_maxSize)));
+            typeXML.appendChild(root.createTextNode(m_variableType.arrayElementType().typeName()));
+            Element sizeXML = root.createElement("MaxSize");
+            sizeXML.appendChild(root.createTextNode(Integer.toString(m_maxSize)));
             result.appendChild(sizeXML);
         }
         else {
-            typeXML.appendChild(CompilerState.newTextNode(getVariableTypeName()));
+            typeXML.appendChild(root.createTextNode(getVariableTypeName()));
         }
         return result;
     }
 
 
     // For code generation purposes
-    public Element makeDeclarationXML()
+    public Element makeDeclarationXML(Document root)
     {
         Element result = 
-            CompilerState.newElement(isArray() ? "DeclareArray" : "DeclareVariable");
+            root.createElement(isArray() ? "DeclareArray" : "DeclareVariable");
 
         // add source locators
         if (m_declaration != null) {
@@ -177,37 +178,37 @@ public class VariableName extends PlexilName
             result.setAttribute("ColNo", String.valueOf(m_declaration.getCharPositionInLine()));
         }
 
-        Element xname = CompilerState.newElement("Name");
-        xname.appendChild(CompilerState.newTextNode(getName()));
+        Element xname = root.createElement("Name");
+        xname.appendChild(root.createTextNode(getName()));
         result.appendChild(xname);
 
         String typeName =
             isArray() ? getArrayElementTypeName()
             : getVariableTypeName(); 
-        Element xtype = CompilerState.newElement("Type");
-        xtype.appendChild(CompilerState.newTextNode(typeName));
+        Element xtype = root.createElement("Type");
+        xtype.appendChild(root.createTextNode(typeName));
         result.appendChild(xtype);
 
         if (isArray()) {
-            Element xsize = CompilerState.newElement("MaxSize");
-            xsize.appendChild(CompilerState.newTextNode(Integer.toString(m_maxSize)));
+            Element xsize = root.createElement("MaxSize");
+            xsize.appendChild(root.createTextNode(Integer.toString(m_maxSize)));
             result.appendChild(xsize);
         }
 
         if (m_initialValue != null) {
-            Element init = CompilerState.newElement("InitialValue");
+            Element init = root.createElement("InitialValue");
             result.appendChild(init);
             if (m_initialValue.getDataType().isArray()) {
                 // handle array initial value
-                Element val = CompilerState.newElement("ArrayValue");
+                Element val = root.createElement("ArrayValue");
                 val.setAttribute("Type", getArrayElementTypeName());
                 for (int i = 0; i < m_initialValue.getChildCount(); i++) {
-                    val.appendChild(m_initialValue.getChild(i).getXML());
+                    val.appendChild(m_initialValue.getChild(i).getXML(root));
                 }
                 init.appendChild(val);
             }
             else {
-                init.appendChild(m_initialValue.getXML());
+                init.appendChild(m_initialValue.getXML(root));
             }
         }
 

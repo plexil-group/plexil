@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -31,12 +31,11 @@ import java.util.TreeSet;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class DoNode extends PlexilTreeNode
+public class DoNode extends NodeTreeNode
 {
-    private NodeContext m_bodyContext = null;
-
     public DoNode(Token t)
     {
         super(t);
@@ -45,61 +44,19 @@ public class DoNode extends PlexilTreeNode
     public DoNode(DoNode n)
     {
         super(n);
-		m_bodyContext = n.m_bodyContext;
     }
 
+    @Override
 	public Tree dupNode()
 	{
 		return new DoNode(this);
 	}
 
-    //
-    // N.B. The extra complexity in the checking logic is to ensure the body
-    // is contained in a separate name binding context from the do loop
-    // as a whole.
-    //
-
-    /**
-     * @brief Prepare for the semantic check.
-     */
-    public void earlyCheck(NodeContext parentContext, CompilerState state)
+    @Override
+    protected void checkChildren(NodeContext parentContext, CompilerState state)
     {
-        earlyCheckSelf(parentContext, state);
-        this.getChild(0).earlyCheck(m_bodyContext, state); // body
-        this.getChild(1).earlyCheck(parentContext, state); // do-test expression
-    }
-
-    protected void earlyCheckSelf(NodeContext parentContext, CompilerState state)
-    {
-        // See if we have a node ID
-        String nodeId = null;
-        PlexilTreeNode parent = this.getParent();
-        if (parent != null && parent instanceof ActionNode) {
-            nodeId = ((ActionNode) parent).getNodeId();
-        }
-        else {
-            // should never happen
-            state.addDiagnostic(this,
-                                "Internal error: DoNode instance has no parent ActionNode",
-                                Severity.FATAL);
-        }
-        // Construct body binding context
-        m_bodyContext = new NodeContext(parentContext, nodeId + "_DO_BODY");
-    }
-
-    /**
-     * @brief Semantic check.
-     * @note Uses separate context for body.
-     */
-    public void check(NodeContext parentContext, CompilerState state)
-    {
-        checkSelf(parentContext, state);
-        this.getChild(0).check(m_bodyContext, state); // body
-        this.getChild(1).check(parentContext, state); // do test
-    }
-
-    protected void checkSelf(NodeContext context, CompilerState state)
-    {
+        super.checkChildren(parentContext, state); // NodeTreeNode method
+        
         ExpressionNode doTest = (ExpressionNode) this.getChild(1);
         if (!doTest.assumeType(PlexilDataType.BOOLEAN_TYPE, state)) {
             state.addDiagnostic(doTest,
@@ -109,17 +66,17 @@ public class DoNode extends PlexilTreeNode
     }
 
     @Override
-    protected void constructXML()
+    protected void constructXML(Document root)
     {
-        super.constructXMLBase();
+        super.constructXMLBase(root);
 
-        Element action = CompilerState.newElement("Action");
+        Element action = root.createElement("Action");
         m_xml.appendChild(action);
-        action.appendChild(this.getChild(0).getXML());
+        action.appendChild(this.getChild(0).getXML(root));
 
-        Element condition = CompilerState.newElement("Condition");
+        Element condition = root.createElement("Condition");
         m_xml.appendChild(condition);
-        condition.appendChild(this.getChild(1).getXML());
+        condition.appendChild(this.getChild(1).getXML(root));
         condition.setAttribute("LineNo", String.valueOf(this.getChild(1).getLine()));
         condition.setAttribute("ColNo", String.valueOf(this.getChild(1).getCharPositionInLine()));
     }

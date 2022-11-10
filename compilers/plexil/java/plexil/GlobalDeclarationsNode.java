@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,13 +28,11 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import org.w3c.dom.Element;
-
 public class GlobalDeclarationsNode extends PlexilTreeNode
 {
-    public GlobalDeclarationsNode(int ttype)
+    public GlobalDeclarationsNode(Token t)
     {
-        super(new CommonToken(ttype, "GLOBAL_DECLARATIONS"));
+        super(t);
     }
 
 	public GlobalDeclarationsNode(GlobalDeclarationsNode n)
@@ -49,20 +47,17 @@ public class GlobalDeclarationsNode extends PlexilTreeNode
 	}
 
     @Override
-    protected void constructXML()
+    protected void addSourceLocatorAttributes()
     {
-        super.constructXML();
-        // Generate mutex declarations separately
-        for (MutexName mn : GlobalContext.getGlobalContext().getMutexes())
-            m_xml.appendChild(mn.makeDeclarationXML());
-
         // set source locator to location of 1st child (?)
-        PlexilTreeNode firstChild = this.getChild(0);
-        if (firstChild != null) {
-            m_xml.setAttribute("LineNo",
-                               String.valueOf(firstChild.getToken().getLine()));
-            m_xml.setAttribute("ColNo",
-                               String.valueOf(firstChild.getToken().getCharPositionInLine()));
+        if (m_xml != null) {
+            PlexilTreeNode firstChild = this.getChild(0);
+            if (firstChild != null) {
+                m_xml.setAttribute("LineNo",
+                                   String.valueOf(firstChild.getToken().getLine()));
+                m_xml.setAttribute("ColNo",
+                                   String.valueOf(firstChild.getToken().getCharPositionInLine()));
+            }
         }
     }
    

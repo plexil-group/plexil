@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,6 +27,8 @@ package plexil;
 
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
+
+import org.w3c.dom.Document;
 
 public class NodeRefNode extends PlexilTreeNode
 {
@@ -125,16 +127,16 @@ public class NodeRefNode extends PlexilTreeNode
 		}
 	}
 
-	protected void constructXML()
+	protected void constructXML(Document root)
 	{
-		m_xml = CompilerState.newElement("NodeRef");
+		m_xml = root.createElement("NodeRef");
 		m_xml.setAttribute("dir", directionString());
 
 		// Set content if required
 		switch (this.getToken().getType()) {
 		case PlexilLexer.CHILD_KYWD:
 		case PlexilLexer.SIBLING_KYWD:
-			m_xml.appendChild(CompilerState.newTextNode(this.getChild(0).getText()));
+			m_xml.appendChild(root.createTextNode(this.getChild(0).getText()));
 			break;
 
 		default:

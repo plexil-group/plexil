@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,8 @@
 
 package plexil;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -36,12 +37,11 @@ import java.util.TreeMap;
 
 public class NodeContext
 {
-
     protected NodeContext m_parentContext;
-    protected Vector<VariableName> m_variables = new Vector<VariableName>();
-    protected Vector<MutexName> m_mutexes = new Vector<MutexName>();
-    protected Vector<MutexName> m_usingMutexes = new Vector<MutexName>();
-    protected Vector<NodeContext> m_children = new Vector<NodeContext>();
+    protected List<VariableName> m_variables = new ArrayList<VariableName>();
+    protected List<MutexName> m_mutexes = new ArrayList<MutexName>();
+    protected List<MutexName> m_usingMutexes = new ArrayList<MutexName>();
+    protected List<NodeContext> m_children = new ArrayList<NodeContext>();
     protected Map<String, PlexilTreeNode> m_childIds =
         new TreeMap<String, PlexilTreeNode>();
     protected String m_nodeName = null;
@@ -101,16 +101,14 @@ public class NodeContext
     {
         if (name == null)
             return false;
-        if (m_childIds.containsKey(name))
-            return true;
-        return false;
+        return m_childIds.containsKey(name);
     }
 
     public boolean isLocalNodeId(String name)
     {
         if (name == null)
             return false;
-        if (m_nodeName.equals(name))
+        if (name.equals(m_nodeName))
             return true;
         return m_childIds.containsKey(name);
     }
@@ -270,14 +268,25 @@ public class NodeContext
         return var;
     }
 
-    // Caller is responsible for creating the 3 vectors
-    public void getNodeVariables(Vector<VariableName> localVarsResult,
-                                 Vector<InterfaceVariableName> inVarsResult,
-                                 Vector<InterfaceVariableName> inOutVarsResult)
+    public List<VariableName> getLocalVariables()
     {
-        localVarsResult.removeAllElements();
-        inVarsResult.removeAllElements();
-        inOutVarsResult.removeAllElements();
+        List<VariableName> result = new ArrayList<VariableName>();
+        for (VariableName var : m_variables) {
+            if (var.isLocal())
+                result.add(var);
+        }
+        return result;
+    }
+
+    // Utility used in XML generation
+    // Caller is responsible for creating the 3 lists
+    public void getNodeVariables(List<VariableName> localVarsResult,
+                                 List<InterfaceVariableName> inVarsResult,
+                                 List<InterfaceVariableName> inOutVarsResult)
+    {
+        localVarsResult.clear();
+        inVarsResult.clear();
+        inOutVarsResult.clear();
         for (VariableName var : m_variables) {
             if (var.isLocal())
                 localVarsResult.add(var);
@@ -309,13 +318,14 @@ public class NodeContext
     // Array variables
     //
 
-    public VariableName declareArrayVariable(PlexilTreeNode declaration,
+    public VariableName declareArrayVariable(CompilerState state,
+                                             PlexilTreeNode declaration,
                                              PlexilTreeNode nameNode, 
                                              PlexilDataType arrayType,
                                              String maxSize,
                                              ExpressionNode initialValueExpr)
     {
-        if (checkVariableName(nameNode)) {
+        if (checkVariableName(state, nameNode)) {
             VariableName result = 
                 new VariableName(declaration, nameNode.getText(), arrayType,
                                  maxSize, initialValueExpr);
@@ -328,20 +338,20 @@ public class NodeContext
 
     // Returns true if name is not in direct conflict with other names in this context.
     // Adds diagnostics to myState if required
-    public boolean checkVariableName(PlexilTreeNode nameNode)
+    public boolean checkVariableName(CompilerState state, PlexilTreeNode nameNode)
     {
         boolean success = true;
         String name = nameNode.getText();
         VariableName existing = findLocalVariable(name);
         if (existing != null) {
             // error - duplicate variable name in node
-            CompilerState.getCompilerState().addDiagnostic
+            state.addDiagnostic
                 (nameNode,
                  "Variable name \"" + name + "\" is already declared in this context",
                  Severity.ERROR);
-            CompilerState.getCompilerState().addDiagnostic
-                (existing.getDeclaration(),
-                 "Variable \"" + name + "\" previously declared here", Severity.NOTE);
+            state.addDiagnostic(existing.getDeclaration(),
+                                "Variable \"" + name + "\" previously declared here",
+                                Severity.NOTE);
             success = false;
         }
         if (m_parentContext != null) {
@@ -349,10 +359,9 @@ public class NodeContext
                 m_parentContext.findInheritedVariable(name);
             if (shadowedVar != null)
                 // warn of conflict
-                CompilerState.getCompilerState().addDiagnostic
-                    (nameNode,
-                     "Local variable \"" + name + "\" shadows an inherited variable",
-                     Severity.WARNING);
+                state.addDiagnostic(nameNode,
+                                    "Local variable \"" + name + "\" shadows an inherited variable",
+                                    Severity.WARNING);
         }
         return success;
     }
@@ -432,7 +441,7 @@ public class NodeContext
             return null;
         if (m_parentContext.isGlobalContext())
             return null;
-        return m_parentContext.contextUsing(m); 
+        return m_parentContext.contextUsing(m);
     }
 
     public void addUsingMutex(MutexName m)
@@ -443,7 +452,7 @@ public class NodeContext
     public Vector<MutexName> getMutexRefs()
     {
         return m_usingMutexes;
-    }    
+    }
 
     //
     // Simple queries w/o side effects
