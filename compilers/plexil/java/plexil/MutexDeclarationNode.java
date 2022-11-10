@@ -108,8 +108,8 @@ public class MutexDeclarationNode extends PlexilTreeNode
         }
     }
 
-    // XML generation is delegated to MutexName.
-    // See MutexName.makeDeclarationXML().
+    // XML generation is delegated to MutexName.makeDeclarationXML(),
+    // called from GlobalDeclarationNode.constructXML() and BlockNode.constructXML().
     @Override
     public Element getXML(Document root)
     {
