@@ -28,6 +28,9 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 //* @class NodeTreeNode
 //* NodeTreeNode is an implementation class representing any parse subtree
 //* which could represent a PLEXIL Node.  It is a superclass of several
@@ -39,6 +42,10 @@ public class NodeTreeNode
     implements PlexilNode
 {
     protected NodeContext m_context = null;
+    protected String m_nodeId = null;
+
+    // Gensym counter
+    private static int s_generatedIdCount = 0;
 
     protected NodeTreeNode(Token t)
     {
@@ -61,11 +68,29 @@ public class NodeTreeNode
         return m_context;
     }
 
+    @Override
     public boolean hasNodeId()
     {
+        // Return true if we've already cached it
+        if (m_nodeId != null)
+            return true;
+
+        // Check ancestry
         PlexilTreeNode parent = this.getParent();
-        return parent != null && parent instanceof ActionNode
-            && parent.hasNodeId();
+        if (parent == null)
+            return false; // shouldn't happen
+
+        // If directly wrapped in an action, check the action.
+        if (parent.getType() == PlexilLexer.ACTION)
+            return parent.hasNodeId();
+
+        // If directly wrapped by a block, and we're its only body child,
+        // check the block.
+        if (parent instanceof BlockNode
+            && ((BlockNode) parent).isSimpleNode())
+            return parent.hasNodeId();
+
+        return false;
     }
 
     @Override
@@ -74,29 +99,53 @@ public class NodeTreeNode
         PlexilTreeNode parent = this.getParent();
         if (parent == null)
             return false; // no parent - shouldn't happen
-        if (!(parent instanceof ActionNode))
-            return false; // shouldn't happen
-        if (parent.hasNodeId())
-            return false;
-        PlexilTreeNode grandparent = parent.getParent();
-        if (grandparent == null)
-            return false; // either no grandparent or not a BlockNode
-        if (grandparent instanceof BlockNode)
-            return ((BlockNode) grandparent).isSimpleNode();
+
+        // Should be the only case where a Node inherits its parent's context.
+        if (parent instanceof BlockNode
+            && ((BlockNode) parent).isSimpleNode())
+            return true;
+
         return false;
+    }
+
+    // Ensure that there is always a valid NodeId.
+    protected void initializeNodeId()
+    {
+        // Check ancestry
+        PlexilTreeNode parent = this.getParent();
+        if (parent != null &&
+            parent.getType() == PlexilLexer.ACTION
+            && ((ActionNode) parent).hasNodeId()) {
+            m_nodeId = parent.getChild(0).getText();
+            return;
+        }
+
+        // If directly wrapped by a block, and we're its only body child,
+        // check the block.
+        if (parent instanceof BlockNode) {
+            BlockNode oldBlock = (BlockNode) parent;
+            if (oldBlock.isSimpleNode() // i.e. we're an only child
+                && oldBlock.hasNodeId()) {
+                m_nodeId = oldBlock.m_nodeId;
+                return;
+            }
+        }
+
+        // Else gensym one
+        String prefix = this.getToken().getText();
+        if (prefix.equals("{"))
+            prefix = "BLOCK";
+        m_nodeId = prefix + "__" + s_generatedIdCount++;
     }
 
     public void initializeContext(NodeContext parentContext)
     {
+        initializeNodeId();
         if (this.inheritsParentContext()) {
             m_context = parentContext;
         }
         else {
-            String nodeId = null;
-            if (this.hasNodeId()) {
-                nodeId = ((ActionNode) this.getParent()).getNodeId();
-            }
-            m_context = new NodeContext(parentContext, nodeId);
+            m_context = new NodeContext(parentContext, m_nodeId);
         }
     }
 
@@ -118,6 +167,21 @@ public class NodeTreeNode
     {
         for (PlexilTreeNode child : this.getChildren())
             child.check(m_context, state);
+    }
+
+    protected Element createNodeIdElement(Document root)
+    {
+        Element result = root.createElement("NodeId");
+        result.appendChild(root.createTextNode(m_nodeId));
+        return result;
+    }
+
+    // Add the NodeId to the base XML element.
+    @Override
+    protected void constructXMLBase(Document root)
+    {
+        super.constructXMLBase(root); // PlexilTreeNode method
+        m_xml.appendChild(createNodeIdElement(root));
     }
 
 }
