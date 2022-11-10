@@ -419,7 +419,7 @@ public class NodeContext
         return null;
     }
 
-    public Vector<MutexName> getMutexes()
+    public List<MutexName> getMutexes()
     {
         return m_mutexes;
     }
@@ -449,7 +449,7 @@ public class NodeContext
         m_usingMutexes.add(m);
     }
 
-    public Vector<MutexName> getMutexRefs()
+    public List<MutexName> getMutexRefs()
     {
         return m_usingMutexes;
     }

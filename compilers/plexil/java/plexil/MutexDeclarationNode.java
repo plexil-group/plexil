@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,7 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class MutexDeclarationNode extends PlexilTreeNode
@@ -46,6 +47,7 @@ public class MutexDeclarationNode extends PlexilTreeNode
     // Structure is ^(MUTEX_KWYD NCNAME*)
     //
 
+    @Override
     public void earlyCheck(NodeContext context, CompilerState state)
     {
         if (context.isGlobalContext()) {
@@ -109,7 +111,7 @@ public class MutexDeclarationNode extends PlexilTreeNode
     // XML generation is delegated to MutexName.
     // See MutexName.makeDeclarationXML().
     @Override
-    public Element getXML()
+    public Element getXML(Document root)
     {
         return null;
     }
