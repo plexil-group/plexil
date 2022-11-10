@@ -77,6 +77,7 @@ public class TemporalLiteralNode extends LiteralNode
         // Do syntax checking on children as required
         switch (this.getType()) {
 
+        case PlexilLexer.DATE_LITERAL:
         case PlexilLexer.DATE_KYWD:
             if (this.getChild(0).getType() == PlexilLexer.STRING) {
                 String val = ((StringLiteralNode) this.getChild(0)).getStringValue();
@@ -109,6 +110,7 @@ public class TemporalLiteralNode extends LiteralNode
             }
             break;
 
+        case PlexilLexer.DURATION_LITERAL:
         case PlexilLexer.DURATION_KYWD:
             if (this.getChild(0).getType() == PlexilLexer.STRING) {
                 String val = ((StringLiteralNode) this.getChild(0)).getStringValue();
@@ -143,10 +145,12 @@ public class TemporalLiteralNode extends LiteralNode
     {
         switch (this.getType()) {
 
+        case PlexilLexer.DATE_LITERAL:
         case PlexilLexer.DATE_KYWD:
             m_dataType = PlexilDataType.DATE_TYPE;
             break;
 
+        case PlexilLexer.DURATION_LITERAL:
         case PlexilLexer.DURATION_KYWD:
             m_dataType = PlexilDataType.DURATION_TYPE;
             break;
