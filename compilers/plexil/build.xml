@@ -201,7 +201,6 @@
   </target>
   
   <target name="plexil-compile"
-          unless="plexil-classes.up-to-date"
           depends="plexil-tree-grammar">
     <mkdir dir="${dir.classes}/plexil"/>
     <!-- debuglevel options are lines,vars,source -->
