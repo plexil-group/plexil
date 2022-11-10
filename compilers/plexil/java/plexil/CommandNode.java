@@ -86,7 +86,7 @@ public class CommandNode
         // If directly wrapped in block, and we're its only body child,
         // check the block.
         if (parent instanceof BlockNode
-            && ((BlockNode) parent).isSimpleNode())
+            && ((BlockNode) parent).isCollapsible())
             return parent.hasNodeId();
 
         // If directly wrapped in an assignment, ask the assignment.

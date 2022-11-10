@@ -261,7 +261,7 @@ public class BlockNode
     {
         Node bodyStart = null; // where to insert declarations etc.
 
-        if (isSimpleNode()) {
+        if (isCollapsible()) {
             // Get base XML from child
             PlexilTreeNode firstChild = m_body.get(0);
             m_xml = firstChild.getXML(root);
@@ -389,45 +389,21 @@ public class BlockNode
         }
     }
 
-    public boolean isSimpleNode()
+    public boolean isCollapsible()
     {
+        if (m_body.size() != 1)
+            return false;
+
         // Don't collapse these block types because outcome semantics change
         if (this.getType() == PlexilLexer.UNCHECKED_SEQUENCE_KYWD
             || this.getType() == PlexilLexer.CONCURRENCE_KYWD)
             return false;
 
-        if (m_body.size() != 1)
-            return false;
-
-        PlexilTreeNode firstChild = m_body.get(0);
-        if (firstChild.getType() == PlexilLexer.ACTION) {
-            if (this.hasNodeId() && firstChild.hasNodeId())
-                return false; // both parent & child have node IDs
-            firstChild = firstChild.getChild(firstChild.getChildCount() - 1);
-        }
-
-        switch (firstChild.getType()) {
-            // Primitives
-        case PlexilLexer.ASSIGNMENT:
-        case PlexilLexer.COMMAND:
-        case PlexilLexer.UPDATE_KYWD:
-        case PlexilLexer.LIBRARY_CALL_KYWD:
-            return true;
-
-            // Compound
-        case PlexilLexer.DO_KYWD:
-        case PlexilLexer.FOR_KYWD:
-        case PlexilLexer.IF_KYWD:
-        case PlexilLexer.ON_COMMAND_KYWD:
-        case PlexilLexer.ON_MESSAGE_KYWD:
-        case PlexilLexer.SYNCHRONOUS_COMMAND_KYWD:
-        case PlexilLexer.TRY_KYWD:
-        case PlexilLexer.WHILE_KYWD:
-            return true;
-
-        default:
-            return false;
-        }
+        if (this.hasNodeId()
+            && m_body.get(0).getType() == PlexilLexer.ACTION
+            && m_body.get(0).hasNodeId())
+            return false; // both parent & child have node IDs
+        return true;
     }
 
     private boolean isCommandNode()

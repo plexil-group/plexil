@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -87,7 +87,7 @@ public class NodeTreeNode
         // If directly wrapped by a block, and we're its only body child,
         // check the block.
         if (parent instanceof BlockNode
-            && ((BlockNode) parent).isSimpleNode())
+            && ((BlockNode) parent).isCollapsible())
             return parent.hasNodeId();
 
         return false;
@@ -102,7 +102,7 @@ public class NodeTreeNode
 
         // Should be the only case where a Node inherits its parent's context.
         if (parent instanceof BlockNode
-            && ((BlockNode) parent).isSimpleNode())
+            && ((BlockNode) parent).isCollapsible())
             return true;
 
         return false;
@@ -124,7 +124,7 @@ public class NodeTreeNode
         // check the block.
         if (parent instanceof BlockNode) {
             BlockNode oldBlock = (BlockNode) parent;
-            if (oldBlock.isSimpleNode() // i.e. we're an only child
+            if (oldBlock.isCollapsible() // i.e. we're an only child
                 && oldBlock.hasNodeId()) {
                 m_nodeId = oldBlock.m_nodeId;
                 return;
