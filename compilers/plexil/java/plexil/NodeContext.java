@@ -76,6 +76,11 @@ public class NodeContext
         return m_nodeName;
     }
 
+    public void setNodeName(String s)
+    {
+        m_nodeName = s;
+    }
+
     // get the root of this context tree
     protected NodeContext getRootContext()
         throws Exception
@@ -209,15 +214,6 @@ public class NodeContext
         if (isSiblingNodeId(name) && c != null && c != this)
             return false;
         return true;
-    }
-
-    // Creates a locally unique node name based on the child's type
-    public String generateChildNodeName(String prefix)
-    {
-        // Kludge
-        if (prefix.equals("{"))
-            prefix = "BLOCK";
-        return prefix +  "__" + s_generatedIdCount++;
     }
 
     // This is for the library node case, for scalars

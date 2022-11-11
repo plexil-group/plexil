@@ -129,13 +129,11 @@ public class ArrayLiteralNode extends LiteralNode
      */
     protected boolean assumeType(PlexilDataType t, CompilerState state)
     {
-        // If target type is Void, Error, or underspec'd array, fail.
-        if (t == PlexilDataType.VOID_TYPE
-            || t == PlexilDataType.ERROR_TYPE
-            || t == PlexilDataType.UNKNOWN_ARRAY_TYPE) {
+        // If target type is invalid, fail.
+        if (!PlexilDataType.isValid(t)) {
             state.addDiagnostic(null,
-                                "Internal error: ArrayLiteralNode.assumeType called with illegal first argument of "
-                                + t.typeName(),
+                                "Internal error: ArrayLiteralNode.assumeType() called with invalid type "
+                                + t,
                                 Severity.FATAL);
             return false;
         }

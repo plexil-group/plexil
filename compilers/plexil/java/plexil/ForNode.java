@@ -37,9 +37,9 @@ import org.w3c.dom.Element;
 // Structure is:
 // (FOR_KYWD (VARIABLE_DECLARATION ...) <endtest> <loopvarupdate> (ACTION ...))
 
-public class ForNode extends NodeTreeNode implements PlexilNode
+public class ForNode extends NodeTreeNode
 {
-    // We establish a subcontext for the loop,
+    // We establish a subcontext for the loop variable,
     // otherwise the loop variable winds up declared once as a normal variable,
     // again as the loop variable.
     private NodeContext m_loopContext = null;
@@ -61,28 +61,13 @@ public class ForNode extends NodeTreeNode implements PlexilNode
 		return new ForNode(this);
 	}
 
-    //
-    // PlexilNode API
-    //
-    
-    @Override
-    public NodeContext getLocalContext()
-    {
-        return m_loopContext;
-    }
-
-    @Override
-    public boolean inheritsParentContext()
-    {
-        return false;
-    }
-
     // Always creates a new NodeContext.
     private void initializeLoopBodyContext(NodeContext parentContext)
     {
         m_loopContext = new NodeContext(parentContext, m_nodeId + "__FOR_BODY");
     }
 
+    // Wraps NodeTreeNode method.
     @Override
     protected void earlyCheckSelf(NodeContext parentContext, CompilerState state)
     {
@@ -90,6 +75,7 @@ public class ForNode extends NodeTreeNode implements PlexilNode
         initializeLoopBodyContext(parentContext);
     }
 
+    // Overrides NodeTreeNode method.
     @Override
     protected void earlyCheckChildren(NodeContext parentContext, CompilerState state)
     {
@@ -97,7 +83,7 @@ public class ForNode extends NodeTreeNode implements PlexilNode
             child.earlyCheck(m_loopContext, state);
     }
 
-
+    // Overrides NodeTreeNode method.
     @Override
     protected void checkChildren(NodeContext parentContext, CompilerState state)
     {

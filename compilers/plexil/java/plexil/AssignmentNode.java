@@ -50,6 +50,39 @@ public class AssignmentNode extends NodeTreeNode
 		return new AssignmentNode(this);
 	}
 
+    // Overrides NodeTreeNode method.
+    protected void initializeNodeId()
+    {
+        // Check ancestry
+        PlexilTreeNode parent = this.getParent();
+        if (parent != null) {
+            // If directly wrapped in an Action node, get its ID.
+            if (parent instanceof ActionNode
+                && ((ActionNode) parent).hasNodeId()) {
+                m_nodeId = ((ActionNode) parent).getNodeId();
+                return;
+            }
+
+            // If directly wrapped by a block, and we're its only body child,
+            // check the block.
+            if (parent instanceof BlockNode
+                && ((BlockNode) parent).hasNodeId()
+                && ((BlockNode) parent).isCollapsible()) { // i.e. we're an only child
+                m_nodeId = ((BlockNode) parent).getNodeId();
+                return;
+            }
+
+            // If this is actually a command node with a result variable, leave node ID empty.
+            if (this.getChild(1) instanceof CommandNode) {
+                m_nodeId = null;
+                return;
+            }
+        }
+
+        // Create one
+        this.createNodeId(this.getToken().getText());
+    }
+
     @Override
     protected void earlyCheckSelf(NodeContext parentContext, CompilerState state)
     {
@@ -58,7 +91,7 @@ public class AssignmentNode extends NodeTreeNode
         Token t = this.getToken();
         PlexilTreeNode rhs = this.getChild(1);
         if (rhs instanceof CommandNode) {
-            // Change this to a command tree node
+            // Change the advertised type of this tree node to command
             t.setType(PlexilLexer.COMMAND);
             t.setLine(rhs.getLine());
             t.setCharPositionInLine(rhs.getCharPositionInLine());
@@ -81,81 +114,117 @@ public class AssignmentNode extends NodeTreeNode
         lhs.checkAssignable(m_context, state);
     }
 
+    // Assumption is that LHS is strongly typed.  RHS may not be.
     @Override
     protected void checkSelf(NodeContext parentContext, CompilerState state)
     {
+        boolean invalidTypes = false;
+
         // N.B. LHS can be an array reference
         ExpressionNode lhs = (ExpressionNode) this.getChild(0);
-        ExpressionNode rhs = (ExpressionNode) this.getChild(1);
+
+        // N.B. RHS can be a CommandNode
+        Expression rhs = (Expression) this.getChild(1);
+
+        PlexilDataType rhsType = rhs.getDataType();
+        if (rhsType == PlexilDataType.VOID_TYPE) {
+            state.addDiagnostic(this.getChild(1),
+                                "Expression on right-hand side of assignment has no return value",
+                                Severity.ERROR);
+            invalidTypes = true;
+        }
+        else if (!PlexilDataType.isValid(rhsType)) {
+            state.addDiagnostic(this.getChild(1),
+                                "Internal error: right-hand side of assignment has invalid type"
+                                + rhsType.toString(),
+                                Severity.FATAL);
+            invalidTypes = true;
+        }
 
         PlexilDataType lhsType = lhs.getDataType();
-        if (lhsType != null) {
-            // LHS passed check
-            rhs.assumeType(lhsType, state); // for effect
+        if (!PlexilDataType.isValid(lhsType)) {
+            state.addDiagnostic(lhs,
+                                "Internal error: left-hand side of assignment has invalid type"
+                                + lhsType.toString(),
+                                Severity.FATAL);
+            invalidTypes = true;
         }
 
-        PlexilDataType rhsType = rhs.getDataType(); // is VOID_TYPE if RHS failed check or is command w/ no return value
-        if (rhsType == PlexilDataType.VOID_TYPE) {
-            state.addDiagnostic(rhs,
-                                "Expression or command has no return value",
-                                Severity.ERROR);
-        }
-        else if (lhsType != null) {
-            if (lhsType == rhsType ||
-                (lhsType == PlexilDataType.REAL_TYPE && rhsType.isNumeric())) {
-                // All OK so far
-                if (lhsType.isArray()) {
-                    // Check array dimensions if possible
-                    // *** TODO generalize LHS to array expr ***
-                    // LHS must be array var
-                    // RHS can only be command, lookup, or variable (at present)
-                    VariableName lhsVar = ((VariableNode) lhs).getVariableName();
-                    VariableName rhsVar = null;
-                    if (rhs instanceof VariableNode)
-                        rhsVar = ((VariableNode) rhs).getVariableName();
-                    else if (rhs instanceof LookupNode) {
-                        // Get return variable if known
-                        GlobalDeclaration stateDecl = ((LookupNode) rhs).getState();
-                        if (stateDecl != null)
-                            rhsVar = stateDecl.getReturnVariable();
-                    }
-                    else if (rhs instanceof CommandNode) {
-                        // Get return variable if known
-                        GlobalDeclaration cmdDecl = ((CommandNode) rhs).getCommand();
-                        if (cmdDecl != null)
-                            rhsVar = cmdDecl.getReturnVariable();
-                    }
-                    if (lhsVar != null && rhsVar != null) {
-                        if (lhsVar.getMaxSize() < rhsVar.getMaxSize()) {
-                            state.addDiagnostic(rhs,
-                                                "Can't assign an array of max size "
-                                                + Integer.toString(rhsVar.getMaxSize())
-                                                + " to an array variable of max size "
-                                                + Integer.toString(lhsVar.getMaxSize()),
-                                                Severity.ERROR);
-                        }
+        if (invalidTypes)
+            return;
+
+        if (lhsType == rhsType) {
+            // All OK so far
+            if (lhsType.isArray()) {
+                // Check array dimensions if possible
+                // *** TODO generalize LHS to array expr ***
+                // LHS must be array var
+                // RHS can only be command, lookup, or variable (at present)
+                VariableName lhsVar = ((VariableNode) lhs).getVariableName();
+                VariableName rhsVar = null;
+                if (rhs instanceof VariableNode)
+                    rhsVar = ((VariableNode) rhs).getVariableName();
+                else if (rhs instanceof LookupNode) {
+                    // Get return variable if known
+                    GlobalDeclaration stateDecl = ((LookupNode) rhs).getState();
+                    if (stateDecl != null)
+                        rhsVar = stateDecl.getReturnVariable();
+                }
+                else if (rhs instanceof CommandNode) {
+                    // Get return variable if known
+                    GlobalDeclaration cmdDecl = ((CommandNode) rhs).getCommand();
+                    if (cmdDecl != null)
+                        rhsVar = cmdDecl.getReturnVariable();
+                }
+                if (lhsVar != null && rhsVar != null) {
+                    if (lhsVar.getMaxSize() < rhsVar.getMaxSize()) {
+                        state.addDiagnostic(this.getChild(1),
+                                            "Can't assign an array of max size "
+                                            + Integer.toString(rhsVar.getMaxSize())
+                                            + " to an array variable of max size "
+                                            + Integer.toString(lhsVar.getMaxSize()),
+                                            Severity.ERROR);
                     }
                 }
             }
-            else {
-                state.addDiagnostic(rhs,
-                                    "Cannot assign expression of type " + rhsType.typeName()
-                                    + " to \"" + lhs.getText() 
-                                    + "\" of type " + lhsType.typeName(),
-                                    Severity.ERROR);
-            }
         }
+        else if (rhsType == PlexilDataType.ANY_TYPE) {
+            state.addDiagnostic(this.getChild(1),
+                                "Any-type expression coerced to " + lhsType.toString(),
+                                Severity.WARNING);
+        }
+        // Type mismatch
+        else if (lhsType != PlexilDataType.REAL_TYPE || !rhsType.isNumeric()) {
+            state.addDiagnostic(this.getChild(1),
+                                "Cannot assign expression of type " + rhsType.typeName()
+                                + " to \"" + lhs.getText() 
+                                + "\" of type " + lhsType.typeName(),
+                                Severity.ERROR);
+        }
+    }
+
+    static private String rhsElementName(PlexilDataType t)
+    {
+        if (t.isNumeric() || t.isTemporal())
+            return "NumericRHS";
+        if (t.isArray())
+            return "ArrayRHS";
+        if (t == PlexilDataType.STRING_TYPE)
+            return "StringRHS";
+        if (t == PlexilDataType.BOOLEAN_TYPE)
+            return "BooleanRHS";
+        else 
+            return "ERROR_RHS";
     }
 
     @Override
     protected void constructXML(Document root)
     {
         PlexilTreeNode lhs = this.getChild(0);
-        ExpressionNode rhs = (ExpressionNode) this.getChild(1);
-        if (rhs.getType() == PlexilLexer.COMMAND) {
+        if (this.getChild(1) instanceof CommandNode) {
             // This is really a Command node, 
-            // so find Name element and insert LHS in front of it
-            m_xml = rhs.getXML(root);
+            // so get its XML, find Name element, and insert LHS in front of it.
+            m_xml = this.getChild(1).getXML(root);
             Element body = DOMUtils.getFirstElementNamed(m_xml, "NodeBody");
             Element command = (Element) body.getFirstChild();
             Element tmp = DOMUtils.getFirstElementNamed(command, "Name");
@@ -176,7 +245,8 @@ public class AssignmentNode extends NodeTreeNode
 
             assign.appendChild(lhs.getXML(root));
 
-            Element rhsXML = root.createElement(rhs.assignmentRHSElementName());
+            ExpressionNode rhs = (ExpressionNode) this.getChild(1);
+            Element rhsXML = root.createElement(rhsElementName(rhs.getDataType()));
             rhsXML.appendChild(rhs.getXML(root));
             assign.appendChild(rhsXML);
 

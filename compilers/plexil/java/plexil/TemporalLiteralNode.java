@@ -173,23 +173,29 @@ public class TemporalLiteralNode extends LiteralNode
     @Override
     protected boolean assumeType(PlexilDataType t, CompilerState state)
     {
+        // If our type is null, void, or error, fail.
+        if (!PlexilDataType.isValid(m_dataType))
+            return false;
+
         // If target type is Void, Error, or underspec'd array, fail.
-        if (t == PlexilDataType.VOID_TYPE
-            || t == PlexilDataType.ERROR_TYPE
-            || t == PlexilDataType.UNKNOWN_ARRAY_TYPE) {
+        if (!PlexilDataType.isValid(t)) {
             state.addDiagnostic(null,
-                                "Internal error: TemporalLiteralNode.assumeType called with illegal first argument of "
-                                + t.typeName(),
+                                "Internal error: TemporalLiteralNode.assumeType called with invalid type "
+                                + t,
                                 Severity.FATAL);
             return false;
         }
+
+        // If we are already the right type, succeed.
+        if (m_dataType == t)
+            return true;
 
         // If target type is Any, succeed.
         if (t == PlexilDataType.ANY_TYPE)
             return true;
 
-        // If we are already the right type, succeed.
-        if (m_dataType == t)
+        // If target type is Real, succeed.
+        if (t == PlexilDataType.REAL_TYPE)
             return true;
 
         // else fail

@@ -141,10 +141,12 @@ public class LiteralNode extends ExpressionNode
      */
     protected boolean assumeType(PlexilDataType t, CompilerState state)
     {
+        // If our type is null, void, or error, fail.
+        if (!PlexilDataType.isValid(m_dataType))
+            return false;
+
         // If target type is Void, Error, or underspec'd array, fail.
-        if (t == PlexilDataType.VOID_TYPE
-            || t == PlexilDataType.ERROR_TYPE
-            || t == PlexilDataType.UNKNOWN_ARRAY_TYPE) {
+        if (!PlexilDataType.isValid(t)) {
             state.addDiagnostic(null,
                                 "Internal error: LiteralNode.assumeType called with illegal first argument of "
                                 + t.typeName(),
@@ -159,21 +161,23 @@ public class LiteralNode extends ExpressionNode
         // If we are already the right type, succeed.
         if (m_dataType == t)
             return true;
-        else if (m_dataType == PlexilDataType.INTEGER_TYPE
-                 && t == PlexilDataType.REAL_TYPE) {
+
+        // REAL can receive any numeric type (so far)
+        if (m_dataType.isNumeric()
+            && t == PlexilDataType.REAL_TYPE) {
             // Promote to real
             m_dataType = t;
             return true;
         }
-        else if (t == PlexilDataType.BOOLEAN_TYPE
-                 && m_dataType == PlexilDataType.INTEGER_TYPE) {
+
+        if (t == PlexilDataType.BOOLEAN_TYPE
+            && m_dataType == PlexilDataType.INTEGER_TYPE) {
             int value = parseIntegerValue(this.getToken().getText());
             if (value == 0 || value == 1) {
                 // OK to coerce it to boolean
                 m_dataType = t;
                 return true;
             }
-            // else fall through to failure
         }
 
         // fall-through return

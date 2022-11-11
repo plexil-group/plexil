@@ -34,12 +34,12 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class CommandNode
-    extends ExpressionNode
-    implements PlexilNode
+    extends NodeTreeNode
+    implements Expression
 {
     private GlobalDeclaration m_commandDeclaration = null;
-    private NodeContext m_context = null;
     private ArgumentListNode m_parameters = null;
+    private PlexilDataType m_dataType = PlexilDataType.VOID_TYPE;
 
     public CommandNode(Token t)
     {
@@ -51,7 +51,6 @@ public class CommandNode
         super(n);
 		m_commandDeclaration = n.m_commandDeclaration;
 		m_parameters = n.m_parameters;
-        m_context = n.m_context;
     }
 
     @Override
@@ -60,17 +59,14 @@ public class CommandNode
 		return new CommandNode(this);
 	}
 
-    //
-    // PlexilNode API
-    //
-
+    // Expression API
     @Override
-    public NodeContext getLocalContext()
+    public PlexilDataType getDataType()
     {
-        return m_context;
+        return m_dataType;
     }
 
-    // See NodeTreeNode.hasNodeId()
+    // Overrides NodeTreeNode method
     @Override
     public boolean hasNodeId()
     {
@@ -80,47 +76,70 @@ public class CommandNode
             return false; // shouldn't happen
 
         // If directly wrapped in an action, check the action.
-        if (parent.getType() == PlexilLexer.ACTION)
-            return parent.hasNodeId();
-
-        // If directly wrapped in block, and we're its only body child,
-        // check the block.
-        if (parent instanceof BlockNode
-            && ((BlockNode) parent).isCollapsible())
-            return parent.hasNodeId();
+        if (parent instanceof ActionNode)
+            return ((ActionNode) parent).hasNodeId();
 
         // If directly wrapped in an assignment, ask the assignment.
-        if (parent.getType() == PlexilLexer.ASSIGNMENT)
-            return parent.hasNodeId();
+        if (parent instanceof AssignmentNode)
+            return ((AssignmentNode) parent).hasNodeId();
+
+        // If directly wrapped in block, and we're its only body child,
+        // ask the block.
+        if (parent instanceof BlockNode
+            && ((BlockNode) parent).isCollapsible())
+            return ((BlockNode) parent).hasNodeId();
 
         return false;
     }
 
+    // Ensure that there is always a valid NodeId.
+    // Overrides NodeTreeNode method.
+    protected void initializeNodeId()
+    {
+        // Check ancestry
+        PlexilTreeNode parent = this.getParent();
+        if (parent != null) {
+            // If directly wrapped in an Action node, get its ID.
+            if (parent instanceof ActionNode
+                && ((ActionNode) parent).hasNodeId()) {
+                m_nodeId = ((ActionNode) parent).getNodeId();
+                return;
+            }
+
+            // If wrapped in an Assignment node, check it.
+            if (parent instanceof AssignmentNode
+                && ((AssignmentNode) parent).hasNodeId()) {
+                m_nodeId = ((AssignmentNode) parent).getNodeId();
+                return;
+            }
+
+            // If directly wrapped by a block, and we're its only body child,
+            // check the block.
+            if (parent instanceof BlockNode
+                && ((BlockNode) parent).hasNodeId()
+                && ((BlockNode) parent).isCollapsible()) { // i.e. we're an only child
+                m_nodeId = ((BlockNode) parent).getNodeId();
+                return;
+            }
+        }
+
+        // Create one
+        this.createNodeId(this.getToken().getText());
+    }
+
+    // Overrides NodeTreeNode method.
     @Override
     public boolean inheritsParentContext()
     {
         PlexilTreeNode parent = this.getParent();
         if (parent == null)
             return false; // no parent - shouldn't happen
-        if (parent instanceof BlockNode)
-            return true;
-        if (parent.getType() == PlexilLexer.ASSIGNMENT)
+        if (parent instanceof AssignmentNode)
             return true;  // command w/ assignment, get its context
+        if (parent instanceof BlockNode
+            && ((BlockNode) parent).isCollapsible())
+            return true; // only child of a block, inherit its context
         return false;
-    }
-
-    public void initializeContext(NodeContext parentContext)
-    {
-        if (inheritsParentContext()) {
-            m_context = parentContext;
-        }
-        else {
-            String nodeId = null;
-            PlexilTreeNode parent = this.getParent();
-            if (parent != null && parent instanceof ActionNode && parent.hasNodeId())
-                nodeId = ((ActionNode) this.getParent()).getNodeId();
-            m_context = new NodeContext(parentContext, nodeId);
-        }
     }
 
     // N.B. Only valid after earlyCheckSelf()
@@ -166,7 +185,7 @@ public class CommandNode
                 // We know this command
                 // Set return type 
                 PlexilDataType retnType = m_commandDeclaration.getReturnType();
-                if (retnType != null)
+                if (PlexilDataType.isValid(retnType))
                     m_dataType = retnType;
 
                 // We have a valid command declaration
@@ -251,20 +270,6 @@ public class CommandNode
                 m_parameters.checkArgumentList(m_context, state, "command", cmdName, parmSpecs);
         }
     }        
-
-    /**
-     * @brief Persuade the expression to assume the specified data type
-     * @return true if the expression can consistently assume the specified type, false otherwise.
-     */
-    protected boolean assumeType(PlexilDataType t, CompilerState myState)
-    {
-        // If we have a known type already, the usual rules apply
-        if (m_commandDeclaration != null)
-            return super.assumeType(t, myState);
-        // If not, take on whatever type the user expects
-        m_dataType = t;
-        return true;
-    }
 
     @Override
     protected void constructXML(Document root)

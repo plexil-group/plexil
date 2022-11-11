@@ -39,10 +39,10 @@ import org.w3c.dom.Element;
 
 public class NodeTreeNode
     extends PlexilTreeNode
-    implements PlexilNode
 {
     protected NodeContext m_context = null;
     protected String m_nodeId = null;
+    protected boolean m_nodeIdGenerated = false;
 
     // Gensym counter
     private static int s_generatedIdCount = 0;
@@ -58,52 +58,27 @@ public class NodeTreeNode
         m_context = n.m_context;
     }
 
-    //
-    // PlexilNode API
-    //
-
-    @Override
-    public NodeContext getLocalContext()
+    public String getNodeId()
     {
-        return m_context;
+        return m_nodeId;
     }
 
-    @Override
     public boolean hasNodeId()
     {
-        // Return true if we've already cached it
-        if (m_nodeId != null)
-            return true;
-
         // Check ancestry
         PlexilTreeNode parent = this.getParent();
         if (parent == null)
             return false; // shouldn't happen
 
         // If directly wrapped in an action, check the action.
-        if (parent.getType() == PlexilLexer.ACTION)
-            return parent.hasNodeId();
+        if (parent instanceof ActionNode)
+            return ((ActionNode) parent).hasNodeId();
 
         // If directly wrapped by a block, and we're its only body child,
         // check the block.
         if (parent instanceof BlockNode
             && ((BlockNode) parent).isCollapsible())
-            return parent.hasNodeId();
-
-        return false;
-    }
-
-    @Override
-    public boolean inheritsParentContext()
-    {
-        PlexilTreeNode parent = this.getParent();
-        if (parent == null)
-            return false; // no parent - shouldn't happen
-
-        // Should be the only case where a Node inherits its parent's context.
-        if (parent instanceof BlockNode
-            && ((BlockNode) parent).isCollapsible())
-            return true;
+            return ((BlockNode) parent).hasNodeId();
 
         return false;
     }
@@ -113,29 +88,42 @@ public class NodeTreeNode
     {
         // Check ancestry
         PlexilTreeNode parent = this.getParent();
-        if (parent != null &&
-            parent.getType() == PlexilLexer.ACTION
-            && ((ActionNode) parent).hasNodeId()) {
-            m_nodeId = parent.getChild(0).getText();
-            return;
-        }
+        if (parent != null) {
+            // If directly wrapped in an Action node, get its ID.
+            if (parent instanceof ActionNode
+                && ((ActionNode) parent).hasNodeId()) {
+                m_nodeId = ((ActionNode) parent).getNodeId();
+                return;
+            }
 
-        // If directly wrapped by a block, and we're its only body child,
-        // check the block.
-        if (parent instanceof BlockNode) {
-            BlockNode oldBlock = (BlockNode) parent;
-            if (oldBlock.isCollapsible() // i.e. we're an only child
-                && oldBlock.hasNodeId()) {
-                m_nodeId = oldBlock.m_nodeId;
+            // If directly wrapped by a block, and we're its only body child,
+            // check the block.
+            if (parent instanceof BlockNode
+                && ((BlockNode) parent).hasNodeId()
+                && ((BlockNode) parent).isCollapsible()) { // i.e. we're an only child
+                m_nodeId = ((BlockNode) parent).getNodeId();
                 return;
             }
         }
 
-        // Else gensym one
-        String prefix = this.getToken().getText();
-        if (prefix.equals("{"))
-            prefix = "BLOCK";
+        createNodeId(this.getToken().getText());
+    }
+
+    protected void createNodeId(String prefix)
+    {
         m_nodeId = prefix + "__" + s_generatedIdCount++;
+        m_nodeIdGenerated = true;
+    }
+
+    public boolean inheritsParentContext()
+    {
+        PlexilTreeNode parent = this.getParent();
+        if (parent == null)
+            return false; // no parent - shouldn't happen
+        if (parent instanceof BlockNode
+            && ((BlockNode) parent).isCollapsible())
+            return true;
+        return false;
     }
 
     public void initializeContext(NodeContext parentContext)
@@ -143,6 +131,10 @@ public class NodeTreeNode
         initializeNodeId();
         if (this.inheritsParentContext()) {
             m_context = parentContext;
+            // Deal with case of anonymous BlockNode around a single body child
+            if (m_context.getNodeName() == null
+                && m_nodeId != null)
+                m_context.setNodeName(m_nodeId);
         }
         else {
             m_context = new NodeContext(parentContext, m_nodeId);
@@ -173,6 +165,9 @@ public class NodeTreeNode
     {
         Element result = root.createElement("NodeId");
         result.appendChild(root.createTextNode(m_nodeId));
+        if (m_nodeIdGenerated) {
+            result.setAttribute("generated", "1");
+        }
         return result;
     }
 
@@ -181,7 +176,8 @@ public class NodeTreeNode
     protected void constructXMLBase(Document root)
     {
         super.constructXMLBase(root); // PlexilTreeNode method
-        m_xml.appendChild(createNodeIdElement(root));
+        if (m_nodeId != null)
+            m_xml.appendChild(createNodeIdElement(root));
     }
 
 }

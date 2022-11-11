@@ -56,17 +56,18 @@ class WaitNode extends NodeTreeNode
         super.checkChildren(parentContext, state); // NodeTreeNode method
 
         ExpressionNode delayExp = (ExpressionNode) this.getChild(0);
-        if (delayExp.assumeType(PlexilDataType.DURATION_TYPE, state)) {
+        PlexilDataType delayType = delayExp.getDataType();
+        if (delayType == PlexilDataType.DURATION_TYPE) {
             checkForDuration(state);
         }
-        else if (delayExp.assumeType (PlexilDataType.REAL_TYPE, state) ||
-                 delayExp.assumeType (PlexilDataType.INTEGER_TYPE, state)) {
+        else if (delayType == PlexilDataType.REAL_TYPE
+                 || delayType == PlexilDataType.INTEGER_TYPE) {
             checkForReal(state);
         }
         else state.addDiagnostic(delayExp,
                                  "The delay argument to the Wait builtin, \""
                                  + delayExp.getText()
-                                 + "\", is not a duration or number",
+                                 + "\", is not a Duration or number",
                                  Severity.ERROR);
     }
     
@@ -74,21 +75,17 @@ class WaitNode extends NodeTreeNode
     {
         if (this.getChildCount() > 1) {
             ExpressionNode toleranceExp = (ExpressionNode) this.getChild(1);
-            if (toleranceExp instanceof LiteralNode
-                && toleranceExp.assumeType(PlexilDataType.DURATION_TYPE, state)) {
+            PlexilDataType toleranceType = toleranceExp.getDataType();
+            if (toleranceType == PlexilDataType.DURATION_TYPE
+                || toleranceType == PlexilDataType.REAL_TYPE
+                || toleranceType == PlexilDataType.INTEGER_TYPE) {
                 // it's good
-            }
-            else if (toleranceExp instanceof VariableNode
-                     // simple variable reference:
-                     && toleranceExp.getType() == PlexilLexer.NCNAME 
-                     && toleranceExp.getDataType() == PlexilDataType.DURATION_TYPE) {
-                // that's good too
             }
             else {
                 state.addDiagnostic(toleranceExp,
                                     "The tolerance argument to the Wait builtin, \""
                                     + toleranceExp.getText()
-                                    + "\", is not a Duration value or variable.",
+                                    + "\", is not compatible with a Duration delay argument.",
                                     Severity.ERROR);
             }
         }
@@ -98,21 +95,16 @@ class WaitNode extends NodeTreeNode
     {
         if (this.getChildCount() > 1) {
             ExpressionNode toleranceExp = (ExpressionNode) this.getChild(1);
-            if (toleranceExp instanceof LiteralNode
-                && toleranceExp.assumeType(PlexilDataType.REAL_TYPE, state)) {
+            PlexilDataType toleranceType = toleranceExp.getDataType();
+            if (toleranceType == PlexilDataType.REAL_TYPE
+                || toleranceType == PlexilDataType.INTEGER_TYPE) {
                 // it's good
-            }
-            else if (toleranceExp instanceof VariableNode
-                     // simple variable reference:
-                     && toleranceExp.getType() == PlexilLexer.NCNAME 
-                     && toleranceExp.getDataType() == PlexilDataType.REAL_TYPE) {
-                // that's good too
             }
             else {
                 state.addDiagnostic(toleranceExp,
                                     "The tolerance argument to the Wait builtin, \""
                                     + toleranceExp.getText()
-                                    + "\", is not a Real value or variable.",
+                                    + "\", is not numeric.",
                                     Severity.ERROR);
             }
         }

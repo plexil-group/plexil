@@ -95,8 +95,8 @@ public class OnCommandNode extends NodeTreeNode
     {
         super.constructXMLBase(root); // PlexilTreeNode method
 
-        // If the OnCommand is surrounded by a block, the block
-        // will output the parameter declarations for us
+        // If the OnCommand is sole child of a block, the block
+        // will output the parameter declarations for us.
         if (!this.inheritsParentContext()) {
             // Output the parameters, if any
             List<VariableName> vars = m_context.getLocalVariables();

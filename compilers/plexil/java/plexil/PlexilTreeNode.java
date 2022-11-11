@@ -101,29 +101,6 @@ public class PlexilTreeNode extends org.antlr.runtime.tree.CommonTree
     // Extensions
     //
 
-    public boolean hasNodeId()
-    {
-        return false;
-    }
-
-    //*
-    // Returns true if the tree node does not establish its own binding context.
-    // @note Default method.
-    public boolean inheritsParentContext()
-    {
-        return true;
-    }
-
-    /**
-     * @brief Get the containing name binding context established by this branch of the parse tree.
-     * @return A NodeContext instance, or nulln
-     * @note Used by the PlexilTreeTransforms post-processor.
-     */
-    public NodeContext getLocalContext()
-    {
-        return null;
-    }
-
     /**
      * @brief Establish bindings and do initial checks in top-down order.
      */

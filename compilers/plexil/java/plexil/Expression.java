@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,23 +25,8 @@
 
 package plexil;
 
-//* @interface PlexilNode
-//* PlexilNode is an interface representing any parse subtree
-//* which could represent a PLEXIL Node.  It describes common behavior
-//* required by all Node types.
-
-public interface PlexilNode
+// Essential API for anything on the right hand side of an assignment.
+public interface Expression
 {
-    // Return the NodeContext established by this Node subtree; null if not applicable.
-    NodeContext getLocalContext();
-
-    // Does the Node represented by this subtree have its own NodeId?
-    boolean hasNodeId();
-
-    // Does the Node represented by this subtree inherit the NodeContext
-    // passed by its enclosing subtree?
-    boolean inheritsParentContext();
-
-    // Initialize this instance's NodeContext.
-    void initializeContext(NodeContext parentContext);
+    public PlexilDataType getDataType();
 }

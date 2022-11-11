@@ -55,7 +55,6 @@ public class ActionNode extends PlexilTreeNode
 		super(n);
 	}
 
-    @Override
     public boolean hasNodeId()
     {
         return this.getChild(0).getType() == PlexilLexer.NCNAME;
