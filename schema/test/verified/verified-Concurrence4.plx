@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Node NodeType="NodeList" epx="Concurrence">
-    <NodeId generated="1">ep2cp_Concurrence_d13e3</NodeId>
+    <NodeId generated="1">ep2cp_Concurrence_d14e3</NodeId>
     <VariableDeclarations>
       <DeclareVariable>
         <Name>foo</Name>
@@ -17,7 +17,7 @@
           <NodeId>One</NodeId>
         </Node>
         <Node NodeType="NodeList" epx="Concurrence">
-          <NodeId generated="1">ep2cp_Concurrence_d13e25</NodeId>
+          <NodeId generated="1">ep2cp_Concurrence_d14e25</NodeId>
           <StartCondition>
             <EQNumeric>
               <IntegerVariable>foo</IntegerVariable>

@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Node NodeType="NodeList" epx="Sequence">
-    <NodeId generated="1">ep2cp_Sequence_d13e5</NodeId>
+    <NodeId generated="1">ep2cp_Sequence_d14e5</NodeId>
     <VariableDeclarations>
       <DeclareVariable>
         <Name>foo</Name>
