@@ -280,7 +280,7 @@ namespace PLEXIL
     //! \brief Notify the node that something has changed, to make it
     //!        eligible for condition checking.
     //! \param exec Pointer to the PlexilExec instance.
-    virtual void notifyChanged(PlexilExec *exec) override;
+    virtual void notify(PlexilExec *exec) override;
 
     //! \brief Calculate the next state of this node, were it to transition,
     //!        based on the values of its conditions.

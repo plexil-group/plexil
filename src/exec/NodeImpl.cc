@@ -568,10 +568,10 @@ namespace PLEXIL
 
   void NodeImpl::notifyChanged()
   {
-    notifyChanged(g_exec);
+    notify(g_exec);
   }
   
-  void NodeImpl::notifyChanged(PlexilExec *exec)
+  void NodeImpl::notify(PlexilExec *exec)
   {
     switch (m_queueStatus) {
     case QUEUE_NONE:              // add to check queue
@@ -1487,7 +1487,7 @@ namespace PLEXIL
       // with no parent, it cannot be reset, therefore cannot transition again.
       exec->markRootNodeFinished(this); // puts node on exec's finished queue
     else
-      notifyChanged(exec); // check for potential of additional transitions
+      notify(exec); // check for potential of additional transitions
   }
 
   //

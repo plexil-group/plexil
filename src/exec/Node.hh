@@ -159,7 +159,7 @@ namespace PLEXIL {
     //! \note This is an optimization for cases where the change is
     //!       the direct result of action by the PlexilExec.
     //! \see ExpressionListener::notifyChanged
-    virtual void notifyChanged(PlexilExec *exec) = 0; 
+    virtual void notify(PlexilExec *exec) = 0; 
 
     //! \brief Calculate the next state of this node, were it to transition,
     //!        based on the values of its conditions.

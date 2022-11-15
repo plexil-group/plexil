@@ -184,7 +184,7 @@ namespace PLEXIL
       m_plan.emplace_back(NodePtr(root));
       debugMsg("PlexilExec:addPlan",
                "Added plan: \n" << root->toString());
-      root->notifyChanged(this); // make sure root is considered first
+      root->notify(this); // make sure root is considered first
       root->activateNode();
       return true;
     }
@@ -680,7 +680,7 @@ namespace PLEXIL
       m_stateChangeQueue.pop();
       result->setQueueStatus(QUEUE_NONE);
       if (was == QUEUE_TRANSITION_CHECK)
-        result->notifyChanged(this);
+        result->notify(this);
       return result;
     }
       

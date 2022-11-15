@@ -411,14 +411,14 @@ namespace PLEXIL
     case WAITING_STATE:
       for (NodeImplPtr &child : m_children)
         if (child->getState() == FINISHED_STATE)
-          child->notifyChanged(exec);
+          child->notify(exec);
       break;
 
     case EXECUTING_STATE:
     case FINISHED_STATE:
       for (NodeImplPtr &child : m_children)
         if (child->getState() == INACTIVE_STATE)
-          child->notifyChanged(exec);
+          child->notify(exec);
       break;
 
     default:
