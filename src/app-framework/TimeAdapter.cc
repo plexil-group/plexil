@@ -55,42 +55,44 @@
 namespace PLEXIL
 {
 
-  //
-  // Forward references
-  //
-  static void timeout(void *arg);
-
-  struct TimeLookupHandler : public LookupHandler
+  //! \struct TimeLookupHandler
+  //! \brief A handler for the 'time' state.  Uses the Timebase
+  //! abstraction.
+  //! \see LookupHandler
+  //! \see Timebase
+  struct TimeLookupHandler final : public LookupHandler
   {
+
+    //! \brief Primary constructor.
+    //! \param Pointer to a Timebase instance.
     TimeLookupHandler(Timebase *timebase)
       : m_timebase(timebase)
     {
     }
     
+    //! \brief Virtual destructor.
     virtual ~TimeLookupHandler() = default;
 
-    //!
-    // @brief Query the external system for the specified state, and
+    //! \brief Query the external system for the specified state, and
     //        return the value through the callback object.
-    // @param state The State to look up.
-    // @param rcvr Pointer to the LookupReceiver callback object.
-    //
+    // \param state The State to look up.  Ignored by TimeLookupHandler.
+    // \param rcvr Pointer to the LookupReceiver callback object.
     virtual void lookupNow(const State & /* state */, LookupReceiver *rcvr) override
     {
       debugMsg("TimeLookupHandler:lookupNow", " called");
       rcvr->update(m_timebase->getTime());
     }
 
-    //!
-    // @brief setThresholds() is called when the PLEXIL Exec activates
-    //        a LookupOnChange for the named state, to notify the interface
-    //        that the Exec is only interested in new values at or outside
-    //        the given bounds.
-    //
-    // @param state The state on which the bounds are being established.
-    // @param hi The value at or above which updates should be sent to the Exec.
-    // @param lo The value at or below which updates should be sent to the Exec.
-    //
+    //! \brief setThresholds() is called when the PLEXIL Exec activates
+    //!        a LookupOnChange for the named state, to notify the interface
+    //!        that the Exec is only interested in new values at or outside
+    //!        the given bounds.
+    //! \param state The state on which the bounds are being established.
+    //! \param hi The value at or above which updates should be sent
+    //!           to the Exec.  TimeLookupHandler schedules a timer
+    //!           wakeup for this time.
+    //! \param lo The value at or below which updates should be sent
+    //!           to the Exec.  Ignored by TimeLookupHandler.
     virtual void setThresholds(const State & state, Real hi, Real lo) override
     {
       debugMsg("TimeLookupHandler:setThresholds",
@@ -107,9 +109,15 @@ namespace PLEXIL
     Timebase *m_timebase;
   };
 
-  class TimeAdapter : public InterfaceAdapter
+  //! \class TimeAdapter
+  //! \brief An InterfaceAdapter class specialized for time.
+  class TimeAdapter final : public InterfaceAdapter
   {
   public:
+
+    //! \brief Primary constructor.
+    //! \param intf Reference to the AdapterExecInterface.
+    //! \param conf Pointer to this instance's configuration data.
     TimeAdapter(AdapterExecInterface &intf, AdapterConf *conf)
       : InterfaceAdapter(intf, conf),
         m_timebase()
@@ -118,13 +126,11 @@ namespace PLEXIL
 
     virtual ~TimeAdapter() = default;
 
-    //!
-    // @brief Construct the appropriate handler objects as specified in the
-    //        configuration XML, and register them with the AdapterConfiguration
-    //        instance.
-    // @param config Pointer to the AdapterConfiguration interface registry.
-    // @return true if successful, false otherwise.
-    //
+    //! \brief Initialize the adapter, construct the handler objects
+    //! as specified in the adapter's AdapterConf instance, and
+    //! register them with the AdapterConfiguration.
+    //! \param config Pointer to the AdapterConfiguration interface registry.
+    //! \return true if successful, false otherwise.
     virtual bool initialize(AdapterConfiguration *config) override
     {
       // Construct Timebase
@@ -135,10 +141,8 @@ namespace PLEXIL
       return true;
     }
 
-    //!
-    // @brief Start the interface.
-    // @return true if successful, false otherwise.
-    //
+    //! \brief Start the interface.
+    //! \return true if successful, false otherwise.
     virtual bool start() override
     {
       try {
@@ -152,7 +156,7 @@ namespace PLEXIL
       return false;
     }
 
-    //! @brief Stop the interface.
+    //! \brief Stop the interface.
     virtual void stop() override
     {
       try {
@@ -164,8 +168,8 @@ namespace PLEXIL
       }
     }
 
-    //! @brief Get the timebase in use.
-    //! @return Pointer to the timebase (may be null).
+    //! \brief Get the timebase in use.
+    //! \return Pointer to the timebase (may be null).
     Timebase *getTimebase()
     {
       return m_timebase.get();
@@ -173,8 +177,8 @@ namespace PLEXIL
 
   private:
 
-    //! @brief Wake up the Exec on a timer signal.
-    //! @param arg Pointer to the TimeAdapter instance.
+    //! \brief Wake up the Exec on a timer signal.
+    //! \param arg Pointer to the TimeAdapter instance.
     static void timeout(TimeAdapter *adpt)
     {
       Timebase *tb = adpt->getTimebase();
