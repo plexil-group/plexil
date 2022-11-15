@@ -676,7 +676,7 @@ namespace PLEXIL
 
     void printAllocatedResources() const
     {
-      for (std::pair<std::string, double> const &pr : m_allocated) {
+      for (std::pair<const std::string, double> const &pr : m_allocated) {
         debugMsg("ResourceArbiter:printAllocatedResources", ' ' << pr.first << " = " << pr.second);
       }
     }
