@@ -32,8 +32,6 @@
 #include "InterfaceSchema.hh"
 #include "TimebaseFactory.hh" // REGISTER_TIMEBASE() macro
 
-#include "pugixml.hpp"
-
 #include <cerrno>
 #include <cstring>  // strerror()
 #include <iomanip> // std::fixed, std::setprecision()
@@ -46,11 +44,9 @@
 //    Kqueue timer: yes
 
 // Local constants
-namespace
-{
-  //! \brief The number of nanoseconds in one second.
-  constexpr const uint64_t NSEC_PER_SEC = 1000000000;
-}
+#ifndef NSEC_PER_SEC
+#define NSEC_PER_SEC (1000000000ull)
+#endif
 
 namespace PLEXIL
 {
