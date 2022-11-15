@@ -428,11 +428,11 @@ namespace PLEXIL
     //! \brief True when the command's resource values are fixed.
     bool m_resourcesFixed;
 
-    //! \brief True if the command's parameter expressions are all constants.
-    bool m_commandArgsAreConstant;
-
     //! \brief True if the command name expression is a constant.
     bool m_commandNameIsConstant;
+
+    //! \brief True if the command's parameter expressions are all constants.
+    bool m_commandArgsAreConstant;
 
     //! \brief True if the command's resource specification
     //!        expressions are all constants.
