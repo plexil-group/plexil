@@ -129,7 +129,7 @@ namespace PLEXIL
     {
       // Construct Timebase
       pugi::xml_node const tb_xml = getXml().child(InterfaceSchema::TIMEBASE_TAG);
-      m_timebase.reset(makeTimebase(tb_xml, &timeout, (void *) this));
+      m_timebase.reset(makeTimebase(tb_xml, [this]() -> void { timeout(this); }));
       config->registerLookupHandler(std::make_shared<TimeLookupHandler>(m_timebase.get()),
                                     "time");
       return true;
@@ -164,10 +164,8 @@ namespace PLEXIL
       }
     }
 
-    //!
-    // @brief Get the timebase in use.
-    // @return Pointer to the timebase (may be null).
-    //
+    //! @brief Get the timebase in use.
+    //! @return Pointer to the timebase (may be null).
     Timebase *getTimebase()
     {
       return m_timebase.get();
@@ -175,35 +173,35 @@ namespace PLEXIL
 
   private:
 
+    //! @brief Wake up the Exec on a timer signal.
+    //! @param arg Pointer to the TimeAdapter instance.
+    static void timeout(TimeAdapter *adpt)
+    {
+      Timebase *tb = adpt->getTimebase();
+      assertTrue_1(tb);
+
+      // Get the time
+      double now = tb->getTime();
+      debugMsg("TimeAdapter:timeout", " at " << std::setprecision(15) << now);
+
+      // Check if timer went off too soon.
+      double next = tb->getNextWakeup();
+      if (next && now < next) {
+        // Alarm went off too early. Hit the snooze button.
+        debugMsg("TimeAdapter:timeout", " early wakeup, resetting");
+        tb->setTimer(next); // possibility of reentrant call to this function
+      }
+
+      // Notify in any case
+      adpt->getInterface().notifyOfExternalEvent();
+    }
+
     //
     // Member variables
     //
 
     std::unique_ptr<Timebase> m_timebase;
   };
-
-  //! @brief Wake up the Exec on a timer signal.
-  //! @param arg Pointer to the TimeAdapter, cast as a void *.
-  static void timeout(void *arg)
-  {
-    TimeAdapter *adpt = reinterpret_cast<TimeAdapter *>(arg);
-    Timebase *tb = adpt->getTimebase();
-
-    // Get the time
-    double now = tb->getTime();
-    debugMsg("TimeAdapter:timeout", " at " << std::setprecision(15) << now);
-
-    // Check if timer went off too soon.
-    double next = tb->getNextWakeup();
-    if (next && now < next) {
-      // Alarm went off too early. Hit the snooze button.
-      debugMsg("TimeAdapter:timeout", " early wakeup, resetting");
-      tb->setTimer(next); // possibility of reentrant call to this function
-    }
-
-    // Notify in any case
-    adpt->getInterface().notifyOfExternalEvent();
-  }
 
 } // namespace PLEXIL
 
