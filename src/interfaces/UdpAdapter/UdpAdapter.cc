@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -777,7 +777,7 @@ namespace PLEXIL
     {
       // print all of the stuff in m_message for debugging
       std::string indent = "             ";
-      for (std::pair<std::string, UdpMessage> const &msg : m_messages) {
+      for (std::pair<std::string const, UdpMessage> const &msg : m_messages) {
         std::cout << "UDP Message: " << msg.first;
         for (Parameter const &param : msg.second.parameters) {
           std::string temp = param.desc.empty() ? " (no description)" : " (" + param.desc + ")";
