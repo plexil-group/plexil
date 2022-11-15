@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,13 +25,24 @@
 
 lib_LTLIBRARIES = libPlanDebugListener.la
 
-libPlanDebugListener_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/app-framework \
- -I@top_srcdir@/third-party/pugixml/src \
- -I@top_srcdir@/exec -I@top_srcdir@/intfc -I@top_srcdir@/expr \
- -I@top_srcdir@/value -I@top_srcdir@/utils
+libPlanDebugListener_la_SOURCES = PlanDebugListener.cc
 
 noinst_HEADERS = PlanDebugListener.hh
 
-libPlanDebugListener_la_SOURCES = PlanDebugListener.cc
+libPlanDebugListener_la_CPPFLAGS = $(AM_CPPFLAGS) \
+ -I@top_srcdir@/app-framework \
+ -I@top_srcdir@/third-party/pugixml/src \
+ -I@top_srcdir@/exec \
+ -I@top_srcdir@/intfc \
+ -I@top_srcdir@/expr \
+ -I@top_srcdir@/value \
+ -I@top_srcdir@/utils
 
-# TODO: libraries to link against (?)
+libPlanDebugListener_la_LIBADD = @top_builddir@/app-framework/libPlexilAppFramework.la \
+ @top_builddir@/xml-parser/libPlexilXmlParser.la \
+ @top_builddir@/third-party/pugixml/src/libpugixml.la \
+ @top_builddir@/exec/libPlexilExec.la \
+ @top_builddir@/intfc/libPlexilIntfc.la \
+ @top_builddir@/expr/libPlexilExpr.la \
+ @top_builddir@/value/libPlexilValue.la \
+ @top_builddir@/utils/libPlexilUtils.la

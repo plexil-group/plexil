@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -31,15 +31,26 @@ libUdpUtils_la_SOURCES = UdpEventLoop.cc udp-utils.cc
 libUdpUtils_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/utils
 
 libUdpAdapter_la_SOURCES = MessageQueueMap.cc UdpAdapter.cc
-libUdpAdapter_la_LIBADD = libUdpUtils.la
 libUdpAdapter_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/interfaces/UpdUtils \
- -I@top_srcdir@/third-party/pugixml/src -I@top_srcdir@/app-framework \
- -I@top_srcdir@/exec -I@top_srcdir@/intfc -I@top_srcdir@/expr \
- -I@top_srcdir@/value -I@top_srcdir@/utils
+ -I@top_srcdir@/app-framework \
+ -I@top_srcdir@/third-party/pugixml/src \
+ -I@top_srcdir@/exec \
+ -I@top_srcdir@/intfc \
+ -I@top_srcdir@/expr \
+ -I@top_srcdir@/value \
+ -I@top_srcdir@/utils
+libUdpAdapter_la_LIBADD = libUdpUtils.la \
+ @top_builddir@/app-framework/libPlexilAppFramework.la \
+ @top_builddir@/third-party/pugixml/src/libpugixml.la \
+ @top_builddir@/exec/libPlexilExec.la \
+ @top_builddir@/intfc/libPlexilIntfc.la \
+ @top_builddir@/expr/libPlexilExpr.la \
+ @top_builddir@/value/libPlexilValue.la \
+ @top_builddir@/utils/libPlexilUtils.la
 
 if MODULE_TESTS_OPT
   noinst_PROGRAMS = test/udp-tests
   test_udp_tests_SOURCES = test/udp-tests.cc
   test_udp_tests_CPPFLAGS = -I@top_srcdir@/utils
-  test_udp_tests_LDADD = libUdpUtils.la @top_srcdir@/utils/libPlexilUtils.la
+  test_udp_tests_LDADD = libUdpUtils.la @top_builddir@/utils/libPlexilUtils.la
 endif

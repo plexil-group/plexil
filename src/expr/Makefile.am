@@ -48,6 +48,9 @@ libPlexilExpr_la_SOURCES = Alias.cc \
  Operator.cc OperatorImpl.cc Propagator.cc Reservable.cc \
  SimpleBooleanVariable.cc StringOperators.cc UserVariable.cc
 
+libPlexilExpr_la_LIBADD = @top_builddir@/value/libPlexilValue.la \
+ @top_builddir@/utils/libPlexilUtils.la
+
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/expr-module-tests
   noinst_HEADERS += test/TrivialListener.hh
@@ -59,6 +62,5 @@ if MODULE_TESTS_OPT
  test/simpleBooleanVariableTest.cc test/stringTest.cc test/TrivialListener.cc \
  test/variablesTest.cc test/expr-test-module.cc
   test_expr_module_tests_CPPFLAGS = $(libPlexilExpr_la_CPPFLAGS)
-  test_expr_module_tests_LDADD = libPlexilExpr.la \
- @top_srcdir@/value/libPlexilValue.la @top_srcdir@/utils/libPlexilUtils.la
+  test_expr_module_tests_LDADD = libPlexilExpr.la $(libPlexilExpr_la_LIBADD)
 endif

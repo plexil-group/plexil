@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -26,13 +26,26 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Because an ancient version of vxWorks only offered this version
-#AC_PREREQ(2.59)
-AC_PREREQ(2.62)
-AC_INIT([Plexil], [6.0.0d3], [plexil-support@sourceforge.net], [plexil], [https://plexil.wiki.sourceforge.net/])
+#
+# N.B. This file does not, and will not, support versions of the GNU
+# autotools predating C++11.  The following minimum versions are
+# required:
+#
+#  autoconf 2.69
+#  automake 1.11.1
+#  libtool 2.4
+#  m4 1.4.15
+#
+# If the build environment doesn't support these minimum versions, use
+# a PLEXIL release from the 4.x series.  These older releases support
+# older versions of the C++ standard.
+#
+
+AC_PREREQ(2.69)
+AC_INIT([Plexil], [6.0.0d4], [plexil-support@sourceforge.net], [plexil], [https://plexil.wiki.sourceforge.net/])
 AC_LANG(C++)
 AC_CONFIG_SRCDIR([app-framework/AdapterConfiguration.cc])
-AC_CONFIG_HEADER([plexil-config.h])
+AC_CONFIG_HEADERS([plexil-config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
 # Check whether compilers exist and work
@@ -50,10 +63,7 @@ AC_PROG_CC
 AC_PATH_PROG([GPERF], [gperf])
 AS_IF([test "x${GPERF}" = 'x'], [AC_MSG_ERROR([Required program 'gperf' not found. Aborting.])])
 
-# Use this with autoconf 2.62 and newer
 LT_INIT([])
-# Use this with autoconf 2.61 and older
-#AC_PROG_LIBTOOL
 
 AC_SUBST([LIBTOOL_DEPS])
 
@@ -63,15 +73,13 @@ AM_INIT_AUTOMAKE
 #AM_PROG_CC_C_O
 
 # Comment out this line to see the gory details of the build process
-AM_SILENT_RULES([yes])
+#AM_SILENT_RULES([yes])
 
 # Configuration options
 AC_ARG_WITH([jni],
         AS_HELP_STRING([--with-jni=JAVA_HOME],
         [Include utilities for Java Native Interface in JAVA_HOME]),
         [AC_SUBST([JAVA_HOME], ["$with_jni"])])
-AC_ARG_WITH([unix-time],
-        AS_HELP_STRING([--with-unix-time], [Use Unix time facilities (default=yes)]))
 AC_ARG_WITH([threads],
         AS_HELP_STRING([--with-threads], [Build for multithreaded use (default=yes)]))
 AC_ARG_ENABLE([debug-listener],

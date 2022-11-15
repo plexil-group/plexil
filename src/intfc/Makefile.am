@@ -46,13 +46,15 @@ libPlexilIntfc_la_SOURCES = CachedValue.cc CachedValueImpl.cc \
  InterfaceError.cc Lookup.cc QueueEntry.cc ResourceArbiterInterface.cc \
  State.cc StateCacheEntry.cc StateCache.cc
 
+libPlexilIntfc_la_LIBADD =  @top_builddir@/expr/libPlexilExpr.la \
+ @top_builddir@/value/libPlexilValue.la \
+ @top_builddir@/utils/libPlexilUtils.la
+
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/intfc-module-tests
   test_intfc_module_tests_SOURCES = @top_srcdir@/expr/test/TrivialListener.cc \
  test/lookupsTest.cc test/serializeTest.cc test/stateTest.cc \
  test/intfc-test-module.cc
   test_intfc_module_tests_CPPFLAGS = $(libPlexilIntfc_la_CPPFLAGS)
-  test_intfc_module_tests_LDADD = libPlexilIntfc.la \
- @top_builddir@/expr/libPlexilExpr.la @top_builddir@/value/libPlexilValue.la \
- @top_builddir@/utils/libPlexilUtils.la
+  test_intfc_module_tests_LDADD = libPlexilIntfc.la $(libPlexilIntfc_la_LIBADD)
 endif

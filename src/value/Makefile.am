@@ -39,11 +39,13 @@ noinst_HEADERS = PlexilTypeTraits.hh
 libPlexilValue_la_SOURCES = Array.cc ArrayImpl.cc CommandHandle.cc \
  NodeConstants.cc Value.cc ValueType.cc
 
+libPlexilValue_la_LIBADD = @top_builddir@/utils/libPlexilUtils.la
+
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/value-module-tests
   noinst_HEADERS +=
   test_value_module_tests_SOURCES = test/arrayTest.cc test/serializeTest.cc \
  test/valueTest.cc test/valueTypeTest.cc test/value-test-module.cc
   test_value_module_tests_CPPFLAGS = $(libPlexilValue_la_CPPFLAGS)
-  test_value_module_tests_LDADD = libPlexilValue.la @top_srcdir@/utils/libPlexilUtils.la
+  test_value_module_tests_LDADD = libPlexilValue.la $(libPlexilValue_la_LIBADD)
 endif
