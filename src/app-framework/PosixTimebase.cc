@@ -94,7 +94,7 @@ namespace PLEXIL
       struct sigevent event;
       event.sigev_notify = SIGEV_THREAD;
       event.sigev_value.sival_ptr = static_cast<void *>(this);
-      event.sigev_notify_function = static_cast<void(*)(union sigval)>(&timebaseWakeup);
+      event.sigev_notify_function = reinterpret_cast<void(*)(union sigval)>(&timebaseWakeup);
       event.sigev_notify_attributes = nullptr;
 
       checkInterfaceError(!timer_create(CLOCK_REALTIME,
