@@ -1,7 +1,7 @@
 #! /bin/sh
 # Install the Python virtual environment for the validator
 
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,23 +30,31 @@ set -e
 
 usage()
 {
-    echo "Usage: $(basename "$0") [ --with-python <PYTHON> ] [ --upgrade ]"
-    echo "PYTHON defaults to $(command -v python3)"
-    echo 'Requires Python 3.5 or newer'
+    cat <<EOF
+Usage: $(basename "$0") [ --with-python <python_exe> ] [ --upgrade ]
+python_exe defaults to $(command -v python3)
+Requires Python 3.5 or newer.
+EOF
 }
 
-UPGRADE=
+python_exe=
+do_upgrade=
 
 while [ -n "$1" ]
 do
     case "$1" in
         --with-python)
             shift
-            PYTHON="$1"
+            if [ ! -x "$1" ]
+            then
+                echo "$(basename "$0"): Error: --with-python argument $1 is not executable" >&2
+                exit 2
+            fi
+            python_exe="$1"
             ;;
 
         --upgrade)
-            UPGRADE="$1"
+            do_upgrade="$1"
             ;;
 
         -h | --help | help)
@@ -55,7 +63,7 @@ do
             ;;
 
         *)
-            echo "Error: argument '$1' is not understood" >&2
+            echo "$(basename "$0"): Error: unrecognized argument '$1'" >&2
             usage >&2
             exit 2
             ;;
@@ -63,71 +71,111 @@ do
     shift
 done
 
+here="$( cd "$(dirname "$0")" && pwd -P )"
+venv_dir="$here/.venv"
+our_pip="$venv_dir/bin/pip"
+activate_script="$venv_dir/bin/activate"
+
 # Get Python from environment, if supplied
 # Prefer python3 if not
-PYTHON=${PYTHON:-"$(command -v python3)"}
+python_exe=${python_exe:-"$(command -v python3)"}
 
-if [ -z "$PYTHON" ]
+if [ -z "$python_exe" ]
 then
     echo 'Error: no Python executable found or supplied.' >&2
     echo 'Please specify a Python 3.5 (or newer) interpreter.' >&2
     exit 2
-elif [ ! -x "$PYTHON" ]
+elif [ ! -x "$python_exe" ]
 then
-    echo "Error: $PYTHON is not executable." >&2
+    echo "Error: $python_exe is not executable." >&2
     echo 'Try again with a Python 3.5 (or newer) interpreter.' >&2
     exit 2
 fi
 
-HERE="$( cd "$(dirname "$0")" ; pwd )"
-VENV_DIR="$HERE/.venv"
-PIP="$VENV_DIR/bin/pip"
-ACTIVATE="$VENV_DIR/bin/activate"
+bootstrap_venv()
+{
+    if ! "$python_exe" -c 'import venv' > /dev/null 2>&1
+    then
+        echo "$(basename "$0"): ERROR: Python module 'venv' is not installed." >&2
+        echo 'Cannot set up virtual environment.' >&2
+        return 1
+    fi
+    venv_options=''
+    # Are pip and/or ensurepip installed locally?
+    have_pip="$("$python_exe" -c 'import pip' > /dev/null 2>&1 && echo 'yes' || echo)"
+    have_ensurepip="$("$python_exe" -c 'import ensurepip' > /dev/null 2>&1 && echo 'yes' || echo)"
+
+    # DEBUG
+    # echo "python_exe=$python_exe"
+    # echo "have_pip=$have_pip"
+    # echo "have_ensurepip=$have_ensurepip"
+
+    if [ -z "$have_pip" ]
+    then
+        if [ -z "$have_ensurepip" ]
+        then
+            echo "$(basename "$0"): ERROR: Neither Python module 'pip' nor 'ensurepip' is installed." >&2
+            echo 'Cannot set up virtual environment.' >&2
+            return 1
+        fi
+        venv_options='--without-pip'
+    elif [ -z "$have_ensurepip" ]
+    then
+        # Use the locally installed pip
+        venv_options='--system-site-packages'
+    fi
+
+    echo 'Initializing Python virtual environment'
+    if ! "$python_exe" -m venv "$venv_dir" "$venv_options"
+    then
+        echo 'Error: creating Python virtual environment failed.' >&2
+        echo 'Check that your Python is version 3.5 or newer.' >&2
+        return 1
+    fi
+}
 
 #
 # Start from clean if not upgrading
 #
 
-if [ -z "$UPGRADE" ] && [ -d "$VENV_DIR" ]
+if [ -z "$do_upgrade" ] && [ -d "$venv_dir" ]
 then
     echo 'Deleting existing virtual environment'
-    rm -rf "$VENV_DIR" "$HERE/environment"
+    rm -rf "$venv_dir" "$here/environment" bin include lib pyvenv.cfg
 fi
 
-if [ ! -d "$VENV_DIR" ]
+if [ ! -d "$venv_dir" ]
 then
-    echo 'Initializing Python virtual environment'
-    if ! "$PYTHON" -m venv "$VENV_DIR"
+    if ! bootstrap_venv
     then
-        echo 'Error: creating Python virtual environment failed.' >&2
-        echo 'Check that your Python is version 3.5 or newer.' >&2
-        exit 2
+        exit 1
     fi
-elif [ -n "$UPGRADE" ]
+elif [ -n "$do_upgrade" ]
 then
     echo 'Upgrading Python virtual environment'
-    if ! "$PYTHON" -m venv $UPGRADE "$VENV_DIR"
+    if ! "$python_exe" -m venv "$venv_dir" "$do_upgrade"
     then
         echo 'Error: upgrading Python virtual environment failed.' >&2
-        exit 2
+        exit 1
     fi
 fi
 
-if [ ! -r "$ACTIVATE" ]
+if [ ! -r "$activate_script" ]
 then
     echo 'Error: Python virtual environment setup failed.' >&2
     exit 1
 fi
 
-( . "$ACTIVATE" && \
-      "$PIP" install -q -U pip && \
-      "$PIP" install -q $UPGRADE -r "$HERE/requirements.txt" )
+# shellcheck source=.venv/bin/activate
+( . "$activate_script" && \
+      "$our_pip" install -q -U pip && \
+      "$our_pip" install -q${do_upgrade:+ $do_upgrade} -r "$here/requirements.txt" )
 
 # Write out environment for validate script
-cat << EOF > "$HERE/environment"
+cat <<EOF > "$here/environment"
 # Generated by setup.sh; do not edit
-PYTHON='$VENV_DIR/bin/python'
-ACTIVATE='$VENV_DIR/bin/activate'
+python_exe='$venv_dir/bin/python'
+activate_script='$venv_dir/bin/activate'
 EOF
 
 exit 0
