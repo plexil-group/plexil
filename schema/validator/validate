@@ -37,8 +37,8 @@ here="$( cd "$(dirname "$0")" && pwd -P )"
 venv_dir="$here/.venv"
 
 # TEMP DEBUG
-echo "here=$here"
-echo "venv_dir=$venv_dir"
+# echo "here=$here"
+# echo "venv_dir=$venv_dir"
 
 if [ ! -d "$venv_dir" ] || [ ! -r "$here/environment" ]
 then
@@ -63,4 +63,4 @@ fi
 #
 
 # shellcheck source=.venv/bin/activate
-. "$activate_script" && exec "$python_exe" "$here/validate-plexil.py" "$@"
+. "$activate_script" && exec "$python_exe" "$here/validate_plexil.py" "$@"
