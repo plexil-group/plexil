@@ -88,8 +88,6 @@ activate_script="$venv_dir/bin/activate"
 # Default to Python 3 from $PATH
 python_exe=${python_exe:-"$(command -v python3)"}
 
-echo 'got python_exe'
-
 if [ -z "$python_exe" ]
 then
     echo "$(basename "$0"): Error: no Python executable found or supplied." >&2
@@ -101,8 +99,6 @@ then
     echo 'Please select a Python 3.5 (or newer) interpreter with the --use-python option.' >&2
     exit 2
 fi
-
-echo 'checked python_exe'
 
 # Take inventory of Python modules for virtual environments.
 have_venv="$("$python_exe" -c 'import venv' > /dev/null 2>&1 && echo 'yes' || echo)"
@@ -124,7 +120,7 @@ then
     virtual_env='virtualenv'
     if [ -n "$user_python" ]
     then
-        virtual_env_options="--python=${python_exe}"
+        virtual_env="${virtual_env} --python=${python_exe}"
     fi
 elif [ -n "$have_venv" ]
 then
@@ -140,19 +136,21 @@ bootstrap_virtual_environment()
     echo 'Initializing Python virtual environment'
     local have_ensurepip=
     local install_pip=
-    if [ -z "$have_virtualenv" ]
+    if [ -n "$have_virtualenv" ]
     then
+        virtual_env_options="${virtual_env_options:+$virtual_env_options }-q"
+    else
         have_ensurepip="$("$python_exe" -c 'import ensurepip' > /dev/null 2>&1 && echo 'yes' || echo)"
         if [ -z "$have_ensurepip" ]
         then
-            virtual_env_options='--without-pip'
+            virtual_env_options="${virtual_env_options:+$virtual_env_options }--without-pip"
             install_pip='yes'
         fi
     fi
 
     # DEBUG
-    echo "${virtual_env}${venv_options:+ $venv_options} $venv_dir"
-    if ! ${virtual_env}${venv_options:+ $venv_options} "$venv_dir"
+    # echo "${virtual_env}${virtual_env_options:+ $virtual_env_options} $venv_dir"
+    if ! ${virtual_env}${virtual_env_options:+ $virtual_env_options} "$venv_dir"
     then
         echo "$(basename "$0"): Error: virtual environment creation failed." >&2
         return 1
@@ -195,7 +193,7 @@ upgrade_virtual_environment()
     local upgrade_options=
     if [ -n "$have_virtualenv" ]
     then
-        upgrade_options=''
+        upgrade_options='-q' # --upgrade-embed-wheels requires virtualenv > 20.0.24
     else
         upgrade_options='--upgrade'
     fi
