@@ -31,35 +31,43 @@ set -e
 usage()
 {
     cat <<EOF
-Usage: $(basename "$0") [ --with-python <python_exe> ] [ --upgrade ]
+Usage: $(basename "$0") [ --with-python <python_exe> ] [ --reinstall | -U | --upgrade ]
 python_exe defaults to $(command -v python3)
 Requires Python 3.5 or newer.
 EOF
 }
 
-python_exe=
+do_reinstall=
 do_upgrade=
+python_exe=
+user_python=
 
 while [ -n "$1" ]
 do
     case "$1" in
-        --with-python)
-            shift
-            if [ ! -x "$1" ]
-            then
-                echo "$(basename "$0"): Error: --with-python argument $1 is not executable" >&2
-                exit 2
-            fi
-            python_exe="$1"
-            ;;
-
-        --upgrade)
-            do_upgrade="$1"
-            ;;
 
         -h | --help | help)
             usage
             exit 0
+            ;;
+
+        --reinstall)
+            do_reinstall="$1"
+            ;;
+
+        -U | --upgrade)
+            do_upgrade="$1"
+            ;;
+
+        --with-python)
+            if [ ! -x "$2" ]
+            then
+                echo "$(basename "$0"): Error: --with-python argument $2 is not executable" >&2
+                exit 2
+            fi
+            python_exe="$2"
+            user_python='yes'
+            shift
             ;;
 
         *)
@@ -72,110 +80,170 @@ do
 done
 
 here="$( cd "$(dirname "$0")" && pwd -P )"
+# defaults
 venv_dir="$here/.venv"
 our_pip="$venv_dir/bin/pip"
 activate_script="$venv_dir/bin/activate"
 
-# Get Python from environment, if supplied
-# Prefer python3 if not
+# Default to Python 3 from $PATH
 python_exe=${python_exe:-"$(command -v python3)"}
+
+echo 'got python_exe'
 
 if [ -z "$python_exe" ]
 then
-    echo 'Error: no Python executable found or supplied.' >&2
-    echo 'Please specify a Python 3.5 (or newer) interpreter.' >&2
+    echo "$(basename "$0"): Error: no Python executable found or supplied." >&2
+    echo 'Please select a Python 3.5 (or newer) interpreter with the --use-python option.' >&2
     exit 2
 elif [ ! -x "$python_exe" ]
 then
-    echo "Error: $python_exe is not executable." >&2
-    echo 'Try again with a Python 3.5 (or newer) interpreter.' >&2
+    echo "$(basename "$0"): Error: $python_exe is not executable." >&2
+    echo 'Please select a Python 3.5 (or newer) interpreter with the --use-python option.' >&2
     exit 2
 fi
 
-bootstrap_venv()
-{
-    if ! "$python_exe" -c 'import venv' > /dev/null 2>&1
-    then
-        echo "$(basename "$0"): ERROR: Python module 'venv' is not installed." >&2
-        echo 'Cannot set up virtual environment.' >&2
-        return 1
-    fi
-    venv_options=''
-    # Are pip and/or ensurepip installed locally?
-    have_pip="$("$python_exe" -c 'import pip' > /dev/null 2>&1 && echo 'yes' || echo)"
-    have_ensurepip="$("$python_exe" -c 'import ensurepip' > /dev/null 2>&1 && echo 'yes' || echo)"
+echo 'checked python_exe'
 
-    # DEBUG
-    # echo "python_exe=$python_exe"
-    # echo "have_pip=$have_pip"
-    # echo "have_ensurepip=$have_ensurepip"
+# Take inventory of Python modules for virtual environments.
+have_venv="$("$python_exe" -c 'import venv' > /dev/null 2>&1 && echo 'yes' || echo)"
+have_virtualenv="$(command -v virtualenv || echo '')"
 
-    if [ -z "$have_pip" ]
-    then
-        if [ -z "$have_ensurepip" ]
-        then
-            echo "$(basename "$0"): ERROR: Neither Python module 'pip' nor 'ensurepip' is installed." >&2
-            echo 'Cannot set up virtual environment.' >&2
-            return 1
-        fi
-        venv_options='--without-pip'
-    elif [ -z "$have_ensurepip" ]
-    then
-        # Use the locally installed pip
-        venv_options='--system-site-packages'
-    fi
+# DEBUG
+# echo "python_exe=$python_exe"
+# echo "have_venv=$have_venv"
+# echo "have_virtualenv=$have_virtualenv"
+# echo "have_pip=$have_pip"
+# echo "have_ensurepip=$have_ensurepip"
 
-    echo 'Initializing Python virtual environment'
-    if ! "$python_exe" -m venv "$venv_dir" "$venv_options"
-    then
-        echo 'Error: creating Python virtual environment failed.' >&2
-        echo 'Check that your Python is version 3.5 or newer.' >&2
-        return 1
-    fi
-}
+virtual_env=
+virtual_env_options=
 
-#
-# Start from clean if not upgrading
-#
-
-if [ -z "$do_upgrade" ] && [ -d "$venv_dir" ]
+if [ -n "$have_virtualenv" ]
 then
-    echo 'Deleting existing virtual environment'
-    rm -rf "$venv_dir" "$here/environment" bin include lib pyvenv.cfg
-fi
-
-if [ ! -d "$venv_dir" ]
-then
-    if ! bootstrap_venv
+    # Prefer virtualenv
+    virtual_env='virtualenv'
+    if [ -n "$user_python" ]
     then
-        exit 1
+        virtual_env_options="--python=${python_exe}"
     fi
-elif [ -n "$do_upgrade" ]
+elif [ -n "$have_venv" ]
 then
-    echo 'Upgrading Python virtual environment'
-    if ! "$python_exe" -m venv "$venv_dir" "$do_upgrade"
-    then
-        echo 'Error: upgrading Python virtual environment failed.' >&2
-        exit 1
-    fi
-fi
-
-if [ ! -r "$activate_script" ]
-then
-    echo 'Error: Python virtual environment setup failed.' >&2
+    virtual_env="$python_exe -m venv"
+else
+    echo "$(basename "$0"): Error: neither 'venv' nor 'virtualenv' available for $python_exe" >&2
+    echo 'Please select a different Python 3 interpreter with the --use-python option.' >&2
     exit 1
 fi
 
-# shellcheck source=.venv/bin/activate
-( . "$activate_script" && \
-      "$our_pip" install -q -U pip && \
-      "$our_pip" install -q${do_upgrade:+ $do_upgrade} -r "$here/requirements.txt" )
+bootstrap_virtual_environment()
+{
+    echo 'Initializing Python virtual environment'
+    local have_ensurepip=
+    local install_pip=
+    if [ -z "$have_virtualenv" ]
+    then
+        have_ensurepip="$("$python_exe" -c 'import ensurepip' > /dev/null 2>&1 && echo 'yes' || echo)"
+        if [ -z "$have_ensurepip" ]
+        then
+            virtual_env_options='--without-pip'
+            install_pip='yes'
+        fi
+    fi
 
-# Write out environment for validate script
-cat <<EOF > "$here/environment"
+    # DEBUG
+    echo "${virtual_env}${venv_options:+ $venv_options} $venv_dir"
+    if ! ${virtual_env}${venv_options:+ $venv_options} "$venv_dir"
+    then
+        echo "$(basename "$0"): Error: virtual environment creation failed." >&2
+        return 1
+    fi
+
+    if [ -n "$install_pip" ]
+    then
+        echo 'Installing pip in the virtual environment'
+        if ! curl https://bootstrap.pypa.io/get-pip.py -s -S -o "${venv_dir}/bin/get-pip.py" && \
+                ( . "${venv_dir}/bin/activate" && "${venv_dir}/bin/python3" "${venv_dir}/bin/get-pip.py" )
+        then
+            echo "$(basename "$0"): Error: Created virtual environment, but failed to install 'pip' in it." >&2
+            return 1
+        fi
+    fi
+
+    # Do initial software installation
+    echo 'Installing required modules in the virtual environment'
+    if ! ( . "$activate_script" && \
+               "$our_pip" install -q -U pip && \
+               "$our_pip" install -q -r "$here/requirements.txt" )
+    then
+        echo "$(basename "$0"): Error: Failed to install required modules in the virtual environment." >&2
+        return 1
+    fi
+
+    # Write out environment for validate script
+    cat <<EOF > "$here/environment"
 # Generated by setup.sh; do not edit
 python_exe='$venv_dir/bin/python'
 activate_script='$venv_dir/bin/activate'
 EOF
+
+    echo "Virtual environment successfully created in $venv_dir"
+    return 0
+}
+
+upgrade_virtual_environment()
+{
+    local upgrade_options=
+    if [ -n "$have_virtualenv" ]
+    then
+        upgrade_options=''
+    else
+        upgrade_options='--upgrade'
+    fi
+    echo 'Upgrading Python virtual environment'
+    if ! ${virtual_env} ${upgrade_options} "$venv_dir"
+    then
+        echo "$(basename "$0"): Error: Failed to upgrade virtual environment." >&2
+        return 1
+    fi
+    echo 'Upgrading installed modules in the virtual environment'
+    if ! ( . "$activate_script" && \
+               "$our_pip" install -q -r "$here/requirements.txt" )
+    then
+        echo "$(basename "$0"): Error: Failed to upgrade modules in the virtual environment." >&2
+        return 1
+    fi
+
+    echo "Virtual environment successfully upgraded in $venv_dir"
+    return 0
+}
+
+if [ -d "$venv_dir" ] && [ -n "$do_reinstall" ]
+then
+    echo 'Deleting existing virtual environment'
+    rm -rf "$venv_dir" "$here/environment"
+fi
+
+if [ ! -d "$venv_dir" ] || [ ! -f "$here/environment" ]
+then
+    if ! bootstrap_virtual_environment
+    then
+        exit 1
+    fi
+else
+    # if [ -z "do_upgrade" ]
+    # then
+    #     # Check if an upgrade is required
+    #     # TODO
+    # fi
+
+    if [ -n "$do_upgrade" ]
+    then
+        if ! upgrade_virtual_environment
+        then
+            echo 'Re-run this command with the --reinstall option.' >&2
+            exit 1
+        fi
+    fi
+fi
 
 exit 0
