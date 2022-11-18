@@ -4,9 +4,7 @@
 # and check the output generated against the XML schema,
 # and (if it exists) a "known good" file.
 # Exit with 0 status if all OK. Exit with 1 status if not.
-# Writes results to tempRegressionResults in the current working directory.
-
-# Expects to be run from $PLEXIL_HOME/compilers/plexil/test
+# Writes results to tempRegressionResults in this directory.
 
 # Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 # All rights reserved.
@@ -33,69 +31,52 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+set -e
 
 if [ -z "$PLEXIL_HOME" ]
 then
-    # Attempt to guess location of this script (but don't try too hard)
-    PLEXIL_HOME="$(cd "$(dirname "$0")" && cd ../../.. && pwd)"
+    PLEXIL_HOME="$(cd "$(dirname "$0")" && cd ../../.. && pwd -P)"
 fi
 
-# shellcheck source=../../../scripts/plexil-setup.sh
-. "$PLEXIL_HOME"/scripts/plexil-setup.sh
+std_plexil_compiler="$PLEXIL_HOME"/compilers/plexil/PlexilCompiler
+std_plexil_compiler_opts='--epx-only --pretty-print'
 
-SCHEMA_DIR="$PLEXIL_HOME"/schema
-EPX_SCHEMA="$SCHEMA_DIR"/extended-plexil.xsd
+plexil_schema_dir="$PLEXIL_HOME"/schema
+epx_schema="$plexil_schema_dir"/extended-plexil.xsd
+schema_validator="$plexil_schema_dir"/validator/validate
+schema_validator_opts='--schema'
 
-# Old validator
-# VALIDATOR="$(command -v xmllint)"
-# VALIDATOR_OPTS='--noout --schema'
+cd "$(dirname "$0")"
 
-# if [ -z "$VALIDATOR" ]
-# then
-#     echo 'Error: "xmllint" utility not found.' >&2
-#     echo 'Please install it, or amend PATH, and try again.' >&2
-#     exit 1
-# fi
-
-# New validator
-VALIDATOR="$SCHEMA_DIR"/validator/validate
-VALIDATOR_OPTS='--schema'
-
-if [ ! -e "$VALIDATOR" ]
-then
-    echo "Error: validator $VALIDATOR is not executable." >&2
-    exit 1
-fi
+compile()
+{
+    "$std_plexil_compiler" ${std_plexil_compiler_opts} -o output/"$1".epx input/"$1".ple
+}
 
 epx_validate()
 {
-    "$VALIDATOR" ${VALIDATOR_OPTS} "$EPX_SCHEMA" "$1"
+    "$schema_validator" ${schema_validator_opts} "$epx_schema" output/"$1".epx
 }
 
-
-if ! ../PlexilCompiler --epx-only -o output/"$1".epx input/"$1".ple
+if ! compile "$1" >>tempRegressionResults 2>&1
 then
-	echo "*** Compilation of $1.ple failed ***" >> tempRegressionResults
-	echo "*** Compilation of $1.ple failed ***"
+	echo " *** Compilation of $1.ple failed ***" | tee -a tempRegressionResults
     exit 1
 fi
 
-if ! epx_validate output/"$1".epx 2>>tempRegressionResults 1>&2 
+if ! epx_validate "$1" 2>>tempRegressionResults 1>&2 
 then
-	echo "*** Validation of $1.epx failed ***" >> tempRegressionResults 
-	echo "*** Validation of $1.epx failed ***" 
+	echo " *** Validation of $1.epx failed ***" | tee -a tempRegressionResults 
     exit 1
 fi 
 
 if [ -f valid/valid-"$1".epx ]
 then 
-	if "$PLEXIL_HOME"/compilers/plexil/test/check "$1" >> tempRegressionResults
+	if diff -B -w output/"$1".epx valid/valid-"$1".epx | tee -a tempRegressionResults
     then
-		echo "Verified $1.epx" >> tempRegressionResults 
-		echo "Verified $1.epx" 
+		echo "Verified $1.epx" | tee -a tempRegressionResults 
 	else
-		echo "*** Verification of $1.epx failed ***" >> tempRegressionResults 
-		echo "*** Verification of $1.epx failed ***" 
+		echo " *** Verification of $1.epx failed ***" | tee -a tempRegressionResults 
         exit 1
 	fi 
 else
