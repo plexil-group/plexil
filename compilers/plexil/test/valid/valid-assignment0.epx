@@ -1,1 +1,20 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/assignment0.ple"><Node ColNo="0" LineNo="1" NodeType="Assignment"><NodeId>BLOCK__0</NodeId><VariableDeclarations><DeclareVariable ColNo="2" LineNo="2"><Name>x</Name><Type>Integer</Type></DeclareVariable></VariableDeclarations><NodeBody><Assignment ColNo="2" LineNo="3"><IntegerVariable>x</IntegerVariable><NumericRHS><IntegerValue>0</IntegerValue></NumericRHS></Assignment></NodeBody></Node></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/assignment0.ple">
+   <Node ColNo="0" LineNo="1" NodeType="Assignment">
+      <NodeId>BLOCK__0</NodeId>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="2" LineNo="2">
+            <Name>x</Name>
+            <Type>Integer</Type>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <NodeBody>
+         <Assignment ColNo="2" LineNo="3">
+            <IntegerVariable>x</IntegerVariable>
+            <NumericRHS>
+               <IntegerValue>0</IntegerValue>
+            </NumericRHS>
+         </Assignment>
+      </NodeBody>
+   </Node>
+</PlexilPlan>

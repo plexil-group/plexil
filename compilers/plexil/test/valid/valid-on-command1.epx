@@ -1,1 +1,112 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/on-command1.ple"><GlobalDeclarations ColNo="0" LineNo="1"><CommandDeclaration ColNo="0" LineNo="1"><Name>HaltAndCatchFire</Name></CommandDeclaration><CommandDeclaration ColNo="0" LineNo="2"><Name>ExecuteProgrammerImmediate</Name></CommandDeclaration><CommandDeclaration ColNo="0" LineNo="3"><Name>SendReturnValues</Name><Parameter><Type>Any</Type></Parameter></CommandDeclaration></GlobalDeclarations><Concurrence ColNo="0" LineNo="5"><NodeId>root</NodeId><VariableDeclarations><DeclareVariable ColNo="2" LineNo="9"><Name>hcfName</Name><Type>String</Type><InitialValue><StringValue>HCF</StringValue></InitialValue></DeclareVariable></VariableDeclarations><OnCommand ColNo="2" LineNo="10"><NodeId>OnCommand__0</NodeId><Name><StringVariable>hcfName</StringVariable></Name><Node ColNo="20" LineNo="10" NodeType="Command"><NodeId>COMMAND__1</NodeId><NodeBody><Command ColNo="20" LineNo="10"><Name><StringValue>HaltAndCatchFire</StringValue></Name></Command></NodeBody></Node></OnCommand><OnCommand ColNo="2" LineNo="12"><NodeId>OnCommand__2</NodeId><Name><StringValue>EPI</StringValue></Name><Node ColNo="18" LineNo="12" NodeType="Command"><NodeId>COMMAND__3</NodeId><NodeBody><Command ColNo="18" LineNo="12"><Name><StringValue>ExecuteProgrammerImmediate</StringValue></Name></Command></NodeBody></Node></OnCommand><OnCommand ColNo="2" LineNo="13"><NodeId>OnCommand__4</NodeId><Name><StringValue>Three</StringValue></Name><Node ColNo="20" LineNo="13" NodeType="Command"><NodeId>Increment</NodeId><NodeBody><Command ColNo="33" LineNo="13"><Name><StringValue>SendReturnValues</StringValue></Name><Arguments ColNo="50" LineNo="13"><IntegerValue>3</IntegerValue></Arguments></Command></NodeBody></Node></OnCommand><OnCommand ColNo="2" LineNo="14"><NodeId>OnCommand__6</NodeId><VariableDeclarations><DeclareVariable ColNo="19" LineNo="14"><Name>number1</Name><Type>Integer</Type></DeclareVariable><DeclareVariable ColNo="36" LineNo="14"><Name>number2</Name><Type>Integer</Type></DeclareVariable></VariableDeclarations><Name><StringValue>Sum</StringValue></Name><Node ColNo="4" LineNo="15" NodeType="Command"><NodeId>Sum</NodeId><NodeBody><Command ColNo="11" LineNo="15"><Name><StringValue>SendReturnValues</StringValue></Name><Arguments ColNo="36" LineNo="15"><ADD ColNo="36" LineNo="15"><IntegerVariable>number1</IntegerVariable><IntegerVariable>number2</IntegerVariable></ADD></Arguments></Command></NodeBody></Node></OnCommand></Concurrence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/on-command1.ple">
+   <GlobalDeclarations ColNo="0" LineNo="1">
+      <CommandDeclaration ColNo="0" LineNo="1">
+         <Name>HaltAndCatchFire</Name>
+      </CommandDeclaration>
+      <CommandDeclaration ColNo="0" LineNo="2">
+         <Name>ExecuteProgrammerImmediate</Name>
+      </CommandDeclaration>
+      <CommandDeclaration ColNo="0" LineNo="3">
+         <Name>SendReturnValues</Name>
+         <Parameter>
+            <Type>Any</Type>
+         </Parameter>
+      </CommandDeclaration>
+   </GlobalDeclarations>
+   <Concurrence ColNo="0" LineNo="5">
+      <NodeId>root</NodeId>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="2" LineNo="9">
+            <Name>hcfName</Name>
+            <Type>String</Type>
+            <InitialValue>
+               <StringValue>HCF</StringValue>
+            </InitialValue>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <OnCommand ColNo="2" LineNo="10">
+         <NodeId>OnCommand__0</NodeId>
+         <Name>
+            <StringVariable>hcfName</StringVariable>
+         </Name>
+         <Node ColNo="20" LineNo="10" NodeType="Command">
+            <NodeId>COMMAND__1</NodeId>
+            <NodeBody>
+               <Command ColNo="20" LineNo="10">
+                  <Name>
+                     <StringValue>HaltAndCatchFire</StringValue>
+                  </Name>
+               </Command>
+            </NodeBody>
+         </Node>
+      </OnCommand>
+      <OnCommand ColNo="2" LineNo="12">
+         <NodeId>OnCommand__2</NodeId>
+         <Name>
+            <StringValue>EPI</StringValue>
+         </Name>
+         <Node ColNo="18" LineNo="12" NodeType="Command">
+            <NodeId>COMMAND__3</NodeId>
+            <NodeBody>
+               <Command ColNo="18" LineNo="12">
+                  <Name>
+                     <StringValue>ExecuteProgrammerImmediate</StringValue>
+                  </Name>
+               </Command>
+            </NodeBody>
+         </Node>
+      </OnCommand>
+      <OnCommand ColNo="2" LineNo="13">
+         <NodeId>OnCommand__4</NodeId>
+         <Name>
+            <StringValue>Three</StringValue>
+         </Name>
+         <Node ColNo="20" LineNo="13" NodeType="Command">
+            <NodeId>Increment</NodeId>
+            <NodeBody>
+               <Command ColNo="33" LineNo="13">
+                  <Name>
+                     <StringValue>SendReturnValues</StringValue>
+                  </Name>
+                  <Arguments ColNo="50" LineNo="13">
+                     <IntegerValue>3</IntegerValue>
+                  </Arguments>
+               </Command>
+            </NodeBody>
+         </Node>
+      </OnCommand>
+      <OnCommand ColNo="2" LineNo="14">
+         <NodeId>OnCommand__6</NodeId>
+         <VariableDeclarations>
+            <DeclareVariable ColNo="19" LineNo="14">
+               <Name>number1</Name>
+               <Type>Integer</Type>
+            </DeclareVariable>
+            <DeclareVariable ColNo="36" LineNo="14">
+               <Name>number2</Name>
+               <Type>Integer</Type>
+            </DeclareVariable>
+         </VariableDeclarations>
+         <Name>
+            <StringValue>Sum</StringValue>
+         </Name>
+         <Node ColNo="4" LineNo="15" NodeType="Command">
+            <NodeId>Sum</NodeId>
+            <NodeBody>
+               <Command ColNo="11" LineNo="15">
+                  <Name>
+                     <StringValue>SendReturnValues</StringValue>
+                  </Name>
+                  <Arguments ColNo="36" LineNo="15">
+                     <ADD ColNo="36" LineNo="15">
+                        <IntegerVariable>number1</IntegerVariable>
+                        <IntegerVariable>number2</IntegerVariable>
+                     </ADD>
+                  </Arguments>
+               </Command>
+            </NodeBody>
+         </Node>
+      </OnCommand>
+   </Concurrence>
+</PlexilPlan>

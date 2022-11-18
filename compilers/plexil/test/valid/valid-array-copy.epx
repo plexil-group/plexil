@@ -1,1 +1,56 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/array-copy.ple"><GlobalDeclarations ColNo="0" LineNo="1"><CommandDeclaration ColNo="0" LineNo="1"><Name>pprint</Name><AnyParameters/></CommandDeclaration></GlobalDeclarations><Sequence ColNo="0" LineNo="3"><NodeId>BLOCK__0</NodeId><VariableDeclarations><DeclareArray ColNo="2" LineNo="4"><Name>foo</Name><Type>Real</Type><MaxSize>4</MaxSize><InitialValue><ArrayValue Type="Real"><RealValue>0.1</RealValue><RealValue>0.2</RealValue><RealValue>0.3</RealValue><RealValue>0.4</RealValue></ArrayValue></InitialValue></DeclareArray><DeclareArray ColNo="2" LineNo="5"><Name>bar</Name><Type>Real</Type><MaxSize>4</MaxSize></DeclareArray></VariableDeclarations><Node ColNo="2" LineNo="6" NodeType="Assignment"><NodeId>ASSIGNMENT__1</NodeId><NodeBody><Assignment ColNo="2" LineNo="6"><ArrayVariable>bar</ArrayVariable><ArrayRHS><ArrayVariable>foo</ArrayVariable></ArrayRHS></Assignment></NodeBody></Node><Node ColNo="2" LineNo="7" NodeType="Command"><NodeId>COMMAND__2</NodeId><NodeBody><Command ColNo="2" LineNo="7"><Name><StringValue>pprint</StringValue></Name><Arguments ColNo="10" LineNo="7"><ArrayVariable>bar</ArrayVariable></Arguments></Command></NodeBody></Node></Sequence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/array-copy.ple">
+   <GlobalDeclarations ColNo="0" LineNo="1">
+      <CommandDeclaration ColNo="0" LineNo="1">
+         <Name>pprint</Name>
+         <AnyParameters/>
+      </CommandDeclaration>
+   </GlobalDeclarations>
+   <Sequence ColNo="0" LineNo="3">
+      <NodeId>BLOCK__0</NodeId>
+      <VariableDeclarations>
+         <DeclareArray ColNo="2" LineNo="4">
+            <Name>foo</Name>
+            <Type>Real</Type>
+            <MaxSize>4</MaxSize>
+            <InitialValue>
+               <ArrayValue Type="Real">
+                  <RealValue>0.1</RealValue>
+                  <RealValue>0.2</RealValue>
+                  <RealValue>0.3</RealValue>
+                  <RealValue>0.4</RealValue>
+               </ArrayValue>
+            </InitialValue>
+         </DeclareArray>
+         <DeclareArray ColNo="2" LineNo="5">
+            <Name>bar</Name>
+            <Type>Real</Type>
+            <MaxSize>4</MaxSize>
+         </DeclareArray>
+      </VariableDeclarations>
+      <Node ColNo="2" LineNo="6" NodeType="Assignment">
+         <NodeId>ASSIGNMENT__1</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="6">
+               <ArrayVariable>bar</ArrayVariable>
+               <ArrayRHS>
+                  <ArrayVariable>foo</ArrayVariable>
+               </ArrayRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="7" NodeType="Command">
+         <NodeId>COMMAND__2</NodeId>
+         <NodeBody>
+            <Command ColNo="2" LineNo="7">
+               <Name>
+                  <StringValue>pprint</StringValue>
+               </Name>
+               <Arguments ColNo="10" LineNo="7">
+                  <ArrayVariable>bar</ArrayVariable>
+               </Arguments>
+            </Command>
+         </NodeBody>
+      </Node>
+   </Sequence>
+</PlexilPlan>

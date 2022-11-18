@@ -1,1 +1,32 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/empty8.ple"><GlobalDeclarations ColNo="5" LineNo="2"><StateDeclaration ColNo="5" LineNo="2"><Name>time</Name><Return><Name>_return_0</Name><Type>Date</Type></Return></StateDeclaration></GlobalDeclarations><Node ColNo="0" LineNo="4" NodeType="Empty"><NodeId>VerifyTemp</NodeId><EndCondition ColNo="2" LineNo="6"><GE ColNo="46" LineNo="6"><Lookup ColNo="15" LineNo="6"><Name><StringValue>time</StringValue></Name><Tolerance><DurationValue>PT1S</DurationValue></Tolerance></Lookup><NodeTimepointValue ColNo="49" LineNo="6"><NodeRef dir="self"/><NodeStateValue>EXECUTING</NodeStateValue><Timepoint>START</Timepoint></NodeTimepointValue></GE></EndCondition></Node></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/empty8.ple">
+   <GlobalDeclarations ColNo="5" LineNo="2">
+      <StateDeclaration ColNo="5" LineNo="2">
+         <Name>time</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Date</Type>
+         </Return>
+      </StateDeclaration>
+   </GlobalDeclarations>
+   <Node ColNo="0" LineNo="4" NodeType="Empty">
+      <NodeId>VerifyTemp</NodeId>
+      <EndCondition ColNo="2" LineNo="6">
+         <GE ColNo="46" LineNo="6">
+            <Lookup ColNo="15" LineNo="6">
+               <Name>
+                  <StringValue>time</StringValue>
+               </Name>
+               <Tolerance>
+                  <DurationValue>PT1S</DurationValue>
+               </Tolerance>
+            </Lookup>
+            <NodeTimepointValue ColNo="49" LineNo="6">
+               <NodeRef dir="self"/>
+               <NodeStateValue>EXECUTING</NodeStateValue>
+               <Timepoint>START</Timepoint>
+            </NodeTimepointValue>
+         </GE>
+      </EndCondition>
+   </Node>
+</PlexilPlan>

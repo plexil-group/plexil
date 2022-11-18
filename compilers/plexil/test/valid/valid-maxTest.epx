@@ -1,1 +1,123 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/maxTest.ple"><Concurrence ColNo="0" LineNo="1"><NodeId>maxTest</NodeId><VariableDeclarations><DeclareVariable ColNo="2" LineNo="3"><Name>l</Name><Type>Integer</Type></DeclareVariable><DeclareVariable ColNo="2" LineNo="3"><Name>m</Name><Type>Integer</Type></DeclareVariable><DeclareVariable ColNo="2" LineNo="3"><Name>n</Name><Type>Integer</Type></DeclareVariable><DeclareVariable ColNo="2" LineNo="4"><Name>x</Name><Type>Real</Type></DeclareVariable><DeclareVariable ColNo="2" LineNo="4"><Name>y</Name><Type>Real</Type></DeclareVariable></VariableDeclarations><PostCondition ColNo="2" LineNo="5"><AND ColNo="60" LineNo="5"><NOT ColNo="16" LineNo="5"><IsKnown ColNo="17" LineNo="5"><IntegerVariable>l</IntegerVariable></IsKnown></NOT><EQNumeric ColNo="33" LineNo="5"><IntegerVariable>m</IntegerVariable><IntegerValue>1</IntegerValue></EQNumeric><EQNumeric ColNo="43" LineNo="5"><IntegerVariable>n</IntegerVariable><IntegerValue>2</IntegerValue></EQNumeric><EQNumeric ColNo="53" LineNo="5"><RealVariable>x</RealVariable><RealValue>2.0</RealValue></EQNumeric><EQNumeric ColNo="65" LineNo="5"><RealVariable>y</RealVariable><RealValue>7.1</RealValue></EQNumeric></AND></PostCondition><Node ColNo="0" LineNo="7" NodeType="Assignment"><NodeId>unknownInts</NodeId><NodeBody><Assignment ColNo="2" LineNo="8"><IntegerVariable>l</IntegerVariable><NumericRHS><MAX ColNo="6" LineNo="8"><IntegerVariable>l</IntegerVariable><IntegerValue>0</IntegerValue></MAX></NumericRHS></Assignment></NodeBody></Node><Node ColNo="0" LineNo="10" NodeType="Assignment"><NodeId>equalInts</NodeId><NodeBody><Assignment ColNo="2" LineNo="11"><IntegerVariable>m</IntegerVariable><NumericRHS><MAX ColNo="6" LineNo="11"><IntegerValue>1</IntegerValue><IntegerValue>1</IntegerValue></MAX></NumericRHS></Assignment></NodeBody></Node><Node ColNo="0" LineNo="13" NodeType="Assignment"><NodeId>unequalInts</NodeId><NodeBody><Assignment ColNo="2" LineNo="14"><IntegerVariable>n</IntegerVariable><NumericRHS><MAX ColNo="6" LineNo="14"><IntegerValue>1</IntegerValue><IntegerValue>2</IntegerValue></MAX></NumericRHS></Assignment></NodeBody></Node><Node ColNo="0" LineNo="16" NodeType="Assignment"><NodeId>equalReals</NodeId><NodeBody><Assignment ColNo="2" LineNo="17"><RealVariable>x</RealVariable><NumericRHS><MAX ColNo="6" LineNo="17"><RealValue>2.0</RealValue><RealValue>2.0</RealValue></MAX></NumericRHS></Assignment></NodeBody></Node><Node ColNo="0" LineNo="19" NodeType="Assignment"><NodeId>unequal</NodeId><NodeBody><Assignment ColNo="2" LineNo="20"><RealVariable>y</RealVariable><NumericRHS><MAX ColNo="6" LineNo="20"><RealValue>7.0</RealValue><RealValue>7.1</RealValue></MAX></NumericRHS></Assignment></NodeBody></Node></Concurrence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/maxTest.ple">
+   <Concurrence ColNo="0" LineNo="1">
+      <NodeId>maxTest</NodeId>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="2" LineNo="3">
+            <Name>l</Name>
+            <Type>Integer</Type>
+         </DeclareVariable>
+         <DeclareVariable ColNo="2" LineNo="3">
+            <Name>m</Name>
+            <Type>Integer</Type>
+         </DeclareVariable>
+         <DeclareVariable ColNo="2" LineNo="3">
+            <Name>n</Name>
+            <Type>Integer</Type>
+         </DeclareVariable>
+         <DeclareVariable ColNo="2" LineNo="4">
+            <Name>x</Name>
+            <Type>Real</Type>
+         </DeclareVariable>
+         <DeclareVariable ColNo="2" LineNo="4">
+            <Name>y</Name>
+            <Type>Real</Type>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <PostCondition ColNo="2" LineNo="5">
+         <AND ColNo="60" LineNo="5">
+            <NOT ColNo="16" LineNo="5">
+               <IsKnown ColNo="17" LineNo="5">
+                  <IntegerVariable>l</IntegerVariable>
+               </IsKnown>
+            </NOT>
+            <EQNumeric ColNo="33" LineNo="5">
+               <IntegerVariable>m</IntegerVariable>
+               <IntegerValue>1</IntegerValue>
+            </EQNumeric>
+            <EQNumeric ColNo="43" LineNo="5">
+               <IntegerVariable>n</IntegerVariable>
+               <IntegerValue>2</IntegerValue>
+            </EQNumeric>
+            <EQNumeric ColNo="53" LineNo="5">
+               <RealVariable>x</RealVariable>
+               <RealValue>2.0</RealValue>
+            </EQNumeric>
+            <EQNumeric ColNo="65" LineNo="5">
+               <RealVariable>y</RealVariable>
+               <RealValue>7.1</RealValue>
+            </EQNumeric>
+         </AND>
+      </PostCondition>
+      <Node ColNo="0" LineNo="7" NodeType="Assignment">
+         <NodeId>unknownInts</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="8">
+               <IntegerVariable>l</IntegerVariable>
+               <NumericRHS>
+                  <MAX ColNo="6" LineNo="8">
+                     <IntegerVariable>l</IntegerVariable>
+                     <IntegerValue>0</IntegerValue>
+                  </MAX>
+               </NumericRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="0" LineNo="10" NodeType="Assignment">
+         <NodeId>equalInts</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="11">
+               <IntegerVariable>m</IntegerVariable>
+               <NumericRHS>
+                  <MAX ColNo="6" LineNo="11">
+                     <IntegerValue>1</IntegerValue>
+                     <IntegerValue>1</IntegerValue>
+                  </MAX>
+               </NumericRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="0" LineNo="13" NodeType="Assignment">
+         <NodeId>unequalInts</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="14">
+               <IntegerVariable>n</IntegerVariable>
+               <NumericRHS>
+                  <MAX ColNo="6" LineNo="14">
+                     <IntegerValue>1</IntegerValue>
+                     <IntegerValue>2</IntegerValue>
+                  </MAX>
+               </NumericRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="0" LineNo="16" NodeType="Assignment">
+         <NodeId>equalReals</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="17">
+               <RealVariable>x</RealVariable>
+               <NumericRHS>
+                  <MAX ColNo="6" LineNo="17">
+                     <RealValue>2.0</RealValue>
+                     <RealValue>2.0</RealValue>
+                  </MAX>
+               </NumericRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="0" LineNo="19" NodeType="Assignment">
+         <NodeId>unequal</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="20">
+               <RealVariable>y</RealVariable>
+               <NumericRHS>
+                  <MAX ColNo="6" LineNo="20">
+                     <RealValue>7.0</RealValue>
+                     <RealValue>7.1</RealValue>
+                  </MAX>
+               </NumericRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+   </Concurrence>
+</PlexilPlan>

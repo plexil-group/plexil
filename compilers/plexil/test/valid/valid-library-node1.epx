@@ -1,1 +1,34 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/library-node1.ple"><Node ColNo="0" LineNo="1" NodeType="Assignment"><NodeId>F</NodeId><Interface><In><DeclareVariable ColNo="4" LineNo="3"><Name>i</Name><Type>Integer</Type></DeclareVariable></In><InOut><DeclareVariable ColNo="7" LineNo="4"><Name>j</Name><Type>Integer</Type></DeclareVariable></InOut></Interface><NodeBody><Assignment ColNo="1" LineNo="5"><IntegerVariable>j</IntegerVariable><NumericRHS><ADD ColNo="11" LineNo="5"><MUL ColNo="7" LineNo="5"><IntegerVariable>j</IntegerVariable><IntegerVariable>j</IntegerVariable></MUL><IntegerVariable>i</IntegerVariable></ADD></NumericRHS></Assignment></NodeBody></Node></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/library-node1.ple">
+   <Node ColNo="0" LineNo="1" NodeType="Assignment">
+      <NodeId>F</NodeId>
+      <Interface>
+         <In>
+            <DeclareVariable ColNo="4" LineNo="3">
+               <Name>i</Name>
+               <Type>Integer</Type>
+            </DeclareVariable>
+         </In>
+         <InOut>
+            <DeclareVariable ColNo="7" LineNo="4">
+               <Name>j</Name>
+               <Type>Integer</Type>
+            </DeclareVariable>
+         </InOut>
+      </Interface>
+      <NodeBody>
+         <Assignment ColNo="1" LineNo="5">
+            <IntegerVariable>j</IntegerVariable>
+            <NumericRHS>
+               <ADD ColNo="11" LineNo="5">
+                  <MUL ColNo="7" LineNo="5">
+                     <IntegerVariable>j</IntegerVariable>
+                     <IntegerVariable>j</IntegerVariable>
+                  </MUL>
+                  <IntegerVariable>i</IntegerVariable>
+               </ADD>
+            </NumericRHS>
+         </Assignment>
+      </NodeBody>
+   </Node>
+</PlexilPlan>

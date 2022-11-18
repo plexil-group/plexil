@@ -1,1 +1,132 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/concurrence1.ple"><GlobalDeclarations ColNo="8" LineNo="1"><CommandDeclaration ColNo="8" LineNo="1"><Name>DoIt</Name><Return><Name>_return_0</Name><Type>Boolean</Type></Return><Parameter><Type>Integer</Type></Parameter></CommandDeclaration><CommandDeclaration ColNo="8" LineNo="2"><Name>GetX</Name><Return><Name>_return_0</Name><Type>Integer</Type></Return></CommandDeclaration><CommandDeclaration ColNo="0" LineNo="3"><Name>inform</Name><Parameter><Type>String</Type></Parameter></CommandDeclaration></GlobalDeclarations><Concurrence ColNo="0" LineNo="5"><NodeId>Root</NodeId><VariableDeclarations><DeclareVariable ColNo="2" LineNo="7"><Name>x</Name><Type>Integer</Type></DeclareVariable></VariableDeclarations><Node ColNo="2" LineNo="8" NodeType="Command"><NodeId>Inform</NodeId><NodeBody><Command ColNo="4" LineNo="10"><Name><StringValue>inform</StringValue></Name><Arguments ColNo="11" LineNo="10"><StringValue>Plan executing...</StringValue></Arguments></Command></NodeBody></Node><Node ColNo="2" LineNo="13" NodeType="Command"><NodeId>Init</NodeId><NodeBody><Command ColNo="4" LineNo="15"><IntegerVariable>x</IntegerVariable><Name><StringValue>GetX</StringValue></Name></Command></NodeBody></Node><SynchronousCommand ColNo="2" LineNo="18"><NodeId>Commence</NodeId><VariableDeclarations><DeclareVariable ColNo="4" LineNo="20"><Name>result</Name><Type>Boolean</Type></DeclareVariable></VariableDeclarations><StartCondition ColNo="4" LineNo="21"><EQInternal ColNo="30" LineNo="21"><NodeStateVariable ColNo="24" LineNo="21"><NodeId>Init</NodeId></NodeStateVariable><NodeStateValue>FINISHED</NodeStateValue></EQInternal></StartCondition><PostCondition ColNo="4" LineNo="22"><BooleanVariable>result</BooleanVariable></PostCondition><Command ColNo="23" LineNo="23"><BooleanVariable>result</BooleanVariable><Name><StringValue>DoIt</StringValue></Name><Arguments ColNo="37" LineNo="23"><IntegerVariable>x</IntegerVariable></Arguments></Command></SynchronousCommand><Node ColNo="2" LineNo="26" NodeType="Command"><NodeId>InformSuccess</NodeId><StartCondition ColNo="4" LineNo="28"><EQInternal ColNo="36" LineNo="28"><NodeOutcomeVariable ColNo="28" LineNo="28"><NodeId>Commence</NodeId></NodeOutcomeVariable><NodeOutcomeValue>SUCCESS</NodeOutcomeValue></EQInternal></StartCondition><NodeBody><Command ColNo="4" LineNo="29"><Name><StringValue>inform</StringValue></Name><Arguments ColNo="11" LineNo="29"><StringValue>Operation succeeded!</StringValue></Arguments></Command></NodeBody></Node><Node ColNo="2" LineNo="32" NodeType="Command"><NodeId>InformFailure</NodeId><StartCondition ColNo="4" LineNo="34"><EQInternal ColNo="36" LineNo="34"><NodeOutcomeVariable ColNo="28" LineNo="34"><NodeId>Commence</NodeId></NodeOutcomeVariable><NodeOutcomeValue>FAILURE</NodeOutcomeValue></EQInternal></StartCondition><NodeBody><Command ColNo="4" LineNo="35"><Name><StringValue>inform</StringValue></Name><Arguments ColNo="11" LineNo="35"><StringValue>Operation failed!</StringValue></Arguments></Command></NodeBody></Node></Concurrence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/concurrence1.ple">
+   <GlobalDeclarations ColNo="8" LineNo="1">
+      <CommandDeclaration ColNo="8" LineNo="1">
+         <Name>DoIt</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Boolean</Type>
+         </Return>
+         <Parameter>
+            <Type>Integer</Type>
+         </Parameter>
+      </CommandDeclaration>
+      <CommandDeclaration ColNo="8" LineNo="2">
+         <Name>GetX</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Integer</Type>
+         </Return>
+      </CommandDeclaration>
+      <CommandDeclaration ColNo="0" LineNo="3">
+         <Name>inform</Name>
+         <Parameter>
+            <Type>String</Type>
+         </Parameter>
+      </CommandDeclaration>
+   </GlobalDeclarations>
+   <Concurrence ColNo="0" LineNo="5">
+      <NodeId>Root</NodeId>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="2" LineNo="7">
+            <Name>x</Name>
+            <Type>Integer</Type>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <Node ColNo="2" LineNo="8" NodeType="Command">
+         <NodeId>Inform</NodeId>
+         <NodeBody>
+            <Command ColNo="4" LineNo="10">
+               <Name>
+                  <StringValue>inform</StringValue>
+               </Name>
+               <Arguments ColNo="11" LineNo="10">
+                  <StringValue>Plan executing...</StringValue>
+               </Arguments>
+            </Command>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="13" NodeType="Command">
+         <NodeId>Init</NodeId>
+         <NodeBody>
+            <Command ColNo="4" LineNo="15">
+               <IntegerVariable>x</IntegerVariable>
+               <Name>
+                  <StringValue>GetX</StringValue>
+               </Name>
+            </Command>
+         </NodeBody>
+      </Node>
+      <SynchronousCommand ColNo="2" LineNo="18">
+         <NodeId>Commence</NodeId>
+         <VariableDeclarations>
+            <DeclareVariable ColNo="4" LineNo="20">
+               <Name>result</Name>
+               <Type>Boolean</Type>
+            </DeclareVariable>
+         </VariableDeclarations>
+         <StartCondition ColNo="4" LineNo="21">
+            <EQInternal ColNo="30" LineNo="21">
+               <NodeStateVariable ColNo="24" LineNo="21">
+                  <NodeId>Init</NodeId>
+               </NodeStateVariable>
+               <NodeStateValue>FINISHED</NodeStateValue>
+            </EQInternal>
+         </StartCondition>
+         <PostCondition ColNo="4" LineNo="22">
+            <BooleanVariable>result</BooleanVariable>
+         </PostCondition>
+         <Command ColNo="23" LineNo="23">
+            <BooleanVariable>result</BooleanVariable>
+            <Name>
+               <StringValue>DoIt</StringValue>
+            </Name>
+            <Arguments ColNo="37" LineNo="23">
+               <IntegerVariable>x</IntegerVariable>
+            </Arguments>
+         </Command>
+      </SynchronousCommand>
+      <Node ColNo="2" LineNo="26" NodeType="Command">
+         <NodeId>InformSuccess</NodeId>
+         <StartCondition ColNo="4" LineNo="28">
+            <EQInternal ColNo="36" LineNo="28">
+               <NodeOutcomeVariable ColNo="28" LineNo="28">
+                  <NodeId>Commence</NodeId>
+               </NodeOutcomeVariable>
+               <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
+            </EQInternal>
+         </StartCondition>
+         <NodeBody>
+            <Command ColNo="4" LineNo="29">
+               <Name>
+                  <StringValue>inform</StringValue>
+               </Name>
+               <Arguments ColNo="11" LineNo="29">
+                  <StringValue>Operation succeeded!</StringValue>
+               </Arguments>
+            </Command>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="32" NodeType="Command">
+         <NodeId>InformFailure</NodeId>
+         <StartCondition ColNo="4" LineNo="34">
+            <EQInternal ColNo="36" LineNo="34">
+               <NodeOutcomeVariable ColNo="28" LineNo="34">
+                  <NodeId>Commence</NodeId>
+               </NodeOutcomeVariable>
+               <NodeOutcomeValue>FAILURE</NodeOutcomeValue>
+            </EQInternal>
+         </StartCondition>
+         <NodeBody>
+            <Command ColNo="4" LineNo="35">
+               <Name>
+                  <StringValue>inform</StringValue>
+               </Name>
+               <Arguments ColNo="11" LineNo="35">
+                  <StringValue>Operation failed!</StringValue>
+               </Arguments>
+            </Command>
+         </NodeBody>
+      </Node>
+   </Concurrence>
+</PlexilPlan>

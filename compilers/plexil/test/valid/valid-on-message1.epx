@@ -1,1 +1,61 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/on-message1.ple"><GlobalDeclarations ColNo="0" LineNo="1"><CommandDeclaration ColNo="0" LineNo="1"><Name>HaltAndCatchFire</Name></CommandDeclaration><CommandDeclaration ColNo="0" LineNo="2"><Name>ExecuteProgrammerImmediate</Name><Parameter><Type>String</Type></Parameter></CommandDeclaration></GlobalDeclarations><Concurrence ColNo="0" LineNo="4"><NodeId>root</NodeId><VariableDeclarations><DeclareVariable ColNo="4" LineNo="7"><Name>hcfName</Name><Type>String</Type><InitialValue><StringValue>HCF</StringValue></InitialValue></DeclareVariable></VariableDeclarations><OnMessage ColNo="4" LineNo="9"><NodeId>OnMessage__0</NodeId><Message><StringVariable>hcfName</StringVariable></Message><Node ColNo="22" LineNo="9" NodeType="Command"><NodeId>COMMAND__1</NodeId><NodeBody><Command ColNo="22" LineNo="9"><Name><StringValue>HaltAndCatchFire</StringValue></Name></Command></NodeBody></Node></OnMessage><OnMessage ColNo="4" LineNo="10"><NodeId>OnMessage__2</NodeId><Message><StringValue>EPI</StringValue></Message><Node ColNo="20" LineNo="10" NodeType="Command"><NodeId>COMMAND__3</NodeId><NodeBody><Command ColNo="20" LineNo="10"><Name><StringValue>ExecuteProgrammerImmediate</StringValue></Name><Arguments ColNo="48" LineNo="10"><StringVariable>hcfName</StringVariable></Arguments></Command></NodeBody></Node></OnMessage></Concurrence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/on-message1.ple">
+   <GlobalDeclarations ColNo="0" LineNo="1">
+      <CommandDeclaration ColNo="0" LineNo="1">
+         <Name>HaltAndCatchFire</Name>
+      </CommandDeclaration>
+      <CommandDeclaration ColNo="0" LineNo="2">
+         <Name>ExecuteProgrammerImmediate</Name>
+         <Parameter>
+            <Type>String</Type>
+         </Parameter>
+      </CommandDeclaration>
+   </GlobalDeclarations>
+   <Concurrence ColNo="0" LineNo="4">
+      <NodeId>root</NodeId>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="4" LineNo="7">
+            <Name>hcfName</Name>
+            <Type>String</Type>
+            <InitialValue>
+               <StringValue>HCF</StringValue>
+            </InitialValue>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <OnMessage ColNo="4" LineNo="9">
+         <NodeId>OnMessage__0</NodeId>
+         <Message>
+            <StringVariable>hcfName</StringVariable>
+         </Message>
+         <Node ColNo="22" LineNo="9" NodeType="Command">
+            <NodeId>COMMAND__1</NodeId>
+            <NodeBody>
+               <Command ColNo="22" LineNo="9">
+                  <Name>
+                     <StringValue>HaltAndCatchFire</StringValue>
+                  </Name>
+               </Command>
+            </NodeBody>
+         </Node>
+      </OnMessage>
+      <OnMessage ColNo="4" LineNo="10">
+         <NodeId>OnMessage__2</NodeId>
+         <Message>
+            <StringValue>EPI</StringValue>
+         </Message>
+         <Node ColNo="20" LineNo="10" NodeType="Command">
+            <NodeId>COMMAND__3</NodeId>
+            <NodeBody>
+               <Command ColNo="20" LineNo="10">
+                  <Name>
+                     <StringValue>ExecuteProgrammerImmediate</StringValue>
+                  </Name>
+                  <Arguments ColNo="48" LineNo="10">
+                     <StringVariable>hcfName</StringVariable>
+                  </Arguments>
+               </Command>
+            </NodeBody>
+         </Node>
+      </OnMessage>
+   </Concurrence>
+</PlexilPlan>

@@ -1,1 +1,50 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/LibraryCall4.ple"><GlobalDeclarations ColNo="0" LineNo="1"><LibraryNodeDeclaration ColNo="0" LineNo="1"><Name>F</Name><Interface><In><DeclareVariable ColNo="17" LineNo="1"><Name>i</Name><Type>Integer</Type></DeclareVariable></In><InOut><DeclareVariable ColNo="31" LineNo="1"><Name>j</Name><Type>Integer</Type></DeclareVariable></InOut></Interface></LibraryNodeDeclaration></GlobalDeclarations><Node ColNo="0" LineNo="3" NodeType="LibraryNodeCall"><NodeId>LibraryCall4</NodeId><VariableDeclarations><DeclareVariable ColNo="1" LineNo="5"><Name>k</Name><Type>Integer</Type><InitialValue><IntegerValue>2</IntegerValue></InitialValue></DeclareVariable></VariableDeclarations><NodeBody><LibraryNodeCall ColNo="1" LineNo="6"><NodeId>F</NodeId><Alias><NodeParameter>i</NodeParameter><MUL ColNo="21" LineNo="6"><IntegerValue>6</IntegerValue><IntegerVariable>k</IntegerVariable></MUL></Alias><Alias><NodeParameter>j</NodeParameter><IntegerVariable>k</IntegerVariable></Alias></LibraryNodeCall></NodeBody></Node></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/LibraryCall4.ple">
+   <GlobalDeclarations ColNo="0" LineNo="1">
+      <LibraryNodeDeclaration ColNo="0" LineNo="1">
+         <Name>F</Name>
+         <Interface>
+            <In>
+               <DeclareVariable ColNo="17" LineNo="1">
+                  <Name>i</Name>
+                  <Type>Integer</Type>
+               </DeclareVariable>
+            </In>
+            <InOut>
+               <DeclareVariable ColNo="31" LineNo="1">
+                  <Name>j</Name>
+                  <Type>Integer</Type>
+               </DeclareVariable>
+            </InOut>
+         </Interface>
+      </LibraryNodeDeclaration>
+   </GlobalDeclarations>
+   <Node ColNo="0" LineNo="3" NodeType="LibraryNodeCall">
+      <NodeId>LibraryCall4</NodeId>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="1" LineNo="5">
+            <Name>k</Name>
+            <Type>Integer</Type>
+            <InitialValue>
+               <IntegerValue>2</IntegerValue>
+            </InitialValue>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <NodeBody>
+         <LibraryNodeCall ColNo="1" LineNo="6">
+            <NodeId>F</NodeId>
+            <Alias>
+               <NodeParameter>i</NodeParameter>
+               <MUL ColNo="21" LineNo="6">
+                  <IntegerValue>6</IntegerValue>
+                  <IntegerVariable>k</IntegerVariable>
+               </MUL>
+            </Alias>
+            <Alias>
+               <NodeParameter>j</NodeParameter>
+               <IntegerVariable>k</IntegerVariable>
+            </Alias>
+         </LibraryNodeCall>
+      </NodeBody>
+   </Node>
+</PlexilPlan>

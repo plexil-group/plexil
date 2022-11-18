@@ -1,1 +1,86 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/RoboSimSimple2.ple"><GlobalDeclarations ColNo="5" LineNo="1"><CommandDeclaration ColNo="5" LineNo="1"><Name>Move</Name><Return><Name>_return_0</Name><Type>Real</Type></Return><Parameter><Type>String</Type></Parameter><Parameter><Type>Integer</Type></Parameter></CommandDeclaration><CommandDeclaration ColNo="8" LineNo="2"><Name>QueryEnergySensor</Name><Return><Name>_return_0</Name><Type>Real</Type><MaxSize>5</MaxSize></Return><Parameter><Type>String</Type></Parameter></CommandDeclaration></GlobalDeclarations><Sequence ColNo="0" LineNo="4"><NodeId>RootNode</NodeId><VariableDeclarations><DeclareVariable ColNo="4" LineNo="6"><Name>RobotName</Name><Type>String</Type><InitialValue><StringValue>RobotYellow</StringValue></InitialValue></DeclareVariable><DeclareVariable ColNo="4" LineNo="7"><Name>randNumber</Name><Type>Integer</Type><InitialValue><IntegerValue>0</IntegerValue></InitialValue></DeclareVariable></VariableDeclarations><SynchronousCommand ColNo="4" LineNo="8"><NodeId>Move</NodeId><VariableDeclarations><DeclareVariable ColNo="8" LineNo="10"><Name>res</Name><Type>Real</Type></DeclareVariable></VariableDeclarations><Command ColNo="27" LineNo="11"><RealVariable>res</RealVariable><Name><StringValue>Move</StringValue></Name><Arguments ColNo="38" LineNo="11"><StringVariable>RobotName</StringVariable><IntegerVariable>randNumber</IntegerVariable></Arguments></Command></SynchronousCommand><SynchronousCommand ColNo="4" LineNo="13"><NodeId>QueryEnergySensor</NodeId><VariableDeclarations><DeclareArray ColNo="8" LineNo="15"><Name>energy</Name><Type>Real</Type><MaxSize>5</MaxSize></DeclareArray></VariableDeclarations><Command ColNo="27" LineNo="16"><ArrayVariable>energy</ArrayVariable><Name><StringValue>QueryEnergySensor</StringValue></Name><Arguments ColNo="54" LineNo="16"><StringVariable>RobotName</StringVariable></Arguments></Command></SynchronousCommand></Sequence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/RoboSimSimple2.ple">
+   <GlobalDeclarations ColNo="5" LineNo="1">
+      <CommandDeclaration ColNo="5" LineNo="1">
+         <Name>Move</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Real</Type>
+         </Return>
+         <Parameter>
+            <Type>String</Type>
+         </Parameter>
+         <Parameter>
+            <Type>Integer</Type>
+         </Parameter>
+      </CommandDeclaration>
+      <CommandDeclaration ColNo="8" LineNo="2">
+         <Name>QueryEnergySensor</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Real</Type>
+            <MaxSize>5</MaxSize>
+         </Return>
+         <Parameter>
+            <Type>String</Type>
+         </Parameter>
+      </CommandDeclaration>
+   </GlobalDeclarations>
+   <Sequence ColNo="0" LineNo="4">
+      <NodeId>RootNode</NodeId>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="4" LineNo="6">
+            <Name>RobotName</Name>
+            <Type>String</Type>
+            <InitialValue>
+               <StringValue>RobotYellow</StringValue>
+            </InitialValue>
+         </DeclareVariable>
+         <DeclareVariable ColNo="4" LineNo="7">
+            <Name>randNumber</Name>
+            <Type>Integer</Type>
+            <InitialValue>
+               <IntegerValue>0</IntegerValue>
+            </InitialValue>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <SynchronousCommand ColNo="4" LineNo="8">
+         <NodeId>Move</NodeId>
+         <VariableDeclarations>
+            <DeclareVariable ColNo="8" LineNo="10">
+               <Name>res</Name>
+               <Type>Real</Type>
+            </DeclareVariable>
+         </VariableDeclarations>
+         <Command ColNo="27" LineNo="11">
+            <RealVariable>res</RealVariable>
+            <Name>
+               <StringValue>Move</StringValue>
+            </Name>
+            <Arguments ColNo="38" LineNo="11">
+               <StringVariable>RobotName</StringVariable>
+               <IntegerVariable>randNumber</IntegerVariable>
+            </Arguments>
+         </Command>
+      </SynchronousCommand>
+      <SynchronousCommand ColNo="4" LineNo="13">
+         <NodeId>QueryEnergySensor</NodeId>
+         <VariableDeclarations>
+            <DeclareArray ColNo="8" LineNo="15">
+               <Name>energy</Name>
+               <Type>Real</Type>
+               <MaxSize>5</MaxSize>
+            </DeclareArray>
+         </VariableDeclarations>
+         <Command ColNo="27" LineNo="16">
+            <ArrayVariable>energy</ArrayVariable>
+            <Name>
+               <StringValue>QueryEnergySensor</StringValue>
+            </Name>
+            <Arguments ColNo="54" LineNo="16">
+               <StringVariable>RobotName</StringVariable>
+            </Arguments>
+         </Command>
+      </SynchronousCommand>
+   </Sequence>
+</PlexilPlan>

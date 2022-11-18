@@ -1,1 +1,186 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/Resource4.ple"><GlobalDeclarations ColNo="8" LineNo="1"><CommandDeclaration ColNo="8" LineNo="1"><Name>c1</Name><Return><Name>_return_0</Name><Type>Integer</Type></Return></CommandDeclaration><CommandDeclaration ColNo="8" LineNo="2"><Name>c2</Name><Return><Name>_return_0</Name><Type>Integer</Type></Return></CommandDeclaration><CommandDeclaration ColNo="8" LineNo="3"><Name>c3</Name><Return><Name>_return_0</Name><Type>Integer</Type></Return></CommandDeclaration></GlobalDeclarations><Concurrence ColNo="0" LineNo="5"><NodeId>SimpleTask</NodeId><Node ColNo="2" LineNo="7" NodeType="Command"><NodeId>C1</NodeId><VariableDeclarations><DeclareVariable ColNo="4" LineNo="8"><Name>returnValue</Name><Type>Integer</Type><InitialValue><IntegerValue>-1</IntegerValue></InitialValue></DeclareVariable></VariableDeclarations><EndCondition ColNo="4" LineNo="9"><EQNumeric ColNo="29" LineNo="9"><IntegerVariable>returnValue</IntegerVariable><IntegerValue>10</IntegerValue></EQNumeric></EndCondition><PostCondition ColNo="4" LineNo="10"><EQInternal ColNo="36" LineNo="10"><NodeCommandHandleVariable ColNo="21" LineNo="10"><NodeId>C1</NodeId></NodeCommandHandleVariable><NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue></EQInternal></PostCondition><NodeBody><Command ColNo="4" LineNo="12"><ResourceList><Resource ColNo="4" LineNo="11"><ResourceName><StringValue>sys_memory</StringValue></ResourceName><ResourcePriority><IntegerValue>20</IntegerValue></ResourcePriority><ResourceLowerBound><RealValue>0.8</RealValue></ResourceLowerBound><ResourceUpperBound><RealValue>0.8</RealValue></ResourceUpperBound></Resource></ResourceList><IntegerVariable>returnValue</IntegerVariable><Name><StringValue>c1</StringValue></Name></Command></NodeBody></Node><Node ColNo="2" LineNo="15" NodeType="Command"><NodeId>C2</NodeId><VariableDeclarations><DeclareVariable ColNo="4" LineNo="16"><Name>mem_priority</Name><Type>Integer</Type><InitialValue><IntegerValue>30</IntegerValue></InitialValue></DeclareVariable><DeclareVariable ColNo="4" LineNo="17"><Name>returnValue</Name><Type>Integer</Type><InitialValue><IntegerValue>-1</IntegerValue></InitialValue></DeclareVariable></VariableDeclarations><PostCondition ColNo="4" LineNo="18"><EQInternal ColNo="36" LineNo="18"><NodeCommandHandleVariable ColNo="21" LineNo="18"><NodeId>C2</NodeId></NodeCommandHandleVariable><NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue></EQInternal></PostCondition><EndCondition ColNo="4" LineNo="19"><EQNumeric ColNo="29" LineNo="19"><IntegerVariable>returnValue</IntegerVariable><IntegerValue>10</IntegerValue></EQNumeric></EndCondition><NodeBody><Command ColNo="4" LineNo="21"><ResourceList><Resource ColNo="4" LineNo="20"><ResourceName><StringValue>sys_memory</StringValue></ResourceName><ResourcePriority><IntegerValue>30</IntegerValue></ResourcePriority><ResourceLowerBound><RealValue>0.3</RealValue></ResourceLowerBound><ResourceUpperBound><RealValue>0.3</RealValue></ResourceUpperBound></Resource></ResourceList><IntegerVariable>returnValue</IntegerVariable><Name><StringValue>c2</StringValue></Name></Command></NodeBody></Node><Node ColNo="2" LineNo="23" NodeType="Command"><NodeId>C3</NodeId><VariableDeclarations><DeclareVariable ColNo="4" LineNo="24"><Name>returnValue</Name><Type>Integer</Type><InitialValue><IntegerValue>-1</IntegerValue></InitialValue></DeclareVariable></VariableDeclarations><PostCondition ColNo="4" LineNo="25"><EQInternal ColNo="36" LineNo="25"><NodeCommandHandleVariable ColNo="21" LineNo="25"><NodeId>C3</NodeId></NodeCommandHandleVariable><NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue></EQInternal></PostCondition><EndCondition ColNo="4" LineNo="26"><EQNumeric ColNo="29" LineNo="26"><IntegerVariable>returnValue</IntegerVariable><IntegerValue>10</IntegerValue></EQNumeric></EndCondition><NodeBody><Command ColNo="4" LineNo="28"><ResourceList><Resource ColNo="4" LineNo="27"><ResourceName><StringValue>sys_memory</StringValue></ResourceName><ResourcePriority><IntegerValue>40</IntegerValue></ResourcePriority><ResourceLowerBound><RealValue>-0.1</RealValue></ResourceLowerBound><ResourceUpperBound><RealValue>-0.1</RealValue></ResourceUpperBound></Resource></ResourceList><IntegerVariable>returnValue</IntegerVariable><Name><StringValue>c3</StringValue></Name></Command></NodeBody></Node></Concurrence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/Resource4.ple">
+   <GlobalDeclarations ColNo="8" LineNo="1">
+      <CommandDeclaration ColNo="8" LineNo="1">
+         <Name>c1</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Integer</Type>
+         </Return>
+      </CommandDeclaration>
+      <CommandDeclaration ColNo="8" LineNo="2">
+         <Name>c2</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Integer</Type>
+         </Return>
+      </CommandDeclaration>
+      <CommandDeclaration ColNo="8" LineNo="3">
+         <Name>c3</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Integer</Type>
+         </Return>
+      </CommandDeclaration>
+   </GlobalDeclarations>
+   <Concurrence ColNo="0" LineNo="5">
+      <NodeId>SimpleTask</NodeId>
+      <Node ColNo="2" LineNo="7" NodeType="Command">
+         <NodeId>C1</NodeId>
+         <VariableDeclarations>
+            <DeclareVariable ColNo="4" LineNo="8">
+               <Name>returnValue</Name>
+               <Type>Integer</Type>
+               <InitialValue>
+                  <IntegerValue>-1</IntegerValue>
+               </InitialValue>
+            </DeclareVariable>
+         </VariableDeclarations>
+         <EndCondition ColNo="4" LineNo="9">
+            <EQNumeric ColNo="29" LineNo="9">
+               <IntegerVariable>returnValue</IntegerVariable>
+               <IntegerValue>10</IntegerValue>
+            </EQNumeric>
+         </EndCondition>
+         <PostCondition ColNo="4" LineNo="10">
+            <EQInternal ColNo="36" LineNo="10">
+               <NodeCommandHandleVariable ColNo="21" LineNo="10">
+                  <NodeId>C1</NodeId>
+               </NodeCommandHandleVariable>
+               <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+            </EQInternal>
+         </PostCondition>
+         <NodeBody>
+            <Command ColNo="4" LineNo="12">
+               <ResourceList>
+                  <Resource ColNo="4" LineNo="11">
+                     <ResourceName>
+                        <StringValue>sys_memory</StringValue>
+                     </ResourceName>
+                     <ResourcePriority>
+                        <IntegerValue>20</IntegerValue>
+                     </ResourcePriority>
+                     <ResourceLowerBound>
+                        <RealValue>0.8</RealValue>
+                     </ResourceLowerBound>
+                     <ResourceUpperBound>
+                        <RealValue>0.8</RealValue>
+                     </ResourceUpperBound>
+                  </Resource>
+               </ResourceList>
+               <IntegerVariable>returnValue</IntegerVariable>
+               <Name>
+                  <StringValue>c1</StringValue>
+               </Name>
+            </Command>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="15" NodeType="Command">
+         <NodeId>C2</NodeId>
+         <VariableDeclarations>
+            <DeclareVariable ColNo="4" LineNo="16">
+               <Name>mem_priority</Name>
+               <Type>Integer</Type>
+               <InitialValue>
+                  <IntegerValue>30</IntegerValue>
+               </InitialValue>
+            </DeclareVariable>
+            <DeclareVariable ColNo="4" LineNo="17">
+               <Name>returnValue</Name>
+               <Type>Integer</Type>
+               <InitialValue>
+                  <IntegerValue>-1</IntegerValue>
+               </InitialValue>
+            </DeclareVariable>
+         </VariableDeclarations>
+         <PostCondition ColNo="4" LineNo="18">
+            <EQInternal ColNo="36" LineNo="18">
+               <NodeCommandHandleVariable ColNo="21" LineNo="18">
+                  <NodeId>C2</NodeId>
+               </NodeCommandHandleVariable>
+               <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+            </EQInternal>
+         </PostCondition>
+         <EndCondition ColNo="4" LineNo="19">
+            <EQNumeric ColNo="29" LineNo="19">
+               <IntegerVariable>returnValue</IntegerVariable>
+               <IntegerValue>10</IntegerValue>
+            </EQNumeric>
+         </EndCondition>
+         <NodeBody>
+            <Command ColNo="4" LineNo="21">
+               <ResourceList>
+                  <Resource ColNo="4" LineNo="20">
+                     <ResourceName>
+                        <StringValue>sys_memory</StringValue>
+                     </ResourceName>
+                     <ResourcePriority>
+                        <IntegerValue>30</IntegerValue>
+                     </ResourcePriority>
+                     <ResourceLowerBound>
+                        <RealValue>0.3</RealValue>
+                     </ResourceLowerBound>
+                     <ResourceUpperBound>
+                        <RealValue>0.3</RealValue>
+                     </ResourceUpperBound>
+                  </Resource>
+               </ResourceList>
+               <IntegerVariable>returnValue</IntegerVariable>
+               <Name>
+                  <StringValue>c2</StringValue>
+               </Name>
+            </Command>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="23" NodeType="Command">
+         <NodeId>C3</NodeId>
+         <VariableDeclarations>
+            <DeclareVariable ColNo="4" LineNo="24">
+               <Name>returnValue</Name>
+               <Type>Integer</Type>
+               <InitialValue>
+                  <IntegerValue>-1</IntegerValue>
+               </InitialValue>
+            </DeclareVariable>
+         </VariableDeclarations>
+         <PostCondition ColNo="4" LineNo="25">
+            <EQInternal ColNo="36" LineNo="25">
+               <NodeCommandHandleVariable ColNo="21" LineNo="25">
+                  <NodeId>C3</NodeId>
+               </NodeCommandHandleVariable>
+               <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
+            </EQInternal>
+         </PostCondition>
+         <EndCondition ColNo="4" LineNo="26">
+            <EQNumeric ColNo="29" LineNo="26">
+               <IntegerVariable>returnValue</IntegerVariable>
+               <IntegerValue>10</IntegerValue>
+            </EQNumeric>
+         </EndCondition>
+         <NodeBody>
+            <Command ColNo="4" LineNo="28">
+               <ResourceList>
+                  <Resource ColNo="4" LineNo="27">
+                     <ResourceName>
+                        <StringValue>sys_memory</StringValue>
+                     </ResourceName>
+                     <ResourcePriority>
+                        <IntegerValue>40</IntegerValue>
+                     </ResourcePriority>
+                     <ResourceLowerBound>
+                        <RealValue>-0.1</RealValue>
+                     </ResourceLowerBound>
+                     <ResourceUpperBound>
+                        <RealValue>-0.1</RealValue>
+                     </ResourceUpperBound>
+                  </Resource>
+               </ResourceList>
+               <IntegerVariable>returnValue</IntegerVariable>
+               <Name>
+                  <StringValue>c3</StringValue>
+               </Name>
+            </Command>
+         </NodeBody>
+      </Node>
+   </Concurrence>
+</PlexilPlan>

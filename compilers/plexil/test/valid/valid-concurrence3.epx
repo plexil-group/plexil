@@ -1,1 +1,46 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/concurrence3.ple"><GlobalDeclarations ColNo="0" LineNo="1"><CommandDeclaration ColNo="0" LineNo="1"><Name>C</Name><Parameter><Type>String</Type></Parameter></CommandDeclaration><CommandDeclaration ColNo="0" LineNo="2"><Name>D</Name><Parameter><Type>Real</Type></Parameter></CommandDeclaration></GlobalDeclarations><Concurrence ColNo="0" LineNo="4"><NodeId>Concurrence__0</NodeId><Node ColNo="2" LineNo="6" NodeType="Command"><NodeId>COMMAND__1</NodeId><NodeBody><Command ColNo="2" LineNo="6"><Name><StringValue>C</StringValue></Name><Arguments ColNo="5" LineNo="6"><StringValue>foo</StringValue></Arguments></Command></NodeBody></Node><Node ColNo="2" LineNo="7" NodeType="Command"><NodeId>COMMAND__2</NodeId><NodeBody><Command ColNo="2" LineNo="7"><Name><StringValue>D</StringValue></Name><Arguments ColNo="5" LineNo="7"><RealValue>3.3</RealValue></Arguments></Command></NodeBody></Node></Concurrence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/concurrence3.ple">
+   <GlobalDeclarations ColNo="0" LineNo="1">
+      <CommandDeclaration ColNo="0" LineNo="1">
+         <Name>C</Name>
+         <Parameter>
+            <Type>String</Type>
+         </Parameter>
+      </CommandDeclaration>
+      <CommandDeclaration ColNo="0" LineNo="2">
+         <Name>D</Name>
+         <Parameter>
+            <Type>Real</Type>
+         </Parameter>
+      </CommandDeclaration>
+   </GlobalDeclarations>
+   <Concurrence ColNo="0" LineNo="4">
+      <NodeId>Concurrence__0</NodeId>
+      <Node ColNo="2" LineNo="6" NodeType="Command">
+         <NodeId>COMMAND__1</NodeId>
+         <NodeBody>
+            <Command ColNo="2" LineNo="6">
+               <Name>
+                  <StringValue>C</StringValue>
+               </Name>
+               <Arguments ColNo="5" LineNo="6">
+                  <StringValue>foo</StringValue>
+               </Arguments>
+            </Command>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="7" NodeType="Command">
+         <NodeId>COMMAND__2</NodeId>
+         <NodeBody>
+            <Command ColNo="2" LineNo="7">
+               <Name>
+                  <StringValue>D</StringValue>
+               </Name>
+               <Arguments ColNo="5" LineNo="7">
+                  <RealValue>3.3</RealValue>
+               </Arguments>
+            </Command>
+         </NodeBody>
+      </Node>
+   </Concurrence>
+</PlexilPlan>

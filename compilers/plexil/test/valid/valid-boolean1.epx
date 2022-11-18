@@ -1,1 +1,18 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/boolean1.ple"><Node ColNo="0" LineNo="1" NodeType="Empty"><NodeId>Root</NodeId><VariableDeclarations><DeclareVariable ColNo="4" LineNo="3"><Name>x</Name><Type>Integer</Type></DeclareVariable></VariableDeclarations><StartCondition ColNo="4" LineNo="4"><EQNumeric ColNo="20" LineNo="4"><IntegerVariable>x</IntegerVariable><IntegerVariable>x</IntegerVariable></EQNumeric></StartCondition></Node></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/boolean1.ple">
+   <Node ColNo="0" LineNo="1" NodeType="Empty">
+      <NodeId>Root</NodeId>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="4" LineNo="3">
+            <Name>x</Name>
+            <Type>Integer</Type>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <StartCondition ColNo="4" LineNo="4">
+         <EQNumeric ColNo="20" LineNo="4">
+            <IntegerVariable>x</IntegerVariable>
+            <IntegerVariable>x</IntegerVariable>
+         </EQNumeric>
+      </StartCondition>
+   </Node>
+</PlexilPlan>

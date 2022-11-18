@@ -1,1 +1,22 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/NestedBlocks4.ple"><GlobalDeclarations ColNo="0" LineNo="1"><CommandDeclaration ColNo="0" LineNo="1"><Name>print</Name><AnyParameters/></CommandDeclaration></GlobalDeclarations><Node ColNo="0" LineNo="4" NodeType="Command"><NodeId>NestedBlocks4</NodeId><NodeBody><Command ColNo="4" LineNo="7"><Name><StringValue>print</StringValue></Name><Arguments ColNo="10" LineNo="7"><StringValue>NestedBlocks4</StringValue></Arguments></Command></NodeBody></Node></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/NestedBlocks4.ple">
+   <GlobalDeclarations ColNo="0" LineNo="1">
+      <CommandDeclaration ColNo="0" LineNo="1">
+         <Name>print</Name>
+         <AnyParameters/>
+      </CommandDeclaration>
+   </GlobalDeclarations>
+   <Node ColNo="0" LineNo="4" NodeType="Command">
+      <NodeId>NestedBlocks4</NodeId>
+      <NodeBody>
+         <Command ColNo="4" LineNo="7">
+            <Name>
+               <StringValue>print</StringValue>
+            </Name>
+            <Arguments ColNo="10" LineNo="7">
+               <StringValue>NestedBlocks4</StringValue>
+            </Arguments>
+         </Command>
+      </NodeBody>
+   </Node>
+</PlexilPlan>
