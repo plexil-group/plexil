@@ -1,1 +1,47 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/concurrence2.ple"><GlobalDeclarations ColNo="0" LineNo="5"><CommandDeclaration ColNo="0" LineNo="5"><Name>C</Name><Parameter><Type>String</Type></Parameter></CommandDeclaration></GlobalDeclarations><Concurrence ColNo="0" LineNo="7"><NodeId>Root</NodeId><VariableDeclarations><DeclareVariable ColNo="2" LineNo="9"><Name>s</Name><Type>String</Type><InitialValue><StringValue>bar</StringValue></InitialValue></DeclareVariable></VariableDeclarations><Node ColNo="2" LineNo="10" NodeType="Assignment"><NodeId generated="1">ASSIGNMENT__0</NodeId><NodeBody><Assignment ColNo="2" LineNo="10"><StringVariable>s</StringVariable><StringRHS><StringValue>foo</StringValue></StringRHS></Assignment></NodeBody></Node><Node ColNo="2" LineNo="11" NodeType="Command"><NodeId generated="1">COMMAND__1</NodeId><NodeBody><Command ColNo="2" LineNo="11"><Name><StringValue>C</StringValue></Name><Arguments ColNo="5" LineNo="11"><StringVariable>s</StringVariable></Arguments></Command></NodeBody></Node></Concurrence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/concurrence2.ple">
+   <GlobalDeclarations ColNo="0" LineNo="5">
+      <CommandDeclaration ColNo="0" LineNo="5">
+         <Name>C</Name>
+         <Parameter>
+            <Type>String</Type>
+         </Parameter>
+      </CommandDeclaration>
+   </GlobalDeclarations>
+   <Concurrence ColNo="0" LineNo="7">
+      <NodeId>Root</NodeId>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="2" LineNo="9">
+            <Name>s</Name>
+            <Type>String</Type>
+            <InitialValue>
+               <StringValue>bar</StringValue>
+            </InitialValue>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <Node ColNo="2" LineNo="10" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__0</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="10">
+               <StringVariable>s</StringVariable>
+               <StringRHS>
+                  <StringValue>foo</StringValue>
+               </StringRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="11" NodeType="Command">
+         <NodeId generated="1">COMMAND__1</NodeId>
+         <NodeBody>
+            <Command ColNo="2" LineNo="11">
+               <Name>
+                  <StringValue>C</StringValue>
+               </Name>
+               <Arguments ColNo="5" LineNo="11">
+                  <StringVariable>s</StringVariable>
+               </Arguments>
+            </Command>
+         </NodeBody>
+      </Node>
+   </Concurrence>
+</PlexilPlan>

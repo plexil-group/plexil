@@ -1,1 +1,68 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/unchecked-sequence3.ple"><GlobalDeclarations ColNo="0" LineNo="1"><CommandDeclaration ColNo="0" LineNo="1"><Name>C</Name><Parameter><Type>String</Type></Parameter></CommandDeclaration></GlobalDeclarations><UncheckedSequence ColNo="0" LineNo="3"><NodeId>Root</NodeId><VariableDeclarations><DeclareVariable ColNo="2" LineNo="4"><Name>s</Name><Type>String</Type></DeclareVariable></VariableDeclarations><Node ColNo="2" LineNo="5" NodeType="Assignment"><NodeId generated="1">ASSIGNMENT__0</NodeId><NodeBody><Assignment ColNo="2" LineNo="5"><StringVariable>s</StringVariable><StringRHS><StringValue>foo</StringValue></StringRHS></Assignment></NodeBody></Node><Node ColNo="2" LineNo="6" NodeType="Command"><NodeId generated="1">COMMAND__1</NodeId><NodeBody><Command ColNo="2" LineNo="6"><Name><StringValue>C</StringValue></Name><Arguments ColNo="5" LineNo="6"><StringVariable>s</StringVariable></Arguments></Command></NodeBody></Node><Node ColNo="2" LineNo="7" NodeType="Assignment"><NodeId generated="1">ASSIGNMENT__2</NodeId><NodeBody><Assignment ColNo="2" LineNo="7"><StringVariable>s</StringVariable><StringRHS><StringValue>bar</StringValue></StringRHS></Assignment></NodeBody></Node><Node ColNo="2" LineNo="8" NodeType="Command"><NodeId generated="1">COMMAND__3</NodeId><NodeBody><Command ColNo="2" LineNo="8"><Name><StringValue>C</StringValue></Name><Arguments ColNo="5" LineNo="8"><StringVariable>s</StringVariable></Arguments></Command></NodeBody></Node></UncheckedSequence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/unchecked-sequence3.ple">
+   <GlobalDeclarations ColNo="0" LineNo="1">
+      <CommandDeclaration ColNo="0" LineNo="1">
+         <Name>C</Name>
+         <Parameter>
+            <Type>String</Type>
+         </Parameter>
+      </CommandDeclaration>
+   </GlobalDeclarations>
+   <UncheckedSequence ColNo="0" LineNo="3">
+      <NodeId>Root</NodeId>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="2" LineNo="4">
+            <Name>s</Name>
+            <Type>String</Type>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <Node ColNo="2" LineNo="5" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__0</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="5">
+               <StringVariable>s</StringVariable>
+               <StringRHS>
+                  <StringValue>foo</StringValue>
+               </StringRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="6" NodeType="Command">
+         <NodeId generated="1">COMMAND__1</NodeId>
+         <NodeBody>
+            <Command ColNo="2" LineNo="6">
+               <Name>
+                  <StringValue>C</StringValue>
+               </Name>
+               <Arguments ColNo="5" LineNo="6">
+                  <StringVariable>s</StringVariable>
+               </Arguments>
+            </Command>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="7" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__2</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="7">
+               <StringVariable>s</StringVariable>
+               <StringRHS>
+                  <StringValue>bar</StringValue>
+               </StringRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="8" NodeType="Command">
+         <NodeId generated="1">COMMAND__3</NodeId>
+         <NodeBody>
+            <Command ColNo="2" LineNo="8">
+               <Name>
+                  <StringValue>C</StringValue>
+               </Name>
+               <Arguments ColNo="5" LineNo="8">
+                  <StringVariable>s</StringVariable>
+               </Arguments>
+            </Command>
+         </NodeBody>
+      </Node>
+   </UncheckedSequence>
+</PlexilPlan>

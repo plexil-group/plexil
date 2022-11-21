@@ -1,1 +1,20 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/nodeState1.ple"><Sequence ColNo="0" LineNo="1"><NodeId generated="1">BLOCK__0</NodeId><Node ColNo="4" LineNo="2" NodeType="Empty"><NodeId>A</NodeId></Node><Node ColNo="4" LineNo="3" NodeType="Empty"><NodeId>B</NodeId><StartCondition ColNo="9" LineNo="3"><EQInternal ColNo="32" LineNo="3"><NodeStateVariable ColNo="26" LineNo="3"><NodeId>A</NodeId></NodeStateVariable><NodeStateValue>FINISHED</NodeStateValue></EQInternal></StartCondition></Node></Sequence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/nodeState1.ple">
+   <Sequence ColNo="0" LineNo="1">
+      <NodeId generated="1">BLOCK__0</NodeId>
+      <Node ColNo="4" LineNo="2" NodeType="Empty">
+         <NodeId>A</NodeId>
+      </Node>
+      <Node ColNo="4" LineNo="3" NodeType="Empty">
+         <NodeId>B</NodeId>
+         <StartCondition ColNo="9" LineNo="3">
+            <EQInternal ColNo="32" LineNo="3">
+               <NodeStateVariable ColNo="26" LineNo="3">
+                  <NodeId>A</NodeId>
+               </NodeStateVariable>
+               <NodeStateValue>FINISHED</NodeStateValue>
+            </EQInternal>
+         </StartCondition>
+      </Node>
+   </Sequence>
+</PlexilPlan>

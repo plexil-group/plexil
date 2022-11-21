@@ -1,1 +1,81 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/expr3.ple"><Sequence ColNo="0" LineNo="1"><NodeId generated="1">BLOCK__0</NodeId><VariableDeclarations><DeclareVariable ColNo="2" LineNo="2"><Name>i</Name><Type>Integer</Type></DeclareVariable><DeclareVariable ColNo="2" LineNo="2"><Name>j</Name><Type>Integer</Type></DeclareVariable><DeclareVariable ColNo="2" LineNo="3"><Name>p</Name><Type>Real</Type><InitialValue><RealValue>4.3</RealValue></InitialValue></DeclareVariable></VariableDeclarations><PostCondition ColNo="2" LineNo="5"><EQNumeric ColNo="9" LineNo="5"><RealVariable>p</RealVariable><RealValue>4.3</RealValue></EQNumeric></PostCondition><Node ColNo="2" LineNo="7" NodeType="Assignment"><NodeId generated="1">ASSIGNMENT__1</NodeId><NodeBody><Assignment ColNo="2" LineNo="7"><IntegerVariable>i</IntegerVariable><NumericRHS><MOD ColNo="8" LineNo="7"><IntegerValue>3</IntegerValue><IntegerValue>2</IntegerValue></MOD></NumericRHS></Assignment></NodeBody></Node><Node ColNo="2" LineNo="8" NodeType="Assignment"><NodeId generated="1">ASSIGNMENT__2</NodeId><NodeBody><Assignment ColNo="2" LineNo="8"><IntegerVariable>j</IntegerVariable><NumericRHS><MOD ColNo="8" LineNo="8"><IntegerValue>4</IntegerValue><IntegerVariable>i</IntegerVariable></MOD></NumericRHS></Assignment></NodeBody></Node><Node ColNo="2" LineNo="9" NodeType="Assignment"><NodeId generated="1">ASSIGNMENT__3</NodeId><NodeBody><Assignment ColNo="2" LineNo="9"><RealVariable>p</RealVariable><NumericRHS><ADD ColNo="25" LineNo="9"><SUB ColNo="21" LineNo="9"><ADD ColNo="17" LineNo="9"><SQRT ColNo="6" LineNo="9"><ABS ColNo="13" LineNo="9"><RealVariable>p</RealVariable></ABS></SQRT><IntegerVariable>i</IntegerVariable></ADD><IntegerVariable>j</IntegerVariable></SUB><IntegerVariable>i</IntegerVariable></ADD></NumericRHS></Assignment></NodeBody></Node></Sequence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/expr3.ple">
+   <Sequence ColNo="0" LineNo="1">
+      <NodeId generated="1">BLOCK__0</NodeId>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="2" LineNo="2">
+            <Name>i</Name>
+            <Type>Integer</Type>
+         </DeclareVariable>
+         <DeclareVariable ColNo="2" LineNo="2">
+            <Name>j</Name>
+            <Type>Integer</Type>
+         </DeclareVariable>
+         <DeclareVariable ColNo="2" LineNo="3">
+            <Name>p</Name>
+            <Type>Real</Type>
+            <InitialValue>
+               <RealValue>4.3</RealValue>
+            </InitialValue>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <PostCondition ColNo="2" LineNo="5">
+         <EQNumeric ColNo="9" LineNo="5">
+            <RealVariable>p</RealVariable>
+            <RealValue>4.3</RealValue>
+         </EQNumeric>
+      </PostCondition>
+      <Node ColNo="2" LineNo="7" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__1</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="7">
+               <IntegerVariable>i</IntegerVariable>
+               <NumericRHS>
+                  <MOD ColNo="8" LineNo="7">
+                     <IntegerValue>3</IntegerValue>
+                     <IntegerValue>2</IntegerValue>
+                  </MOD>
+               </NumericRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="8" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__2</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="8">
+               <IntegerVariable>j</IntegerVariable>
+               <NumericRHS>
+                  <MOD ColNo="8" LineNo="8">
+                     <IntegerValue>4</IntegerValue>
+                     <IntegerVariable>i</IntegerVariable>
+                  </MOD>
+               </NumericRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="9" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__3</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="9">
+               <RealVariable>p</RealVariable>
+               <NumericRHS>
+                  <ADD ColNo="25" LineNo="9">
+                     <SUB ColNo="21" LineNo="9">
+                        <ADD ColNo="17" LineNo="9">
+                           <SQRT ColNo="6" LineNo="9">
+                              <ABS ColNo="13" LineNo="9">
+                                 <RealVariable>p</RealVariable>
+                              </ABS>
+                           </SQRT>
+                           <IntegerVariable>i</IntegerVariable>
+                        </ADD>
+                        <IntegerVariable>j</IntegerVariable>
+                     </SUB>
+                     <IntegerVariable>i</IntegerVariable>
+                  </ADD>
+               </NumericRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+   </Sequence>
+</PlexilPlan>

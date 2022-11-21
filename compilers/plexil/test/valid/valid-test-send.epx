@@ -1,16 +1,418 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/test-send.ple"><GlobalDeclarations ColNo="5" LineNo="1"><StateDeclaration ColNo="5" LineNo="1"><Name>time</Name><Return><Name>_return_0</Name><Type>Real</Type></Return></StateDeclaration><CommandDeclaration ColNo="0" LineNo="2"><Name>print</Name><AnyParameters/></CommandDeclaration><CommandDeclaration ColNo="0" LineNo="3"><Name>test_udp_msg</Name><Parameter><Type>String</Type></Parameter><Parameter><Type>Boolean</Type></Parameter><Parameter><Type>Integer</Type></Parameter><Parameter><Type>Real</Type></Parameter><Parameter><Type>Integer</Type><MaxSize>3</MaxSize></Parameter><Parameter><Type>Real</Type><MaxSize>3</MaxSize></Parameter><Parameter><Type>Boolean</Type><MaxSize>3</MaxSize></Parameter><Parameter><Type>String</Type><MaxSize>3</MaxSize></Parameter></CommandDeclaration><CommandDeclaration ColNo="0" LineNo="4"><Name>quit_msg</Name><Parameter><Type>String</Type></Parameter></CommandDeclaration></GlobalDeclarations><UncheckedSequence ColNo="0" LineNo="6"><NodeId>root</NodeId><VariableDeclarations><DeclareVariable ColNo="4" LineNo="8"><Name>arg1</Name><Type>String</Type><InitialValue><StringValue>CA</StringValue></InitialValue></DeclareVariable><DeclareVariable ColNo="4" LineNo="10"><Name>arg3</Name><Type>Integer</Type><InitialValue><IntegerValue>3</IntegerValue></InitialValue></DeclareVariable><DeclareVariable ColNo="4" LineNo="11"><Name>arg4</Name><Type>Real</Type><InitialValue><RealValue>3.14159</RealValue></InitialValue></DeclareVariable><DeclareArray ColNo="4" LineNo="12"><Name>arg5</Name><Type>Integer</Type><MaxSize>3</MaxSize><InitialValue><ArrayValue Type="Integer"><IntegerValue>9</IntegerValue><IntegerValue>8</IntegerValue><IntegerValue>7</IntegerValue></ArrayValue></InitialValue></DeclareArray><DeclareArray ColNo="4" LineNo="13"><Name>arg6</Name><Type>Real</Type><MaxSize>3</MaxSize><InitialValue><ArrayValue Type="Real"><RealValue>36.0</RealValue><RealValue>-104.7</RealValue><RealValue>25000.0</RealValue></ArrayValue></InitialValue></DeclareArray><DeclareArray ColNo="4" LineNo="14"><Name>arg7</Name><Type>Boolean</Type><MaxSize>3</MaxSize><InitialValue><ArrayValue Type="Boolean"><BooleanValue>true</BooleanValue><BooleanValue>true</BooleanValue><BooleanValue>false</BooleanValue></ArrayValue></InitialValue></DeclareArray><DeclareArray ColNo="4" LineNo="15"><Name>arg8</Name><Type>String</Type><MaxSize>3</MaxSize><InitialValue><ArrayValue Type="String"><StringValue>foo</StringValue><StringValue>baz</StringValue><StringValue>bar</StringValue></ArrayValue></InitialValue></DeclareArray><DeclareVariable ColNo="4" LineNo="16"><Name>run_start_time</Name><Type>Real</Type></DeclareVariable><DeclareVariable ColNo="4" LineNo="17"><Name>ackTimedOut</Name><Type>Boolean</Type><InitialValue><BooleanValue>false</BooleanValue></InitialValue></DeclareVariable></VariableDeclarations><Node ColNo="4" LineNo="19" NodeType="Assignment"><NodeId>RecordStartTime</NodeId><NodeBody><Assignment ColNo="21" LineNo="19"><RealVariable>run_start_time</RealVariable><NumericRHS><Lookup ColNo="38" LineNo="19"><Name><StringValue>time</StringValue></Name></Lookup></NumericRHS></Assignment></NodeBody></Node><Sequence ColNo="4" LineNo="21"><NodeId>SendUdpCommand1</NodeId><Node ColNo="8" LineNo="23" NodeType="Command"><NodeId>ReportParameters</NodeId><NodeBody><Command ColNo="26" LineNo="23"><Name><StringValue>print</StringValue></Name><Arguments ColNo="33" LineNo="23"><StringValue>
-test-send: sending arg1==</StringValue><StringVariable>arg1</StringVariable><StringValue>, arg2==false, arg3==</StringValue><IntegerVariable>arg3</IntegerVariable><StringValue>, arg4==</StringValue><RealVariable>arg4</RealVariable><StringValue>, arg5==</StringValue><ArrayVariable>arg5</ArrayVariable><StringValue>, arg6==</StringValue><ArrayVariable>arg6</ArrayVariable><StringValue>, arg7==</StringValue><ArrayVariable>arg7</ArrayVariable><StringValue>, arg8==</StringValue><ArrayVariable>arg8</ArrayVariable><StringValue>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/test-send.ple">
+   <GlobalDeclarations ColNo="5" LineNo="1">
+      <StateDeclaration ColNo="5" LineNo="1">
+         <Name>time</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Real</Type>
+         </Return>
+      </StateDeclaration>
+      <CommandDeclaration ColNo="0" LineNo="2">
+         <Name>print</Name>
+         <AnyParameters/>
+      </CommandDeclaration>
+      <CommandDeclaration ColNo="0" LineNo="3">
+         <Name>test_udp_msg</Name>
+         <Parameter>
+            <Type>String</Type>
+         </Parameter>
+         <Parameter>
+            <Type>Boolean</Type>
+         </Parameter>
+         <Parameter>
+            <Type>Integer</Type>
+         </Parameter>
+         <Parameter>
+            <Type>Real</Type>
+         </Parameter>
+         <Parameter>
+            <Type>Integer</Type>
+            <MaxSize>3</MaxSize>
+         </Parameter>
+         <Parameter>
+            <Type>Real</Type>
+            <MaxSize>3</MaxSize>
+         </Parameter>
+         <Parameter>
+            <Type>Boolean</Type>
+            <MaxSize>3</MaxSize>
+         </Parameter>
+         <Parameter>
+            <Type>String</Type>
+            <MaxSize>3</MaxSize>
+         </Parameter>
+      </CommandDeclaration>
+      <CommandDeclaration ColNo="0" LineNo="4">
+         <Name>quit_msg</Name>
+         <Parameter>
+            <Type>String</Type>
+         </Parameter>
+      </CommandDeclaration>
+   </GlobalDeclarations>
+   <UncheckedSequence ColNo="0" LineNo="6">
+      <NodeId>root</NodeId>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="4" LineNo="8">
+            <Name>arg1</Name>
+            <Type>String</Type>
+            <InitialValue>
+               <StringValue>CA</StringValue>
+            </InitialValue>
+         </DeclareVariable>
+         <DeclareVariable ColNo="4" LineNo="10">
+            <Name>arg3</Name>
+            <Type>Integer</Type>
+            <InitialValue>
+               <IntegerValue>3</IntegerValue>
+            </InitialValue>
+         </DeclareVariable>
+         <DeclareVariable ColNo="4" LineNo="11">
+            <Name>arg4</Name>
+            <Type>Real</Type>
+            <InitialValue>
+               <RealValue>3.14159</RealValue>
+            </InitialValue>
+         </DeclareVariable>
+         <DeclareArray ColNo="4" LineNo="12">
+            <Name>arg5</Name>
+            <Type>Integer</Type>
+            <MaxSize>3</MaxSize>
+            <InitialValue>
+               <ArrayValue Type="Integer">
+                  <IntegerValue>9</IntegerValue>
+                  <IntegerValue>8</IntegerValue>
+                  <IntegerValue>7</IntegerValue>
+               </ArrayValue>
+            </InitialValue>
+         </DeclareArray>
+         <DeclareArray ColNo="4" LineNo="13">
+            <Name>arg6</Name>
+            <Type>Real</Type>
+            <MaxSize>3</MaxSize>
+            <InitialValue>
+               <ArrayValue Type="Real">
+                  <RealValue>36.0</RealValue>
+                  <RealValue>-104.7</RealValue>
+                  <RealValue>25000.0</RealValue>
+               </ArrayValue>
+            </InitialValue>
+         </DeclareArray>
+         <DeclareArray ColNo="4" LineNo="14">
+            <Name>arg7</Name>
+            <Type>Boolean</Type>
+            <MaxSize>3</MaxSize>
+            <InitialValue>
+               <ArrayValue Type="Boolean">
+                  <BooleanValue>true</BooleanValue>
+                  <BooleanValue>true</BooleanValue>
+                  <BooleanValue>false</BooleanValue>
+               </ArrayValue>
+            </InitialValue>
+         </DeclareArray>
+         <DeclareArray ColNo="4" LineNo="15">
+            <Name>arg8</Name>
+            <Type>String</Type>
+            <MaxSize>3</MaxSize>
+            <InitialValue>
+               <ArrayValue Type="String">
+                  <StringValue>foo</StringValue>
+                  <StringValue>baz</StringValue>
+                  <StringValue>bar</StringValue>
+               </ArrayValue>
+            </InitialValue>
+         </DeclareArray>
+         <DeclareVariable ColNo="4" LineNo="16">
+            <Name>run_start_time</Name>
+            <Type>Real</Type>
+         </DeclareVariable>
+         <DeclareVariable ColNo="4" LineNo="17">
+            <Name>ackTimedOut</Name>
+            <Type>Boolean</Type>
+            <InitialValue>
+               <BooleanValue>false</BooleanValue>
+            </InitialValue>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <Node ColNo="4" LineNo="19" NodeType="Assignment">
+         <NodeId>RecordStartTime</NodeId>
+         <NodeBody>
+            <Assignment ColNo="21" LineNo="19">
+               <RealVariable>run_start_time</RealVariable>
+               <NumericRHS>
+                  <Lookup ColNo="38" LineNo="19">
+                     <Name>
+                        <StringValue>time</StringValue>
+                     </Name>
+                  </Lookup>
+               </NumericRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Sequence ColNo="4" LineNo="21">
+         <NodeId>SendUdpCommand1</NodeId>
+         <Node ColNo="8" LineNo="23" NodeType="Command">
+            <NodeId>ReportParameters</NodeId>
+            <NodeBody>
+               <Command ColNo="26" LineNo="23">
+                  <Name>
+                     <StringValue>print</StringValue>
+                  </Name>
+                  <Arguments ColNo="33" LineNo="23">
+                     <StringValue>
+test-send: sending arg1==</StringValue>
+                     <StringVariable>arg1</StringVariable>
+                     <StringValue>, arg2==false, arg3==</StringValue>
+                     <IntegerVariable>arg3</IntegerVariable>
+                     <StringValue>, arg4==</StringValue>
+                     <RealVariable>arg4</RealVariable>
+                     <StringValue>, arg5==</StringValue>
+                     <ArrayVariable>arg5</ArrayVariable>
+                     <StringValue>, arg6==</StringValue>
+                     <ArrayVariable>arg6</ArrayVariable>
+                     <StringValue>, arg7==</StringValue>
+                     <ArrayVariable>arg7</ArrayVariable>
+                     <StringValue>, arg8==</StringValue>
+                     <ArrayVariable>arg8</ArrayVariable>
+                     <StringValue>
 
-</StringValue></Arguments></Command></NodeBody></Node><Node ColNo="8" LineNo="25" NodeType="Command"><NodeId>SendCommand</NodeId><NodeBody><Command ColNo="21" LineNo="25"><Name><StringValue>test_udp_msg</StringValue></Name><Arguments ColNo="35" LineNo="25"><StringVariable>arg1</StringVariable><BooleanValue>false</BooleanValue><IntegerVariable>arg3</IntegerVariable><RealVariable>arg4</RealVariable><ArrayVariable>arg5</ArrayVariable><ArrayVariable>arg6</ArrayVariable><ArrayVariable>arg7</ArrayVariable><ArrayVariable>arg8</ArrayVariable></Arguments></Command></NodeBody></Node></Sequence><Concurrence ColNo="4" LineNo="28"><NodeId>SendUdpCommand2</NodeId><StartCondition ColNo="8" LineNo="29"><GT ColNo="39" LineNo="29"><Lookup ColNo="23" LineNo="29"><Name><StringValue>time</StringValue></Name><Tolerance><RealValue>1</RealValue></Tolerance></Lookup><ADD ColNo="56" LineNo="29"><RealVariable>run_start_time</RealVariable><IntegerValue>2</IntegerValue></ADD></GT></StartCondition><InvariantCondition ColNo="8" LineNo="30"><NOT ColNo="27" LineNo="30"><BooleanVariable>ackTimedOut</BooleanVariable></NOT></InvariantCondition><Node ColNo="8" LineNo="32" NodeType="Command"><NodeId>ReportParameters</NodeId><NodeBody><Command ColNo="26" LineNo="32"><Name><StringValue>print</StringValue></Name><Arguments ColNo="33" LineNo="32"><StringValue>
-test-send: sending arg1==</StringValue><StringVariable>arg1</StringVariable><StringValue>, arg2==true, arg3==</StringValue><IntegerVariable>arg3</IntegerVariable><StringValue>, arg4==</StringValue><RealVariable>arg4</RealVariable><StringValue>, arg5==</StringValue><ArrayVariable>arg5</ArrayVariable><StringValue>, arg6==</StringValue><ArrayVariable>arg6</ArrayVariable><StringValue>, arg7==</StringValue><ArrayVariable>arg7</ArrayVariable><StringValue>, arg8==</StringValue><ArrayVariable>arg8</ArrayVariable><StringValue>
+</StringValue>
+                  </Arguments>
+               </Command>
+            </NodeBody>
+         </Node>
+         <Node ColNo="8" LineNo="25" NodeType="Command">
+            <NodeId>SendCommand</NodeId>
+            <NodeBody>
+               <Command ColNo="21" LineNo="25">
+                  <Name>
+                     <StringValue>test_udp_msg</StringValue>
+                  </Name>
+                  <Arguments ColNo="35" LineNo="25">
+                     <StringVariable>arg1</StringVariable>
+                     <BooleanValue>false</BooleanValue>
+                     <IntegerVariable>arg3</IntegerVariable>
+                     <RealVariable>arg4</RealVariable>
+                     <ArrayVariable>arg5</ArrayVariable>
+                     <ArrayVariable>arg6</ArrayVariable>
+                     <ArrayVariable>arg7</ArrayVariable>
+                     <ArrayVariable>arg8</ArrayVariable>
+                  </Arguments>
+               </Command>
+            </NodeBody>
+         </Node>
+      </Sequence>
+      <Concurrence ColNo="4" LineNo="28">
+         <NodeId>SendUdpCommand2</NodeId>
+         <StartCondition ColNo="8" LineNo="29">
+            <GT ColNo="39" LineNo="29">
+               <Lookup ColNo="23" LineNo="29">
+                  <Name>
+                     <StringValue>time</StringValue>
+                  </Name>
+                  <Tolerance>
+                     <RealValue>1</RealValue>
+                  </Tolerance>
+               </Lookup>
+               <ADD ColNo="56" LineNo="29">
+                  <RealVariable>run_start_time</RealVariable>
+                  <IntegerValue>2</IntegerValue>
+               </ADD>
+            </GT>
+         </StartCondition>
+         <InvariantCondition ColNo="8" LineNo="30">
+            <NOT ColNo="27" LineNo="30">
+               <BooleanVariable>ackTimedOut</BooleanVariable>
+            </NOT>
+         </InvariantCondition>
+         <Node ColNo="8" LineNo="32" NodeType="Command">
+            <NodeId>ReportParameters</NodeId>
+            <NodeBody>
+               <Command ColNo="26" LineNo="32">
+                  <Name>
+                     <StringValue>print</StringValue>
+                  </Name>
+                  <Arguments ColNo="33" LineNo="32">
+                     <StringValue>
+test-send: sending arg1==</StringValue>
+                     <StringVariable>arg1</StringVariable>
+                     <StringValue>, arg2==true, arg3==</StringValue>
+                     <IntegerVariable>arg3</IntegerVariable>
+                     <StringValue>, arg4==</StringValue>
+                     <RealVariable>arg4</RealVariable>
+                     <StringValue>, arg5==</StringValue>
+                     <ArrayVariable>arg5</ArrayVariable>
+                     <StringValue>, arg6==</StringValue>
+                     <ArrayVariable>arg6</ArrayVariable>
+                     <StringValue>, arg7==</StringValue>
+                     <ArrayVariable>arg7</ArrayVariable>
+                     <StringValue>, arg8==</StringValue>
+                     <ArrayVariable>arg8</ArrayVariable>
+                     <StringValue>
 
-</StringValue></Arguments></Command></NodeBody></Node><OnCommand ColNo="8" LineNo="35"><NodeId>HandleAck</NodeId><VariableDeclarations><DeclareVariable ColNo="33" LineNo="38"><Name>ack</Name><Type>String</Type></DeclareVariable></VariableDeclarations><StartCondition ColNo="12" LineNo="37"><EQInternal ColNo="50" LineNo="37"><NodeStateVariable ColNo="44" LineNo="37"><NodeId>ReportParameters</NodeId></NodeStateVariable><NodeStateValue>FINISHED</NodeStateValue></EQInternal></StartCondition><Name><StringValue>ack_msg</StringValue></Name><Node ColNo="45" LineNo="38" NodeType="Command"><NodeId generated="1">COMMAND__0</NodeId><NodeBody><Command ColNo="45" LineNo="38"><Name><StringValue>print</StringValue></Name><Arguments ColNo="52" LineNo="38"><StringValue>
+</StringValue>
+                  </Arguments>
+               </Command>
+            </NodeBody>
+         </Node>
+         <OnCommand ColNo="8" LineNo="35">
+            <NodeId>HandleAck</NodeId>
+            <VariableDeclarations>
+               <DeclareVariable ColNo="33" LineNo="38">
+                  <Name>ack</Name>
+                  <Type>String</Type>
+               </DeclareVariable>
+            </VariableDeclarations>
+            <StartCondition ColNo="12" LineNo="37">
+               <EQInternal ColNo="50" LineNo="37">
+                  <NodeStateVariable ColNo="44" LineNo="37">
+                     <NodeId>ReportParameters</NodeId>
+                  </NodeStateVariable>
+                  <NodeStateValue>FINISHED</NodeStateValue>
+               </EQInternal>
+            </StartCondition>
+            <Name>
+               <StringValue>ack_msg</StringValue>
+            </Name>
+            <Node ColNo="45" LineNo="38" NodeType="Command">
+               <NodeId generated="1">COMMAND__0</NodeId>
+               <NodeBody>
+                  <Command ColNo="45" LineNo="38">
+                     <Name>
+                        <StringValue>print</StringValue>
+                     </Name>
+                     <Arguments ColNo="52" LineNo="38">
+                        <StringValue>
 test-send: received ack
 
-</StringValue></Arguments></Command></NodeBody></Node></OnCommand><UncheckedSequence ColNo="8" LineNo="41"><NodeId>HandleTimeout</NodeId><StartCondition ColNo="12" LineNo="42"><GT ColNo="43" LineNo="42"><Lookup ColNo="27" LineNo="42"><Name><StringValue>time</StringValue></Name><Tolerance><RealValue>1</RealValue></Tolerance></Lookup><ADD ColNo="60" LineNo="42"><RealVariable>run_start_time</RealVariable><IntegerValue>4</IntegerValue></ADD></GT></StartCondition><SkipCondition ColNo="12" LineNo="43"><EQInternal ColNo="42" LineNo="43"><NodeStateVariable ColNo="36" LineNo="43"><NodeId>HandleAck</NodeId></NodeStateVariable><NodeStateValue>FINISHED</NodeStateValue></EQInternal></SkipCondition><Node ColNo="12" LineNo="44" NodeType="Command"><NodeId>ReportTimeout</NodeId><NodeBody><Command ColNo="27" LineNo="44"><Name><StringValue>print</StringValue></Name><Arguments ColNo="34" LineNo="44"><StringValue>
+</StringValue>
+                     </Arguments>
+                  </Command>
+               </NodeBody>
+            </Node>
+         </OnCommand>
+         <UncheckedSequence ColNo="8" LineNo="41">
+            <NodeId>HandleTimeout</NodeId>
+            <StartCondition ColNo="12" LineNo="42">
+               <GT ColNo="43" LineNo="42">
+                  <Lookup ColNo="27" LineNo="42">
+                     <Name>
+                        <StringValue>time</StringValue>
+                     </Name>
+                     <Tolerance>
+                        <RealValue>1</RealValue>
+                     </Tolerance>
+                  </Lookup>
+                  <ADD ColNo="60" LineNo="42">
+                     <RealVariable>run_start_time</RealVariable>
+                     <IntegerValue>4</IntegerValue>
+                  </ADD>
+               </GT>
+            </StartCondition>
+            <SkipCondition ColNo="12" LineNo="43">
+               <EQInternal ColNo="42" LineNo="43">
+                  <NodeStateVariable ColNo="36" LineNo="43">
+                     <NodeId>HandleAck</NodeId>
+                  </NodeStateVariable>
+                  <NodeStateValue>FINISHED</NodeStateValue>
+               </EQInternal>
+            </SkipCondition>
+            <Node ColNo="12" LineNo="44" NodeType="Command">
+               <NodeId>ReportTimeout</NodeId>
+               <NodeBody>
+                  <Command ColNo="27" LineNo="44">
+                     <Name>
+                        <StringValue>print</StringValue>
+                     </Name>
+                     <Arguments ColNo="34" LineNo="44">
+                        <StringValue>
 test-send: ack timed out
 
-</StringValue></Arguments></Command></NodeBody></Node><Node ColNo="12" LineNo="45" NodeType="Assignment"><NodeId>SignalTimeout</NodeId><NodeBody><Assignment ColNo="27" LineNo="45"><BooleanVariable>ackTimedOut</BooleanVariable><BooleanRHS><BooleanValue>true</BooleanValue></BooleanRHS></Assignment></NodeBody></Node></UncheckedSequence><Node ColNo="8" LineNo="48" NodeType="Command"><NodeId>SendCommand</NodeId><StartCondition ColNo="12" LineNo="50"><EQInternal ColNo="43" LineNo="50"><NodeStateVariable ColNo="37" LineNo="50"><NodeId>HandleAck</NodeId></NodeStateVariable><NodeStateValue>EXECUTING</NodeStateValue></EQInternal></StartCondition><NodeBody><Command ColNo="12" LineNo="51"><Name><StringValue>test_udp_msg</StringValue></Name><Arguments ColNo="26" LineNo="51"><StringVariable>arg1</StringVariable><BooleanValue>true</BooleanValue><IntegerVariable>arg3</IntegerVariable><RealVariable>arg4</RealVariable><ArrayVariable>arg5</ArrayVariable><ArrayVariable>arg6</ArrayVariable><ArrayVariable>arg7</ArrayVariable><ArrayVariable>arg8</ArrayVariable></Arguments></Command></NodeBody></Node></Concurrence><Sequence ColNo="4" LineNo="55"><NodeId>SendQuitCommand</NodeId><StartCondition ColNo="8" LineNo="57"><EQInternal ColNo="45" LineNo="57"><NodeStateVariable ColNo="39" LineNo="57"><NodeId>SendUdpCommand2</NodeId></NodeStateVariable><NodeStateValue>FINISHED</NodeStateValue></EQInternal></StartCondition><Node ColNo="8" LineNo="58" NodeType="Command"><NodeId>ReportSendQuit</NodeId><NodeBody><Command ColNo="24" LineNo="58"><Name><StringValue>print</StringValue></Name><Arguments ColNo="31" LineNo="58"><StringValue>
+</StringValue>
+                     </Arguments>
+                  </Command>
+               </NodeBody>
+            </Node>
+            <Node ColNo="12" LineNo="45" NodeType="Assignment">
+               <NodeId>SignalTimeout</NodeId>
+               <NodeBody>
+                  <Assignment ColNo="27" LineNo="45">
+                     <BooleanVariable>ackTimedOut</BooleanVariable>
+                     <BooleanRHS>
+                        <BooleanValue>true</BooleanValue>
+                     </BooleanRHS>
+                  </Assignment>
+               </NodeBody>
+            </Node>
+         </UncheckedSequence>
+         <Node ColNo="8" LineNo="48" NodeType="Command">
+            <NodeId>SendCommand</NodeId>
+            <StartCondition ColNo="12" LineNo="50">
+               <EQInternal ColNo="43" LineNo="50">
+                  <NodeStateVariable ColNo="37" LineNo="50">
+                     <NodeId>HandleAck</NodeId>
+                  </NodeStateVariable>
+                  <NodeStateValue>EXECUTING</NodeStateValue>
+               </EQInternal>
+            </StartCondition>
+            <NodeBody>
+               <Command ColNo="12" LineNo="51">
+                  <Name>
+                     <StringValue>test_udp_msg</StringValue>
+                  </Name>
+                  <Arguments ColNo="26" LineNo="51">
+                     <StringVariable>arg1</StringVariable>
+                     <BooleanValue>true</BooleanValue>
+                     <IntegerVariable>arg3</IntegerVariable>
+                     <RealVariable>arg4</RealVariable>
+                     <ArrayVariable>arg5</ArrayVariable>
+                     <ArrayVariable>arg6</ArrayVariable>
+                     <ArrayVariable>arg7</ArrayVariable>
+                     <ArrayVariable>arg8</ArrayVariable>
+                  </Arguments>
+               </Command>
+            </NodeBody>
+         </Node>
+      </Concurrence>
+      <Sequence ColNo="4" LineNo="55">
+         <NodeId>SendQuitCommand</NodeId>
+         <StartCondition ColNo="8" LineNo="57">
+            <EQInternal ColNo="45" LineNo="57">
+               <NodeStateVariable ColNo="39" LineNo="57">
+                  <NodeId>SendUdpCommand2</NodeId>
+               </NodeStateVariable>
+               <NodeStateValue>FINISHED</NodeStateValue>
+            </EQInternal>
+         </StartCondition>
+         <Node ColNo="8" LineNo="58" NodeType="Command">
+            <NodeId>ReportSendQuit</NodeId>
+            <NodeBody>
+               <Command ColNo="24" LineNo="58">
+                  <Name>
+                     <StringValue>print</StringValue>
+                  </Name>
+                  <Arguments ColNo="31" LineNo="58">
+                     <StringValue>
 test-send: sending quit command
 
-</StringValue></Arguments></Command></NodeBody></Node><Node ColNo="8" LineNo="59" NodeType="Command"><NodeId>SendQuit</NodeId><NodeBody><Command ColNo="18" LineNo="59"><Name><StringValue>quit_msg</StringValue></Name><Arguments ColNo="28" LineNo="59"><StringValue>quit</StringValue></Arguments></Command></NodeBody></Node></Sequence></UncheckedSequence></PlexilPlan>
+</StringValue>
+                  </Arguments>
+               </Command>
+            </NodeBody>
+         </Node>
+         <Node ColNo="8" LineNo="59" NodeType="Command">
+            <NodeId>SendQuit</NodeId>
+            <NodeBody>
+               <Command ColNo="18" LineNo="59">
+                  <Name>
+                     <StringValue>quit_msg</StringValue>
+                  </Name>
+                  <Arguments ColNo="28" LineNo="59">
+                     <StringValue>quit</StringValue>
+                  </Arguments>
+               </Command>
+            </NodeBody>
+         </Node>
+      </Sequence>
+   </UncheckedSequence>
+</PlexilPlan>

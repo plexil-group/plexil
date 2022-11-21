@@ -1,1 +1,34 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/unchecked-sequence1.ple"><UncheckedSequence ColNo="0" LineNo="1"><NodeId generated="1">UncheckedSequence__0</NodeId><VariableDeclarations><DeclareVariable ColNo="2" LineNo="2"><Name>s</Name><Type>String</Type></DeclareVariable></VariableDeclarations><Node ColNo="2" LineNo="3" NodeType="Assignment"><NodeId generated="1">ASSIGNMENT__1</NodeId><NodeBody><Assignment ColNo="2" LineNo="3"><StringVariable>s</StringVariable><StringRHS><StringValue>foo</StringValue></StringRHS></Assignment></NodeBody></Node><Node ColNo="2" LineNo="4" NodeType="Assignment"><NodeId generated="1">ASSIGNMENT__2</NodeId><NodeBody><Assignment ColNo="2" LineNo="4"><StringVariable>s</StringVariable><StringRHS><StringValue>bar</StringValue></StringRHS></Assignment></NodeBody></Node></UncheckedSequence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/unchecked-sequence1.ple">
+   <UncheckedSequence ColNo="0" LineNo="1">
+      <NodeId generated="1">UncheckedSequence__0</NodeId>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="2" LineNo="2">
+            <Name>s</Name>
+            <Type>String</Type>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <Node ColNo="2" LineNo="3" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__1</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="3">
+               <StringVariable>s</StringVariable>
+               <StringRHS>
+                  <StringValue>foo</StringValue>
+               </StringRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="4" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__2</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="4">
+               <StringVariable>s</StringVariable>
+               <StringRHS>
+                  <StringValue>bar</StringValue>
+               </StringRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+   </UncheckedSequence>
+</PlexilPlan>

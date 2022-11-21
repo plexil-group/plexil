@@ -1,1 +1,305 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/timed-iteration.ple"><GlobalDeclarations ColNo="5" LineNo="1"><StateDeclaration ColNo="5" LineNo="1"><Name>time</Name><Return><Name>_return_0</Name><Type>Date</Type></Return></StateDeclaration><CommandDeclaration ColNo="0" LineNo="2"><Name>pprint</Name><AnyParameters/></CommandDeclaration></GlobalDeclarations><Sequence ColNo="0" LineNo="4"><NodeId>TimedIteration</NodeId><VariableDeclarations><DeclareVariable ColNo="4" LineNo="6"><Name>run_start_time</Name><Type>Date</Type></DeclareVariable><DeclareVariable ColNo="4" LineNo="7"><Name>earliest_start</Name><Type>Date</Type><InitialValue><DateValue>2012-02-23T22:21:00.000</DateValue></InitialValue></DeclareVariable><DeclareVariable ColNo="4" LineNo="8"><Name>latest_start</Name><Type>Date</Type></DeclareVariable><DeclareVariable ColNo="4" LineNo="9"><Name>period</Name><Type>Duration</Type><InitialValue><DurationValue>PT0.5S</DurationValue></InitialValue></DeclareVariable><DeclareVariable ColNo="4" LineNo="10"><Name>elapsed_time</Name><Type>Duration</Type><InitialValue><DurationValue>PT0.0S</DurationValue></InitialValue></DeclareVariable><DeclareVariable ColNo="4" LineNo="11"><Name>start_delta</Name><Type>Duration</Type></DeclareVariable><DeclareVariable ColNo="4" LineNo="12"><Name>run_length</Name><Type>Duration</Type><InitialValue><DurationValue>PT10.0S</DurationValue></InitialValue></DeclareVariable><DeclareVariable ColNo="4" LineNo="13"><Name>tolerance</Name><Type>Duration</Type><InitialValue><DurationValue>PT0.01S</DurationValue></InitialValue></DeclareVariable><DeclareVariable ColNo="4" LineNo="14"><Name>continue</Name><Type>Boolean</Type><InitialValue><BooleanValue>true</BooleanValue></InitialValue></DeclareVariable></VariableDeclarations><Sequence ColNo="4" LineNo="16"><NodeId>SetupTimes</NodeId><Node ColNo="8" LineNo="18" NodeType="Assignment"><NodeId generated="1">ASSIGNMENT__0</NodeId><NodeBody><Assignment ColNo="8" LineNo="18"><DateVariable>run_start_time</DateVariable><NumericRHS><NodeTimepointValue ColNo="25" LineNo="18"><NodeId>TimedIteration</NodeId><NodeStateValue>EXECUTING</NodeStateValue><Timepoint>START</Timepoint></NodeTimepointValue></NumericRHS></Assignment></NodeBody></Node><Node ColNo="8" LineNo="19" NodeType="Assignment"><NodeId generated="1">ASSIGNMENT__1</NodeId><NodeBody><Assignment ColNo="8" LineNo="19"><DurationVariable>start_delta</DurationVariable><NumericRHS><SUB ColNo="37" LineNo="19"><DateVariable>earliest_start</DateVariable><DateVariable>run_start_time</DateVariable></SUB></NumericRHS></Assignment></NodeBody></Node><Node ColNo="8" LineNo="20" NodeType="Assignment"><NodeId generated="1">ASSIGNMENT__2</NodeId><NodeBody><Assignment ColNo="8" LineNo="20"><DateVariable>latest_start</DateVariable><NumericRHS><ADD ColNo="38" LineNo="20"><DateVariable>earliest_start</DateVariable><DurationValue>PT4.0S</DurationValue></ADD></NumericRHS></Assignment></NodeBody></Node><Node ColNo="8" LineNo="21" NodeType="Assignment"><NodeId generated="1">ASSIGNMENT__3</NodeId><NodeBody><Assignment ColNo="8" LineNo="21"><DurationVariable>run_length</DurationVariable><NumericRHS><ADD ColNo="32" LineNo="21"><DurationVariable>run_length</DurationVariable><DurationVariable>start_delta</DurationVariable></ADD></NumericRHS></Assignment></NodeBody></Node></Sequence><Node ColNo="4" LineNo="24" NodeType="Command"><NodeId generated="1">COMMAND__4</NodeId><NodeBody><Command ColNo="4" LineNo="24"><Name><StringValue>pprint</StringValue></Name><Arguments ColNo="12" LineNo="24"><StringValue>Earliest start time is in</StringValue><DurationVariable>start_delta</DurationVariable><StringValue>seconds...</StringValue></Arguments></Command></NodeBody></Node><Node ColNo="4" LineNo="26" NodeType="Command"><NodeId>waitForStartTime</NodeId><StartCondition ColNo="8" LineNo="28"><LT ColNo="29" LineNo="28"><DateVariable>earliest_start</DateVariable><Lookup ColNo="31" LineNo="28"><Name><StringValue>time</StringValue></Name><Tolerance><DurationVariable>tolerance</DurationVariable></Tolerance></Lookup></LT></StartCondition><InvariantCondition ColNo="8" LineNo="29"><LT ColNo="31" LineNo="29"><Lookup ColNo="18" LineNo="29"><Name><StringValue>time</StringValue></Name></Lookup><DateVariable>latest_start</DateVariable></LT></InvariantCondition><NodeBody><Command ColNo="8" LineNo="31"><Name><StringValue>pprint</StringValue></Name><Arguments ColNo="16" LineNo="31"><StringValue>Plan starting...</StringValue></Arguments></Command></NodeBody></Node><Sequence ColNo="4" LineNo="34"><NodeId>periodicIteration</NodeId><VariableDeclarations><DeclareVariable ColNo="8" LineNo="36"><Name>iteration_start_time</Name><Type>Date</Type></DeclareVariable></VariableDeclarations><RepeatCondition ColNo="8" LineNo="37"><BooleanVariable>continue</BooleanVariable></RepeatCondition><StartCondition ColNo="8" LineNo="38"><LT ColNo="70" LineNo="38"><MOD ColNo="58" LineNo="38"><SUB ColNo="40" LineNo="38"><Lookup ColNo="16" LineNo="38"><Name><StringValue>time</StringValue></Name><Tolerance><DurationVariable>tolerance</DurationVariable></Tolerance></Lookup><DateVariable>run_start_time</DateVariable></SUB><DurationVariable>period</DurationVariable></MOD><MUL ColNo="81" LineNo="38"><DurationVariable>tolerance</DurationVariable><IntegerValue>2</IntegerValue></MUL></LT></StartCondition><Node ColNo="8" LineNo="40" NodeType="Assignment"><NodeId generated="1">ASSIGNMENT__5</NodeId><NodeBody><Assignment ColNo="8" LineNo="40"><DateVariable>iteration_start_time</DateVariable><NumericRHS><Lookup ColNo="31" LineNo="40"><Name><StringValue>time</StringValue></Name></Lookup></NumericRHS></Assignment></NodeBody></Node><Node ColNo="8" LineNo="41" NodeType="Assignment"><NodeId generated="1">ASSIGNMENT__6</NodeId><NodeBody><Assignment ColNo="8" LineNo="41"><DurationVariable>elapsed_time</DurationVariable><NumericRHS><SUB ColNo="44" LineNo="41"><DateVariable>iteration_start_time</DateVariable><DateVariable>run_start_time</DateVariable></SUB></NumericRHS></Assignment></NodeBody></Node><Node ColNo="8" LineNo="42" NodeType="Command"><NodeId generated="1">COMMAND__7</NodeId><NodeBody><Command ColNo="8" LineNo="42"><Name><StringValue>pprint</StringValue></Name><Arguments ColNo="16" LineNo="42"><StringValue>elapsed_time: </StringValue><DurationVariable>elapsed_time</DurationVariable></Arguments></Command></NodeBody></Node><Wait ColNo="8" LineNo="43"><NodeId>WaitABit</NodeId><Units><MUL ColNo="25" LineNo="43"><IntegerValue>2</IntegerValue><DurationVariable>tolerance</DurationVariable></MUL></Units></Wait><Sequence ColNo="8" LineNo="44"><NodeId>ConditionallyEndIteration</NodeId><SkipCondition ColNo="12" LineNo="46"><LE ColNo="30" LineNo="46"><DurationVariable>elapsed_time</DurationVariable><DurationVariable>run_length</DurationVariable></LE></SkipCondition><Node ColNo="12" LineNo="48" NodeType="Assignment"><NodeId generated="1">ASSIGNMENT__8</NodeId><NodeBody><Assignment ColNo="12" LineNo="48"><BooleanVariable>continue</BooleanVariable><BooleanRHS><BooleanValue>false</BooleanValue></BooleanRHS></Assignment></NodeBody></Node><Node ColNo="12" LineNo="49" NodeType="Command"><NodeId generated="1">COMMAND__9</NodeId><NodeBody><Command ColNo="12" LineNo="49"><Name><StringValue>pprint</StringValue></Name><Arguments ColNo="20" LineNo="49"><StringValue>Ending periodic iteration</StringValue></Arguments></Command></NodeBody></Node></Sequence></Sequence></Sequence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/timed-iteration.ple">
+   <GlobalDeclarations ColNo="5" LineNo="1">
+      <StateDeclaration ColNo="5" LineNo="1">
+         <Name>time</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Date</Type>
+         </Return>
+      </StateDeclaration>
+      <CommandDeclaration ColNo="0" LineNo="2">
+         <Name>pprint</Name>
+         <AnyParameters/>
+      </CommandDeclaration>
+   </GlobalDeclarations>
+   <Sequence ColNo="0" LineNo="4">
+      <NodeId>TimedIteration</NodeId>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="4" LineNo="6">
+            <Name>run_start_time</Name>
+            <Type>Date</Type>
+         </DeclareVariable>
+         <DeclareVariable ColNo="4" LineNo="7">
+            <Name>earliest_start</Name>
+            <Type>Date</Type>
+            <InitialValue>
+               <DateValue>2012-02-23T22:21:00.000</DateValue>
+            </InitialValue>
+         </DeclareVariable>
+         <DeclareVariable ColNo="4" LineNo="8">
+            <Name>latest_start</Name>
+            <Type>Date</Type>
+         </DeclareVariable>
+         <DeclareVariable ColNo="4" LineNo="9">
+            <Name>period</Name>
+            <Type>Duration</Type>
+            <InitialValue>
+               <DurationValue>PT0.5S</DurationValue>
+            </InitialValue>
+         </DeclareVariable>
+         <DeclareVariable ColNo="4" LineNo="10">
+            <Name>elapsed_time</Name>
+            <Type>Duration</Type>
+            <InitialValue>
+               <DurationValue>PT0.0S</DurationValue>
+            </InitialValue>
+         </DeclareVariable>
+         <DeclareVariable ColNo="4" LineNo="11">
+            <Name>start_delta</Name>
+            <Type>Duration</Type>
+         </DeclareVariable>
+         <DeclareVariable ColNo="4" LineNo="12">
+            <Name>run_length</Name>
+            <Type>Duration</Type>
+            <InitialValue>
+               <DurationValue>PT10.0S</DurationValue>
+            </InitialValue>
+         </DeclareVariable>
+         <DeclareVariable ColNo="4" LineNo="13">
+            <Name>tolerance</Name>
+            <Type>Duration</Type>
+            <InitialValue>
+               <DurationValue>PT0.01S</DurationValue>
+            </InitialValue>
+         </DeclareVariable>
+         <DeclareVariable ColNo="4" LineNo="14">
+            <Name>continue</Name>
+            <Type>Boolean</Type>
+            <InitialValue>
+               <BooleanValue>true</BooleanValue>
+            </InitialValue>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <Sequence ColNo="4" LineNo="16">
+         <NodeId>SetupTimes</NodeId>
+         <Node ColNo="8" LineNo="18" NodeType="Assignment">
+            <NodeId generated="1">ASSIGNMENT__0</NodeId>
+            <NodeBody>
+               <Assignment ColNo="8" LineNo="18">
+                  <DateVariable>run_start_time</DateVariable>
+                  <NumericRHS>
+                     <NodeTimepointValue ColNo="25" LineNo="18">
+                        <NodeId>TimedIteration</NodeId>
+                        <NodeStateValue>EXECUTING</NodeStateValue>
+                        <Timepoint>START</Timepoint>
+                     </NodeTimepointValue>
+                  </NumericRHS>
+               </Assignment>
+            </NodeBody>
+         </Node>
+         <Node ColNo="8" LineNo="19" NodeType="Assignment">
+            <NodeId generated="1">ASSIGNMENT__1</NodeId>
+            <NodeBody>
+               <Assignment ColNo="8" LineNo="19">
+                  <DurationVariable>start_delta</DurationVariable>
+                  <NumericRHS>
+                     <SUB ColNo="37" LineNo="19">
+                        <DateVariable>earliest_start</DateVariable>
+                        <DateVariable>run_start_time</DateVariable>
+                     </SUB>
+                  </NumericRHS>
+               </Assignment>
+            </NodeBody>
+         </Node>
+         <Node ColNo="8" LineNo="20" NodeType="Assignment">
+            <NodeId generated="1">ASSIGNMENT__2</NodeId>
+            <NodeBody>
+               <Assignment ColNo="8" LineNo="20">
+                  <DateVariable>latest_start</DateVariable>
+                  <NumericRHS>
+                     <ADD ColNo="38" LineNo="20">
+                        <DateVariable>earliest_start</DateVariable>
+                        <DurationValue>PT4.0S</DurationValue>
+                     </ADD>
+                  </NumericRHS>
+               </Assignment>
+            </NodeBody>
+         </Node>
+         <Node ColNo="8" LineNo="21" NodeType="Assignment">
+            <NodeId generated="1">ASSIGNMENT__3</NodeId>
+            <NodeBody>
+               <Assignment ColNo="8" LineNo="21">
+                  <DurationVariable>run_length</DurationVariable>
+                  <NumericRHS>
+                     <ADD ColNo="32" LineNo="21">
+                        <DurationVariable>run_length</DurationVariable>
+                        <DurationVariable>start_delta</DurationVariable>
+                     </ADD>
+                  </NumericRHS>
+               </Assignment>
+            </NodeBody>
+         </Node>
+      </Sequence>
+      <Node ColNo="4" LineNo="24" NodeType="Command">
+         <NodeId generated="1">COMMAND__4</NodeId>
+         <NodeBody>
+            <Command ColNo="4" LineNo="24">
+               <Name>
+                  <StringValue>pprint</StringValue>
+               </Name>
+               <Arguments ColNo="12" LineNo="24">
+                  <StringValue>Earliest start time is in</StringValue>
+                  <DurationVariable>start_delta</DurationVariable>
+                  <StringValue>seconds...</StringValue>
+               </Arguments>
+            </Command>
+         </NodeBody>
+      </Node>
+      <Node ColNo="4" LineNo="26" NodeType="Command">
+         <NodeId>waitForStartTime</NodeId>
+         <StartCondition ColNo="8" LineNo="28">
+            <LT ColNo="29" LineNo="28">
+               <DateVariable>earliest_start</DateVariable>
+               <Lookup ColNo="31" LineNo="28">
+                  <Name>
+                     <StringValue>time</StringValue>
+                  </Name>
+                  <Tolerance>
+                     <DurationVariable>tolerance</DurationVariable>
+                  </Tolerance>
+               </Lookup>
+            </LT>
+         </StartCondition>
+         <InvariantCondition ColNo="8" LineNo="29">
+            <LT ColNo="31" LineNo="29">
+               <Lookup ColNo="18" LineNo="29">
+                  <Name>
+                     <StringValue>time</StringValue>
+                  </Name>
+               </Lookup>
+               <DateVariable>latest_start</DateVariable>
+            </LT>
+         </InvariantCondition>
+         <NodeBody>
+            <Command ColNo="8" LineNo="31">
+               <Name>
+                  <StringValue>pprint</StringValue>
+               </Name>
+               <Arguments ColNo="16" LineNo="31">
+                  <StringValue>Plan starting...</StringValue>
+               </Arguments>
+            </Command>
+         </NodeBody>
+      </Node>
+      <Sequence ColNo="4" LineNo="34">
+         <NodeId>periodicIteration</NodeId>
+         <VariableDeclarations>
+            <DeclareVariable ColNo="8" LineNo="36">
+               <Name>iteration_start_time</Name>
+               <Type>Date</Type>
+            </DeclareVariable>
+         </VariableDeclarations>
+         <RepeatCondition ColNo="8" LineNo="37">
+            <BooleanVariable>continue</BooleanVariable>
+         </RepeatCondition>
+         <StartCondition ColNo="8" LineNo="38">
+            <LT ColNo="70" LineNo="38">
+               <MOD ColNo="58" LineNo="38">
+                  <SUB ColNo="40" LineNo="38">
+                     <Lookup ColNo="16" LineNo="38">
+                        <Name>
+                           <StringValue>time</StringValue>
+                        </Name>
+                        <Tolerance>
+                           <DurationVariable>tolerance</DurationVariable>
+                        </Tolerance>
+                     </Lookup>
+                     <DateVariable>run_start_time</DateVariable>
+                  </SUB>
+                  <DurationVariable>period</DurationVariable>
+               </MOD>
+               <MUL ColNo="81" LineNo="38">
+                  <DurationVariable>tolerance</DurationVariable>
+                  <IntegerValue>2</IntegerValue>
+               </MUL>
+            </LT>
+         </StartCondition>
+         <Node ColNo="8" LineNo="40" NodeType="Assignment">
+            <NodeId generated="1">ASSIGNMENT__5</NodeId>
+            <NodeBody>
+               <Assignment ColNo="8" LineNo="40">
+                  <DateVariable>iteration_start_time</DateVariable>
+                  <NumericRHS>
+                     <Lookup ColNo="31" LineNo="40">
+                        <Name>
+                           <StringValue>time</StringValue>
+                        </Name>
+                     </Lookup>
+                  </NumericRHS>
+               </Assignment>
+            </NodeBody>
+         </Node>
+         <Node ColNo="8" LineNo="41" NodeType="Assignment">
+            <NodeId generated="1">ASSIGNMENT__6</NodeId>
+            <NodeBody>
+               <Assignment ColNo="8" LineNo="41">
+                  <DurationVariable>elapsed_time</DurationVariable>
+                  <NumericRHS>
+                     <SUB ColNo="44" LineNo="41">
+                        <DateVariable>iteration_start_time</DateVariable>
+                        <DateVariable>run_start_time</DateVariable>
+                     </SUB>
+                  </NumericRHS>
+               </Assignment>
+            </NodeBody>
+         </Node>
+         <Node ColNo="8" LineNo="42" NodeType="Command">
+            <NodeId generated="1">COMMAND__7</NodeId>
+            <NodeBody>
+               <Command ColNo="8" LineNo="42">
+                  <Name>
+                     <StringValue>pprint</StringValue>
+                  </Name>
+                  <Arguments ColNo="16" LineNo="42">
+                     <StringValue>elapsed_time: </StringValue>
+                     <DurationVariable>elapsed_time</DurationVariable>
+                  </Arguments>
+               </Command>
+            </NodeBody>
+         </Node>
+         <Wait ColNo="8" LineNo="43">
+            <NodeId>WaitABit</NodeId>
+            <Units>
+               <MUL ColNo="25" LineNo="43">
+                  <IntegerValue>2</IntegerValue>
+                  <DurationVariable>tolerance</DurationVariable>
+               </MUL>
+            </Units>
+         </Wait>
+         <Sequence ColNo="8" LineNo="44">
+            <NodeId>ConditionallyEndIteration</NodeId>
+            <SkipCondition ColNo="12" LineNo="46">
+               <LE ColNo="30" LineNo="46">
+                  <DurationVariable>elapsed_time</DurationVariable>
+                  <DurationVariable>run_length</DurationVariable>
+               </LE>
+            </SkipCondition>
+            <Node ColNo="12" LineNo="48" NodeType="Assignment">
+               <NodeId generated="1">ASSIGNMENT__8</NodeId>
+               <NodeBody>
+                  <Assignment ColNo="12" LineNo="48">
+                     <BooleanVariable>continue</BooleanVariable>
+                     <BooleanRHS>
+                        <BooleanValue>false</BooleanValue>
+                     </BooleanRHS>
+                  </Assignment>
+               </NodeBody>
+            </Node>
+            <Node ColNo="12" LineNo="49" NodeType="Command">
+               <NodeId generated="1">COMMAND__9</NodeId>
+               <NodeBody>
+                  <Command ColNo="12" LineNo="49">
+                     <Name>
+                        <StringValue>pprint</StringValue>
+                     </Name>
+                     <Arguments ColNo="20" LineNo="49">
+                        <StringValue>Ending periodic iteration</StringValue>
+                     </Arguments>
+                  </Command>
+               </NodeBody>
+            </Node>
+         </Sequence>
+      </Sequence>
+   </Sequence>
+</PlexilPlan>

@@ -1,1 +1,103 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/AddArray.ple"><While ColNo="0" LineNo="1"><NodeId>Root</NodeId><VariableDeclarations><DeclareArray ColNo="2" LineNo="2"><Name>foo</Name><Type>Real</Type><MaxSize>4</MaxSize><InitialValue><ArrayValue Type="Real"><RealValue>0.0</RealValue><RealValue>0.0</RealValue><RealValue>0.0</RealValue><RealValue>0.0</RealValue></ArrayValue></InitialValue></DeclareArray><DeclareVariable ColNo="2" LineNo="3"><Name>temp</Name><Type>Real</Type><InitialValue><RealValue>0.0</RealValue></InitialValue></DeclareVariable></VariableDeclarations><Condition><LT ColNo="14" LineNo="4"><RealVariable>temp</RealVariable><RealValue>3.0</RealValue></LT></Condition><Action><Sequence ColNo="2" LineNo="5"><NodeId generated="1">BLOCK__0</NodeId><Node ColNo="4" LineNo="6" NodeType="Assignment"><NodeId>SimpleAssignment</NodeId><NodeBody><Assignment ColNo="24" LineNo="6"><RealVariable>temp</RealVariable><NumericRHS><ArrayElement><ArrayVariable>foo</ArrayVariable><Index><IntegerValue>1</IntegerValue></Index></ArrayElement></NumericRHS></Assignment></NodeBody></Node><Node ColNo="4" LineNo="7" NodeType="Assignment"><NodeId>SimpleArrayAssignment</NodeId><NodeBody><Assignment ColNo="29" LineNo="7"><ArrayElement><ArrayVariable>foo</ArrayVariable><Index><IntegerValue>1</IntegerValue></Index></ArrayElement><NumericRHS><ADD ColNo="45" LineNo="7"><ArrayElement><ArrayVariable>foo</ArrayVariable><Index><IntegerValue>1</IntegerValue></Index></ArrayElement><RealValue>1.0</RealValue></ADD></NumericRHS></Assignment></NodeBody></Node><Node ColNo="4" LineNo="8" NodeType="Assignment"><NodeId>SimpleArrayAssignment2</NodeId><NodeBody><Assignment ColNo="30" LineNo="8"><ArrayElement><ArrayVariable>foo</ArrayVariable><Index><IntegerValue>2</IntegerValue></Index></ArrayElement><NumericRHS><ADD ColNo="46" LineNo="8"><ArrayElement><ArrayVariable>foo</ArrayVariable><Index><IntegerValue>2</IntegerValue></Index></ArrayElement><RealValue>2.0</RealValue></ADD></NumericRHS></Assignment></NodeBody></Node></Sequence></Action></While></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/AddArray.ple">
+   <While ColNo="0" LineNo="1">
+      <NodeId>Root</NodeId>
+      <VariableDeclarations>
+         <DeclareArray ColNo="2" LineNo="2">
+            <Name>foo</Name>
+            <Type>Real</Type>
+            <MaxSize>4</MaxSize>
+            <InitialValue>
+               <ArrayValue Type="Real">
+                  <RealValue>0.0</RealValue>
+                  <RealValue>0.0</RealValue>
+                  <RealValue>0.0</RealValue>
+                  <RealValue>0.0</RealValue>
+               </ArrayValue>
+            </InitialValue>
+         </DeclareArray>
+         <DeclareVariable ColNo="2" LineNo="3">
+            <Name>temp</Name>
+            <Type>Real</Type>
+            <InitialValue>
+               <RealValue>0.0</RealValue>
+            </InitialValue>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <Condition>
+         <LT ColNo="14" LineNo="4">
+            <RealVariable>temp</RealVariable>
+            <RealValue>3.0</RealValue>
+         </LT>
+      </Condition>
+      <Action>
+         <Sequence ColNo="2" LineNo="5">
+            <NodeId generated="1">BLOCK__0</NodeId>
+            <Node ColNo="4" LineNo="6" NodeType="Assignment">
+               <NodeId>SimpleAssignment</NodeId>
+               <NodeBody>
+                  <Assignment ColNo="24" LineNo="6">
+                     <RealVariable>temp</RealVariable>
+                     <NumericRHS>
+                        <ArrayElement>
+                           <ArrayVariable>foo</ArrayVariable>
+                           <Index>
+                              <IntegerValue>1</IntegerValue>
+                           </Index>
+                        </ArrayElement>
+                     </NumericRHS>
+                  </Assignment>
+               </NodeBody>
+            </Node>
+            <Node ColNo="4" LineNo="7" NodeType="Assignment">
+               <NodeId>SimpleArrayAssignment</NodeId>
+               <NodeBody>
+                  <Assignment ColNo="29" LineNo="7">
+                     <ArrayElement>
+                        <ArrayVariable>foo</ArrayVariable>
+                        <Index>
+                           <IntegerValue>1</IntegerValue>
+                        </Index>
+                     </ArrayElement>
+                     <NumericRHS>
+                        <ADD ColNo="45" LineNo="7">
+                           <ArrayElement>
+                              <ArrayVariable>foo</ArrayVariable>
+                              <Index>
+                                 <IntegerValue>1</IntegerValue>
+                              </Index>
+                           </ArrayElement>
+                           <RealValue>1.0</RealValue>
+                        </ADD>
+                     </NumericRHS>
+                  </Assignment>
+               </NodeBody>
+            </Node>
+            <Node ColNo="4" LineNo="8" NodeType="Assignment">
+               <NodeId>SimpleArrayAssignment2</NodeId>
+               <NodeBody>
+                  <Assignment ColNo="30" LineNo="8">
+                     <ArrayElement>
+                        <ArrayVariable>foo</ArrayVariable>
+                        <Index>
+                           <IntegerValue>2</IntegerValue>
+                        </Index>
+                     </ArrayElement>
+                     <NumericRHS>
+                        <ADD ColNo="46" LineNo="8">
+                           <ArrayElement>
+                              <ArrayVariable>foo</ArrayVariable>
+                              <Index>
+                                 <IntegerValue>2</IntegerValue>
+                              </Index>
+                           </ArrayElement>
+                           <RealValue>2.0</RealValue>
+                        </ADD>
+                     </NumericRHS>
+                  </Assignment>
+               </NodeBody>
+            </Node>
+         </Sequence>
+      </Action>
+   </While>
+</PlexilPlan>

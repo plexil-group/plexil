@@ -1,1 +1,118 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/LibraryCall2.ple"><GlobalDeclarations ColNo="0" LineNo="1"><LibraryNodeDeclaration ColNo="0" LineNo="1"><Name>Increment</Name><Interface><In><DeclareVariable ColNo="25" LineNo="1"><Name>x</Name><Type>Integer</Type></DeclareVariable></In><InOut><DeclareVariable ColNo="39" LineNo="1"><Name>result</Name><Type>Integer</Type></DeclareVariable></InOut></Interface></LibraryNodeDeclaration><LibraryNodeDeclaration ColNo="0" LineNo="2"><Name>Decrement</Name><Interface><In><DeclareVariable ColNo="25" LineNo="2"><Name>x</Name><Type>Integer</Type></DeclareVariable></In><InOut><DeclareVariable ColNo="39" LineNo="2"><Name>result</Name><Type>Integer</Type></DeclareVariable></InOut></Interface></LibraryNodeDeclaration><CommandDeclaration ColNo="0" LineNo="3"><Name>pprint</Name><AnyParameters/></CommandDeclaration></GlobalDeclarations><Sequence ColNo="0" LineNo="5"><NodeId>LibraryCallTest</NodeId><VariableDeclarations><DeclareVariable ColNo="2" LineNo="7"><Name>result</Name><Type>Integer</Type></DeclareVariable></VariableDeclarations><PostCondition ColNo="2" LineNo="8"><EQNumeric ColNo="23" LineNo="8"><IntegerVariable>result</IntegerVariable><IntegerValue>1</IntegerValue></EQNumeric></PostCondition><Node ColNo="2" LineNo="9" NodeType="LibraryNodeCall"><NodeId generated="1">LibraryCall__0</NodeId><NodeBody><LibraryNodeCall ColNo="2" LineNo="9"><NodeId>Increment</NodeId><Alias><NodeParameter>x</NodeParameter><IntegerValue>1</IntegerValue></Alias><Alias><NodeParameter>result</NodeParameter><IntegerVariable>result</IntegerVariable></Alias></LibraryNodeCall></NodeBody></Node><Node ColNo="2" LineNo="10" NodeType="Command"><NodeId generated="1">COMMAND__1</NodeId><NodeBody><Command ColNo="2" LineNo="10"><Name><StringValue>pprint</StringValue></Name><Arguments ColNo="10" LineNo="10"><StringValue>Increment(1) =</StringValue><IntegerVariable>result</IntegerVariable></Arguments></Command></NodeBody></Node><Node ColNo="2" LineNo="11" NodeType="LibraryNodeCall"><NodeId generated="1">LibraryCall__2</NodeId><NodeBody><LibraryNodeCall ColNo="2" LineNo="11"><NodeId>Decrement</NodeId><Alias><NodeParameter>x</NodeParameter><IntegerVariable>result</IntegerVariable></Alias><Alias><NodeParameter>result</NodeParameter><IntegerVariable>result</IntegerVariable></Alias></LibraryNodeCall></NodeBody></Node><Node ColNo="2" LineNo="12" NodeType="Command"><NodeId generated="1">COMMAND__3</NodeId><NodeBody><Command ColNo="2" LineNo="12"><Name><StringValue>pprint</StringValue></Name><Arguments ColNo="10" LineNo="12"><StringValue>Decrement(2) =</StringValue><IntegerVariable>result</IntegerVariable></Arguments></Command></NodeBody></Node></Sequence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/LibraryCall2.ple">
+   <GlobalDeclarations ColNo="0" LineNo="1">
+      <LibraryNodeDeclaration ColNo="0" LineNo="1">
+         <Name>Increment</Name>
+         <Interface>
+            <In>
+               <DeclareVariable ColNo="25" LineNo="1">
+                  <Name>x</Name>
+                  <Type>Integer</Type>
+               </DeclareVariable>
+            </In>
+            <InOut>
+               <DeclareVariable ColNo="39" LineNo="1">
+                  <Name>result</Name>
+                  <Type>Integer</Type>
+               </DeclareVariable>
+            </InOut>
+         </Interface>
+      </LibraryNodeDeclaration>
+      <LibraryNodeDeclaration ColNo="0" LineNo="2">
+         <Name>Decrement</Name>
+         <Interface>
+            <In>
+               <DeclareVariable ColNo="25" LineNo="2">
+                  <Name>x</Name>
+                  <Type>Integer</Type>
+               </DeclareVariable>
+            </In>
+            <InOut>
+               <DeclareVariable ColNo="39" LineNo="2">
+                  <Name>result</Name>
+                  <Type>Integer</Type>
+               </DeclareVariable>
+            </InOut>
+         </Interface>
+      </LibraryNodeDeclaration>
+      <CommandDeclaration ColNo="0" LineNo="3">
+         <Name>pprint</Name>
+         <AnyParameters/>
+      </CommandDeclaration>
+   </GlobalDeclarations>
+   <Sequence ColNo="0" LineNo="5">
+      <NodeId>LibraryCallTest</NodeId>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="2" LineNo="7">
+            <Name>result</Name>
+            <Type>Integer</Type>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <PostCondition ColNo="2" LineNo="8">
+         <EQNumeric ColNo="23" LineNo="8">
+            <IntegerVariable>result</IntegerVariable>
+            <IntegerValue>1</IntegerValue>
+         </EQNumeric>
+      </PostCondition>
+      <Node ColNo="2" LineNo="9" NodeType="LibraryNodeCall">
+         <NodeId generated="1">LibraryCall__0</NodeId>
+         <NodeBody>
+            <LibraryNodeCall ColNo="2" LineNo="9">
+               <NodeId>Increment</NodeId>
+               <Alias>
+                  <NodeParameter>x</NodeParameter>
+                  <IntegerValue>1</IntegerValue>
+               </Alias>
+               <Alias>
+                  <NodeParameter>result</NodeParameter>
+                  <IntegerVariable>result</IntegerVariable>
+               </Alias>
+            </LibraryNodeCall>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="10" NodeType="Command">
+         <NodeId generated="1">COMMAND__1</NodeId>
+         <NodeBody>
+            <Command ColNo="2" LineNo="10">
+               <Name>
+                  <StringValue>pprint</StringValue>
+               </Name>
+               <Arguments ColNo="10" LineNo="10">
+                  <StringValue>Increment(1) =</StringValue>
+                  <IntegerVariable>result</IntegerVariable>
+               </Arguments>
+            </Command>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="11" NodeType="LibraryNodeCall">
+         <NodeId generated="1">LibraryCall__2</NodeId>
+         <NodeBody>
+            <LibraryNodeCall ColNo="2" LineNo="11">
+               <NodeId>Decrement</NodeId>
+               <Alias>
+                  <NodeParameter>x</NodeParameter>
+                  <IntegerVariable>result</IntegerVariable>
+               </Alias>
+               <Alias>
+                  <NodeParameter>result</NodeParameter>
+                  <IntegerVariable>result</IntegerVariable>
+               </Alias>
+            </LibraryNodeCall>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="12" NodeType="Command">
+         <NodeId generated="1">COMMAND__3</NodeId>
+         <NodeBody>
+            <Command ColNo="2" LineNo="12">
+               <Name>
+                  <StringValue>pprint</StringValue>
+               </Name>
+               <Arguments ColNo="10" LineNo="12">
+                  <StringValue>Decrement(2) =</StringValue>
+                  <IntegerVariable>result</IntegerVariable>
+               </Arguments>
+            </Command>
+         </NodeBody>
+      </Node>
+   </Sequence>
+</PlexilPlan>

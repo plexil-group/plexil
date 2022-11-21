@@ -1,1 +1,25 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/empty5.ple"><GlobalDeclarations ColNo="7" LineNo="1"><StateDeclaration ColNo="7" LineNo="1"><Name>engine_temperature</Name><Return><Name>_return_0</Name><Type>Real</Type></Return></StateDeclaration></GlobalDeclarations><Node ColNo="2" LineNo="3" NodeType="Empty"><NodeId>VerifyTemp</NodeId><PostCondition ColNo="4" LineNo="5"><GT ColNo="45" LineNo="5"><Lookup ColNo="18" LineNo="5"><Name><StringValue>engine_temperature</StringValue></Name></Lookup><RealValue>100.0</RealValue></GT></PostCondition></Node></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/empty5.ple">
+   <GlobalDeclarations ColNo="7" LineNo="1">
+      <StateDeclaration ColNo="7" LineNo="1">
+         <Name>engine_temperature</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Real</Type>
+         </Return>
+      </StateDeclaration>
+   </GlobalDeclarations>
+   <Node ColNo="2" LineNo="3" NodeType="Empty">
+      <NodeId>VerifyTemp</NodeId>
+      <PostCondition ColNo="4" LineNo="5">
+         <GT ColNo="45" LineNo="5">
+            <Lookup ColNo="18" LineNo="5">
+               <Name>
+                  <StringValue>engine_temperature</StringValue>
+               </Name>
+            </Lookup>
+            <RealValue>100.0</RealValue>
+         </GT>
+      </PostCondition>
+   </Node>
+</PlexilPlan>

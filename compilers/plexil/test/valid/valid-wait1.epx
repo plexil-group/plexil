@@ -1,1 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/wait1.ple"><Wait ColNo="0" LineNo="1"><NodeId generated="1">Wait__0</NodeId><Units><RealValue>1.0</RealValue></Units></Wait></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/wait1.ple">
+   <Wait ColNo="0" LineNo="1">
+      <NodeId generated="1">Wait__0</NodeId>
+      <Units>
+         <RealValue>1.0</RealValue>
+      </Units>
+   </Wait>
+</PlexilPlan>

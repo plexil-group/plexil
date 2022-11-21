@@ -1,1 +1,55 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/interface-test1.ple"><Sequence ColNo="0" LineNo="1"><NodeId>Test</NodeId><Interface><In><DeclareVariable ColNo="5" LineNo="3"><Name>x</Name><Type>Integer</Type></DeclareVariable><DeclareVariable ColNo="5" LineNo="3"><Name>y</Name><Type>Integer</Type></DeclareVariable></In><InOut><DeclareVariable ColNo="8" LineNo="4"><Name>s</Name><Type>String</Type></DeclareVariable></InOut></Interface><VariableDeclarations><DeclareVariable ColNo="2" LineNo="6"><Name>z</Name><Type>Integer</Type></DeclareVariable></VariableDeclarations><Node ColNo="2" LineNo="8" NodeType="Assignment"><NodeId generated="1">ASSIGNMENT__0</NodeId><NodeBody><Assignment ColNo="2" LineNo="8"><IntegerVariable>z</IntegerVariable><NumericRHS><ADD ColNo="8" LineNo="8"><IntegerVariable>x</IntegerVariable><IntegerVariable>y</IntegerVariable></ADD></NumericRHS></Assignment></NodeBody></Node><Node ColNo="2" LineNo="9" NodeType="Assignment"><NodeId generated="1">ASSIGNMENT__1</NodeId><NodeBody><Assignment ColNo="2" LineNo="9"><StringVariable>s</StringVariable><StringRHS><StringValue>foo</StringValue></StringRHS></Assignment></NodeBody></Node></Sequence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/interface-test1.ple">
+   <Sequence ColNo="0" LineNo="1">
+      <NodeId>Test</NodeId>
+      <Interface>
+         <In>
+            <DeclareVariable ColNo="5" LineNo="3">
+               <Name>x</Name>
+               <Type>Integer</Type>
+            </DeclareVariable>
+            <DeclareVariable ColNo="5" LineNo="3">
+               <Name>y</Name>
+               <Type>Integer</Type>
+            </DeclareVariable>
+         </In>
+         <InOut>
+            <DeclareVariable ColNo="8" LineNo="4">
+               <Name>s</Name>
+               <Type>String</Type>
+            </DeclareVariable>
+         </InOut>
+      </Interface>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="2" LineNo="6">
+            <Name>z</Name>
+            <Type>Integer</Type>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <Node ColNo="2" LineNo="8" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__0</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="8">
+               <IntegerVariable>z</IntegerVariable>
+               <NumericRHS>
+                  <ADD ColNo="8" LineNo="8">
+                     <IntegerVariable>x</IntegerVariable>
+                     <IntegerVariable>y</IntegerVariable>
+                  </ADD>
+               </NumericRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="9" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__1</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="9">
+               <StringVariable>s</StringVariable>
+               <StringRHS>
+                  <StringValue>foo</StringValue>
+               </StringRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+   </Sequence>
+</PlexilPlan>

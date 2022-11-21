@@ -1,1 +1,54 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/NestedBlocks5.ple"><GlobalDeclarations ColNo="0" LineNo="1"><CommandDeclaration ColNo="0" LineNo="1"><Name>print</Name><AnyParameters/></CommandDeclaration></GlobalDeclarations><Sequence ColNo="0" LineNo="3"><NodeId generated="1">BLOCK__0</NodeId><Node ColNo="0" LineNo="4" NodeType="Command"><NodeId>NestedBlocks5</NodeId><NodeBody><Command ColNo="4" LineNo="7"><Name><StringValue>print</StringValue></Name><Arguments ColNo="10" LineNo="7"><StringValue>NestedBlocks5</StringValue></Arguments></Command></NodeBody></Node><Sequence ColNo="2" LineNo="9"><NodeId generated="1">BLOCK__1</NodeId><Node ColNo="4" LineNo="10" NodeType="Command"><NodeId generated="1">COMMAND__2</NodeId><NodeBody><Command ColNo="4" LineNo="10"><Name><StringValue>print</StringValue></Name><Arguments ColNo="10" LineNo="10"><StringValue>Some more crud</StringValue></Arguments></Command></NodeBody></Node><Node ColNo="4" LineNo="11" NodeType="Command"><NodeId generated="1">COMMAND__3</NodeId><NodeBody><Command ColNo="4" LineNo="11"><Name><StringValue>print</StringValue></Name><Arguments ColNo="10" LineNo="11"><StringValue>And even more</StringValue></Arguments></Command></NodeBody></Node></Sequence></Sequence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/NestedBlocks5.ple">
+   <GlobalDeclarations ColNo="0" LineNo="1">
+      <CommandDeclaration ColNo="0" LineNo="1">
+         <Name>print</Name>
+         <AnyParameters/>
+      </CommandDeclaration>
+   </GlobalDeclarations>
+   <Sequence ColNo="0" LineNo="3">
+      <NodeId generated="1">BLOCK__0</NodeId>
+      <Node ColNo="0" LineNo="4" NodeType="Command">
+         <NodeId>NestedBlocks5</NodeId>
+         <NodeBody>
+            <Command ColNo="4" LineNo="7">
+               <Name>
+                  <StringValue>print</StringValue>
+               </Name>
+               <Arguments ColNo="10" LineNo="7">
+                  <StringValue>NestedBlocks5</StringValue>
+               </Arguments>
+            </Command>
+         </NodeBody>
+      </Node>
+      <Sequence ColNo="2" LineNo="9">
+         <NodeId generated="1">BLOCK__1</NodeId>
+         <Node ColNo="4" LineNo="10" NodeType="Command">
+            <NodeId generated="1">COMMAND__2</NodeId>
+            <NodeBody>
+               <Command ColNo="4" LineNo="10">
+                  <Name>
+                     <StringValue>print</StringValue>
+                  </Name>
+                  <Arguments ColNo="10" LineNo="10">
+                     <StringValue>Some more crud</StringValue>
+                  </Arguments>
+               </Command>
+            </NodeBody>
+         </Node>
+         <Node ColNo="4" LineNo="11" NodeType="Command">
+            <NodeId generated="1">COMMAND__3</NodeId>
+            <NodeBody>
+               <Command ColNo="4" LineNo="11">
+                  <Name>
+                     <StringValue>print</StringValue>
+                  </Name>
+                  <Arguments ColNo="10" LineNo="11">
+                     <StringValue>And even more</StringValue>
+                  </Arguments>
+               </Command>
+            </NodeBody>
+         </Node>
+      </Sequence>
+   </Sequence>
+</PlexilPlan>
