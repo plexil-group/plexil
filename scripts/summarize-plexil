@@ -2,7 +2,7 @@
 
 # Generates a concise textual summary of a Core PLEXIL XML file.  
 
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -43,11 +43,13 @@ fi
 
 # Defaults
 
-transform_file="$PLEXIL_HOME/schema/summarize-plexil.xsl"
+transform_file="$PLEXIL_HOME/schema/epx-translator/summarize-plexil.xsl"
 result_file="summary.txt"
 
 # Location of the Saxon XSLT processor
-saxon_jar="$PLEXIL_HOME/jars/saxon9he.jar"
+jars_dir="${PLEXIL_HOME}/jars"
+saxon_jar="${jars_dir}/saxon-he-11.4.jar"
+xmlresolver_jar="${jars_dir}/xmlresolver-4.4.3.jar"
  
 # Determine argument values, overriding defaults when specified.
 
@@ -75,5 +77,6 @@ then
 fi
 
 echo "Summarizing $input_file ..."
-"$JAVA" -jar "$saxon_jar" -o:"$result_file" "$input_file" "$transform_file" 
+"$JAVA" -classpath "${saxon_jar}:${xmlresolver_jar}" net.sf.saxon.Transform \
+        -xsl:"$transform_file" -s:"$input_file" -o:"$result_file"
 echo "Summary written to $result_file"
