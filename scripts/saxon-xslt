@@ -1,6 +1,6 @@
 #! /bin/sh 
 
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,17 +25,35 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+# Use the location of this script to find necessary files.
 if [ -z "$PLEXIL_HOME" ]
-  then
-    echo Please set environment variable PLEXIL_HOME
-    echo to the absolute pathname of your 'plexil' directory.
+then
+    PLEXIL_HOME="$( cd "$(dirname "$0")"/.. && pwd -P )"
+    export PLEXIL_HOME
+fi
+
+# Use alternative java runtime if requested
+if [ -n "$JAVA_HOME" ]
+then
+    java_exe="$JAVA_HOME"/bin/java
+    if [ ! -f "$java_exe" ]
+    then
+        echo "$(basename "$0"): Fatal error: no 'java' executable found at $java_exe" >&2
+        echo " Check that JAVA_HOME is set correctly." >&2
+        exit 1
+    elif [ ! -e "$java_exe" ]
+    then
+        echo "$(basename "$0"): Fatal error: cannot execute $java_exe" >&2
+        exit 1
+    fi
+elif ! java_exe="$(command -v java)"
+then
+    echo "$(basename "$0"): Fatal error: no 'java' executable found" >&2
     exit 1
 fi
 
-JAVA=java
-if [ -n "$JAVA_HOME" ]
-then
-    JAVA="$JAVA_HOME"/bin/java
-fi
+jars_dir="$PLEXIL_HOME"/jars
+saxon_jar="$jars_dir"/saxon-he-11.4.jar
+xmlresolver_jar="$jars_dir"/xmlresolver-4.4.3.jar
 
-exec "$JAVA" -jar "$PLEXIL_HOME"/jars/saxon.jar "$@"
+exec "$java_exe" -classpath "$saxon_jar":"$xmlresolver_jar" net.sf.saxon.Transform "$@"
