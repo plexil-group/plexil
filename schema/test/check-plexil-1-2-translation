@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,21 +25,25 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Check environment variables and UE executable
+# Use the location of this script to find necessary files.
 if [ -z "$PLEXIL_HOME" ]
-  then
-    echo Error: Please set environment variable PLEXIL_HOME
-    echo to the full pathname of your 'plexil' or 'trunk' directory.
-    exit 1
+then
+    PLEXIL_HOME="$( cd "$(dirname "$0")"/../.. && pwd -P )"
+    export PLEXIL_HOME
 fi
 
 if [ $# != 1 ]
 then
-    echo 'Usage: check-plexil-1-2-translation file.plx'
-    exit 1
+    echo 'Usage: check-plexil-1-2-translation <plx-file>'
+    exit 2
 fi
 
-outdir="$PLEXIL_HOME"/schema/test/output
+# utility locations
+schema_dir="$PLEXIL_HOME"/schema
+saxon_xslt="$PLEXIL_HOME"/scripts/saxon-xslt
+validator="$schema_dir"/validator/validate
+
+outdir="$schema_dir"/test/output
 
 mkdir -p "$outdir"
 
@@ -47,43 +51,43 @@ px1file="$outdir"/"$(basename "$1" .plx)".px1
 px2file="$outdir"/"$(basename "$1" .plx)".px2
 rm -f "$px2file" "$px1file"
 
-if ! "$PLEXIL_HOME"/schema/test/saxon "$PLEXIL_HOME"/schema/plexil-v1-to-v2.xsl "$1" "$px2file"
+if ! "$saxon_xslt" -xsl:"$schema_dir"/plexil-v1-to-v2.xsl -s:"$1" -o:"$px2file"
 then
-    echo "*** Translation error converting $(basename "$1") to $(basename "$px2file") ***"
-    echo
+    echo "*** Translation error converting $(basename "$1") to $(basename "$px2file") ***" >&2
+    echo >&2
     exit 1
 fi
 
-if ! xmllint --noout --schema "$PLEXIL_HOME"/schema/core-plexil-v2.xsd "$px2file"
+if ! "$validator" --cache --schema "$schema_dir"/core-plexil-v2.xsd "$px2file"
 then
-    echo "*** $(basename "$px2file") fails to validate ***"
-    echo
+    echo "*** $(basename "$px2file") fails to validate ***" >&2
+    echo >&2
     exit 1
 fi
 
-if ! "$PLEXIL_HOME"/schema/test/saxon "$PLEXIL_HOME"/schema/plexil-v2-to-v1.xsl "$px2file" "$px1file"
+if ! "$saxon_xslt" -xsl:"$schema_dir"/plexil-v2-to-v1.xsl -s:"$px2file" -o:"$px1file"
 then
-    echo "*** Translation error converting $(basename "$px2file") to $(basename "$px1file") ***"
-    echo
+    echo "*** Translation error converting $(basename "$px2file") to $(basename "$px1file") ***" >&2
+    echo >&2
     exit 1
 fi
 
-if ! xmllint --noout --schema "$PLEXIL_HOME"/schema/core-plexil.xsd "$px1file"
+if ! "$validator" --cache --schema "$schema_dir"/core-plexil.xsd "$px1file"
 then
-    echo "*** $(basename "$px1file") fails to validate ***"
-    echo
+    echo "*** $(basename "$px1file") fails to validate ***" >&2
+    echo >&2
     exit 1
 fi
 
 canonical_before="$outdir"/"$(basename -s .plx "$1")".canonical.plx
 canonical_after="$outdir"/"$(basename -s .plx "$1")".canonical.px1
 
-"$PLEXIL_HOME"/schema/test/canonicalize "$1" "$canonical_before"
-"$PLEXIL_HOME"/schema/test/canonicalize "$px1file" "$canonical_after"
+"$schema_dir"/test/canonicalize "$1" "$canonical_before"
+"$schema_dir"/test/canonicalize "$px1file" "$canonical_after"
 
 if ! diff "$canonical_before" "$canonical_after"
 then
-    echo "*** Files $(basename "$canonical_before") and $(basename "$canonical_after") differ ***"
-    echo
+    echo "*** Files $(basename "$canonical_before") and $(basename "$canonical_after") differ ***" >&2
+    echo >&2
     exit 1
 fi

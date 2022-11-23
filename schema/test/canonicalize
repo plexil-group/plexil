@@ -1,7 +1,7 @@
 #! /bin/sh
 # Put a Core PLEXIL v1 plan into a canonical format
 
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -26,12 +26,11 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Check environment variables and UE executable
+# Use the location of this script to find necessary files.
 if [ -z "$PLEXIL_HOME" ]
-  then
-    echo Error: Please set environment variable PLEXIL_HOME
-    echo to the full pathname of your 'plexil' or 'trunk' directory.
-    exit 1
+then
+    PLEXIL_HOME="$( cd "$(dirname "$0")"/../.. && pwd -P )"
+    export PLEXIL_HOME
 fi
 
 if [ $# -lt 1 ] || [ $# -gt 2 ]
@@ -40,4 +39,24 @@ then
     exit 1
 fi
 
-exec "$PLEXIL_HOME"/schema/test/saxon "$PLEXIL_HOME"/schema/canonicalize-v1.xsl "$1" "$2"
+schema_dir="$PLEXIL_HOME"/schema
+
+#
+# Options to pass to saxon
+# See: https://www.saxonica.com/html/documentation9.9/using-xsl/commandline/
+#
+#  -config:<file>        - load configuration file
+#  -dtd:<on|off|recover> - on = error if input file lacks DTD
+#                          off = no checking for DTD
+#                          recover = warn if DTD missing
+#  -T                    - enable tracing
+#  -Tlevel:<level>       - tracing level: none, low, normal, or high
+#  -traceout:<file>      - direct tracing output to the named file
+#  -TP:<file>            - Write profiling info to an HTML file 
+#
+xslt_options='-dtd:off'
+
+exec "$PLEXIL_HOME"/scripts/saxon-xslt \
+     -xsl:"$schema_dir"/canonicalize-v1.xsl \
+     -config:"$schema_dir"/saxon-config.xml $xslt_options \
+     -s:"$1" ${2:+-o:"$2"}
