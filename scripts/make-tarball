@@ -1,6 +1,6 @@
 #! /bin/sh -e
 
-# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,94 +25,102 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-DEFAULT_BRANCH='develop'
-
 usage()
 {
-    echo <<EOF
-Usage: $(basename "$0") release-id [branch-or-tag]
- Create a tarball of the Plexil source tree with the GNU autotools initialized
- and Java subsystems prebuilt.
-Arguments:
-  release-id      Top level directory name for the resulting source tree;
-                   also used as the basename for the tarball.
-  branch-or-tag   (Optional) Git branch or tag name;
-                   defaults to "$DEFAULT_BRANCH"
+    cat <<EOF
+Usage: $(basename "$0") release-id [tree-ish]
+ Writes a distribution tar file for PLEXIL to
+ <release-id>.tar.bz2 in the working directory.
+
+ [tree-ish] defaults to HEAD.
+ See 'git help' for more information.
+
+*** Must be run from the root directory of a Plexil git clone. ***
 EOF
 }
 
 if [ -z "$1" ]
 then
-    usage
+    usage >&2 
     exit 2
-fi
-
-RELEASE_ID="$1"
-BRANCH="${2:-$DEFAULT_BRANCH}"
-
-if ! AUTORECONF="$(command -v autoreconf)"
+elif [ "$1" = '-h' ] || [ "$1" = '-help' ] || [ "$1" = '--help' ]
 then
-    echo "$(basename "$0"): Error: can't find the 'autoreconf' program." >&2
-    exit 1
+    usage
+    exit 0
 fi
 
-if ! GPERF="$(command -v gperf)"
+RELID="$1"
+rev='HEAD'
+if [ -n "$2" ]
 then
-    echo "$(basename "$0"): Error: can't find the 'gperf' program." >&2
-    exit 1
+    rev="$2"
 fi
 
-if ! TEMPDIR="$(mktemp -d -t plexil_export)"
-then
-    echo "$(basename "$0"): Error: 'mktemp' failed." >&2
-    exit 1
-fi
+# $1 is the name of a command required for the operation
+find_command()
+{
+    if ! command -v "$1" > /dev/null
+    then
+        echo "$(basename "$0"): Required program \"$1\" not found in PATH" >&2
+        exit 1
+    fi
+}
 
-WD="$(pwd -P)"
+# Commands required for the task which are not installed by default on some platforms
+find_command ant
+find_command autoreconf
+find_command awk
+find_command git
+find_command gperf
+find_command javac
 
 # TEMP DEBUG
-echo "Using working directory $TEMPDIR"
+echo 'Found all commands'
 
-cd "$TEMPDIR"
-mkdir "$RELEASE_ID"
-echo "Cloning PLEXIL"
-git clone --depth 1 -b "$BRANCH" -- https://git.code.sf.net/p/plexil/git plexil-git
-echo "Exporting PLEXIL from clone"
-cd plexil-git
-git archive --format=tar HEAD | tar -x -f - -C "../$RELEASE_ID"
+STARTDIR="$(pwd -P)"
 
-cd "../$RELEASE_ID"
-echo "Installing autotools files and building configure script"
-export PLEXIL_HOME="$(pwd -P)" # just in case
+# N.B.: -t option is deprecated for GNU coreutils 'mktemp'
+if ! WORKDIR="$(mktemp -d -t "${RELID}_XXXXXX")"
+then
+    echo "$(basename "$0"): 'mktemp' failed. Aborting." >&2
+    exit 1
+fi
+
+# Get absolute directory path
+WORKDIR="$(cd "$WORKDIR" && pwd -P)"
+echo "Exporting to temporary directory $WORKDIR"
+git archive --format=tar --prefix="$RELID/" "$rev" | ( cd "$WORKDIR" && tar xf - )
+git submodule foreach "git archive --format=tar --prefix=\"$RELID/\$displaypath/\" \"\$sha1\" | ( cd \"$WORKDIR\" && tar xf - )"
+
+cd "$WORKDIR/$RELID"
+PLEXIL_HOME="$(pwd -P)"
+export PLEXIL_HOME
+
+echo 'Installing autotools files and building configure script'
 make src/configure
 
-echo "Making XML parser expression map"
 # Prebuild expression parser core
-# NOTE: this must track the contents of src/xml-parser/Makefile.am
-"$GPERF" -m 8 --output-file=src/xml-parser/ExpressionMap.hh src/xml-parser/ExpressionMap.gperf
+# NOTE: this command line must track what is in src/xml-parser/Makefile.am
+# and src/xml-parser/CMakeLists.txt
+# (which suggests the gperf command should be wrapped in a script)
+echo 'Generating XML parser perfect hash function'
+gperf -m 8 --output-file=src/xml-parser/ExpressionMap.hh src/xml-parser/ExpressionMap.gperf
 
 # Build Java apps users will need (and clean up build leftovers)
-echo "Building Java applications"
-make plexil-compiler
-rm -rf compilers/plexil/classes compilers/plexil/generated
+echo 'Bulding Java applications'
+( cd compilers/plexil && ant install && ant clean )
+( cd compilers/plexilscript && ant install && ant clean )
+( cd viewers/pv && ant jar && ant mostlyclean )
+( cd checker && ant jar && ant mostlyclean )
 
-make plexilscript
-rm -rf compilers/plexilscript/classes compilers/plexilscript/generated
-
-make pv
-rm -rf viewers/pv/build
-
-make checker
-rm -rf checker/build
+# Do any additional cleanup here
 
 cd ..
-echo "Generating tar file ${WD}/${RELEASE_ID}.tar.gz"
-tar czf "${WD}/${RELEASE_ID}.tar.gz" "$RELEASE_ID"
+echo "Writing tar file to ${STARTDIR}/${RELID}.tar.bz2"
+tar cjf "${STARTDIR}/${RELID}.tar.bz2" "$RELID"
 
-cd "$WD"
-echo "Deleting temporary directory $TEMPDIR"
-rm -rf "$TEMPDIR"
+cd "$STARTDIR"
+echo "Deleting $WORKDIR"
+rm -rf "$WORKDIR"
 
-echo "Complete."
-
-exit 0
+echo 'Done.'
