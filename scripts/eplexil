@@ -27,68 +27,26 @@
 
 if [ -z "$1" ]
 then
-    echo 'Usage: eplexil input-file [ output_file ]'
+    echo "Usage: $(basename "$0") input_file [ output_file ]"
     exit 2
 fi
 
+# Use the location of this script to find necessary files.
 if [ -z "$PLEXIL_HOME" ]
 then
-    # Attempt to guess location of this script (but don't try too hard)
-    PLEXILC_SCRIPT_DIR="$( cd "$(dirname "$(command -v "$0")")" && pwd -P )"
-    if [ "scripts" = "$(basename "$PLEXILC_SCRIPT_DIR")" ]
-    then
-        export PLEXIL_HOME="$(dirname "$PLEXILC_SCRIPT_DIR")"
-    fi
-    unset PLEXILC_SCRIPT_DIR
+    PLEXIL_HOME="$( cd "$(dirname "$0")"/.. && pwd -P )"
+    export PLEXIL_HOME
 fi
-
-# Check environment
-if [ -z "$PLEXIL_HOME" ]
-then
-    echo 'Error: Please set environment variable PLEXIL_HOME' >&2
-    echo "to the full pathname of your 'plexil' or 'trunk' directory." >&2
-    exit 1
-fi
-
-if [ -n "$JAVA_HOME" ]
-then
-    JAVA="$JAVA_HOME"/bin/java
-    if [ ! -e "$JAVA" ]
-    then
-        echo "Error: no Java runtime found at $JAVA_HOME" >&2
-        echo 'Please set JAVA_HOME to an existing Java runtime,' >&2
-        echo 'or install a Java runtime environment.' >&2
-        exit 1
-    fi
-else
-    JAVA="$(command -v java)"
-    if [ -z "$JAVA" ]
-    then
-        echo "Error: no Java runtime in path $PATH" >&2
-        echo 'Either set PATH to include a Java runtime,' >&2
-        echo 'set JAVA_HOME to a Java runtime,' >&2
-        echo 'or install a Java runtime environment.' >&2
-        exit 1
-    fi
-fi
-
-# Presume that anyone running this script wants to see the output formatted
-# Sadly, the '!saxon:indent-spaces' option is not available in saxon9he.
-SAXON_OPTS='!indent=yes'
 
 input_file="$1"
 if [ -n "$2" ]
 then
     output_file="$2"
 else
-    output_file="$(echo "$1" | sed -e 's|.epx$||').plx"
+    output_file="$(dirname "$1")"/"$(basename "$1" .epx)".plx
 fi
 
-JARS_DIR="${PLEXIL_HOME}/jars"
-SAXON_HE_JAR="${JARS_DIR}/saxon-he-11.4.jar"
-XMLRESOLVER_JAR="${JARS_DIR}/xmlresolver-4.4.3.jar"
-SCHEMA_DIR="${PLEXIL_HOME}/schema"
-
+schema_dir="$PLEXIL_HOME"/schema
 
 #
 # Options to pass to saxon
@@ -103,9 +61,9 @@ SCHEMA_DIR="${PLEXIL_HOME}/schema"
 #  -traceout:<file>      - direct tracing output to the named file
 #  -TP:<file>            - Write profiling info to an HTML file 
 #
-OPTIONS='-dtd:off'
+xslt_options='-dtd:off'
 
-exec "$JAVA" -classpath "${SAXON_HE_JAR}:${XMLRESOLVER_JAR}" net.sf.saxon.Transform \
-     -xsl:"$SCHEMA_DIR"/epx-translator/translate-plexil.xsl \
-     -config:"$SCHEMA_DIR"/saxon-config.xml $OPTIONS \
+exec "$PLEXIL_HOME"/scripts/saxon-xslt \
+     -xsl:"$schema_dir"/epx-translator/translate-plexil.xsl \
+     -config:"$schema_dir"/saxon-config.xml $xslt_options \
      -s:"$input_file" -o:"$output_file"
