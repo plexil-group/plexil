@@ -27,18 +27,11 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-usage="summarize-plexil input-file [ result-file ] [ transform-file ]"
-
-# The result-file defaults to summary.txt.  The tranform-file defaults to
-# summarize-plexil.xsl.
-
-# Check environment variables
-
+# Use the location of this script to find necessary files.
 if [ -z "$PLEXIL_HOME" ]
 then
-    echo 'Please set environment variable PLEXIL_HOME'
-    echo "to the absolute pathname of your 'plexil' directory."
-    exit 1
+    PLEXIL_HOME="$( cd "$(dirname "$0")"/.. && pwd -P )"
+    export PLEXIL_HOME
 fi
 
 # Defaults
@@ -46,10 +39,14 @@ fi
 transform_file="$PLEXIL_HOME/schema/summarize-plexil.xsl"
 result_file="summary.txt"
 
-# Location of the Saxon XSLT processor
-jars_dir="${PLEXIL_HOME}/jars"
-saxon_jar="${jars_dir}/saxon-he-11.4.jar"
-xmlresolver_jar="${jars_dir}/xmlresolver-4.4.3.jar"
+usage()
+{
+    cat <<EOF
+Usage: $(basename "$0") input-file [ result-file ] [ transform-file ]"
+  result-file defaults to $result_file
+  tranform-file defaults to $transform_file
+EOF
+}
  
 # Determine argument values, overriding defaults when specified.
 
@@ -70,13 +67,6 @@ then
     fi
 fi
 
-JAVA=java
-if [ -n "$JAVA_HOME" ]
-then
-    JAVA="$JAVA_HOME"/bin/java
-fi
-
 echo "Summarizing $input_file ..."
-"$JAVA" -classpath "${saxon_jar}:${xmlresolver_jar}" net.sf.saxon.Transform \
-        -xsl:"$transform_file" -s:"$input_file" -o:"$result_file"
+"${PLEXIL_HOME}/scripts/saxon-xslt" -xsl:"$transform_file" -s:"$input_file" -o:"$result_file"
 echo "Summary written to $result_file"
