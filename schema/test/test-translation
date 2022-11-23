@@ -2,7 +2,7 @@
 # Test the translation of one Extended Plexil test case
 # stdout is presumed to be a log file
 
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,44 +29,54 @@
 
 set -e 
 
-EPLEXIL='../../scripts/eplexil'
+# Set PLEXIL_HOME for convenience of following scripts
+if [ -z "$PLEXIL_HOME" ]
+then
+    PLEXIL_HOME="$(cd "$(dirname "$0")"/../.. && pwd -P)"
+    export PLEXIL_HOME
+fi
 
-# Slower, XML Schema 1.1 capable Python validator
-VALIDATE='../validator/validate'
-VALIDATE_OPTS='--cache'
-
-# xmllint only supports XML Schema 1.0
-#VALIDATE="$(command -v xmllint)"
-#VALIDATE_OPTS='--noout --schema ../core-plexil.xsd'
-
+eplexil="$PLEXIL_HOME/scripts/eplexil"
+schema_dir="$PLEXIL_HOME/schema"
+validator="$schema_dir/validator/validate"
+core_plexil_schema="$schema_dir/core-plexil.xsd"
+validate_opts="--cache --schema $core_plexil_schema"
 
 echo "$1"
 
-INPUT="input/$1.epx"
-OUTPUT="output/$1.plx"
+infile="input/$1.epx"
+outfile="output/$1.plx"
+verified="verified/verified-${1}.plx"
 
-rm -f "$OUTPUT" "${OUTPUT}.formatted"
+rm -f "$outfile"
 
-if ! "$EPLEXIL" "$INPUT" "$OUTPUT"
+if ! "$eplexil" "$infile" "$outfile"
 then
-	test_failed=1
-	echo "*** Translation of $INPUT failed ***" >&2
-	echo "*** Translation of $INPUT failed ***"
+	echo " *** Translation of $infile failed ***" >&2
+	echo " *** Translation of $infile failed ***"
 	exit 1
 fi
 
-if ! "$VALIDATE" $VALIDATE_OPTS "$OUTPUT"
+if ! "$validator" $validate_opts "$outfile"
 then
-	echo "*** Validation of $1 failed ***" >&2
-	echo "*** Validation of $1 failed ***"
-    exit 1
-elif ! ./check "$1"
-then
-	echo "*** $OUTPUT failed verification ***" >&2
-	echo "*** $OUTPUT failed verification ***"
-	xmllint --format "$OUTPUT" > "$OUTPUT.formatted"
+	echo " *** $outfile failed validation ***" >&2
+	echo " *** $outfile failed validation ***"
     exit 1
 fi
 
-printf "%s verifies\n" "$OUTPUT" >&2
+
+if [ -r "$verified" ]
+then
+    if diff -B -w "$outfile" "$verified"
+    then
+        printf "Verified %s\n" "$outfile" >&2
+    else
+	    echo " *** $outfile failed verification ***" >&2
+	    echo " *** $outfile failed verification ***"
+        exit 1
+    fi
+else
+    printf "Validated %s; no verified file, skipping verification\n" "$outfile" >&2
+fi
+
 exit 0

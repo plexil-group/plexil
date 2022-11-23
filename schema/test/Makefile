@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -56,10 +56,6 @@ MUTEX = Concurrence1m Concurrence2m For1m For3m If1m If3m If6m \
 
 TESTS = $(SYNCH) $(REST) $(MUTEX)
 
-PLEXIL_HOME ?= ../..
-
-EPLEXIL = ../../scripts/eplexil
-
 CHECKER = ./test-translation
 
 LOG = verify.out
@@ -70,8 +66,7 @@ output:
 	@ mkdir -p $@
 
 test: output
-	@ export PLEXIL_HOME="$(PLEXIL_HOME)"; \
-	rm -f $(LOG) ; touch $(LOG) ; \
+	@ rm -f $(LOG) ; touch $(LOG) ; \
 	test_failed=0; \
 	for i in $(TESTS); do \
 		if ! $(CHECKER) $$i >> $(LOG) ; then test_failed=1 ; fi ; \
@@ -81,12 +76,6 @@ test: output
 		exit 1 ; \
 	fi 
 	@ echo All files verified.
-
-# For developers: Check the current output against the benchmarks.
-checkall:
-	@ for i in $(TESTS); do \
-		./check $$i ; \
-	  done
 
 # For developers: Bless the current output, making it the new benchmark.
 passall:
