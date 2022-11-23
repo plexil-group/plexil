@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,16 +25,15 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Check environment variables and UE executable
+# Use the location of this script to find necessary files.
 if [ -z "$PLEXIL_HOME" ]
-  then
-    echo Error: Please set environment variable PLEXIL_HOME
-    echo to the full pathname of your 'plexil' or 'trunk' directory.
-    exit 1
+then
+    PLEXIL_HOME="$( cd "$(dirname "$0")"/../.. && pwd -P )"
+    export PLEXIL_HOME
 fi
 
 for f in "$PLEXIL_HOME"/test/TestExec-regression-test/plans/*.plx
 do
     echo "$f"
-    "${PLEXIL_HOME}"/schema/test/check-plexil-1-2-translation "$f"
+    "$PLEXIL_HOME"/schema/test/check-plexil-1-2-translation "$f"
 done
