@@ -73,7 +73,7 @@ AM_INIT_AUTOMAKE
 #AM_PROG_CC_C_O
 
 # Comment out this line to see the gory details of the build process
-#AM_SILENT_RULES([yes])
+AM_SILENT_RULES([yes])
 
 # Configuration options
 AC_ARG_WITH([jni],
