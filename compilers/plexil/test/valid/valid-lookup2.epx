@@ -1,1 +1,36 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/lookup2.ple"><GlobalDeclarations ColNo="8" LineNo="1"><StateDeclaration ColNo="8" LineNo="1"><Name>x</Name><Return><Name>_return_0</Name><Type>Integer</Type></Return></StateDeclaration></GlobalDeclarations><Node ColNo="0" LineNo="3" NodeType="Assignment"><NodeId>Root</NodeId><VariableDeclarations><DeclareVariable ColNo="2" LineNo="5"><Name>y</Name><Type>Integer</Type></DeclareVariable></VariableDeclarations><NodeBody><Assignment ColNo="2" LineNo="6"><IntegerVariable>y</IntegerVariable><NumericRHS><Lookup ColNo="6" LineNo="6"><Name><StringValue>x</StringValue></Name><Tolerance><IntegerValue>2</IntegerValue></Tolerance></Lookup></NumericRHS></Assignment></NodeBody></Node></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/lookup2.ple">
+   <GlobalDeclarations ColNo="8" LineNo="1">
+      <StateDeclaration ColNo="8" LineNo="1">
+         <Name>x</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Integer</Type>
+         </Return>
+      </StateDeclaration>
+   </GlobalDeclarations>
+   <Node ColNo="0" LineNo="3" NodeType="Assignment">
+      <NodeId>Root</NodeId>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="2" LineNo="5">
+            <Name>y</Name>
+            <Type>Integer</Type>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <NodeBody>
+         <Assignment ColNo="2" LineNo="6">
+            <IntegerVariable>y</IntegerVariable>
+            <NumericRHS>
+               <Lookup ColNo="6" LineNo="6">
+                  <Name>
+                     <StringValue>x</StringValue>
+                  </Name>
+                  <Tolerance>
+                     <IntegerValue>2</IntegerValue>
+                  </Tolerance>
+               </Lookup>
+            </NumericRHS>
+         </Assignment>
+      </NodeBody>
+   </Node>
+</PlexilPlan>

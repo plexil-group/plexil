@@ -1,7 +1,7 @@
 #! /bin/sh
 # Validate PLEXIL files using an XML Schema 1.1 compliant schema
 
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,32 +28,39 @@
 
 set -e
 
-HERE="$( cd "$(dirname "$0")" ; pwd )"
+here="$( cd "$(dirname "$0")" && pwd -P )"
 
 #
 # Bootstrapping
 #
 
-VENV_DIR="$HERE/.venv"
+venv_dir="$here/.venv"
 
-if [ ! -d "$VENV_DIR" ] || [ ! -r "$HERE/environment" ]
+# TEMP DEBUG
+# echo "here=$here"
+# echo "venv_dir=$venv_dir"
+
+if [ ! -d "$venv_dir" ] || [ ! -r "$here/environment" ]
 then
     echo 'Setting up validator environment; this will take a moment...'
-    "$HERE/setup.sh"
+    # shellcheck source=setup.sh
+    if ! "$here/setup.sh"
+    then
+       echo 'Error: setting up validator environment failed.' >&2
+       exit 1
+    fi
     echo '... done.'
 fi
 
-if [ ! -r "$HERE/environment" ]
-then
-    echo 'Error: setting up validator environment failed.' >&2
-    exit 2
-fi
+# Get the locations of the activate script and python executable
+# shellcheck source=environment
+. "$here/environment"
 
-# Get the locations of 'activate' and 'python'
-. "$HERE/environment"
+# TODO: check that environment is valid!
 
 #
 # Now we can do the translation
 #
 
-. "$ACTIVATE" && exec "$PYTHON" "$HERE/validate-plexil.py" "$@"
+# shellcheck source=.venv/bin/activate
+. "$activate_script" && exec "$python_exe" "$here/validate_plexil.py" "$@"

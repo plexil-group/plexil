@@ -1,1 +1,20 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/executing2.ple"><Concurrence ColNo="0" LineNo="1"><NodeId>executing2</NodeId><Node ColNo="2" LineNo="4" NodeType="Empty"><NodeId>A</NodeId><EndCondition ColNo="7" LineNo="4"><BooleanValue>false</BooleanValue></EndCondition></Node><Node ColNo="2" LineNo="5" NodeType="Empty"><NodeId>B</NodeId><StartCondition ColNo="7" LineNo="5"><Executing ColNo="13" LineNo="5"><NodeId>A</NodeId></Executing></StartCondition></Node></Concurrence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/executing2.ple">
+   <Concurrence ColNo="0" LineNo="1">
+      <NodeId>executing2</NodeId>
+      <Node ColNo="2" LineNo="4" NodeType="Empty">
+         <NodeId>A</NodeId>
+         <EndCondition ColNo="7" LineNo="4">
+            <BooleanValue>false</BooleanValue>
+         </EndCondition>
+      </Node>
+      <Node ColNo="2" LineNo="5" NodeType="Empty">
+         <NodeId>B</NodeId>
+         <StartCondition ColNo="7" LineNo="5">
+            <Executing ColNo="13" LineNo="5">
+               <NodeId>A</NodeId>
+            </Executing>
+         </StartCondition>
+      </Node>
+   </Concurrence>
+</PlexilPlan>

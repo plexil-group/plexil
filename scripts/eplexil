@@ -82,8 +82,11 @@ else
     output_file="$(echo "$1" | sed -e 's|.epx$||').plx"
 fi
 
-JARS_DIR="$PLEXIL_HOME/jars"
-SCHEMA_DIR="$PLEXIL_HOME/schema"
+JARS_DIR="${PLEXIL_HOME}/jars"
+SAXON_HE_JAR="${JARS_DIR}/saxon-he-11.4.jar"
+XMLRESOLVER_JAR="${JARS_DIR}/xmlresolver-4.4.3.jar"
+SCHEMA_DIR="${PLEXIL_HOME}/schema"
+
 
 #
 # Options to pass to saxon
@@ -100,7 +103,7 @@ SCHEMA_DIR="$PLEXIL_HOME/schema"
 #
 OPTIONS='-dtd:off'
 
-exec "$JAVA" -jar "$JARS_DIR"/saxon9he.jar \
+exec "$JAVA" -classpath "${SAXON_HE_JAR}:${XMLRESOLVER_JAR}" net.sf.saxon.Transform \
      -xsl:"$SCHEMA_DIR"/epx-translator/translate-plexil.xsl \
      -config:"$SCHEMA_DIR"/saxon-config.xml $OPTIONS \
      -s:"$input_file" -o:"$output_file"

@@ -1,1 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/empty3.ple"><Node ColNo="1" LineNo="1" NodeType="Empty"><NodeId>DoNothing</NodeId></Node></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/empty3.ple">
+   <Node ColNo="1" LineNo="1" NodeType="Empty">
+      <NodeId>DoNothing</NodeId>
+   </Node>
+</PlexilPlan>

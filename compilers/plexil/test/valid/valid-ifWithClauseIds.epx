@@ -1,1 +1,64 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/ifWithClauseIds.ple"><GlobalDeclarations ColNo="0" LineNo="1"><CommandDeclaration ColNo="0" LineNo="1"><Name>foo</Name></CommandDeclaration><CommandDeclaration ColNo="0" LineNo="2"><Name>bar</Name></CommandDeclaration><CommandDeclaration ColNo="0" LineNo="3"><Name>baz</Name></CommandDeclaration></GlobalDeclarations><If ColNo="0" LineNo="5"><NodeId>ifWithClauseIds</NodeId><Condition><BooleanValue>true</BooleanValue></Condition><Then><Node ColNo="4" LineNo="7" NodeType="Command"><NodeId>TrueClause</NodeId><NodeBody><Command ColNo="16" LineNo="7"><Name><StringValue>foo</StringValue></Name></Command></NodeBody></Node></Then><ElseIf><Condition><EQNumeric ColNo="11" LineNo="8"><IntegerValue>2</IntegerValue><IntegerValue>2</IntegerValue></EQNumeric></Condition><Then><Node ColNo="16" LineNo="8" NodeType="Command"><NodeId>ElseifClause</NodeId><NodeBody><Command ColNo="30" LineNo="8"><Name><StringValue>bar</StringValue></Name></Command></NodeBody></Node></Then></ElseIf><Else><Node ColNo="7" LineNo="9" NodeType="Command"><NodeId>FalseClause</NodeId><NodeBody><Command ColNo="20" LineNo="9"><Name><StringValue>bar</StringValue></Name></Command></NodeBody></Node></Else></If></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/ifWithClauseIds.ple">
+   <GlobalDeclarations ColNo="0" LineNo="1">
+      <CommandDeclaration ColNo="0" LineNo="1">
+         <Name>foo</Name>
+      </CommandDeclaration>
+      <CommandDeclaration ColNo="0" LineNo="2">
+         <Name>bar</Name>
+      </CommandDeclaration>
+      <CommandDeclaration ColNo="0" LineNo="3">
+         <Name>baz</Name>
+      </CommandDeclaration>
+   </GlobalDeclarations>
+   <If ColNo="0" LineNo="5">
+      <NodeId>ifWithClauseIds</NodeId>
+      <Condition>
+         <BooleanValue>true</BooleanValue>
+      </Condition>
+      <Then>
+         <Node ColNo="4" LineNo="7" NodeType="Command">
+            <NodeId>TrueClause</NodeId>
+            <NodeBody>
+               <Command ColNo="16" LineNo="7">
+                  <Name>
+                     <StringValue>foo</StringValue>
+                  </Name>
+               </Command>
+            </NodeBody>
+         </Node>
+      </Then>
+      <ElseIf>
+         <Condition>
+            <EQNumeric ColNo="11" LineNo="8">
+               <IntegerValue>2</IntegerValue>
+               <IntegerValue>2</IntegerValue>
+            </EQNumeric>
+         </Condition>
+         <Then>
+            <Node ColNo="16" LineNo="8" NodeType="Command">
+               <NodeId>ElseifClause</NodeId>
+               <NodeBody>
+                  <Command ColNo="30" LineNo="8">
+                     <Name>
+                        <StringValue>bar</StringValue>
+                     </Name>
+                  </Command>
+               </NodeBody>
+            </Node>
+         </Then>
+      </ElseIf>
+      <Else>
+         <Node ColNo="7" LineNo="9" NodeType="Command">
+            <NodeId>FalseClause</NodeId>
+            <NodeBody>
+               <Command ColNo="20" LineNo="9">
+                  <Name>
+                     <StringValue>bar</StringValue>
+                  </Name>
+               </Command>
+            </NodeBody>
+         </Node>
+      </Else>
+   </If>
+</PlexilPlan>

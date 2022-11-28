@@ -1,1 +1,31 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/Increment.ple"><Node ColNo="0" LineNo="1" NodeType="Assignment"><NodeId>Increment</NodeId><Interface><In><DeclareVariable ColNo="5" LineNo="3"><Name>x</Name><Type>Integer</Type></DeclareVariable></In><InOut><DeclareVariable ColNo="8" LineNo="4"><Name>result</Name><Type>Integer</Type></DeclareVariable></InOut></Interface><NodeBody><Assignment ColNo="2" LineNo="5"><IntegerVariable>result</IntegerVariable><NumericRHS><ADD ColNo="13" LineNo="5"><IntegerVariable>x</IntegerVariable><IntegerValue>1</IntegerValue></ADD></NumericRHS></Assignment></NodeBody></Node></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/Increment.ple">
+   <Node ColNo="0" LineNo="1" NodeType="Assignment">
+      <NodeId>Increment</NodeId>
+      <Interface>
+         <In>
+            <DeclareVariable ColNo="5" LineNo="3">
+               <Name>x</Name>
+               <Type>Integer</Type>
+            </DeclareVariable>
+         </In>
+         <InOut>
+            <DeclareVariable ColNo="8" LineNo="4">
+               <Name>result</Name>
+               <Type>Integer</Type>
+            </DeclareVariable>
+         </InOut>
+      </Interface>
+      <NodeBody>
+         <Assignment ColNo="2" LineNo="5">
+            <IntegerVariable>result</IntegerVariable>
+            <NumericRHS>
+               <ADD ColNo="13" LineNo="5">
+                  <IntegerVariable>x</IntegerVariable>
+                  <IntegerValue>1</IntegerValue>
+               </ADD>
+            </NumericRHS>
+         </Assignment>
+      </NodeBody>
+   </Node>
+</PlexilPlan>

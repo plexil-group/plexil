@@ -1,1 +1,29 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/command3.ple"><GlobalDeclarations ColNo="8" LineNo="1"><CommandDeclaration ColNo="8" LineNo="1"><Name>get_speed</Name><Return><Name>_return_0</Name><Type>Integer</Type></Return></CommandDeclaration></GlobalDeclarations><Node ColNo="0" LineNo="3" NodeType="Command"><NodeId>GetSpeed</NodeId><VariableDeclarations><DeclareVariable ColNo="2" LineNo="4"><Name>speed</Name><Type>Integer</Type></DeclareVariable></VariableDeclarations><NodeBody><Command ColNo="2" LineNo="5"><IntegerVariable>speed</IntegerVariable><Name><StringValue>get_speed</StringValue></Name></Command></NodeBody></Node></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/command3.ple">
+   <GlobalDeclarations ColNo="8" LineNo="1">
+      <CommandDeclaration ColNo="8" LineNo="1">
+         <Name>get_speed</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Integer</Type>
+         </Return>
+      </CommandDeclaration>
+   </GlobalDeclarations>
+   <Node ColNo="0" LineNo="3" NodeType="Command">
+      <NodeId>GetSpeed</NodeId>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="2" LineNo="4">
+            <Name>speed</Name>
+            <Type>Integer</Type>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <NodeBody>
+         <Command ColNo="2" LineNo="5">
+            <IntegerVariable>speed</IntegerVariable>
+            <Name>
+               <StringValue>get_speed</StringValue>
+            </Name>
+         </Command>
+      </NodeBody>
+   </Node>
+</PlexilPlan>

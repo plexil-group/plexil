@@ -1,1 +1,20 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/iterationSucceeded1.ple"><Concurrence ColNo="0" LineNo="1"><NodeId>Concurrence__0</NodeId><Node ColNo="2" LineNo="3" NodeType="Empty"><NodeId>A</NodeId><RepeatCondition ColNo="7" LineNo="3"><BooleanValue>true</BooleanValue></RepeatCondition></Node><Node ColNo="2" LineNo="4" NodeType="Empty"><NodeId>B</NodeId><StartCondition ColNo="7" LineNo="4"><IterationSucceeded ColNo="13" LineNo="4"><NodeId>A</NodeId></IterationSucceeded></StartCondition></Node></Concurrence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/iterationSucceeded1.ple">
+   <Concurrence ColNo="0" LineNo="1">
+      <NodeId>Concurrence__0</NodeId>
+      <Node ColNo="2" LineNo="3" NodeType="Empty">
+         <NodeId>A</NodeId>
+         <RepeatCondition ColNo="7" LineNo="3">
+            <BooleanValue>true</BooleanValue>
+         </RepeatCondition>
+      </Node>
+      <Node ColNo="2" LineNo="4" NodeType="Empty">
+         <NodeId>B</NodeId>
+         <StartCondition ColNo="7" LineNo="4">
+            <IterationSucceeded ColNo="13" LineNo="4">
+               <NodeId>A</NodeId>
+            </IterationSucceeded>
+         </StartCondition>
+      </Node>
+   </Concurrence>
+</PlexilPlan>

@@ -1,1 +1,40 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/assignment2.ple"><Node ColNo="0" LineNo="1" NodeType="Assignment"><NodeId>CopyEntry</NodeId><VariableDeclarations><DeclareArray ColNo="2" LineNo="3"><Name>TemperatureReadings</Name><Type>Real</Type><MaxSize>10</MaxSize></DeclareArray><DeclareVariable ColNo="2" LineNo="4"><Name>i</Name><Type>Integer</Type><InitialValue><IntegerValue>0</IntegerValue></InitialValue></DeclareVariable><DeclareVariable ColNo="2" LineNo="5"><Name>x</Name><Type>Real</Type><InitialValue><RealValue>2.3</RealValue></InitialValue></DeclareVariable></VariableDeclarations><NodeBody><Assignment ColNo="2" LineNo="7"><ArrayElement><ArrayVariable>TemperatureReadings</ArrayVariable><Index><IntegerVariable>i</IntegerVariable></Index></ArrayElement><NumericRHS><RealVariable>x</RealVariable></NumericRHS></Assignment></NodeBody></Node></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/assignment2.ple">
+   <Node ColNo="0" LineNo="1" NodeType="Assignment">
+      <NodeId>CopyEntry</NodeId>
+      <VariableDeclarations>
+         <DeclareArray ColNo="2" LineNo="3">
+            <Name>TemperatureReadings</Name>
+            <Type>Real</Type>
+            <MaxSize>10</MaxSize>
+         </DeclareArray>
+         <DeclareVariable ColNo="2" LineNo="4">
+            <Name>i</Name>
+            <Type>Integer</Type>
+            <InitialValue>
+               <IntegerValue>0</IntegerValue>
+            </InitialValue>
+         </DeclareVariable>
+         <DeclareVariable ColNo="2" LineNo="5">
+            <Name>x</Name>
+            <Type>Real</Type>
+            <InitialValue>
+               <RealValue>2.3</RealValue>
+            </InitialValue>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <NodeBody>
+         <Assignment ColNo="2" LineNo="7">
+            <ArrayElement>
+               <ArrayVariable>TemperatureReadings</ArrayVariable>
+               <Index>
+                  <IntegerVariable>i</IntegerVariable>
+               </Index>
+            </ArrayElement>
+            <NumericRHS>
+               <RealVariable>x</RealVariable>
+            </NumericRHS>
+         </Assignment>
+      </NodeBody>
+   </Node>
+</PlexilPlan>

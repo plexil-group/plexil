@@ -1,1 +1,177 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/CruiseControl.ple"><GlobalDeclarations ColNo="5" LineNo="1"><StateDeclaration ColNo="5" LineNo="1"><Name>ActualSpeed</Name><Return><Name>_return_0</Name><Type>Real</Type></Return></StateDeclaration><StateDeclaration ColNo="8" LineNo="2"><Name>CancelPressed</Name><Return><Name>_return_0</Name><Type>Boolean</Type></Return></StateDeclaration><StateDeclaration ColNo="8" LineNo="3"><Name>SetPressed</Name><Return><Name>_return_0</Name><Type>Boolean</Type></Return></StateDeclaration></GlobalDeclarations><Concurrence ColNo="0" LineNo="5"><NodeId>CruiseControl</NodeId><VariableDeclarations><DeclareVariable ColNo="2" LineNo="6"><Name>cruiseOn</Name><Type>Boolean</Type><InitialValue><BooleanValue>false</BooleanValue></InitialValue></DeclareVariable><DeclareVariable ColNo="2" LineNo="7"><Name>targetSpeed</Name><Type>Real</Type></DeclareVariable><DeclareVariable ColNo="2" LineNo="7"><Name>throttlePos</Name><Type>Real</Type><InitialValue><RealValue>0.0</RealValue></InitialValue></DeclareVariable></VariableDeclarations><Concurrence ColNo="2" LineNo="9"><NodeId>SET</NodeId><StartCondition ColNo="4" LineNo="10"><Lookup ColNo="10" LineNo="10"><Name><StringValue>SetPressed</StringValue></Name></Lookup></StartCondition><Node ColNo="4" LineNo="11" NodeType="Assignment"><NodeId>SetCruiseOn</NodeId><NodeBody><Assignment ColNo="17" LineNo="11"><BooleanVariable>cruiseOn</BooleanVariable><BooleanRHS><BooleanValue>true</BooleanValue></BooleanRHS></Assignment></NodeBody></Node><Node ColNo="4" LineNo="12" NodeType="Assignment"><NodeId>SetTargetSpeed</NodeId><NodeBody><Assignment ColNo="20" LineNo="12"><RealVariable>targetSpeed</RealVariable><NumericRHS><Lookup ColNo="34" LineNo="12"><Name><StringValue>ActualSpeed</StringValue></Name></Lookup></NumericRHS></Assignment></NodeBody></Node></Concurrence><Node ColNo="2" LineNo="15" NodeType="Assignment"><NodeId>CANCEL</NodeId><StartCondition ColNo="4" LineNo="16"><Lookup ColNo="10" LineNo="16"><Name><StringValue>CancelPressed</StringValue></Name></Lookup></StartCondition><RepeatCondition ColNo="4" LineNo="17"><BooleanValue>true</BooleanValue></RepeatCondition><NodeBody><Assignment ColNo="4" LineNo="18"><BooleanVariable>cruiseOn</BooleanVariable><BooleanRHS><BooleanValue>false</BooleanValue></BooleanRHS></Assignment></NodeBody></Node><Node ColNo="2" LineNo="21" NodeType="Empty"><NodeId>RESUME</NodeId></Node><Node ColNo="2" LineNo="22" NodeType="Empty"><NodeId>ACCEL</NodeId></Node><Node ColNo="2" LineNo="23" NodeType="Empty"><NodeId>DECEL</NodeId></Node><Concurrence ColNo="2" LineNo="25"><NodeId>ControlSpeedAutomatically</NodeId><StartCondition ColNo="4" LineNo="26"><BooleanVariable>cruiseOn</BooleanVariable></StartCondition><EndCondition ColNo="4" LineNo="27"><NOT ColNo="8" LineNo="27"><BooleanVariable>cruiseOn</BooleanVariable></NOT></EndCondition><RepeatCondition ColNo="4" LineNo="28"><BooleanVariable>cruiseOn</BooleanVariable></RepeatCondition><Node ColNo="4" LineNo="29" NodeType="Assignment"><NodeId>IncreaseThrottle</NodeId><StartCondition ColNo="6" LineNo="30"><LT ColNo="33" LineNo="30"><Lookup ColNo="12" LineNo="30"><Name><StringValue>ActualSpeed</StringValue></Name></Lookup><RealVariable>targetSpeed</RealVariable></LT></StartCondition><NodeBody><Assignment ColNo="6" LineNo="31"><RealVariable>throttlePos</RealVariable><NumericRHS><ADD ColNo="32" LineNo="31"><RealVariable>throttlePos</RealVariable><RealValue>0.1</RealValue></ADD></NumericRHS></Assignment></NodeBody></Node><Node ColNo="4" LineNo="33" NodeType="Assignment"><NodeId>DecreaseThrottle</NodeId><StartCondition ColNo="6" LineNo="34"><GT ColNo="42" LineNo="34"><Lookup ColNo="21" LineNo="34"><Name><StringValue>ActualSpeed</StringValue></Name></Lookup><RealVariable>targetSpeed</RealVariable></GT></StartCondition><NodeBody><Assignment ColNo="6" LineNo="35"><RealVariable>throttlePos</RealVariable><NumericRHS><SUB ColNo="32" LineNo="35"><RealVariable>throttlePos</RealVariable><RealValue>0.1</RealValue></SUB></NumericRHS></Assignment></NodeBody></Node></Concurrence></Concurrence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/CruiseControl.ple">
+   <GlobalDeclarations ColNo="5" LineNo="1">
+      <StateDeclaration ColNo="5" LineNo="1">
+         <Name>ActualSpeed</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Real</Type>
+         </Return>
+      </StateDeclaration>
+      <StateDeclaration ColNo="8" LineNo="2">
+         <Name>CancelPressed</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Boolean</Type>
+         </Return>
+      </StateDeclaration>
+      <StateDeclaration ColNo="8" LineNo="3">
+         <Name>SetPressed</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Boolean</Type>
+         </Return>
+      </StateDeclaration>
+   </GlobalDeclarations>
+   <Concurrence ColNo="0" LineNo="5">
+      <NodeId>CruiseControl</NodeId>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="2" LineNo="6">
+            <Name>cruiseOn</Name>
+            <Type>Boolean</Type>
+            <InitialValue>
+               <BooleanValue>false</BooleanValue>
+            </InitialValue>
+         </DeclareVariable>
+         <DeclareVariable ColNo="2" LineNo="7">
+            <Name>targetSpeed</Name>
+            <Type>Real</Type>
+         </DeclareVariable>
+         <DeclareVariable ColNo="2" LineNo="7">
+            <Name>throttlePos</Name>
+            <Type>Real</Type>
+            <InitialValue>
+               <RealValue>0.0</RealValue>
+            </InitialValue>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <Concurrence ColNo="2" LineNo="9">
+         <NodeId>SET</NodeId>
+         <StartCondition ColNo="4" LineNo="10">
+            <Lookup ColNo="10" LineNo="10">
+               <Name>
+                  <StringValue>SetPressed</StringValue>
+               </Name>
+            </Lookup>
+         </StartCondition>
+         <Node ColNo="4" LineNo="11" NodeType="Assignment">
+            <NodeId>SetCruiseOn</NodeId>
+            <NodeBody>
+               <Assignment ColNo="17" LineNo="11">
+                  <BooleanVariable>cruiseOn</BooleanVariable>
+                  <BooleanRHS>
+                     <BooleanValue>true</BooleanValue>
+                  </BooleanRHS>
+               </Assignment>
+            </NodeBody>
+         </Node>
+         <Node ColNo="4" LineNo="12" NodeType="Assignment">
+            <NodeId>SetTargetSpeed</NodeId>
+            <NodeBody>
+               <Assignment ColNo="20" LineNo="12">
+                  <RealVariable>targetSpeed</RealVariable>
+                  <NumericRHS>
+                     <Lookup ColNo="34" LineNo="12">
+                        <Name>
+                           <StringValue>ActualSpeed</StringValue>
+                        </Name>
+                     </Lookup>
+                  </NumericRHS>
+               </Assignment>
+            </NodeBody>
+         </Node>
+      </Concurrence>
+      <Node ColNo="2" LineNo="15" NodeType="Assignment">
+         <NodeId>CANCEL</NodeId>
+         <StartCondition ColNo="4" LineNo="16">
+            <Lookup ColNo="10" LineNo="16">
+               <Name>
+                  <StringValue>CancelPressed</StringValue>
+               </Name>
+            </Lookup>
+         </StartCondition>
+         <RepeatCondition ColNo="4" LineNo="17">
+            <BooleanValue>true</BooleanValue>
+         </RepeatCondition>
+         <NodeBody>
+            <Assignment ColNo="4" LineNo="18">
+               <BooleanVariable>cruiseOn</BooleanVariable>
+               <BooleanRHS>
+                  <BooleanValue>false</BooleanValue>
+               </BooleanRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="21" NodeType="Empty">
+         <NodeId>RESUME</NodeId>
+      </Node>
+      <Node ColNo="2" LineNo="22" NodeType="Empty">
+         <NodeId>ACCEL</NodeId>
+      </Node>
+      <Node ColNo="2" LineNo="23" NodeType="Empty">
+         <NodeId>DECEL</NodeId>
+      </Node>
+      <Concurrence ColNo="2" LineNo="25">
+         <NodeId>ControlSpeedAutomatically</NodeId>
+         <StartCondition ColNo="4" LineNo="26">
+            <BooleanVariable>cruiseOn</BooleanVariable>
+         </StartCondition>
+         <EndCondition ColNo="4" LineNo="27">
+            <NOT ColNo="8" LineNo="27">
+               <BooleanVariable>cruiseOn</BooleanVariable>
+            </NOT>
+         </EndCondition>
+         <RepeatCondition ColNo="4" LineNo="28">
+            <BooleanVariable>cruiseOn</BooleanVariable>
+         </RepeatCondition>
+         <Node ColNo="4" LineNo="29" NodeType="Assignment">
+            <NodeId>IncreaseThrottle</NodeId>
+            <StartCondition ColNo="6" LineNo="30">
+               <LT ColNo="33" LineNo="30">
+                  <Lookup ColNo="12" LineNo="30">
+                     <Name>
+                        <StringValue>ActualSpeed</StringValue>
+                     </Name>
+                  </Lookup>
+                  <RealVariable>targetSpeed</RealVariable>
+               </LT>
+            </StartCondition>
+            <NodeBody>
+               <Assignment ColNo="6" LineNo="31">
+                  <RealVariable>throttlePos</RealVariable>
+                  <NumericRHS>
+                     <ADD ColNo="32" LineNo="31">
+                        <RealVariable>throttlePos</RealVariable>
+                        <RealValue>0.1</RealValue>
+                     </ADD>
+                  </NumericRHS>
+               </Assignment>
+            </NodeBody>
+         </Node>
+         <Node ColNo="4" LineNo="33" NodeType="Assignment">
+            <NodeId>DecreaseThrottle</NodeId>
+            <StartCondition ColNo="6" LineNo="34">
+               <GT ColNo="42" LineNo="34">
+                  <Lookup ColNo="21" LineNo="34">
+                     <Name>
+                        <StringValue>ActualSpeed</StringValue>
+                     </Name>
+                  </Lookup>
+                  <RealVariable>targetSpeed</RealVariable>
+               </GT>
+            </StartCondition>
+            <NodeBody>
+               <Assignment ColNo="6" LineNo="35">
+                  <RealVariable>throttlePos</RealVariable>
+                  <NumericRHS>
+                     <SUB ColNo="32" LineNo="35">
+                        <RealVariable>throttlePos</RealVariable>
+                        <RealValue>0.1</RealValue>
+                     </SUB>
+                  </NumericRHS>
+               </Assignment>
+            </NodeBody>
+         </Node>
+      </Concurrence>
+   </Concurrence>
+</PlexilPlan>

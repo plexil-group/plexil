@@ -1,1 +1,93 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/ArrayEquality.ple"><GlobalDeclarations ColNo="8" LineNo="1"><StateDeclaration ColNo="8" LineNo="1"><Name>baz</Name><Return><Name>_return_0</Name><Type>Real</Type><MaxSize>4</MaxSize></Return></StateDeclaration><CommandDeclaration ColNo="8" LineNo="2"><Name>bletch</Name><Return><Name>_return_0</Name><Type>Real</Type><MaxSize>4</MaxSize></Return></CommandDeclaration></GlobalDeclarations><Node ColNo="0" LineNo="4" NodeType="Command"><NodeId>ArrayEquality</NodeId><VariableDeclarations><DeclareArray ColNo="2" LineNo="6"><Name>foo</Name><Type>Real</Type><MaxSize>4</MaxSize><InitialValue><ArrayValue Type="Real"><RealValue>0.0</RealValue><RealValue>1.0</RealValue><RealValue>2.0</RealValue><RealValue>3.0</RealValue></ArrayValue></InitialValue></DeclareArray><DeclareArray ColNo="2" LineNo="7"><Name>bar</Name><Type>Real</Type><MaxSize>4</MaxSize><InitialValue><ArrayValue Type="Real"><RealValue>3.0</RealValue><RealValue>2.0</RealValue><RealValue>1.0</RealValue><RealValue>0.0</RealValue></ArrayValue></InitialValue></DeclareArray><DeclareArray ColNo="2" LineNo="8"><Name>boo</Name><Type>Real</Type><MaxSize>4</MaxSize></DeclareArray></VariableDeclarations><PostCondition ColNo="2" LineNo="10"><AND ColNo="4" LineNo="14"><EQArray ColNo="20" LineNo="10"><ArrayVariable>foo</ArrayVariable><ArrayVariable>foo</ArrayVariable></EQArray><EQArray ColNo="11" LineNo="11"><ArrayVariable>bar</ArrayVariable><ArrayVariable>bar</ArrayVariable></EQArray><NEArray ColNo="11" LineNo="12"><ArrayVariable>foo</ArrayVariable><ArrayVariable>bar</ArrayVariable></NEArray><NEArray ColNo="11" LineNo="13"><ArrayVariable>bar</ArrayVariable><ArrayVariable>foo</ArrayVariable></NEArray><NEArray ColNo="11" LineNo="14"><ArrayVariable>bar</ArrayVariable><Lookup ColNo="14" LineNo="14"><Name><StringValue>baz</StringValue></Name></Lookup></NEArray></AND></PostCondition><NodeBody><Command ColNo="2" LineNo="16"><ArrayVariable>boo</ArrayVariable><Name><StringValue>bletch</StringValue></Name></Command></NodeBody></Node></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/ArrayEquality.ple">
+   <GlobalDeclarations ColNo="8" LineNo="1">
+      <StateDeclaration ColNo="8" LineNo="1">
+         <Name>baz</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Real</Type>
+            <MaxSize>4</MaxSize>
+         </Return>
+      </StateDeclaration>
+      <CommandDeclaration ColNo="8" LineNo="2">
+         <Name>bletch</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Real</Type>
+            <MaxSize>4</MaxSize>
+         </Return>
+      </CommandDeclaration>
+   </GlobalDeclarations>
+   <Node ColNo="0" LineNo="4" NodeType="Command">
+      <NodeId>ArrayEquality</NodeId>
+      <VariableDeclarations>
+         <DeclareArray ColNo="2" LineNo="6">
+            <Name>foo</Name>
+            <Type>Real</Type>
+            <MaxSize>4</MaxSize>
+            <InitialValue>
+               <ArrayValue Type="Real">
+                  <RealValue>0.0</RealValue>
+                  <RealValue>1.0</RealValue>
+                  <RealValue>2.0</RealValue>
+                  <RealValue>3.0</RealValue>
+               </ArrayValue>
+            </InitialValue>
+         </DeclareArray>
+         <DeclareArray ColNo="2" LineNo="7">
+            <Name>bar</Name>
+            <Type>Real</Type>
+            <MaxSize>4</MaxSize>
+            <InitialValue>
+               <ArrayValue Type="Real">
+                  <RealValue>3.0</RealValue>
+                  <RealValue>2.0</RealValue>
+                  <RealValue>1.0</RealValue>
+                  <RealValue>0.0</RealValue>
+               </ArrayValue>
+            </InitialValue>
+         </DeclareArray>
+         <DeclareArray ColNo="2" LineNo="8">
+            <Name>boo</Name>
+            <Type>Real</Type>
+            <MaxSize>4</MaxSize>
+         </DeclareArray>
+      </VariableDeclarations>
+      <PostCondition ColNo="2" LineNo="10">
+         <AND ColNo="4" LineNo="14">
+            <EQArray ColNo="20" LineNo="10">
+               <ArrayVariable>foo</ArrayVariable>
+               <ArrayVariable>foo</ArrayVariable>
+            </EQArray>
+            <EQArray ColNo="11" LineNo="11">
+               <ArrayVariable>bar</ArrayVariable>
+               <ArrayVariable>bar</ArrayVariable>
+            </EQArray>
+            <NEArray ColNo="11" LineNo="12">
+               <ArrayVariable>foo</ArrayVariable>
+               <ArrayVariable>bar</ArrayVariable>
+            </NEArray>
+            <NEArray ColNo="11" LineNo="13">
+               <ArrayVariable>bar</ArrayVariable>
+               <ArrayVariable>foo</ArrayVariable>
+            </NEArray>
+            <NEArray ColNo="11" LineNo="14">
+               <ArrayVariable>bar</ArrayVariable>
+               <Lookup ColNo="14" LineNo="14">
+                  <Name>
+                     <StringValue>baz</StringValue>
+                  </Name>
+               </Lookup>
+            </NEArray>
+         </AND>
+      </PostCondition>
+      <NodeBody>
+         <Command ColNo="2" LineNo="16">
+            <ArrayVariable>boo</ArrayVariable>
+            <Name>
+               <StringValue>bletch</StringValue>
+            </Name>
+         </Command>
+      </NodeBody>
+   </Node>
+</PlexilPlan>
