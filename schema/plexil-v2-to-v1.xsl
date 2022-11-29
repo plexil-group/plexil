@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -348,11 +348,6 @@ in assignment node <xsl:value-of select="@NodeId" />
       <ResourcePriority>
         <xsl:apply-templates select="Priority/*" />
       </ResourcePriority>
-      <xsl:if test="LowerBound">
-        <ResourceLowerBound>
-          <xsl:apply-templates select="LowerBound/*" />
-        </ResourceLowerBound>
-      </xsl:if>
       <xsl:if test="UpperBound">
         <ResourceUpperBound>
           <xsl:apply-templates select="UpperBound/*" />
