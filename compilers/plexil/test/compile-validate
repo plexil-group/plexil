@@ -72,7 +72,7 @@ fi
 
 if [ -f valid/valid-"$1".epx ]
 then 
-	if diff -B -w output/"$1".epx valid/valid-"$1".epx | tee -a tempRegressionResults
+	if diff -B -w output/"$1".epx valid/valid-"$1".epx >> tempRegressionResults
     then
 		echo "Verified $1.epx" | tee -a tempRegressionResults 
 	else
