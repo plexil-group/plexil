@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,16 +27,14 @@
 #ifndef PLEXIL_SYMBOL_TABLE_HH
 #define PLEXIL_SYMBOL_TABLE_HH
 
-#include "plexil-stdint.h"
-#include "ValueType.hh"
+#include "ValueType.hh" // includes plexil-stdint.h, string
 
 #include <map>
-#include <string>
 #include <vector>
 
 namespace PLEXIL
 {
-  enum SymbolType {
+  enum SymbolType : uint8_t {
     NO_SYMBOL_TYPE = 0,
     COMMAND_TYPE,
     LOOKUP_TYPE,
@@ -47,16 +45,19 @@ namespace PLEXIL
     SYMBOL_TYPE_MAX
   };
 
-  class Symbol
+  class Symbol final
   {
   public:
     Symbol();
-    Symbol(Symbol const &orig);
+    Symbol(Symbol const &) = default;
+    Symbol(Symbol &&) = default;
+
     Symbol(char const *name, SymbolType t);
 
-    Symbol &operator=(Symbol const &orig);
+    Symbol &operator=(Symbol const &) = default;
+    Symbol &operator=(Symbol &&) = default;
 
-    ~Symbol();
+    ~Symbol() = default;
 
     std::string const &name() const;
 
@@ -78,22 +79,25 @@ namespace PLEXIL
   private:
 
     std::string m_name;
-    std::vector<uint8_t> m_paramTypes;
-    uint8_t m_symbolType;
-    uint8_t m_returnType;
+    std::vector<ValueType> m_paramTypes;
+    SymbolType m_symbolType;
+    ValueType m_returnType;
     bool m_anyParams;
   };
 
-  class LibraryNodeSymbol
+  class LibraryNodeSymbol final
   {
   public:
-    LibraryNodeSymbol();
-    LibraryNodeSymbol(LibraryNodeSymbol const &orig);
+    LibraryNodeSymbol() = default;
+    LibraryNodeSymbol(LibraryNodeSymbol const &) = default;
+    LibraryNodeSymbol(LibraryNodeSymbol &&) = default;
+
     LibraryNodeSymbol(char const *name);
 
-    LibraryNodeSymbol &operator=(LibraryNodeSymbol const &orig);
+    LibraryNodeSymbol &operator=(LibraryNodeSymbol const &) = default;
+    LibraryNodeSymbol &operator=(LibraryNodeSymbol &&) = default;
 
-    ~LibraryNodeSymbol();
+    ~LibraryNodeSymbol() = default;
 
     std::string const &name() const;
 
@@ -115,9 +119,7 @@ namespace PLEXIL
   class SymbolTable
   {
   public:
-    virtual ~SymbolTable()
-    {
-    }
+    virtual ~SymbolTable() = default;
 
     // These return nullptr if name is a duplicate.
     virtual Symbol *addCommand(char const *name) = 0;
@@ -129,19 +131,6 @@ namespace PLEXIL
     virtual Symbol const *getLookup(char const *name) = 0;
     virtual Symbol const *getMutex(char const *name) = 0;
     virtual LibraryNodeSymbol const *getLibraryNode(char const *name) = 0;
-
-  protected: 
-    SymbolTable()
-    {
-    }
-
-  private:
-
-    // Not implemented
-    SymbolTable(SymbolTable const &) = delete;
-    SymbolTable(SymbolTable &&) = delete;
-    SymbolTable &operator=(SymbolTable const &) = delete;
-    SymbolTable &operator=(SymbolTable &&) = delete;
   };
 
   extern SymbolTable *makeSymbolTable();
