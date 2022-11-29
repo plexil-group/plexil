@@ -235,9 +235,6 @@ Resource =
      }
      & element ResourcePriority {
          GeneralizedNumericExpression, SourceLocators
-       }
-     & element ResourceLowerBound {
-         GeneralizedNumericExpression, SourceLocators
        }?
      & element ResourceUpperBound {
          GeneralizedNumericExpression, SourceLocators
