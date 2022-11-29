@@ -34,7 +34,6 @@ import org.w3c.dom.Element;
 public class ResourceNode extends PlexilTreeNode
 {
 	private ExpressionNode m_name = null;
-	private ExpressionNode m_lowerBound = null;
 	private ExpressionNode m_upperBound = null;
 	private ExpressionNode m_releaseAtTermination = null;
 	private ExpressionNode m_priority = null;
@@ -48,7 +47,6 @@ public class ResourceNode extends PlexilTreeNode
 	{
 		super(n);
 		m_name = n.m_name;
-		m_lowerBound = n.m_lowerBound;
 		m_upperBound = n.m_upperBound;
 		m_releaseAtTermination = n.m_releaseAtTermination;
 		m_priority = n.m_priority;
@@ -100,17 +98,6 @@ public class ResourceNode extends PlexilTreeNode
 
 			switch (kywd.getType()) {
 
-			case PlexilLexer.LOWER_BOUND_KYWD:
-				if (m_lowerBound != null) {
-					// Repeated keyword error
-					state.addDiagnostic(kywd,
-										"The " + kywd.getText()
-										+ " keyword may only appear once per Resource statement",
-										Severity.ERROR);
-				}
-				m_lowerBound = valueExpr;
-				break;
-
 			case PlexilLexer.UPPER_BOUND_KYWD:
 				if (m_upperBound != null) {
 					// Repeated keyword error
@@ -135,7 +122,6 @@ public class ResourceNode extends PlexilTreeNode
 
 			case PlexilLexer.PRIORITY_KYWD:
 				if (m_priority != null) {
-					// TODO: repeated keyword error	
 					state.addDiagnostic(kywd,
 										"The " + kywd.getText()
 										+ " keyword may only appear once per Resource statement",
@@ -153,12 +139,6 @@ public class ResourceNode extends PlexilTreeNode
 				break;
 			}
 		}
-        // Priority is required
-        if (m_priority == null) {
-            state.addDiagnostic(this,
-                                "Resource statement missing Priority",
-                                Severity.ERROR);
-        }
 	}
 
     @Override
@@ -180,15 +160,9 @@ public class ResourceNode extends PlexilTreeNode
 		}
 		
 		// Type check bounds, if supplied
-		if (m_lowerBound != null
-			&& !m_lowerBound.getDataType().isNumeric()) {
-			state.addDiagnostic(m_lowerBound,
-								"Resource LowerBound value is not a numeric expression",
-								Severity.ERROR);
-		}
 		if (m_upperBound != null
 			&& !m_upperBound.getDataType().isNumeric()) {
-			state.addDiagnostic(m_lowerBound,
+			state.addDiagnostic(m_upperBound,
 								"Resource UpperBound value is not a numeric expression",
 								Severity.ERROR);
 		}
@@ -217,16 +191,11 @@ public class ResourceNode extends PlexilTreeNode
 		Element nameElt = root.createElement("ResourceName");
 		nameElt.appendChild(m_name.getXML(root));
 		m_xml.appendChild(nameElt);
-
-        Element prio = root.createElement("ResourcePriority");
-        prio.appendChild(m_priority.getXML(root));
-        m_xml.appendChild(prio);
-
-		if (m_lowerBound != null) {
-			Element lbound = root.createElement("ResourceLowerBound");
-			lbound.appendChild(m_lowerBound.getXML(root));
-			m_xml.appendChild(lbound);
-		}
+        if (m_priority != null) {
+            Element prio = root.createElement("ResourcePriority");
+            prio.appendChild(m_priority.getXML(root));
+            m_xml.appendChild(prio);
+        }
 		if (m_upperBound != null) {
 			Element ubound = root.createElement("ResourceUpperBound");
 			ubound.appendChild(m_upperBound.getXML(root));

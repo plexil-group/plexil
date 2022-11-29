@@ -56,7 +56,6 @@ RETURNS_KYWD = 'Returns';
 RESOURCE_KYWD = 'Resource';
 NAME_KYWD = 'Name';
 UPPER_BOUND_KYWD = 'UpperBound';
-LOWER_BOUND_KYWD = 'LowerBound';
 RELEASE_AT_TERM_KYWD = 'ReleaseAtTermination';
 
 PRIORITY_KYWD = 'Priority';
@@ -661,8 +660,7 @@ resource
  :
     RESOURCE_KYWD^ NAME_KYWD! EQUALS! expression
         ( COMMA!
-          ( LOWER_BOUND_KYWD EQUALS! expression
-          | UPPER_BOUND_KYWD EQUALS! expression
+          ( UPPER_BOUND_KYWD EQUALS! expression
   		  | RELEASE_AT_TERM_KYWD EQUALS! expression
  		  | PRIORITY_KYWD EQUALS! expression
           )
