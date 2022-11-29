@@ -102,7 +102,7 @@
             <Name>s2</Name>
             <Type>String</Type>
             <InitialValue>
-               <StringValue/>
+               <StringValue></StringValue>
             </InitialValue>
          </DeclareVariable>
          <DeclareVariable ColNo="2" LineNo="21">

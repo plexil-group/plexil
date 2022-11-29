@@ -167,7 +167,7 @@
             <Name>t</Name>
             <Type>String</Type>
             <InitialValue>
-               <StringValue/>
+               <StringValue></StringValue>
             </InitialValue>
          </DeclareVariable>
       </VariableDeclarations>
