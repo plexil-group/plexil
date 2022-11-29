@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -962,7 +962,6 @@ static bool commandNodeXmlParserTest()
     xml_node resListXml = cmdXml.append_child("ResourceList");
     xml_node res1Xml = makeLiteralResource(resListXml, "Resource1", "1024");
     xml_node res2Xml = makeLiteralResource(resListXml, "Resource2", "127");
-    makePcdataElement(res2Xml.append_child("ResourceLowerBound"), "IntegerValue", "1");
     makePcdataElement(res2Xml.append_child("ResourceUpperBound"), "IntegerValue", "10");
     makePcdataElement(res2Xml.append_child("ResourceReleaseAtTermination"), "BooleanValue", "false");
 
@@ -996,7 +995,6 @@ static bool commandNodeXmlParserTest()
     ResourceValueList res = cmd->getResourceValues();
     assertTrue_1(!res.empty());
     ResourceValue &res1 = res[0];
-    assertTrue_1(res1.lowerBound == 1.0);
     assertTrue_1(res1.upperBound == 1.0);
     assertTrue_1(res1.releaseAtTermination);
     assertTrue_1(res1.name == "Resource1");
@@ -1004,7 +1002,6 @@ static bool commandNodeXmlParserTest()
     ResourceValue &res2 = res[1];
     assertTrue_1(res2.name == Value("Resource2"));
     assertTrue_1(res2.priority == 127);
-    assertTrue_1(res2.lowerBound == 1.0);
     assertTrue_1(res2.upperBound == 10.0);
     assertTrue_1(!res2.releaseAtTermination);
 
@@ -1192,7 +1189,6 @@ static bool commandNodeXmlParserTest()
     xml_node resListXml = cmdXml.append_child("ResourceList");
     xml_node res1Xml = makeLiteralResource(resListXml, "Resource1", "1024");
     xml_node res2Xml = makeLiteralResource(resListXml, "Resource2", "127");
-    makePcdataElement(res2Xml.append_child("ResourceLowerBound"), "IntegerValue", "1");
     makePcdataElement(res2Xml.append_child("ResourceUpperBound"), "IntegerValue", "10");
     makePcdataElement(res2Xml.append_child("ResourceReleaseAtTermination"), "BooleanValue", "false");
 
@@ -1239,7 +1235,6 @@ static bool commandNodeXmlParserTest()
     ResourceValueList res = cmd->getResourceValues();
     assertTrue_1(!res.empty());
     ResourceValue &res1 = res[0];
-    assertTrue_1(res1.lowerBound == 1.0);
     assertTrue_1(res1.upperBound == 1.0);
     assertTrue_1(res1.releaseAtTermination);
     assertTrue_1(res1.name == "Resource1");
@@ -1247,7 +1242,6 @@ static bool commandNodeXmlParserTest()
     ResourceValue &res2 = res[1];
     assertTrue_1(res2.name == "Resource2");
     assertTrue_1(res2.priority == 127);
-    assertTrue_1(res2.lowerBound == 1.0);
     assertTrue_1(res2.upperBound == 10.0);
     assertTrue_1(!res2.releaseAtTermination);
 
@@ -1267,7 +1261,6 @@ static bool commandNodeXmlParserTest()
     xml_node resListXml = cmdXml.append_child("ResourceList");
     xml_node res1Xml = makeLiteralResource(resListXml, "Resource1", "1024");
     xml_node res2Xml = makeLiteralResource(resListXml, "Resource2", "127");
-    makePcdataElement(res2Xml.append_child("ResourceLowerBound"), "IntegerValue", "1");
     makePcdataElement(res2Xml.append_child("ResourceUpperBound"), "IntegerValue", "10");
     makePcdataElement(res2Xml.append_child("ResourceReleaseAtTermination"), "BooleanValue", "false");
 
@@ -1329,7 +1322,6 @@ static bool commandNodeXmlParserTest()
     ResourceValueList res = cmd->getResourceValues();
     assertTrue_1(!res.empty());
     ResourceValue &res1 = res[0];
-    assertTrue_1(res1.lowerBound == 1.0);
     assertTrue_1(res1.upperBound == 1.0);
     assertTrue_1(res1.releaseAtTermination);
     assertTrue_1(res1.name == "Resource1");
@@ -1337,7 +1329,6 @@ static bool commandNodeXmlParserTest()
     ResourceValue &res2 = res[1];
     assertTrue_1(res2.name == "Resource2");
     assertTrue_1(res2.priority == 127);
-    assertTrue_1(res2.lowerBound == 1.0);
     assertTrue_1(res2.upperBound == 10.0);
     assertTrue_1(!res2.releaseAtTermination);
 

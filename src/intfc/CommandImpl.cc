@@ -52,12 +52,6 @@ namespace PLEXIL
     priorityIsGarbage = isGarbage;
   }
 
-  void ResourceSpec::setLowerBoundExpression(Expression *exp, bool isGarbage)
-  {
-    lowerBoundExp = exp;
-    lowerBoundIsGarbage = isGarbage;
-  }
-
   void ResourceSpec::setUpperBoundExpression(Expression *exp, bool isGarbage)
   {
     upperBoundExp = exp;
@@ -82,11 +76,6 @@ namespace PLEXIL
     priorityIsGarbage = false;
     priorityExp = nullptr;
 
-    if (lowerBoundIsGarbage)
-      delete lowerBoundExp;
-    lowerBoundIsGarbage = false;
-    lowerBoundExp = nullptr;
-
     if (upperBoundIsGarbage)
       delete upperBoundExp;
     upperBoundIsGarbage = false;
@@ -105,8 +94,6 @@ namespace PLEXIL
       return false;
     if (priorityExp && !priorityExp->isConstant())
       return false;
-    if (lowerBoundExp && !lowerBoundExp->isConstant())
-      return false;
     if (upperBoundExp && !upperBoundExp->isConstant())
       return false;
     if (releaseAtTermExp && !releaseAtTermExp->isConstant())
@@ -118,8 +105,6 @@ namespace PLEXIL
   {
     nameExp->activate();
     priorityExp->activate();
-    if (lowerBoundExp)
-      lowerBoundExp->activate();
     if (upperBoundExp)
       upperBoundExp->activate();
     if (releaseAtTermExp)
@@ -130,8 +115,6 @@ namespace PLEXIL
   {
     nameExp->deactivate();
     priorityExp->deactivate();
-    if (lowerBoundExp)
-      lowerBoundExp->deactivate();
     if (upperBoundExp)
       upperBoundExp->deactivate();
     if (releaseAtTermExp)
@@ -414,14 +397,6 @@ namespace PLEXIL
         checkPlanError(spec.priorityExp->getValue(resValue.priority),
                        "Command resource priority expression has unknown or invalid value");
 
-        if (spec.lowerBoundExp) {
-          checkPlanError(spec.lowerBoundExp->getValue(resValue.lowerBound),
-                         "Command resource lower bound expression has unknown or invalid value");
-        }
-        else {
-          resValue.lowerBound = 1.0;
-        }
-
         if (spec.upperBoundExp) {
           checkPlanError(spec.upperBoundExp->getValue(resValue.upperBound),
                          "Command resource upper bound expression has unknown or invalid value");
@@ -432,7 +407,7 @@ namespace PLEXIL
 
         if (spec.releaseAtTermExp) {
           checkPlanError(spec.releaseAtTermExp->getValue(resValue.releaseAtTermination),
-                         "Command resource lower bound expression has unknown or invalid value");
+                         "Command resource release-at-termination expression has unknown or invalid value");
         }
         else {
           resValue.releaseAtTermination = true;
