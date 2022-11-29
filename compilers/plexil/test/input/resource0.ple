@@ -2,7 +2,8 @@ Integer Command c1;
 
 Root: {
   Integer returnValue = -1;
+  Priority 20;
   EndCondition returnValue == 10;
-  Resource Name = "arm", Priority = 20;
+  Resource Name = "arm";
   returnValue = c1();
 }

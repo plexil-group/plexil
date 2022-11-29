@@ -36,38 +36,33 @@
                </InitialValue>
             </DeclareVariable>
          </VariableDeclarations>
-         <EndCondition ColNo="4" LineNo="9">
-            <EQNumeric ColNo="29" LineNo="9">
+         <EndCondition ColNo="4" LineNo="10">
+            <EQNumeric ColNo="29" LineNo="10">
                <IntegerVariable>returnValue</IntegerVariable>
                <IntegerValue>10</IntegerValue>
             </EQNumeric>
          </EndCondition>
-         <PostCondition ColNo="4" LineNo="10">
-            <EQInternal ColNo="36" LineNo="10">
-               <NodeCommandHandleVariable ColNo="21" LineNo="10">
+         <PostCondition ColNo="4" LineNo="11">
+            <EQInternal ColNo="36" LineNo="11">
+               <NodeCommandHandleVariable ColNo="21" LineNo="11">
                   <NodeId>C1</NodeId>
                </NodeCommandHandleVariable>
                <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
             </EQInternal>
          </PostCondition>
+         <Priority>20</Priority>
          <NodeBody>
-            <Command ColNo="4" LineNo="13">
+            <Command ColNo="4" LineNo="14">
                <ResourceList>
-                  <Resource ColNo="4" LineNo="11">
+                  <Resource ColNo="4" LineNo="12">
                      <ResourceName>
                         <StringValue>sys_memory</StringValue>
                      </ResourceName>
-                     <ResourcePriority>
-                        <IntegerValue>20</IntegerValue>
-                     </ResourcePriority>
                   </Resource>
-                  <Resource ColNo="4" LineNo="12">
+                  <Resource ColNo="4" LineNo="13">
                      <ResourceName>
                         <StringValue>arm</StringValue>
                      </ResourceName>
-                     <ResourcePriority>
-                        <IntegerValue>20</IntegerValue>
-                     </ResourcePriority>
                   </Resource>
                </ResourceList>
                <IntegerVariable>returnValue</IntegerVariable>
@@ -77,17 +72,17 @@
             </Command>
          </NodeBody>
       </Node>
-      <Node ColNo="2" LineNo="16" NodeType="Command">
+      <Node ColNo="2" LineNo="17" NodeType="Command">
          <NodeId>C2</NodeId>
          <VariableDeclarations>
-            <DeclareVariable ColNo="4" LineNo="17">
+            <DeclareVariable ColNo="4" LineNo="18">
                <Name>mem_priority</Name>
                <Type>Integer</Type>
                <InitialValue>
                   <IntegerValue>30</IntegerValue>
                </InitialValue>
             </DeclareVariable>
-            <DeclareVariable ColNo="4" LineNo="18">
+            <DeclareVariable ColNo="4" LineNo="19">
                <Name>returnValue</Name>
                <Type>Integer</Type>
                <InitialValue>
@@ -95,38 +90,36 @@
                </InitialValue>
             </DeclareVariable>
          </VariableDeclarations>
-         <RepeatCondition ColNo="4" LineNo="19">
-            <EQInternal ColNo="38" LineNo="19">
-               <NodeCommandHandleVariable ColNo="23" LineNo="19">
+         <RepeatCondition ColNo="4" LineNo="21">
+            <EQInternal ColNo="38" LineNo="21">
+               <NodeCommandHandleVariable ColNo="23" LineNo="21">
                   <NodeId>C2</NodeId>
                </NodeCommandHandleVariable>
                <NodeCommandHandleValue>COMMAND_DENIED</NodeCommandHandleValue>
             </EQInternal>
          </RepeatCondition>
-         <PostCondition ColNo="4" LineNo="20">
-            <EQInternal ColNo="36" LineNo="20">
-               <NodeCommandHandleVariable ColNo="21" LineNo="20">
+         <PostCondition ColNo="4" LineNo="22">
+            <EQInternal ColNo="36" LineNo="22">
+               <NodeCommandHandleVariable ColNo="21" LineNo="22">
                   <NodeId>C2</NodeId>
                </NodeCommandHandleVariable>
                <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
             </EQInternal>
          </PostCondition>
-         <EndCondition ColNo="4" LineNo="21">
-            <EQNumeric ColNo="29" LineNo="21">
+         <EndCondition ColNo="4" LineNo="23">
+            <EQNumeric ColNo="29" LineNo="23">
                <IntegerVariable>returnValue</IntegerVariable>
                <IntegerValue>10</IntegerValue>
             </EQNumeric>
          </EndCondition>
+         <Priority>30</Priority>
          <NodeBody>
-            <Command ColNo="4" LineNo="23">
+            <Command ColNo="4" LineNo="25">
                <ResourceList>
-                  <Resource ColNo="4" LineNo="22">
+                  <Resource ColNo="4" LineNo="24">
                      <ResourceName>
                         <StringValue>sys_memory</StringValue>
                      </ResourceName>
-                     <ResourcePriority>
-                        <IntegerVariable>mem_priority</IntegerVariable>
-                     </ResourcePriority>
                   </Resource>
                </ResourceList>
                <IntegerVariable>returnValue</IntegerVariable>
@@ -136,17 +129,17 @@
             </Command>
          </NodeBody>
       </Node>
-      <Node ColNo="2" LineNo="25" NodeType="Command">
+      <Node ColNo="2" LineNo="27" NodeType="Command">
          <NodeId>C3</NodeId>
          <VariableDeclarations>
-            <DeclareVariable ColNo="4" LineNo="26">
+            <DeclareVariable ColNo="4" LineNo="28">
                <Name>returnValue</Name>
                <Type>Integer</Type>
                <InitialValue>
                   <IntegerValue>-1</IntegerValue>
                </InitialValue>
             </DeclareVariable>
-            <DeclareVariable ColNo="4" LineNo="27">
+            <DeclareVariable ColNo="4" LineNo="29">
                <Name>vision_priority</Name>
                <Type>Integer</Type>
                <InitialValue>
@@ -154,30 +147,28 @@
                </InitialValue>
             </DeclareVariable>
          </VariableDeclarations>
-         <PostCondition ColNo="4" LineNo="28">
-            <EQInternal ColNo="36" LineNo="28">
-               <NodeCommandHandleVariable ColNo="21" LineNo="28">
+         <PostCondition ColNo="4" LineNo="31">
+            <EQInternal ColNo="36" LineNo="31">
+               <NodeCommandHandleVariable ColNo="21" LineNo="31">
                   <NodeId>C3</NodeId>
                </NodeCommandHandleVariable>
                <NodeCommandHandleValue>COMMAND_SUCCESS</NodeCommandHandleValue>
             </EQInternal>
          </PostCondition>
-         <EndCondition ColNo="4" LineNo="29">
-            <EQNumeric ColNo="29" LineNo="29">
+         <EndCondition ColNo="4" LineNo="32">
+            <EQNumeric ColNo="29" LineNo="32">
                <IntegerVariable>returnValue</IntegerVariable>
                <IntegerValue>10</IntegerValue>
             </EQNumeric>
          </EndCondition>
+         <Priority>10</Priority>
          <NodeBody>
-            <Command ColNo="4" LineNo="31">
+            <Command ColNo="4" LineNo="34">
                <ResourceList>
-                  <Resource ColNo="4" LineNo="30">
+                  <Resource ColNo="4" LineNo="33">
                      <ResourceName>
                         <StringValue>vision_system</StringValue>
                      </ResourceName>
-                     <ResourcePriority>
-                        <IntegerVariable>vision_priority</IntegerVariable>
-                     </ResourcePriority>
                   </Resource>
                </ResourceList>
                <IntegerVariable>returnValue</IntegerVariable>

@@ -20,22 +20,20 @@
             </InitialValue>
          </DeclareVariable>
       </VariableDeclarations>
-      <EndCondition ColNo="2" LineNo="5">
-         <EQNumeric ColNo="27" LineNo="5">
+      <EndCondition ColNo="2" LineNo="6">
+         <EQNumeric ColNo="27" LineNo="6">
             <IntegerVariable>returnValue</IntegerVariable>
             <IntegerValue>10</IntegerValue>
          </EQNumeric>
       </EndCondition>
+      <Priority>20</Priority>
       <NodeBody>
-         <Command ColNo="2" LineNo="7">
+         <Command ColNo="2" LineNo="8">
             <ResourceList>
-               <Resource ColNo="2" LineNo="6">
+               <Resource ColNo="2" LineNo="7">
                   <ResourceName>
                      <StringValue>arm</StringValue>
                   </ResourceName>
-                  <ResourcePriority>
-                     <IntegerValue>20</IntegerValue>
-                  </ResourcePriority>
                </Resource>
             </ResourceList>
             <IntegerVariable>returnValue</IntegerVariable>
