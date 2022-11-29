@@ -16,9 +16,6 @@
             <ResourcePriority>
               <RealVariable>p</RealVariable>
             </ResourcePriority>
-            <ResourceLowerBound>
-              <RealValue>10.0</RealValue>
-            </ResourceLowerBound>
             <ResourceUpperBound>
               <RealValue>20.0</RealValue>
             </ResourceUpperBound>

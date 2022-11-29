@@ -56,9 +56,6 @@
                   <ResourceName>
                     <StringValue>&quot;sys_memory&quot;</StringValue>
                   </ResourceName>
-                  <ResourceLowerBound>
-                    <RealValue>0.5</RealValue>
-                  </ResourceLowerBound>
                   <ResourceUpperBound>
                     <RealValue>0.5</RealValue>
                   </ResourceUpperBound>
@@ -127,9 +124,6 @@
                   <ResourceName>
                     <StringValue>&quot;sys_memory&quot;</StringValue>
                   </ResourceName>
-                  <ResourceLowerBound>
-                    <RealValue>0.3</RealValue>
-                  </ResourceLowerBound>
                   <ResourceUpperBound>
                     <RealValue>0.3</RealValue>
                   </ResourceUpperBound>

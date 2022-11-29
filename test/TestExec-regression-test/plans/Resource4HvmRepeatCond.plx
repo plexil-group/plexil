@@ -152,9 +152,6 @@
                   <ResourcePriority>
                     <IntegerVariable>mem_priority2</IntegerVariable>
                   </ResourcePriority>
-                  <ResourceLowerBound>
-                    <RealValue>0.3</RealValue>
-                  </ResourceLowerBound>
                   <ResourceUpperBound>
                     <RealValue>0.3</RealValue>
                   </ResourceUpperBound>
