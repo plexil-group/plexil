@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,15 +28,14 @@
 
 #include "Socket.h"
 
+#include "plexil-config.h"
+
 #include "Debug.hh"
 
 #include <iostream>
 
 #include <cerrno>
-
-#ifdef STDC_HEADERS
 #include <cstring>
-#endif
 
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>

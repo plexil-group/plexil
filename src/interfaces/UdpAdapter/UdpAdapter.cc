@@ -43,32 +43,6 @@
 
 #include "pugixml.hpp"
 
-#include <memory> // std::unique_ptr, std::make_unique
-#include <mutex>
-#include <thread>
-
-#if defined(HAVE_CERRNO)
-#include <cerrno>
-#elif defined(HAVE_ERRNO_H)
-#include <errno.h>
-#endif
-
-#if defined(HAVE_CFLOAT)
-#include <cfloat>
-#elif defined(HAVE_FLOAT_H)
-#include <float.h>
-#endif
-
-#if defined(HAVE_CSTRING)
-#include <cstring>
-#elif defined(HAVE_STRING_H)
-#include <string.h>
-#endif
-
-#ifdef HAVE_UNISTD_H
-#include <unistd.h> // close()
-#endif
-
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
 #endif
@@ -76,6 +50,18 @@
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
 #endif
+
+#ifdef HAVE_UNISTD_H
+#include <unistd.h> // close()
+#endif
+
+#include <memory> // std::unique_ptr, std::make_unique
+#include <mutex>
+#include <thread>
+
+#include <cerrno>
+#include <cfloat>
+#include <cstring>
 
 namespace PLEXIL
 {

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -34,12 +34,7 @@
 #include <sys/time.h>
 #endif
 
-// size_t
-#if defined(HAVE_CSTDDEF)
-#include <cstddef>
-#elif defined(HAVE_STDDEF_H)
-#include <stddef.h>
-#endif 
+#include <cstddef>  // size_t
 
 /**
  * @class Agenda The schedule of simulator responses to send.

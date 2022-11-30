@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,8 +24,6 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "plexil-config.h"
-
 #include "Simulator.hh"
 
 #include "Agenda.hh"
@@ -44,11 +42,7 @@
 #include <memory>
 #include <thread>
 
-#if defined(HAVE_CERRNO)
 #include <cerrno>
-#elif defined(HAVE_ERRNO_H)
-#include <errno.h>
-#endif
 
 using PLEXIL::Value;
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -34,15 +34,10 @@
 
 #include "pugixml.hpp"
 
-#include <cerrno>
-
-#if defined(HAVE_CSTDLIB)
-#include <cstdlib>  // strtoul()
-#elif defined(HAVE_STDLIB_H)
-#include <stdlib.h> // strtoul()
-#endif
-
 #include <limits>
+
+#include <cerrno>
+#include <cstdlib>  // strtoul()
 
 using pugi::xml_node;
 

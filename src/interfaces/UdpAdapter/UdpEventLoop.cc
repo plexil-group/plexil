@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -23,35 +23,11 @@
 // TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 // USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "UdpEventLoop.hh"
+#include "UdpEventLoop.hh" // includes plexil-config.h
 
 #include "Debug.hh"
 #include "Error.hh" // warn(), assertTrue_1()
 #include "ThreadSemaphore.hh"
-
-#include <algorithm>
-#include <map>
-#include <mutex>
-#include <thread>
-#include <vector>
-
-#if defined(HAVE_CERRNO)
-#include <cerrno>
-#elif defined(HAVE_ERRNO_H)
-#include <cerrno>
-#endif
-
-#if defined(HAVE_CSTDIO)
-#include <cstdio>
-#elif defined(HAVE_STDIO_H)
-#include <stdio.h>
-#endif
-
-#if defined(HAVE_CSTRING)
-#include <cstring>
-#elif defined(HAVE_STRING_H)
-#include <string.h>
-#endif
 
 #ifdef HAVE_ARPA_INET_H
 #include <arpa/inet.h>
@@ -64,6 +40,16 @@
 #ifdef HAVE_UNISTD_H
 #include <unistd.h> // pipe()
 #endif
+
+#include <algorithm>
+#include <map>
+#include <mutex>
+#include <thread>
+#include <vector>
+
+#include <cerrno>
+#include <cstdio>
+#include <cstring>
 
 namespace PLEXIL
 {
