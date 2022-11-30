@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 * Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
@@ -31,42 +32,64 @@
     Build instructions for the Standard PLEXIL compiler.
   </description>
 
-  <property environment="env"/>
+  <!-- Set this to true to debug -->
+  <property name="plexil.debug" value="false"/>
 
-  <!-- Java versions for compatibility -->
+  <!-- The root directory of the PLEXIL source tree -->
+  <property name="dir.plexil_home" location="../.."/>
+
+  <!-- Default to an in-tree build.
+       Override these on the ant command line to build/install out of tree. -->
+  <property name="dir.build" value="."/>
+  <property name="dir.install" value="${dir.plexil_home}"/>
+
+  <!-- Target Java 8 for compatibility -->
+  <!-- TODO?: figure out portable way to provide bootclasspath -->
   <property name="ant.build.javac.source" value="1.8"/>
   <property name="ant.build.javac.target" value="1.8"/>
 
-  <property name="dir.plexil_home" location="../.."/>
-
-  <property name="dir.source" location="${dir.plexil_home}"/>
-  <property name="dir.source.jars" location="${dir.source}/jars"/>
+  <!-- Input file locations -->
   <property name="dir.source.grammars" location="antlr"/>
-  <property name="dir.source.java" location="java"/>
+  <property name="dir.source.java"     location="java"/>
+  <property name="dir.source.jars"     location="${dir.plexil_home}/jars"/>
+  <property name="dir.source.scripts"  location="${dir.plexil_home}/scripts"/>
 
-  <!-- We might want to do out-of-tree installs in the future -->
-  <property name="dir.install" location="${dir.plexil_home}"/>
-  <property name="dir.install.jars" location="${dir.install}/jars"/>
+  <!-- Build directories -->
+  <property name="dir.build.generated" location="${dir.build}/generated"/>
+  <property name="dir.build.classes"   location="${dir.build}/classes"/>
+  <property name="dir.build.jars"      location="${dir.build}/jars"/>
 
-  <!-- We might want to do out-of-tree builds in the future -->
-  <property name="dir.generated" location="generated"/>
-  <property name="dir.classes" location="classes"/>
-  <property name="dir.jars" location="jars"/>
+  <!-- Installation directories -->
+  <property name="dir.install.jars"    location="${dir.install}/jars"/>
+  <property name="dir.install.scripts" location="${dir.install}/bin" />
+  <property name="dir.install.doc"     location="${dir.install}/doc" />
 
-  <!-- All located in dir.source.jars -->
+  <!-- Determine whether this is an in-tree or out-of-tree build and installation -->
+  <condition property="plexil.build.in-tree">
+    <equals arg1="${dir.build}" arg2="."/>
+  </condition>
+
+  <condition property="plexil.install.in-tree">
+    <equals arg1="${dir.install}" arg2="${dir.plexil_home}"/>
+  </condition>
+
+  <!-- jar files on which the compiler depends -->
+  <!-- These are properties rather than files because it's easier this way -->
   <property name="jar.antlr"
             location="${dir.source.jars}/antlr-3.5.3-complete-no-st3.jar"/>
-  <file id="jar.saxon"
-        file="${dir.source.jars}/saxon-he-11.4.jar"/>
+  <property name="jar.saxon"
+            location="${dir.source.jars}/saxon-he-11.4.jar"/>
+  <property name="jar.xmlresolver"
+            location="${dir.source.jars}/xmlresolver-4.4.3.jar"/>
 
   <path id="plexil.sourcepath">
     <pathelement location="${dir.source.java}"/>
   </path>
 
-  <path id="plexil.classpath">
-    <file file="${jar.antlr}"/>
-    <file refid="jar.saxon"/>
-    <pathelement location="${dir.classes}/plexil"/>
+  <path id="plexil.compile.classpath">
+    <file name="${jar.antlr}"/>
+    <file name="${jar.saxon}"/>
+    <pathelement location="${dir.build.classes}/plexil"/>
   </path>
 
   <!-- Explicit dependency checking, because ANTLR 3 doesn't provide an 'ant' task' -->
@@ -74,19 +97,19 @@
             srcfile="${dir.source.grammars}/Plexil.g">
     <compositemapper>
       <globmapper from="${dir.source.grammars}/*.g"
-                  to="${dir.generated}/plexil/*Lexer.java"/>
+                  to="${dir.build.generated}/plexil/*Lexer.java"/>
       <globmapper from="${dir.source.grammars}/*.g"
-                  to="${dir.generated}/plexil/*Parser.java"/>
+                  to="${dir.build.generated}/plexil/*Parser.java"/>
       <globmapper from="${dir.source.grammars}/*.g"
-                  to="${dir.generated}/plexil/*.tokens"/>
+                  to="${dir.build.generated}/plexil/*.tokens"/>
     </compositemapper>
   </uptodate>
 
   <condition property="plexil-keywords.up-to-date">
     <and>
       <isset property="plexil-grammar.up-to-date"/>
-      <uptodate srcfile="${dir.generated}/plexil/Plexil.tokens"
-                targetfile="${dir.generated}/keywords.txt"/>
+      <uptodate srcfile="${dir.build.generated}/plexil/Plexil.tokens"
+                targetfile="${dir.build.generated}/keywords.txt"/>
     </and>
   </condition>
 
@@ -94,9 +117,9 @@
             srcfile="${dir.source.grammars}/PlexilTreeTransforms.g">
     <compositemapper>
       <globmapper from="${dir.source.grammars}/*.g"
-                  to="${dir.generated}/plexil/*.java"/>
+                  to="${dir.build.generated}/plexil/*.java"/>
       <globmapper from="${dir.source.grammars}/*.g"
-                  to="${dir.generated}/plexil/*.tokens"/>
+                  to="${dir.build.generated}/plexil/*.tokens"/>
     </compositemapper>
   </uptodate>
 
@@ -104,14 +127,14 @@
     <and>
       <isset property="plexil-grammar.up-to-date"/>
       <uptodate>
-        <srcfiles dir="${dir.generated}/plexil">
+        <srcfiles dir="${dir.build.generated}/plexil">
           <filename name="PlexilLexer.java"/>
           <filename name="PlexilParser.java"/>
           <filename name="Plexil.tokens"/>
         </srcfiles>
         <compositemapper>
-          <mergemapper to="${dir.generated}/plexil/PlexilTreeTransforms.java"/>
-          <mergemapper to="${dir.generated}/plexil/PlexilTreeTransforms.tokens"/>
+          <mergemapper to="${dir.build.generated}/plexil/PlexilTreeTransforms.java"/>
+          <mergemapper to="${dir.build.generated}/plexil/PlexilTreeTransforms.tokens"/>
         </compositemapper>
       </uptodate>
     </and>
@@ -132,11 +155,11 @@
       <isset property="plexil-tree-grammar.up-to-date"/>
       <!-- Ensure the generated class files are up to date -->
       <uptodate> 
-        <srcfiles dir="${dir.generated}/plexil">
+        <srcfiles dir="${dir.build.generated}/plexil">
           <include name="*.java"/>
         </srcfiles>
-        <globmapper from="${dir.generated}/plexil/*.java"
-                    to="${dir.classes}/plexil/*.class"/>
+        <globmapper from="${dir.build.generated}/plexil/*.java"
+                    to="${dir.build.classes}/plexil/*.class"/>
       </uptodate>
       <!-- Ensure the class files for the human-generated Java code are up to date -->
       <uptodate> 
@@ -144,36 +167,46 @@
           <include name="*.java"/>
         </srcfiles>
         <globmapper from="${dir.source.java}/plexil/*.java"
-                    to="${dir.classes}/plexil/*.class"/>
+                    to="${dir.build.classes}/plexil/*.class"/>
       </uptodate>
       <uptodate> 
         <srcfiles dir="${dir.source.java}/plexil/xml">
           <include name="*.java"/>
         </srcfiles>
         <globmapper from="${dir.source.java}/plexil/xml/*.java"
-                    to="${dir.classes}/plexil/xml/*.class"/>
+                    to="${dir.build.classes}/plexil/xml/*.class"/>
       </uptodate>
       <!-- Ensure class files for human-generated compiler code are updated
            if any of the generated Java files have changed -->
       <uptodate> 
-        <srcfiles dir="${dir.generated}/plexil">
+        <srcfiles dir="${dir.build.generated}/plexil">
           <include name="*.java"/>
         </srcfiles>
         <globmapper from="${dir.source.java}/plexil/*.java"
-                    to="${dir.classes}/plexil/*.class"/>
+                    to="${dir.build.classes}/plexil/*.class"/>
       </uptodate>
     </and>
   </condition>
 
   <!-- Begin targets -->
+  <target name="check-properties" if="${plexil.debug}">
+    <echoproperties>
+      <!-- <propertyset> -->
+      <!--   <propertyref prefix="dir."/> -->
+      <!--   <propertyref prefix="jar."/> -->
+      <!--   <propertyref prefix="plexil."/> -->
+      <!-- </propertyset> -->
+    </echoproperties>
+  </target>
+
   <target name="plexil-grammar"
           unless="plexil-grammar.up-to-date"
 	      description="Generate Plexil parser code from .g file">
-    <mkdir dir="${dir.generated}/plexil"/>
+    <mkdir dir="${dir.build.generated}/plexil"/>
     <java jar="${jar.antlr}" fork="true" failonerror="true">
       <!-- <arg value="-report"/> -->
       <arg value="-fo"/>
-      <arg path="${dir.generated}/plexil"/>
+      <arg path="${dir.build.generated}/plexil"/>
       <arg file="${dir.source.grammars}/Plexil.g"/>
     </java>
   </target>
@@ -183,8 +216,8 @@
           unless="plexil-keywords.up-to-date"
           description="Generate list of Plexil keywords from Plexil.tokens">
     <exec executable="./keywords.sh">
-      <arg value="${dir.generated}/plexil/Plexil.tokens"/>
-      <arg value="${dir.generated}/keywords.txt"/>
+      <arg value="${dir.build.generated}/plexil/Plexil.tokens"/>
+      <arg value="${dir.build.generated}/keywords.txt"/>
     </exec>
   </target>
 
@@ -192,48 +225,73 @@
 	      depends="plexil-grammar"
           unless="plexil-tree-grammar.up-to-date"
 	      description="Generate Plexil AST transformations from .g file">
-    <java jar="${jar.antlr}" fork="true">
+    <java jar="${jar.antlr}" fork="true" failonerror="true">
       <!-- <arg value="-report"/> -->
       <arg value="-fo"/>
-      <arg path="${dir.generated}/plexil"/>
+      <arg path="${dir.build.generated}/plexil"/>
       <arg file="${dir.source.grammars}/PlexilTreeTransforms.g"/>
     </java>
   </target>
   
   <target name="plexil-compile"
           depends="plexil-tree-grammar">
-    <mkdir dir="${dir.classes}/plexil"/>
+    <mkdir dir="${dir.build.classes}/plexil"/>
     <!-- debuglevel options are lines,vars,source -->
-    <javac destdir="${dir.classes}"
+    <javac destdir="${dir.build.classes}"
            sourcepathref="plexil.sourcepath"
            debug="true"
            debuglevel="lines,source"
            includeantruntime="no"
            >
-      <src path="${dir.generated}/plexil"/>
+      <src path="${dir.build.generated}/plexil"/>
       <src path="${dir.source.java}/plexil"/>
-      <classpath refid="plexil.classpath"/>
+      <classpath refid="plexil.compile.classpath"/>
     </javac>
   </target>
 
+  <!-- TODO: integrate XSLT files into result jar
+       See viewers/pv/build.xml -->
   <target name="compiler-jar" depends="plexil-compile">
-    <mkdir dir="${dir.jars}"/>
-    <jar destfile="${dir.jars}/PlexilCompiler.jar" basedir="${dir.classes}"/>
+    <mkdir dir="${dir.build.jars}"/>
+    <jar destfile="${dir.build.jars}/PlexilCompiler.jar"
+         update="false"
+         basedir="${dir.build.classes}"
+         >
+      <manifest>
+        <attribute name="Main-Class" value="plexil.Compiler"/>
+      </manifest>
+      <zipfileset src="${jar.antlr}"/>
+      <zipfileset src="${jar.xmlresolver}"/>
+      <!-- Must remove the signature from the Saxon HE jar -->
+      <zipfileset src="${jar.saxon}"
+                  excludes="META-INF/*.SF, META-INF/*.RSA"/>
+    </jar>
   </target>
 
-  <target name="install" depends="compiler-jar,plexil-keywords">
-    <copy file="${dir.jars}/PlexilCompiler.jar"
+  <target name="install.out-of-tree" unless="plexil.install.in-tree">
+    <copy file="${dir.source.scripts}/plexilc"
+          todir="${dir.install.scripts}"
+          preservelastmodified="true"/>
+  </target>
+
+  <target name="install" depends="compiler-jar,plexil-keywords,install.out-of-tree">
+    <copy file="${dir.build.jars}/PlexilCompiler.jar"
 	      todir="${dir.install.jars}"
 	      preservelastmodified="true"/>
   </target>
 
   <target name="clean">
-    <delete dir="${dir.classes}" failonerror="false"/>
-    <delete dir="${dir.generated}" failonerror="false"/>
-    <delete dir="${dir.jars}" failonerror="false"/>
+    <delete dir="${dir.build.classes}" failonerror="false"/>
+    <delete dir="${dir.build.generated}" failonerror="false"/>
+    <delete dir="${dir.build.jars}" failonerror="false"/>
   </target>
 
-  <target name="uninstall" depends="clean">
+  <target name="uninstall.out-of-tree" unless="plexil.install.in-tree">
+    <delete file="${dir.install.scripts}/plexilc"
+            failonerror="false"/>
+  </target>
+
+  <target name="uninstall" depends="clean,uninstall.out-of-tree">
     <delete file="${dir.install.jars}/PlexilCompiler.jar"
             failonerror="false"/>
   </target>
