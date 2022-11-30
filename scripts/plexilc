@@ -131,9 +131,6 @@ PLEXILSCRIPT_JAR="$JARS_DIR"/plexilscript.jar
 ANTLR2_JAR="$JARS_DIR"/antlr.jar
 # Standard PLEXIL
 PLEXIL_COMPILER_JAR="${JARS_DIR}/PlexilCompiler.jar"
-ANTLR3_JAR="${JARS_DIR}/antlr-3.5.3-complete-no-st3.jar"
-SAXON_JAR="${JARS_DIR}/saxon-he-11.4.jar"
-XMLRESOLVER_JAR="${JARS_DIR}/xmlresolver-4.4.3.jar"
 
 # Commands to execute
 plexil_checker="$PLEXIL_HOME"/scripts/checkPlexil
@@ -165,8 +162,7 @@ display_name()
 # $2: Where to put the result
 std_plexil_compiler()
 {
-    "$JAVA" -classpath "${PLEXIL_COMPILER_JAR}:${ANTLR3_JAR}:${SAXON_JAR}:${XMLRESOLVER_JAR}" \
-            plexil.Compiler \
+    "$JAVA" -jar "${PLEXIL_COMPILER_JAR}" \
             ${debug:+-d} ${keep_epx:+-w} ${pretty_print:+-p} -o "$2" "$1"
 }
 
