@@ -260,11 +260,18 @@
       <manifest>
         <attribute name="Main-Class" value="plexil.Compiler"/>
       </manifest>
-      <zipfileset src="${jar.antlr}"/>
+      <!-- Remove the parts of Antlr3 that we're not using -->
+      <zipfileset src="${jar.antlr}">
+        <exclude name="org/antlr/gunit/**/*"/>
+        <exclude name="org/antlr/tool/**/*"/>
+        <exclude name="META-INF/maven/**/*"/>
+      </zipfileset>
       <zipfileset src="${jar.xmlresolver}"/>
       <!-- Must remove the signature from the Saxon HE jar -->
-      <zipfileset src="${jar.saxon}"
-                  excludes="META-INF/*.SF, META-INF/*.RSA"/>
+      <zipfileset src="${jar.saxon}">
+        <exclude name="META-INF/*.SF"/>
+        <exclude name="META-INF/*.RSA"/>
+      </zipfileset>
     </jar>
   </target>
 
