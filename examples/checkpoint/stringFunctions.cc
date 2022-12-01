@@ -242,7 +242,7 @@ Value strindexFunction(const vector<Value> &args)
            << endl;
       return Value();
     }
-    else if (pos > data.size()) {
+    else if (pos > (Integer) data.size()) {
       cerr << "strindex: Position argument " << args[1] << " is greater than length of string"
            << data.size() << endl;
       return Value();
@@ -279,7 +279,7 @@ Value find_first_of_Function(const vector<Value> &args)
              << endl;
         return Value();
       }
-      else if (pos > data.size()) {
+      else if (pos > (Integer) data.size()) {
         cerr << "find_first_of: Position argument " << args[1] << " is greater than length of string"
              << data.size() << endl;
         return Value();
@@ -307,7 +307,7 @@ Value find_last_of_Function(const vector<Value> &args)
              << endl;
         return Value();
       }
-      else if (pos > data.size()) {
+      else if (pos > (Integer) data.size()) {
         cerr << "find_last_of: Position argument " << args[1] << " is greater than length of string"
              << data.size() << endl;
         return Value();
