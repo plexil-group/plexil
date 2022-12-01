@@ -264,20 +264,26 @@
       <manifest>
         <attribute name="Main-Class" value="plexil.Compiler"/>
       </manifest>
-      <!-- Remove the parts of Antlr3 that we're not using -->
-      <zipfileset src="${jar.antlr}">
-        <exclude name="org/antlr/gunit/**/*"/>
-        <exclude name="org/antlr/tool/**/*"/>
-        <exclude name="META-INF/maven/**/*"/>
-      </zipfileset>
-      <zipfileset src="${jar.xmlresolver}"/>
-      <!-- Must remove the signature from the Saxon HE jar -->
-      <zipfileset src="${jar.saxon}">
-        <exclude name="META-INF/*.SF"/>
-        <exclude name="META-INF/*.RSA"/>
-      </zipfileset>
       <!-- Extended PLEXIL XSLT stylesheets -->
       <fileset refid = "plexil.xslt-files"/>
+      <!-- Only include the Antlr3 runtime -->
+      <zipfileset src="${jar.antlr}">
+        <include name="org/antlr/runtime/**/*"/>
+      </zipfileset>
+      <zipfileset src="${jar.xmlresolver}"/>
+      <zipfileset src="${jar.saxon}">
+        <!-- Signatures -->
+        <exclude name="META-INF/*.SF"/>
+        <exclude name="META-INF/*.RSA"/>
+        <!-- Files we aren't using -->
+        <exclude name="net/sf/saxon/gizmo/**/*"/>
+        <exclude name="net/sf/saxon/ma/trie/**/*"/>
+        <exclude name="net/sf/saxon/ma/zeno/**/*"/>
+        <exclude name="net/sf/saxon/pull/**/*"/>
+        <exclude name="net/sf/saxon/s9api/streams/**/*"/>
+        <exclude name="net/sf/saxon/sapling/**/*"/>
+        <exclude name="net/sf/saxon/stax/**/*"/>
+      </zipfileset>
     </jar>
   </target>
 
