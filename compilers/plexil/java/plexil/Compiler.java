@@ -26,6 +26,7 @@
 
 package plexil;
 
+import plexil.xml.SaxonTransformer;
 import plexil.xml.SimpleXmlWriter;
 
 import java.io.File;
@@ -42,9 +43,12 @@ import org.w3c.dom.Element;
 
 public class Compiler
 {
-    public CommandParser m_commandParser = null;
+    private CommandParser m_commandParser = null;
 
-    private static DocumentBuilder s_documentBuilder = null;
+    // m_documentBuilder and m_epxTransformer are constructed when needed,
+    // and reused when multiple files are processed.
+    private DocumentBuilder m_documentBuilder = null;
+    private SaxonTransformer m_epxTransformer = null;
 
     public static void main(String[] argv)
     {
@@ -242,18 +246,16 @@ public class Compiler
 
     public Document pass4(PlexilTreeNode plan, CompilerState state)
     {
-        Document planDoc = constructRootDocument();
-        state.setRootDocument(planDoc);
-        
-        Element rootElement = null;
+        Document planDoc = null;
         try {
-            rootElement = plan.getXML(planDoc);
+            planDoc = constructRootDocument();
+            state.setRootDocument(planDoc);
+            Element rootElement = plan.getXML(planDoc);
             planDoc.appendChild(rootElement);
         }
         catch (Throwable t) {
             System.err.println("Internal error while generating XML:");
             t.printStackTrace(System.err);
-            return null;
         }
         return planDoc;
     }
@@ -264,17 +266,9 @@ public class Compiler
     {
         File outputFile = state.getOutputFile();
         try {
-            // Invoke XSLT translator
             if (m_commandParser.debug)
                 System.err.println("Translating to Core PLEXIL file " + outputFile);
-
-            plexil.xml.SaxonTransformer xformer = new plexil.xml.SaxonTransformer();
-            xformer.setIndent(m_commandParser.indentOutput);
-
-            File stylesheet =
-                new File(System.getenv("PLEXIL_HOME"),
-                         "schema/epx-translator/translate-plexil.xsl");
-            return xformer.translateDOM(stylesheet, planDoc, outputFile);
+            return ensureEpxTransformer().translateDOM(planDoc, outputFile);
         }
         catch (Exception e) {
             System.err.println("Extended Plexil translation error: " + e);
@@ -286,22 +280,37 @@ public class Compiler
     // Utilities
     //
 
-    private static Document constructRootDocument()
+    private DocumentBuilder ensureDocumentBuilder()
     {
-        if (s_documentBuilder == null) {
+        if (m_documentBuilder == null) {
             // Configuration??
             try {
-                s_documentBuilder =
+                m_documentBuilder =
                     DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            } catch (ParserConfigurationException p) {
-                System.err.println("Fatal error: unable to boostrap XML construction:\n"
-                                   + p.toString());
-                return null;
-            };
+            } catch (ParserConfigurationException e) {
+                System.err.println("XML configuration error:\n" + e.toString());
+            }
         }
-        Document root = s_documentBuilder.newDocument();
+        return m_documentBuilder;
+    }
+
+    private Document constructRootDocument()
+    {
+        Document root = ensureDocumentBuilder().newDocument();
         root.setXmlVersion("1.0");
         return root;
+    }
+
+    private SaxonTransformer ensureEpxTransformer()
+    {
+        if (m_epxTransformer == null) {
+            m_epxTransformer = new plexil.xml.SaxonTransformer();
+            m_epxTransformer.setIndent(m_commandParser.indentOutput);
+            // Get stylesheet from jar file
+            String urlString = ClassLoader.getSystemResource("schema/epx-translator/translate-plexil.xsl").toString();
+            m_epxTransformer.loadStylesheetFromURL(urlString);
+        }
+        return m_epxTransformer;
     }
 
 }

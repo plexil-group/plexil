@@ -92,8 +92,12 @@
     <pathelement location="${dir.build.classes}/plexil"/>
   </path>
 
+  <fileset id="plexil.xslt-files"
+           dir="${dir.plexil_home}"
+           includes="schema/epx-translator/*.xsl"/>
+
   <!-- Explicit dependency checking, because ANTLR 3 doesn't provide an 'ant' task' -->
-  <uptodate property="plexil-grammar.up-to-date"
+  <uptodate property="plexil.grammar.up-to-date"
             srcfile="${dir.source.grammars}/Plexil.g">
     <compositemapper>
       <globmapper from="${dir.source.grammars}/*.g"
@@ -107,7 +111,7 @@
 
   <condition property="plexil-keywords.up-to-date">
     <and>
-      <isset property="plexil-grammar.up-to-date"/>
+      <isset property="plexil.grammar.up-to-date"/>
       <uptodate srcfile="${dir.build.generated}/plexil/Plexil.tokens"
                 targetfile="${dir.build.generated}/keywords.txt"/>
     </and>
@@ -123,9 +127,9 @@
     </compositemapper>
   </uptodate>
 
-  <condition property="plexil-tree-grammar.plexil-grammar.up-to-date">
+  <condition property="plexil-tree-grammar.plexil.grammar.up-to-date">
     <and>
-      <isset property="plexil-grammar.up-to-date"/>
+      <isset property="plexil.grammar.up-to-date"/>
       <uptodate>
         <srcfiles dir="${dir.build.generated}/plexil">
           <filename name="PlexilLexer.java"/>
@@ -143,7 +147,7 @@
   <condition property="plexil-tree-grammar.up-to-date">
     <and>
       <isset property="plexil-tree-grammar.source.up-to-date"/>
-      <isset property="plexil-tree-grammar.plexil-grammar.up-to-date"/>
+      <isset property="plexil-tree-grammar.plexil.grammar.up-to-date"/>
     </and>
   </condition>
 
@@ -151,7 +155,7 @@
   <!-- Omitting dependencies on Saxon jar -->
   <condition property="plexil-classes.up-to-date">
     <and>
-      <isset property="plexil-grammar.up-to-date"/>
+      <isset property="plexil.grammar.up-to-date"/>
       <isset property="plexil-tree-grammar.up-to-date"/>
       <!-- Ensure the generated class files are up to date -->
       <uptodate> 
@@ -200,7 +204,7 @@
   </target>
 
   <target name="plexil-grammar"
-          unless="plexil-grammar.up-to-date"
+          unless="plexil.grammar.up-to-date"
 	      description="Generate Plexil parser code from .g file">
     <mkdir dir="${dir.build.generated}/plexil"/>
     <java jar="${jar.antlr}" fork="true" failonerror="true">
@@ -272,6 +276,8 @@
         <exclude name="META-INF/*.SF"/>
         <exclude name="META-INF/*.RSA"/>
       </zipfileset>
+      <!-- Extended PLEXIL XSLT stylesheets -->
+      <fileset refid = "plexil.xslt-files"/>
     </jar>
   </target>
 

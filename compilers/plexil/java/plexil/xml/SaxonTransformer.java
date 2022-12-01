@@ -36,9 +36,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.transform.Source;
+// import javax.xml.transform.dom.DOMResult; // future
 import javax.xml.transform.dom.DOMSource;
+// import javax.xml.transform.stream.StreamResult; // future
 import javax.xml.transform.stream.StreamSource;
 
+import net.sf.saxon.s9api.Destination;
 import net.sf.saxon.s9api.Processor;
 import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.Serializer;
@@ -52,15 +55,14 @@ import org.w3c.dom.Document;
 
 public class SaxonTransformer
 {
-    private Processor m_processor;
-    private XsltCompiler m_compiler;
+    private Processor m_processor = null;
+    private XsltTransformer m_transformer = null;
     private String m_method;
     private boolean m_indent;
 
     public SaxonTransformer()
     {
         m_processor = new Processor(false);
-        m_compiler = m_processor.newXsltCompiler();
         m_method = "xml"; 
         m_indent = false;
     }
@@ -86,31 +88,46 @@ public class SaxonTransformer
     }
 
     // Construct an XsltExecutable from the given stylesheet path.
-    protected XsltExecutable loadStylesheet(File stylesheet)
+    protected synchronized void loadStylesheet(StreamSource source)
     {
-        if (!stylesheet.isFile()) {
-            System.err.println("Error: stylesheet file " + stylesheet.toString()
-                               + " not found.");
-            return null;
-        }
-
         List<XmlProcessingError> errors = new ArrayList<XmlProcessingError>();
-        m_compiler.setErrorList(errors);
+        XsltCompiler compiler = m_processor.newXsltCompiler();
+        compiler.setErrorList(errors);
         try {
-            return m_compiler.compile(new StreamSource(stylesheet));
+            XsltExecutable executable = compiler.compile(source);
+            m_transformer = executable.load(); // load30()?
         } catch (SaxonApiException e) {
-            System.err.println("SaxonTransformer: Error compiling stylesheet "
-                               + stylesheet.toString() + " :\n" + e.toString());
+            System.err.println("SaxonTransformer: Error compiling stylesheet:\n" + e.toString());
             // TODO: list errors
-            return null;
         }
+    }
+
+    public void loadStylesheetFromFile(File stylesheetFile)
+    {
+        if (stylesheetFile == null) {
+            System.err.println("SaxonTransformer: stylesheet file is null.");
+            return;
+        }
+        if (!stylesheetFile.isFile()) {
+            System.err.println("SaxonTransformer: stylesheet file "
+                               + stylesheetFile.toString() + " not found.");
+            return;
+        }
+        loadStylesheet(new StreamSource(stylesheetFile));
+    }
+
+    public void loadStylesheetFromURL(String urlString)
+    {
+        if (urlString == null) {
+            System.err.println("SaxonTransformer: stylesheet URL is null.");
+            return;
+        }
+        loadStylesheet(new StreamSource(urlString));
     }
 
     // Construct a serializer to write output of the translator to a file.
     protected Serializer makeFileSerializer(File dest)
     {
-        if (m_processor == null)
-            return null;
         Serializer result = m_processor.newSerializer(dest);
         try {
             result.setOutputProperty(Serializer.Property.METHOD, m_method);
@@ -123,12 +140,16 @@ public class SaxonTransformer
         return result;
     }
 
-    protected static boolean translateInternal(XsltTransformer trans, Source src, Serializer dest)
+    protected synchronized boolean translateInternal(Source src, Destination dest)
     {
-        trans.setSource(src);
-        trans.setDestination(dest);
+        if (m_transformer == null) {
+            System.err.println("SaxonTransformer: No stylesheet has been loaded\n");
+            return false;
+        }
+        m_transformer.setSource(src);
+        m_transformer.setDestination(dest);
         try {
-            trans.transform();
+            m_transformer.transform();
         } catch (SaxonApiException s) {
             System.err.println("SaxonTransformer: Unable to perform transformation:\n"
                                + s.toString());
@@ -137,28 +158,15 @@ public class SaxonTransformer
         return true;
     }
 
-    public boolean translateDOM(File ss, Document n, File out)
+    public boolean translateDOM(Document n, File out)
     {
-        XsltExecutable exe = loadStylesheet(ss);
-        if (exe == null)
-            return false;
-        return translateInternal(exe.load(),
-                                 new DOMSource(n),
+        return translateInternal(new DOMSource(n),
                                  makeFileSerializer(out));
     }
 
-    public boolean translateFiles(File ss, File in, File out)
+    public boolean translateFiles(File in, File out)
     {
-        XsltExecutable exe = loadStylesheet(ss);
-        if (exe == null)
-            return false;
-
-        if (!in.isFile()) {
-            System.err.println("Error: XSLT input file " + in.toString() + " not found");
-            return false;
-        }
-        return translateInternal(exe.load(),
-                                 new StreamSource(in),
+        return translateInternal(new StreamSource(in),
                                  makeFileSerializer(out));
     }
 
