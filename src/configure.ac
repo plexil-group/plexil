@@ -28,7 +28,7 @@
 
 #
 # N.B. This file does not, and will not, support versions of the GNU
-# autotools predating C++11.  The following minimum versions are
+# autotools predating C++14.  The following minimum versions are
 # required:
 #
 #  autoconf 2.69
@@ -42,7 +42,7 @@
 #
 
 AC_PREREQ(2.69)
-AC_INIT([Plexil], [6.0.0d4], [plexil-support@sourceforge.net], [plexil], [https://plexil.wiki.sourceforge.net/])
+AC_INIT([Plexil], [7.0.0d1], [plexil-support@sourceforge.net], [plexil], [https://plexil.wiki.sourceforge.net/])
 AC_LANG(C++)
 AC_CONFIG_SRCDIR([app-framework/AdapterConfiguration.cc])
 AC_CONFIG_HEADERS([plexil-config.h])
@@ -51,10 +51,10 @@ AC_CONFIG_MACRO_DIR([m4])
 # Check whether compilers exist and work
 
 # Note that AC_PROG_CXX sets CXXFLAGS to '-g -O2' if not already set
-# This version of PLEXIL requires C++11 or later, so set the standard
+# This version of PLEXIL requires C++14 or later, so set the standard
 # in the CXXFLAGS defaults.
 # This bit of hackery is straight out of the GNU Autoconf manual
-: ${CXXFLAGS="-std=c++11 -g -O2"}
+: ${CXXFLAGS="-std=c++14 -g -O2"}
 
 AC_PROG_CXX
 AC_PROG_CC
