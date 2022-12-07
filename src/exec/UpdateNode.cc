@@ -1,28 +1,27 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
-*  All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*     * Redistributions of source code must retain the above copyright
-*       notice, this list of conditions and the following disclaimer.
-*     * Redistributions in binary form must reproduce the above copyright
-*       notice, this list of conditions and the following disclaimer in the
-*       documentation and/or other materials provided with the distribution.
-*     * Neither the name of the Universities Space Research Association nor the
-*       names of its contributors may be used to endorse or promote products
-*       derived from this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
-* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
-* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
+//  All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//     * Neither the name of the Universities Space Research Association nor the
+//       names of its contributors may be used to endorse or promote products
+//       derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+// OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+// TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+// USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "UpdateNode.hh"
 
@@ -32,10 +31,161 @@
 #include "ExpressionConstants.hh"
 #include "Function.hh"
 #include "PlexilExec.hh"
-#include "Update.hh"
+#include "UpdateImpl.hh"
 
 namespace PLEXIL
 {
+
+  //! \struct Pair
+  //! \brief Contains an update name, expression, and a pointer to the next Pair.
+  struct Pair final
+  {
+    //! \brief Constructor.
+    //! \param nam The name of the pair.
+    //! \param exp Pointer to the Expression with the pair value.
+    //! \param isGarbage If true, exp is deleted with the Pair instance.
+    Pair(std::string const &nam,
+         Expression *exp,
+         bool isGarbage)
+      : next(nullptr),
+        name(nam),
+        expr(exp),
+        garbage(isGarbage)
+    {
+    }
+
+    //! \brief Destructor.
+    ~Pair()
+    {
+      if (garbage)
+        delete expr;
+    }
+
+    //! \brief Pointer to the next Pair in the list.
+    Pair *next;
+
+    //! \brief The name.
+    std::string const name;
+
+    //! \brief The expression.
+    Expression *expr;
+
+  private:
+
+    //! \brief The garbage flag.
+    bool garbage;
+
+    // Default, copy, move constructors, assignment unimplemented
+    Pair() = delete;
+    Pair(Pair const &) = delete;
+    Pair(Pair &&) = delete;
+    Pair *operator=(Pair const &) = delete;
+    Pair *operator=(Pair &&) = delete;
+  };
+
+  UpdateImpl::UpdateImpl(NodeConnector *node)
+    : m_valuePairs(),      
+      m_ack("ack"),
+      m_next(nullptr),
+      m_pairs(nullptr),
+      m_node(node)
+  {
+  }
+
+  UpdateImpl::~UpdateImpl()
+  {
+    cleanUp();
+  }
+
+  const Update::PairValueMap &UpdateImpl::getPairs() const
+  {
+    return m_valuePairs;
+  }
+
+  std::string const &UpdateImpl::getNodeId() const
+  {
+    assertTrue_1(m_node);
+    return m_node->getNodeId();
+  }
+
+  void UpdateImpl::acknowledge(bool ack)
+  {
+    if (!m_ack.isActive())
+      return; // ignore if not executing
+    m_ack.setValue(ack);
+  }
+
+  void UpdateImpl::reservePairs(size_t n)
+  {
+    m_valuePairs.grow(n);
+  }
+
+  void UpdateImpl::addPair(std::string const &name, Expression *exp, bool expIsGarbage)
+  {
+    check_error_1(exp);
+    Pair *tmp = new Pair(name, exp, expIsGarbage);
+    tmp->next = m_pairs;
+    m_pairs = tmp;
+  }
+
+  Expression *UpdateImpl::getAck()
+  {
+    return &m_ack;
+  }
+
+  void UpdateImpl::activate()
+  {
+    Pair *tmp = m_pairs;
+    while (tmp) {
+      tmp->expr->activate();
+      tmp = tmp->next;
+    }
+    m_ack.activate(); // resets to false
+  }
+
+  void UpdateImpl::deactivate()
+  {
+    Pair *tmp = m_pairs;
+    while (tmp) {
+      tmp->expr->deactivate();
+      tmp = tmp->next;
+    }
+    m_ack.deactivate();
+  }
+
+  void UpdateImpl::fixValues()
+  {
+    Pair *tmp = m_pairs;
+    while (tmp) {
+      m_valuePairs[tmp->name] = tmp->expr->toValue();
+      debugMsg("Update:fixValues",
+               " fixing pair \"" << tmp->name << "\", "
+               << tmp->expr << " = " << tmp->expr->toValue());
+      tmp = tmp->next;
+    }
+  }
+
+  void UpdateImpl::cleanUp()
+  {
+    Pair *next = m_pairs;
+    m_pairs = nullptr;
+    while (next) {
+      Pair *tmp = next->next;
+      delete next;
+      next = tmp;
+    }
+    m_valuePairs.clear();
+  }
+
+  Update *UpdateImpl::next() const
+  {
+    return m_next;
+  }
+
+  Update **UpdateImpl::nextPtr()
+  {
+    return &m_next;
+  }
 
   UpdateNode::UpdateNode(char const *nodeId, NodeImpl *parent)
     : NodeImpl(nodeId, parent),
@@ -43,15 +193,12 @@ namespace PLEXIL
   {
   }
 
-  /**
-   * @brief Alternate constructor.  Used only by Exec test module.
-   */
   UpdateNode::UpdateNode(const std::string& type,
                          const std::string& name, 
                          NodeState state,
                          NodeImpl *parent)
     : NodeImpl(type, name, state, parent),
-      m_update(new Update(this))
+      m_update(new UpdateImpl(this))
   {
     checkError(type == UPDATE,
                "Invalid node type " << type << " for an UpdateNode");
@@ -76,9 +223,6 @@ namespace PLEXIL
     }
   }
 
-  /**
-   * @brief Destructor.  Cleans up this entire part of the node tree.
-   */
   UpdateNode::~UpdateNode()
   {
     debugMsg("UpdateNode:~UpdateNode", " destructor for " << m_nodeId);
@@ -100,7 +244,7 @@ namespace PLEXIL
     m_cleanedBody = true;
   }
 
-  void UpdateNode::setUpdate(Update *upd)
+  void UpdateNode::setUpdate(UpdateImpl *upd)
   {
     m_update.reset(upd);
 

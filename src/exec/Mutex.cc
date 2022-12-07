@@ -68,8 +68,9 @@ namespace PLEXIL
   // Global Mutex management
   //
 
-  typedef std::map<std::string, std::unique_ptr<Mutex> > MutexMap;
+  using MutexMap = std::map<std::string, std::unique_ptr<Mutex>>;
 
+  //! \brief The map of all globally known mutexes.
   static MutexMap s_globalMutexes;
 
   Mutex *getGlobalMutex(char const *name)
@@ -82,15 +83,6 @@ namespace PLEXIL
     else
       return nullptr;
   }
-    
-  static Mutex *createGlobalMutex(char const *name)
-  {
-    debugMsg("Mutex:ensureGlobalMutex", " constructing " << name);
-    Mutex *result = new Mutex(name);
-    s_globalMutexes.emplace(std::make_pair(std::string(name),
-                                           std::unique_ptr<Mutex>(result)));
-    return result;
-  }
 
   Mutex *ensureGlobalMutex(char const *name)
   {
@@ -99,8 +91,11 @@ namespace PLEXIL
       debugMsg("Mutex:ensureGlobalMutex", " returning existing mutex " << name);
       return result;
     }
-    else
-      return createGlobalMutex(name);
+    debugMsg("Mutex:ensureGlobalMutex", " constructing " << name);
+    result = new Mutex(name);
+    s_globalMutexes.emplace(std::string(name),
+                            std::unique_ptr<Mutex>(result));
+    return result;
   }
 
 }

@@ -1,1 +1,28 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/tolerance1.ple"><GlobalDeclarations ColNo="5" LineNo="1"><StateDeclaration ColNo="5" LineNo="1"><Name>temp</Name><Return><Name>_return_0</Name><Type>Real</Type></Return></StateDeclaration></GlobalDeclarations><Node ColNo="0" LineNo="3" NodeType="Empty"><NodeId>BLOCK__0</NodeId><StartCondition ColNo="2" LineNo="4"><GT ColNo="28" LineNo="4"><Lookup ColNo="9" LineNo="4"><Name><StringValue>temp</StringValue></Name><Tolerance><RealValue>2.5</RealValue></Tolerance></Lookup><RealValue>100.0</RealValue></GT></StartCondition></Node></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/tolerance1.ple">
+   <GlobalDeclarations ColNo="5" LineNo="1">
+      <StateDeclaration ColNo="5" LineNo="1">
+         <Name>temp</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Real</Type>
+         </Return>
+      </StateDeclaration>
+   </GlobalDeclarations>
+   <Node ColNo="0" LineNo="3" NodeType="Empty">
+      <NodeId generated="1">BLOCK__0</NodeId>
+      <StartCondition ColNo="2" LineNo="4">
+         <GT ColNo="28" LineNo="4">
+            <Lookup ColNo="9" LineNo="4">
+               <Name>
+                  <StringValue>temp</StringValue>
+               </Name>
+               <Tolerance>
+                  <RealValue>2.5</RealValue>
+               </Tolerance>
+            </Lookup>
+            <RealValue>100.0</RealValue>
+         </GT>
+      </StartCondition>
+   </Node>
+</PlexilPlan>

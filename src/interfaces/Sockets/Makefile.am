@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,12 +28,15 @@ AUTOMAKE_OPTIONS = subdir-objects
 lib_LTLIBRARIES = libPlexilSockets.la
 include_HEADERS = ClientSocket.h ServerSocket.h Socket.h SocketException.h
 libPlexilSockets_la_SOURCES = ClientSocket.cpp ServerSocket.cpp Socket.cpp
-libPlexilSockets_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/utils
+libPlexilSockets_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/utils -I@top_srcdir@
+libPlexilSockets_la_LIBADD = @top_builddir@/utils/libPlexilUtils.la
 
 if MODULE_TESTS_OPT
   noinst_PROGRAMS = test/simple_client_main test/simple_server_main
   test_simple_client_main_SOURCES = test/simple_client_main.cpp
-  test_simple_client_main_LDADD = libPlexilSockets.la 
+  test_simple_client_main_CPPFLAGS = $(libPlexilSockets_la_CPPFLAGS)
+  test_simple_client_main_LDADD = libPlexilSockets.la $(libPlexilSockets_la_LIBADD)
   test_simple_server_main_SOURCES = test/simple_server_main.cpp
-  test_simple_server_main_LDADD = libPlexilSockets.la
+  test_simple_server_main_CPPFLAGS = $(libPlexilSockets_la_CPPFLAGS)
+  test_simple_server_main_LDADD = libPlexilSockets.la $(libPlexilSockets_la_LIBADD)
 endif

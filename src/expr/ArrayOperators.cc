@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -40,6 +40,17 @@ namespace PLEXIL
   {
   }
 
+  bool ArraySize::checkArgCount(size_t count) const
+  {
+    return count == 1;
+  }
+
+  bool ArraySize::checkArgTypes(std::vector<ValueType> const &typeVec) const
+  {
+    ValueType typ = typeVec.at(0);
+    return isArrayType(typ) || typ == UNKNOWN_TYPE;
+  }
+
   bool ArraySize::operator()(Integer &result, Expression const *arg) const
   {
     Array const *ary;
@@ -56,6 +67,17 @@ namespace PLEXIL
   ArrayMaxSize::ArrayMaxSize()
     : OperatorImpl<Integer>("ArrayMaxSize")
   {
+  }
+
+  bool ArrayMaxSize::checkArgCount(size_t count) const
+  {
+    return count == 1;
+  }
+
+  bool ArrayMaxSize::checkArgTypes(std::vector<ValueType> const &typeVec) const
+  {
+    ValueType typ = typeVec.at(0);
+    return isArrayType(typ) || typ == UNKNOWN_TYPE;
   }
 
   bool ArrayMaxSize::operator()(Integer &result, Expression const *arg) const
@@ -75,6 +97,28 @@ namespace PLEXIL
   AllElementsKnown::AllElementsKnown()
     : OperatorImpl<Boolean>("ALL_KNOWN")
   {
+  }
+
+  bool AllElementsKnown::checkArgCount(size_t count) const
+  {
+    return count == 1;
+  }
+
+  bool AllElementsKnown::checkArgTypes(std::vector<ValueType> const &typeVec) const
+  {
+    ValueType typ = typeVec.at(0);
+    return isArrayType(typ) || typ == UNKNOWN_TYPE;
+  }
+
+  bool AnyElementsKnown::checkArgCount(size_t count) const
+  {
+    return count == 1;
+  }
+
+  bool AnyElementsKnown::checkArgTypes(std::vector<ValueType> const &typeVec) const
+  {
+    ValueType typ = typeVec.at(0);
+    return isArrayType(typ) || typ == UNKNOWN_TYPE;
   }
 
   bool AllElementsKnown::operator()(Boolean &result, Expression const *arg) const

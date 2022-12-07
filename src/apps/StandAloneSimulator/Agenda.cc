@@ -118,7 +118,7 @@ public:
     AgendaQueue::iterator it = m_queue.begin();
     while (it != m_queue.end() && it->first < tym)
       ++it;
-    m_queue.emplace(it, AgendaEntry(tym, msg));
+    m_queue.emplace(it, AgendaEntry(tym, std::unique_ptr<ResponseMessage>(msg)));
   }
   
 };

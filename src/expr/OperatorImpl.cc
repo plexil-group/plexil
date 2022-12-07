@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,6 @@
 
 #include "OperatorImpl.hh"
 
-#include "ArrayFwd.hh"
 #include "Expression.hh"
 #include "Function.hh"
 #include "PlanError.hh"
@@ -160,20 +159,20 @@ namespace PLEXIL
   }
 
   template <typename R>
-  bool OperatorImpl<R>::operator()(R &result, Function const &args) const
+  bool OperatorImpl<R>::operator()(R &result, Function const &fn) const
   {
-    return this->calc(result, args);
+    return this->calc(result, fn);
   }
 
-  bool OperatorImpl<Integer>::operator()(Integer &result, Function const &args) const
+  bool OperatorImpl<Integer>::operator()(Integer &result, Function const &fn) const
   {
-    return this->calc(result, args);
+    return this->calc(result, fn);
   }
 
   template <typename R>
-  bool OperatorImpl<ArrayImpl<R> >::operator()(ArrayImpl<R> &result, Function const &args) const
+  bool OperatorImpl<ArrayImpl<R> >::operator()(ArrayImpl<R> &result, Function const &fn) const
   {
-    return this->calc(result, args);
+    return this->calc(result, fn);
   }
 
   //
@@ -270,7 +269,7 @@ namespace PLEXIL
     if (exprs.getValue(temp))
       return Value(temp);
     else
-      return Value(0, PlexilValueType<R>::value);
+      return Value(PlexilValueType<R>::value);
   }
 
   Value OperatorImpl<Integer>::toValue(Function const &exprs) const
@@ -279,7 +278,7 @@ namespace PLEXIL
     if (exprs.getValue(temp))
       return Value(temp);
     else
-      return Value(0, INTEGER_TYPE);
+      return Value(INTEGER_TYPE);
   }
 
   template <typename R>
@@ -289,7 +288,7 @@ namespace PLEXIL
     if (exprs.getValue(temp))
       return Value(temp);
     else
-      return Value(0, PlexilValueType<ArrayImpl<R> >::value);
+      return Value(PlexilValueType<ArrayImpl<R> >::value);
   }
 
   // Default methods
@@ -375,7 +374,6 @@ namespace PLEXIL
   //
 
   template class OperatorImpl<Real>;
-  // template class OperatorImpl<Integer>; // redundant?
   template class OperatorImpl<Boolean>;
   template class OperatorImpl<String>;
 

@@ -1,1 +1,50 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/LibraryCallWithArray.ple"><GlobalDeclarations ColNo="0" LineNo="1"><LibraryNodeDeclaration ColNo="0" LineNo="1"><Name>MungArray</Name><Interface><In><DeclareArray ColNo="24" LineNo="1"><Name>ary</Name><Type>Integer</Type><MaxSize>10</MaxSize></DeclareArray></In></Interface></LibraryNodeDeclaration></GlobalDeclarations><Node ColNo="0" LineNo="3" NodeType="LibraryNodeCall"><NodeId>LibraryCallWithArray</NodeId><VariableDeclarations><DeclareArray ColNo="2" LineNo="5"><Name>foo</Name><Type>Integer</Type><MaxSize>10</MaxSize><InitialValue><ArrayValue Type="Integer"><IntegerValue>1</IntegerValue><IntegerValue>2</IntegerValue><IntegerValue>3</IntegerValue><IntegerValue>4</IntegerValue><IntegerValue>5</IntegerValue><IntegerValue>6</IntegerValue><IntegerValue>7</IntegerValue><IntegerValue>8</IntegerValue><IntegerValue>9</IntegerValue><IntegerValue>10</IntegerValue></ArrayValue></InitialValue></DeclareArray></VariableDeclarations><NodeBody><LibraryNodeCall ColNo="2" LineNo="6"><NodeId>MungArray</NodeId><Alias><NodeParameter>ary</NodeParameter><ArrayVariable>foo</ArrayVariable></Alias></LibraryNodeCall></NodeBody></Node></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/LibraryCallWithArray.ple">
+   <GlobalDeclarations ColNo="0" LineNo="1">
+      <LibraryNodeDeclaration ColNo="0" LineNo="1">
+         <Name>MungArray</Name>
+         <Interface>
+            <In>
+               <DeclareArray ColNo="24" LineNo="1">
+                  <Name>ary</Name>
+                  <Type>Integer</Type>
+                  <MaxSize>10</MaxSize>
+               </DeclareArray>
+            </In>
+         </Interface>
+      </LibraryNodeDeclaration>
+   </GlobalDeclarations>
+   <Node ColNo="0" LineNo="3" NodeType="LibraryNodeCall">
+      <NodeId>LibraryCallWithArray</NodeId>
+      <VariableDeclarations>
+         <DeclareArray ColNo="2" LineNo="5">
+            <Name>foo</Name>
+            <Type>Integer</Type>
+            <MaxSize>10</MaxSize>
+            <InitialValue>
+               <ArrayValue Type="Integer">
+                  <IntegerValue>1</IntegerValue>
+                  <IntegerValue>2</IntegerValue>
+                  <IntegerValue>3</IntegerValue>
+                  <IntegerValue>4</IntegerValue>
+                  <IntegerValue>5</IntegerValue>
+                  <IntegerValue>6</IntegerValue>
+                  <IntegerValue>7</IntegerValue>
+                  <IntegerValue>8</IntegerValue>
+                  <IntegerValue>9</IntegerValue>
+                  <IntegerValue>10</IntegerValue>
+               </ArrayValue>
+            </InitialValue>
+         </DeclareArray>
+      </VariableDeclarations>
+      <NodeBody>
+         <LibraryNodeCall ColNo="2" LineNo="6">
+            <NodeId>MungArray</NodeId>
+            <Alias>
+               <NodeParameter>ary</NodeParameter>
+               <ArrayVariable>foo</ArrayVariable>
+            </Alias>
+         </LibraryNodeCall>
+      </NodeBody>
+   </Node>
+</PlexilPlan>

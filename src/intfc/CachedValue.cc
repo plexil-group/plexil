@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,6 +31,26 @@
 
 namespace PLEXIL
 {
+  CachedValue::CachedValue()
+    : m_timestamp(0)
+  {
+  }
+
+  CachedValue::CachedValue(CachedValue const &orig)
+    : m_timestamp(orig.m_timestamp)
+  {
+  }
+
+  CachedValue &CachedValue::operator=(CachedValue const &other)
+  {
+    m_timestamp = other.m_timestamp;
+    return *this;
+  }
+
+  unsigned int CachedValue::getTimestamp() const
+  {
+    return m_timestamp;
+  }
 
 #define DEFINE_DEFAULT_GET_VALUE_METHOD(_rtype_) \
   bool CachedValue::getValue(_rtype_ & /* result */) const   \
@@ -41,16 +61,11 @@ namespace PLEXIL
   }
 
   DEFINE_DEFAULT_GET_VALUE_METHOD(Boolean)
-  DEFINE_DEFAULT_GET_VALUE_METHOD(NodeState)
-  DEFINE_DEFAULT_GET_VALUE_METHOD(NodeOutcome)
-  DEFINE_DEFAULT_GET_VALUE_METHOD(FailureType)
-  DEFINE_DEFAULT_GET_VALUE_METHOD(CommandHandleValue)
   DEFINE_DEFAULT_GET_VALUE_METHOD(Integer)
   DEFINE_DEFAULT_GET_VALUE_METHOD(Real)
   DEFINE_DEFAULT_GET_VALUE_METHOD(String)
 
 #undef DEFINE_DEFAULT_GET_VALUE_METHOD
-  
 
 #define DEFINE_DEFAULT_GET_VALUE_POINTER_METHOD(_rtype_) \
   bool CachedValue::getValuePointer(_rtype_ const *& /* ptr */) const   \
@@ -100,4 +115,4 @@ namespace PLEXIL
 
 #undef DEFINE_DEFAULT_UPDATE_PTR_METHOD
   
-}
+} // namespace PLEXIL

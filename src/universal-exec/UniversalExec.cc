@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,6 +26,7 @@
 
 #include "AdapterConfiguration.hh" 
 #include "Debug.hh"
+#include "Error.hh"
 #include "ExecApplication.hh"
 #include "InterfaceManager.hh"
 #include "InterfaceSchema.hh"
@@ -39,13 +40,8 @@
 
 #include "pugixml.hpp"
 
-#include <fstream>
-
-#if defined(HAVE_CSTRING)
 #include <cstring>
-#elif defined(HAVE_STRING_H)
-#include <string.h>
-#endif
+#include <fstream>
 
 using namespace PLEXIL;
 

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,12 +30,6 @@
 #include "NodeOperator.hh"
 #include "Value.hh"
 
-// Uncomment these if NodeFunction return types are extended
-// to String or Array
-// #include "ArrayImpl.hh"
-// #include "PlanError.hh"
-// #include "PlexilTypeTraits.hh"
-
 #include <ostream>
 
 namespace PLEXIL
@@ -44,10 +38,6 @@ namespace PLEXIL
     : Propagator(),
       m_op(op),
       m_node(node)
-  {
-  }
-
-  NodeFunction::~NodeFunction()
   {
   }
 
@@ -87,34 +77,9 @@ namespace PLEXIL
     m_op->doPropagationSources(m_node, oper);
   }
 
-#define DEFINE_NODE_FUNC_GET_VALUE_METHOD(_rtype) \
-  bool NodeFunction::getValue(_rtype &result) const \
-  { \
-    return (*m_op)(result, m_node); \
+  bool NodeFunction::getValue(Boolean &result) const
+  {
+    return (*m_op)(result, m_node);
   }
-
-  DEFINE_NODE_FUNC_GET_VALUE_METHOD(Boolean)
-  // Only Boolean operators implemented to date,
-  // uncomment these as necessary
-  // DEFINE_NODE_FUNC_GET_VALUE_METHOD(uint16_t)
-  // DEFINE_NODE_FUNC_GET_VALUE_METHOD(Integer)
-  // DEFINE_NODE_FUNC_GET_VALUE_METHOD(Real)
-  // DEFINE_NODE_FUNC_GET_VALUE_METHOD(String)
-
-#undef DEFINE_NODE_FUNC_GET_VALUE_METHOD
-
-// Uncomment this if we ever need String or Array results
-// #define DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD(_rtype) \
-//   bool NodeFunction::getValuePointer(_rtype const *&ptr) const \
-//   { \
-//     reportPlanError("getValuePointer not implemented for type " << #_type \
-//                     << " for " << m_op->getName());                     \
-//     return false;                               \
-//   }
-
-//   // Only Boolean operators implemented to date
-//   // DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD(String)
-  
-// #undef DEFINE_NODE_FUNC_GET_VALUE_PTR_METHOD
 
 } // namespace PLEXIL

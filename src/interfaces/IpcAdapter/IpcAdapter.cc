@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -23,8 +23,6 @@
  * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-#include "plexil-config.h"
 
 #include "AdapterExecInterface.hh"
 #include "AdapterConfiguration.hh"
@@ -60,17 +58,8 @@
 #include <string>
 #include <sstream>
 
-#if defined(HAVE_CSTDLIB)
 #include <cstdlib>
-#elif defined(HAVE_STDLIB_H)
-#include <stdlib.h>
-#endif
-
-#if defined(HAVE_CSTRING)
 #include <cstring>
-#elif defined(HAVE_STRING_H)
-#include <string.h>
-#endif
 
 namespace PLEXIL 
 {
@@ -780,7 +769,7 @@ namespace PLEXIL
 
     void sendPlannerUpdate(Update* update, AdapterExecInterface *intf)
     {
-      std::string const& name = update->getSource()->getNodeId();
+      std::string const& name = update->getNodeId();
       debugMsg("IpcAdapter:sendPlannerUpdate", " for \"" << name << "\"");
       std::vector<std::pair<std::string, Value> > args(update->getPairs().begin(),
                                                        update->getPairs().end());

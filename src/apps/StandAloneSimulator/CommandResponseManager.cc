@@ -80,7 +80,7 @@ public:
     if (cmdIndex == 0) 
       m_DefaultResponse.reset(resp);
     else
-      m_CmdIdToResponse.emplace(cmdIndex, resp);
+      m_CmdIdToResponse.emplace(cmdIndex, std::unique_ptr<GenericResponse>(resp));
   }
 
   const GenericResponse* getResponses(timeval& tDelay)

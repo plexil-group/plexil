@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,11 +31,7 @@
 
 #include <memory>  // std::move()
 
-#if defined(HAVE_CSTRING)
 #include <cstring> // memcpy()
-#elif defined(HAVE_STRING_H)
-#include <string.h> // memcpy()
-#endif
 
 namespace PLEXIL
 {

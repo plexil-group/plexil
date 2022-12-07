@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -51,6 +51,22 @@ namespace PLEXIL
   bool Operator::isPropagationSource() const
   {
     return false;
+  }
+
+  bool Operator::checkArgTypes(std::vector<ValueType> const & /* typeVec */) const
+  {
+    return true;
+  }
+
+  // Static helper for checkArgTypes()
+  bool Operator::allSameTypeOrUnknown(ValueType typ,
+                                      std::vector<ValueType> const &typeVec)
+  {
+    for (size_t i = 0; i < typeVec.size(); ++i) {
+      if (typeVec.at(i) != typ && typeVec.at(i) != UNKNOWN_TYPE)
+        return false;
+    }
+    return true;
   }
 
 #define DEFINE_OPERATOR_DEFAULT_METHODS(_rtype_) \

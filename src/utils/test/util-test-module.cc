@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -46,7 +46,7 @@
 */
 
 #include "util-test-module.hh"
-#include "Debug.hh"
+#include "Debug.hh" // includes plexil-config.h
 #include "Error.hh"
 #include "lifecycle-utils.h"
 #include "stricmp.h"
@@ -55,6 +55,9 @@
 #include "timespec-utils.hh"
 #include "timeval-utils.hh"
 
+#include <cassert>
+#include <cfloat>
+#include <cstring> // strcmp()
 #include <iomanip>
 #include <iostream>
 #include <fstream>
@@ -62,34 +65,16 @@
 #include <sstream>
 #include <typeinfo>
 
-#if defined(HAVE_CASSERT)
-#include <cassert>
-#elif defined(HAVE_ASSERT_H)
-#include <assert.h>
-#endif
-
-#if defined(HAVE_CFLOAT)
-#include <cfloat>
-#elif defined(HAVE_FLOAT_H)
-#include <float.h>
-#endif
-
-#if defined(HAVE_CSTRING)
-#include <cstring> // strcmp()
-#elif defined(HAVE_STRING_H)
-#include <string.h> // strcmp()
-#endif
-
 #ifdef HAVE_SYS_TIME_H 
-#include <sys/time.h>
+ #include <sys/time.h>
 #elif defined(__VXWORKS__)
-#include <time.h>
-#ifdef HAVE_SYS_TIMES_H
-#include <sys/times.h>
-#endif
-#ifdef HAVE_SYSLIB_H
-#include <sysLib.h> /* for sysClkRateGet() */
-#endif 
+ #include <time.h>
+ #ifdef HAVE_SYS_TIMES_H
+  #include <sys/times.h>
+ #endif
+ #ifdef HAVE_SYSLIB_H
+  #include <sysLib.h> /* for sysClkRateGet() */
+ #endif
 #endif
 
 // Tests not in this source file

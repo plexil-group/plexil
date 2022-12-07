@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,12 +25,16 @@
 
 package plexil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class UpdateNode extends PlexilTreeNode
+public class UpdateNode extends NodeTreeNode
 {
 
     //
@@ -53,35 +57,45 @@ public class UpdateNode extends PlexilTreeNode
 	}
 
     @Override
-	public void check(NodeContext context, CompilerState state)
+	protected void earlyCheckChildren(NodeContext parentContext, CompilerState state)
 	{
-		// ? TODO: check that tags are unique?
-		// Check expressions (every other child)
-		for (int i = 1; i < this.getChildCount(); i += 2) {
-			this.getChild(i).check(context, state);
+        super.earlyCheckChildren(parentContext, state); // NodeTreeNode method
+
+        List<String> tags = new ArrayList<String>();
+		for (int i = 0; i < this.getChildCount(); i += 2) {
+            // Check that tags are unique
+            String tag = this.getChild(i).getText();
+            if (tags.contains(tag)) {
+                state.addDiagnostic(this.getChild(i),
+                                    "Duplicate tag \"" + tag + "\" in Update node",
+                                    Severity.ERROR);
+            }
+            else {
+                tags.add(tag);
+            }
 		}
 	}
 
     @Override
-	protected void constructXML()
+	protected void constructXML(Document root)
 	{
-		super.constructXMLBase();
+		super.constructXMLBase(root);
 		m_xml.setAttribute("NodeType", "Update");
 
         // construct node body
-        Element nodeBody = CompilerState.newElement("NodeBody");
+        Element nodeBody = root.createElement("NodeBody");
         m_xml.appendChild(nodeBody);
 
 		// construct update
-        Element update = CompilerState.newElement("Update");
+        Element update = root.createElement("Update");
         nodeBody.appendChild(update);
 
 		for (int i = 0; i < this.getChildCount(); i += 2) {
-			Element pair = CompilerState.newElement("Pair");
-			Element name = CompilerState.newElement("Name");
-			name.appendChild(CompilerState.newTextNode(this.getChild(i).getText()));
+			Element pair = root.createElement("Pair");
+			Element name = root.createElement("Name");
+			name.appendChild(root.createTextNode(this.getChild(i).getText()));
 			pair.appendChild(name);
-			pair.appendChild(this.getChild(i + 1).getXML());
+			pair.appendChild(this.getChild(i + 1).getXML(root));
 			update.appendChild(pair);
 		}
 	}

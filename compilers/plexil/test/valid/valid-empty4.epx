@@ -1,1 +1,22 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/empty4.ple"><Node ColNo="2" LineNo="1" NodeType="Empty"><NodeId>DoNothing1</NodeId><VariableDeclarations><DeclareVariable ColNo="4" LineNo="3"><Name>name</Name><Type>String</Type><InitialValue><StringValue>Fred</StringValue></InitialValue></DeclareVariable><DeclareVariable ColNo="4" LineNo="4"><Name>MaxTemp</Name><Type>Real</Type><InitialValue><RealValue>100.0</RealValue></InitialValue></DeclareVariable></VariableDeclarations></Node></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/empty4.ple">
+   <Node ColNo="2" LineNo="1" NodeType="Empty">
+      <NodeId>DoNothing1</NodeId>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="4" LineNo="3">
+            <Name>name</Name>
+            <Type>String</Type>
+            <InitialValue>
+               <StringValue>Fred</StringValue>
+            </InitialValue>
+         </DeclareVariable>
+         <DeclareVariable ColNo="4" LineNo="4">
+            <Name>MaxTemp</Name>
+            <Type>Real</Type>
+            <InitialValue>
+               <RealValue>100.0</RealValue>
+            </InitialValue>
+         </DeclareVariable>
+      </VariableDeclarations>
+   </Node>
+</PlexilPlan>

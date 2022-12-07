@@ -1,6 +1,6 @@
 #! /bin/sh
 
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,19 +28,17 @@
 if [ -z "$PLEXIL_HOME" ]
 then
     # Derive PLEXIL_HOME from $0
-    PLEXIL_HOME="$(cd "$(dirname "$0")" ; cd ../.. ; pwd)"
+    PLEXIL_HOME="$(cd "$(dirname "$0")" && cd ../.. && pwd -P)"
+    export PLEXIL_HOME
 fi
 
-. "$PLEXIL_HOME"/scripts/plexil-setup.sh
-
-JARS_DIR="$PLEXIL_HOME"/jars
-ANTLR_RUNTIME_JAR=antlr-3.5.2-complete-no-st3.jar
-JDB="$(command -v jdb)"
+JARS_DIR="${PLEXIL_HOME}/jars"
+PLEXIL_COMPILER_JAR="${JARS_DIR}/PlexilCompiler.jar"
 if [ -n "$JAVA_HOME" ]
 then
-    JDB="$JAVA_HOME"/bin/jdb
+    JDB="${JAVA_HOME}/bin/jdb"
+else
+    JDB="$(command -v jdb)"
 fi
 
-exec "$JDB" \
-     -classpath "$JARS_DIR/PlexilCompiler.jar:$JARS_DIR/$ANTLR_RUNTIME_JAR:$JARS_DIR/saxon.jar" \
-     plexil.Compiler "$@"
+exec "$JDB" -jar "${PLEXIL_COMPILER_JAR}" "$@"

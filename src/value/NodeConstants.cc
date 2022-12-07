@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,10 +29,6 @@
 namespace PLEXIL
 {
 
-  /**
-   * @brief Table of state names.
-   * @note Must be in same order as NodeState enum.
-   */
   std::string const ALL_STATE_NAMES[] =
     {"NO_STATE",
      "INACTIVE",
@@ -44,10 +40,6 @@ namespace PLEXIL
      "FINISHING"
     };
 
-  /**
-   * @brief Table of outcome names.
-   * @note Must be in same order as NodeOutcome enum.
-   */
   std::string const ALL_OUTCOME_NAMES[] =
     {"NO_OUTCOME",
      "SUCCESS",
@@ -56,10 +48,6 @@ namespace PLEXIL
      "INTERRUPTED"
     };
 
-  /**
-   * @brief Table of failure type names.
-   * @note Must be in same order as FailureType enum.
-   */
   std::string const ALL_FAILURE_NAMES[] =
     {"NO_FAILURE",
      "PRE_CONDITION_FAILED",

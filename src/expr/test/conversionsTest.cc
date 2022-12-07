@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2019, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -557,10 +557,9 @@ static bool testRealToInteger()
   RealConstant toobig(3000000000.0);
   RealConstant toonegative(-3000000000.0);
 
-  RealToInteger rtiOp;
   RealVariable x;
 
-  Function *rti = makeFunction(&rtiOp, 1);
+  Function *rti = makeFunction(RealToInteger::instance(), 1);
   rti->setArgument(0, &x, false);
 
   Real rtemp;

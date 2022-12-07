@@ -1,35 +1,33 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
-*  All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*     * Redistributions of source code must retain the above copyright
-*       notice, this list of conditions and the following disclaimer.
-*     * Redistributions in binary form must reproduce the above copyright
-*       notice, this list of conditions and the following disclaimer in the
-*       documentation and/or other materials provided with the distribution.
-*     * Neither the name of the Universities Space Research Association nor the
-*       names of its contributors may be used to endorse or promote products
-*       derived from this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
-* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
-* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
+//  All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//     * Neither the name of the Universities Space Research Association nor the
+//       names of its contributors may be used to endorse or promote products
+//       derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+// OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+// TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+// USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "Comparisons.hh"
 
 #include "Array.hh"
 #include "Error.hh"
 #include "Function.hh"
-#include "PlexilTypeTraits.hh"
 
 namespace PLEXIL
 {
@@ -40,6 +38,11 @@ namespace PLEXIL
   IsKnown::IsKnown()
     : OperatorImpl<Boolean>("IsKnown")
   {
+  }
+
+  bool IsKnown::checkArgCount(size_t count) const
+  {
+    return count == 1;
   }
 
   bool IsKnown::operator()(bool &result, Expression const *arg) const
@@ -85,6 +88,30 @@ namespace PLEXIL
       return false; // some value unknown
     result = (*tempA == *tempB);
     return true;
+  }
+
+  //
+  // Helpers for Equal, NotEqual
+  //
+
+  // For argument type checking at load time
+  // Types may not be known if lookup not declared, computed lookup name, etc.
+  static bool canBeEqual(ValueType typeA, ValueType typeB)
+  {
+    // Identical types can always be compared for equality
+    if (typeA == typeB)
+      return true;
+
+    // Punt if either type unknown
+    if (typeA == UNKNOWN_TYPE || typeB == UNKNOWN_TYPE)
+      return true;
+
+    // Arithmetic types
+    if (isNumericType(typeA) && isNumericType(typeB))
+      return true;
+
+    // Anything else is an error.
+    return false;
   }
 
   static bool isEqual(Boolean &result, Expression const *argA, Expression const *argB)
@@ -136,6 +163,17 @@ namespace PLEXIL
   {
   }
 
+  bool Equal::checkArgCount(size_t count) const
+  {
+    return count == 2;
+  }
+
+  // Called at plan load time, so some expressions (e.g. Lookups) may not know their own types
+  bool Equal::checkArgTypes(std::vector<ValueType> const &typeVec) const
+  {
+    return canBeEqual(typeVec.at(0), typeVec.at(1));
+  }
+
   bool Equal::operator()(bool &result, Expression const *argA, Expression const *argB) const
   {
     return isEqual(result, argA, argB);
@@ -150,6 +188,16 @@ namespace PLEXIL
   {
   }
 
+  bool NotEqual::checkArgCount(size_t count) const
+  {
+    return count == 2;
+  }
+
+  bool NotEqual::checkArgTypes(std::vector<ValueType> const &typeVec) const
+  {
+    return canBeEqual(typeVec.at(0), typeVec.at(1));
+  }
+
   bool NotEqual::operator()(Boolean &result, Expression const *argA, Expression const *argB) const
   {
     Boolean tempResult;
@@ -160,6 +208,25 @@ namespace PLEXIL
   }
 
   //
+  // Helper function for checkArgTypes() methods
+  //
+  
+  static bool canBeCompared(ValueType typeA, ValueType typeB)
+  {
+    if (typeA == UNKNOWN_TYPE || typeB == UNKNOWN_TYPE)
+      return true;
+
+    if (isNumericType(typeA))
+      return isNumericType(typeB);
+
+    if (typeA == STRING_TYPE)
+      return typeB == STRING_TYPE;
+
+    // No ordering defined for other types in PLEXIL
+    return false;
+  }
+
+  //
   // GreaterThan
   //
 
@@ -167,6 +234,18 @@ namespace PLEXIL
   GreaterThan<T>::GreaterThan()
     : OperatorImpl<Boolean>("GT")
   {
+  }
+
+  template <typename T>
+  bool GreaterThan<T>::checkArgCount(size_t count) const
+  {
+    return count == 2;
+  }
+
+  template <typename T>
+  bool GreaterThan<T>::checkArgTypes(std::vector<ValueType> const &typeVec) const
+  {
+    return canBeCompared(typeVec.at(0), typeVec.at(1));
   }
 
   template <typename T>
@@ -192,6 +271,18 @@ namespace PLEXIL
   }
 
   template <typename T>
+  bool GreaterEqual<T>::checkArgCount(size_t count) const
+  {
+    return count == 2;
+  }
+
+  template <typename T>
+  bool GreaterEqual<T>::checkArgTypes(std::vector<ValueType> const &typeVec) const
+  {
+    return canBeCompared(typeVec.at(0), typeVec.at(1));
+  }
+
+  template <typename T>
   bool GreaterEqual<T>::operator()(bool &result,
                                    Expression const *argA,
                                    Expression const *argB) const
@@ -214,6 +305,18 @@ namespace PLEXIL
   }
 
   template <typename T>
+  bool LessThan<T>::checkArgCount(size_t count) const
+  {
+    return count == 2;
+  }
+
+  template <typename T>
+  bool LessThan<T>::checkArgTypes(std::vector<ValueType> const &typeVec) const
+  {
+    return canBeCompared(typeVec.at(0), typeVec.at(1));
+  }
+
+  template <typename T>
   bool LessThan<T>::operator()(bool &result,
                                Expression const *argA,
                                Expression const *argB) const
@@ -233,6 +336,18 @@ namespace PLEXIL
   LessEqual<T>::LessEqual()
     : OperatorImpl<Boolean>("LEQ")
   {
+  }
+
+  template <typename T>
+  bool LessEqual<T>::checkArgCount(size_t count) const
+  {
+    return count == 2;
+  }
+
+  template <typename T>
+  bool LessEqual<T>::checkArgTypes(std::vector<ValueType> const &typeVec) const
+  {
+    return canBeCompared(typeVec.at(0), typeVec.at(1));
   }
 
   template <typename T>

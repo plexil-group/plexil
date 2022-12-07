@@ -1,1 +1,212 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/DriveToTarget.ple"><GlobalDeclarations ColNo="0" LineNo="3"><CommandDeclaration ColNo="0" LineNo="3"><Name>rover_drive</Name><Parameter><Type>Integer</Type></Parameter></CommandDeclaration><CommandDeclaration ColNo="0" LineNo="4"><Name>rover_stop</Name></CommandDeclaration><CommandDeclaration ColNo="0" LineNo="5"><Name>take_navcam</Name></CommandDeclaration><CommandDeclaration ColNo="0" LineNo="6"><Name>take_pancam</Name></CommandDeclaration><CommandDeclaration ColNo="0" LineNo="7"><Name>turn_on_heater</Name></CommandDeclaration><StateDeclaration ColNo="5" LineNo="9"><Name>time</Name><Return><Name>_return_0</Name><Type>Real</Type></Return></StateDeclaration><StateDeclaration ColNo="5" LineNo="10"><Name>temperature</Name><Return><Name>_return_0</Name><Type>Real</Type></Return></StateDeclaration><StateDeclaration ColNo="8" LineNo="11"><Name>target_in_view</Name><Return><Name>_return_0</Name><Type>Boolean</Type></Return></StateDeclaration></GlobalDeclarations><Concurrence ColNo="0" LineNo="14"><NodeId>DriveToTarget</NodeId><VariableDeclarations><DeclareVariable ColNo="2" LineNo="16"><Name>drive_done</Name><Type>Boolean</Type><InitialValue><BooleanValue>false</BooleanValue></InitialValue></DeclareVariable><DeclareVariable ColNo="2" LineNo="16"><Name>timeout</Name><Type>Boolean</Type><InitialValue><BooleanValue>false</BooleanValue></InitialValue></DeclareVariable></VariableDeclarations><Node ColNo="2" LineNo="17" NodeType="Command"><NodeId>Drive</NodeId><NodeBody><Command ColNo="10" LineNo="17"><Name><StringValue>rover_drive</StringValue></Name><Arguments ColNo="22" LineNo="17"><IntegerValue>10</IntegerValue></Arguments></Command></NodeBody></Node><Sequence ColNo="2" LineNo="18"><NodeId>StopForTimeout</NodeId><StartCondition ColNo="4" LineNo="20"><GE ColNo="32" LineNo="20"><Lookup ColNo="19" LineNo="20"><Name><StringValue>time</StringValue></Name></Lookup><IntegerValue>10</IntegerValue></GE></StartCondition><Concurrence ColNo="4" LineNo="21"><NodeId>Concurrence__0</NodeId><Node ColNo="6" LineNo="22" NodeType="Command"><NodeId>Stop</NodeId><NodeBody><Command ColNo="12" LineNo="22"><Name><StringValue>rover_stop</StringValue></Name></Command></NodeBody></Node><Node ColNo="6" LineNo="23" NodeType="Assignment"><NodeId>SetTimeoutFlag</NodeId><NodeBody><Assignment ColNo="22" LineNo="23"><BooleanVariable>timeout</BooleanVariable><BooleanRHS><BooleanValue>true</BooleanValue></BooleanRHS></Assignment></NodeBody></Node></Concurrence></Sequence><Concurrence ColNo="2" LineNo="27"><NodeId>StopForTarget</NodeId><StartCondition ColNo="4" LineNo="29"><Lookup ColNo="19" LineNo="29"><Name><StringValue>target_in_view</StringValue></Name></Lookup></StartCondition><SkipCondition ColNo="4" LineNo="30"><BooleanVariable>timeout</BooleanVariable></SkipCondition><Node ColNo="4" LineNo="31" NodeType="Command"><NodeId>Stop</NodeId><NodeBody><Command ColNo="10" LineNo="31"><Name><StringValue>rover_stop</StringValue></Name></Command></NodeBody></Node><Node ColNo="4" LineNo="32" NodeType="Assignment"><NodeId>SetDriveFlag</NodeId><NodeBody><Assignment ColNo="18" LineNo="32"><BooleanVariable>drive_done</BooleanVariable><BooleanRHS><BooleanValue>true</BooleanValue></BooleanRHS></Assignment></NodeBody></Node></Concurrence><Node ColNo="2" LineNo="35" NodeType="Command"><NodeId>TakeNavcam</NodeId><StartCondition ColNo="4" LineNo="37"><BooleanVariable>timeout</BooleanVariable></StartCondition><SkipCondition ColNo="4" LineNo="38"><BooleanVariable>drive_done</BooleanVariable></SkipCondition><NodeBody><Command ColNo="4" LineNo="39"><Name><StringValue>take_navcam</StringValue></Name></Command></NodeBody></Node><Node ColNo="2" LineNo="42" NodeType="Command"><NodeId>TakePancam</NodeId><StartCondition ColNo="4" LineNo="44"><BooleanVariable>drive_done</BooleanVariable></StartCondition><SkipCondition ColNo="4" LineNo="45"><BooleanVariable>timeout</BooleanVariable></SkipCondition><NodeBody><Command ColNo="4" LineNo="46"><Name><StringValue>take_pancam</StringValue></Name></Command></NodeBody></Node><Node ColNo="2" LineNo="49" NodeType="Command"><NodeId>Heater</NodeId><SkipCondition ColNo="4" LineNo="51"><BooleanVariable>timeout</BooleanVariable></SkipCondition><StartCondition ColNo="4" LineNo="52"><LT ColNo="39" LineNo="52"><Lookup ColNo="19" LineNo="52"><Name><StringValue>temperature</StringValue></Name></Lookup><IntegerValue>0</IntegerValue></LT></StartCondition><EndCondition ColNo="4" LineNo="53"><GE ColNo="37" LineNo="53"><Lookup ColNo="17" LineNo="53"><Name><StringValue>temperature</StringValue></Name></Lookup><IntegerValue>10</IntegerValue></GE></EndCondition><NodeBody><Command ColNo="4" LineNo="54"><Name><StringValue>turn_on_heater</StringValue></Name></Command></NodeBody></Node></Concurrence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/DriveToTarget.ple">
+   <GlobalDeclarations ColNo="0" LineNo="3">
+      <CommandDeclaration ColNo="0" LineNo="3">
+         <Name>rover_drive</Name>
+         <Parameter>
+            <Type>Integer</Type>
+         </Parameter>
+      </CommandDeclaration>
+      <CommandDeclaration ColNo="0" LineNo="4">
+         <Name>rover_stop</Name>
+      </CommandDeclaration>
+      <CommandDeclaration ColNo="0" LineNo="5">
+         <Name>take_navcam</Name>
+      </CommandDeclaration>
+      <CommandDeclaration ColNo="0" LineNo="6">
+         <Name>take_pancam</Name>
+      </CommandDeclaration>
+      <CommandDeclaration ColNo="0" LineNo="7">
+         <Name>turn_on_heater</Name>
+      </CommandDeclaration>
+      <StateDeclaration ColNo="5" LineNo="9">
+         <Name>time</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Real</Type>
+         </Return>
+      </StateDeclaration>
+      <StateDeclaration ColNo="5" LineNo="10">
+         <Name>temperature</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Real</Type>
+         </Return>
+      </StateDeclaration>
+      <StateDeclaration ColNo="8" LineNo="11">
+         <Name>target_in_view</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Boolean</Type>
+         </Return>
+      </StateDeclaration>
+   </GlobalDeclarations>
+   <Concurrence ColNo="0" LineNo="14">
+      <NodeId>DriveToTarget</NodeId>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="2" LineNo="16">
+            <Name>drive_done</Name>
+            <Type>Boolean</Type>
+            <InitialValue>
+               <BooleanValue>false</BooleanValue>
+            </InitialValue>
+         </DeclareVariable>
+         <DeclareVariable ColNo="2" LineNo="16">
+            <Name>timeout</Name>
+            <Type>Boolean</Type>
+            <InitialValue>
+               <BooleanValue>false</BooleanValue>
+            </InitialValue>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <Node ColNo="2" LineNo="17" NodeType="Command">
+         <NodeId>Drive</NodeId>
+         <NodeBody>
+            <Command ColNo="10" LineNo="17">
+               <Name>
+                  <StringValue>rover_drive</StringValue>
+               </Name>
+               <Arguments ColNo="22" LineNo="17">
+                  <IntegerValue>10</IntegerValue>
+               </Arguments>
+            </Command>
+         </NodeBody>
+      </Node>
+      <Sequence ColNo="2" LineNo="18">
+         <NodeId>StopForTimeout</NodeId>
+         <StartCondition ColNo="4" LineNo="20">
+            <GE ColNo="32" LineNo="20">
+               <Lookup ColNo="19" LineNo="20">
+                  <Name>
+                     <StringValue>time</StringValue>
+                  </Name>
+               </Lookup>
+               <IntegerValue>10</IntegerValue>
+            </GE>
+         </StartCondition>
+         <Concurrence ColNo="4" LineNo="21">
+            <NodeId generated="1">Concurrence__0</NodeId>
+            <Node ColNo="6" LineNo="22" NodeType="Command">
+               <NodeId>Stop</NodeId>
+               <NodeBody>
+                  <Command ColNo="12" LineNo="22">
+                     <Name>
+                        <StringValue>rover_stop</StringValue>
+                     </Name>
+                  </Command>
+               </NodeBody>
+            </Node>
+            <Node ColNo="6" LineNo="23" NodeType="Assignment">
+               <NodeId>SetTimeoutFlag</NodeId>
+               <NodeBody>
+                  <Assignment ColNo="22" LineNo="23">
+                     <BooleanVariable>timeout</BooleanVariable>
+                     <BooleanRHS>
+                        <BooleanValue>true</BooleanValue>
+                     </BooleanRHS>
+                  </Assignment>
+               </NodeBody>
+            </Node>
+         </Concurrence>
+      </Sequence>
+      <Concurrence ColNo="2" LineNo="27">
+         <NodeId>StopForTarget</NodeId>
+         <StartCondition ColNo="4" LineNo="29">
+            <Lookup ColNo="19" LineNo="29">
+               <Name>
+                  <StringValue>target_in_view</StringValue>
+               </Name>
+            </Lookup>
+         </StartCondition>
+         <SkipCondition ColNo="4" LineNo="30">
+            <BooleanVariable>timeout</BooleanVariable>
+         </SkipCondition>
+         <Node ColNo="4" LineNo="31" NodeType="Command">
+            <NodeId>Stop</NodeId>
+            <NodeBody>
+               <Command ColNo="10" LineNo="31">
+                  <Name>
+                     <StringValue>rover_stop</StringValue>
+                  </Name>
+               </Command>
+            </NodeBody>
+         </Node>
+         <Node ColNo="4" LineNo="32" NodeType="Assignment">
+            <NodeId>SetDriveFlag</NodeId>
+            <NodeBody>
+               <Assignment ColNo="18" LineNo="32">
+                  <BooleanVariable>drive_done</BooleanVariable>
+                  <BooleanRHS>
+                     <BooleanValue>true</BooleanValue>
+                  </BooleanRHS>
+               </Assignment>
+            </NodeBody>
+         </Node>
+      </Concurrence>
+      <Node ColNo="2" LineNo="35" NodeType="Command">
+         <NodeId>TakeNavcam</NodeId>
+         <StartCondition ColNo="4" LineNo="37">
+            <BooleanVariable>timeout</BooleanVariable>
+         </StartCondition>
+         <SkipCondition ColNo="4" LineNo="38">
+            <BooleanVariable>drive_done</BooleanVariable>
+         </SkipCondition>
+         <NodeBody>
+            <Command ColNo="4" LineNo="39">
+               <Name>
+                  <StringValue>take_navcam</StringValue>
+               </Name>
+            </Command>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="42" NodeType="Command">
+         <NodeId>TakePancam</NodeId>
+         <StartCondition ColNo="4" LineNo="44">
+            <BooleanVariable>drive_done</BooleanVariable>
+         </StartCondition>
+         <SkipCondition ColNo="4" LineNo="45">
+            <BooleanVariable>timeout</BooleanVariable>
+         </SkipCondition>
+         <NodeBody>
+            <Command ColNo="4" LineNo="46">
+               <Name>
+                  <StringValue>take_pancam</StringValue>
+               </Name>
+            </Command>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="49" NodeType="Command">
+         <NodeId>Heater</NodeId>
+         <SkipCondition ColNo="4" LineNo="51">
+            <BooleanVariable>timeout</BooleanVariable>
+         </SkipCondition>
+         <StartCondition ColNo="4" LineNo="52">
+            <LT ColNo="39" LineNo="52">
+               <Lookup ColNo="19" LineNo="52">
+                  <Name>
+                     <StringValue>temperature</StringValue>
+                  </Name>
+               </Lookup>
+               <IntegerValue>0</IntegerValue>
+            </LT>
+         </StartCondition>
+         <EndCondition ColNo="4" LineNo="53">
+            <GE ColNo="37" LineNo="53">
+               <Lookup ColNo="17" LineNo="53">
+                  <Name>
+                     <StringValue>temperature</StringValue>
+                  </Name>
+               </Lookup>
+               <IntegerValue>10</IntegerValue>
+            </GE>
+         </EndCondition>
+         <NodeBody>
+            <Command ColNo="4" LineNo="54">
+               <Name>
+                  <StringValue>turn_on_heater</StringValue>
+               </Name>
+            </Command>
+         </NodeBody>
+      </Node>
+   </Concurrence>
+</PlexilPlan>

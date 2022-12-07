@@ -1,4 +1,4 @@
-## Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+## Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 ##  All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -31,18 +31,22 @@ add_library(PlanDebugListener ${PlexilExec_SHARED_OR_STATIC}
 install(TARGETS PlanDebugListener
   DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
+if(PlexilExec_SHLIB_INSTALL_RPATH)
+  set_target_properties(PlanDebugListener
+    PROPERTIES INSTALL_RPATH ${PlexilExec_SHLIB_INSTALL_RPATH})
+endif()
+
 target_include_directories(PlanDebugListener PRIVATE
   ${PlexilExec_SOURCE_DIR}/utils
   ${PlexilExec_SOURCE_DIR}/value
   ${PlexilExec_SOURCE_DIR}/expr
   ${PlexilExec_SOURCE_DIR}/intfc
   ${PlexilExec_SOURCE_DIR}/exec
-  ${pugixml_SOURCE_DIR}
+  ${PlexilExec_SOURCE_DIR}/third-party/pugixml/src
   ${PlexilExec_SOURCE_DIR}/xml-parser
   ${PlexilExec_SOURCE_DIR}/app-framework
   )
 
 target_link_libraries(PlanDebugListener PUBLIC
-  PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec
-  -L${pugixml_LIB_DIR} -lpugixml
-  PlexilXmlParser PlexilAppFramework)
+  PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec pugixml PlexilXmlParser
+  PlexilAppFramework)

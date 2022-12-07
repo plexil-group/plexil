@@ -6,25 +6,28 @@ SimpleTask: Concurrence
 {
   C1: {
     Integer returnValue = -1;
+    Priority 20;
     EndCondition returnValue == 10;
     PostCondition C1.command_handle == COMMAND_SUCCESS;
-    Resource Name = "sys_memory", LowerBound = 0.8, UpperBound = 0.8, Priority = 20;
+    Resource Name = "sys_memory", UpperBound = 0.8;
     returnValue = c1();
   }
 
   C2: {
     Integer mem_priority = 30;
     Integer returnValue = -1;
+    Priority 30;
     PostCondition C2.command_handle == COMMAND_SUCCESS;
     EndCondition returnValue == 10;
-    Resource Name = "sys_memory", LowerBound = 0.3, UpperBound = 0.3, Priority = 30;
+    Resource Name = "sys_memory", UpperBound = 0.3;
     returnValue = c2();
   }
   C3: {
     Integer returnValue = -1;
+    Priority 40;
     PostCondition C3.command_handle == COMMAND_SUCCESS;
     EndCondition returnValue == 10;
-    Resource Name = "sys_memory", LowerBound = -0.1, UpperBound = -0.1, Priority = 40;
+    Resource Name = "sys_memory", UpperBound = -0.1;
     returnValue = c3();
   }
 }

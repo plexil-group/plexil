@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,14 +25,26 @@
 
 lib_LTLIBRARIES = libLuvListener.la
 
-libLuvListener_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/interfaces/Sockets \
- -I@top_srcdir@/third-party/pugixml/src \
- -I@top_srcdir@/app-framework \
- -I@top_srcdir@/exec -I@top_srcdir@/intfc -I@top_srcdir@/expr \
- -I@top_srcdir@/value -I@top_srcdir@/utils
+libLuvListener_la_SOURCES = LuvFormat.cc LuvListener.cc
 
 include_HEADERS = LuvFormat.hh LuvListener.hh
 
-libLuvListener_la_SOURCES = LuvFormat.cc LuvListener.cc
+libLuvListener_la_CPPFLAGS = $(AM_CPPFLAGS) \
+ -I@top_srcdir@/interfaces/Sockets \
+ -I@top_srcdir@/app-framework \
+ -I@top_srcdir@/third-party/pugixml/src \
+ -I@top_srcdir@/exec \
+ -I@top_srcdir@/intfc \
+ -I@top_srcdir@/expr \
+ -I@top_srcdir@/value \
+ -I@top_srcdir@/utils
 
-# TODO: libraries to link against (?)
+libLuvListener_la_LIBADD = @top_builddir@/interfaces/Sockets/libPlexilSockets.la \
+ @top_builddir@/app-framework/libPlexilAppFramework.la \
+ @top_builddir@/xml-parser/libPlexilXmlParser.la \
+ @top_builddir@/third-party/pugixml/src/libpugixml.la \
+ @top_builddir@/exec/libPlexilExec.la \
+ @top_builddir@/intfc/libPlexilIntfc.la \
+ @top_builddir@/expr/libPlexilExpr.la \
+ @top_builddir@/value/libPlexilValue.la \
+ @top_builddir@/utils/libPlexilUtils.la

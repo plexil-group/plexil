@@ -34,6 +34,7 @@
 #include "AdapterFactory.hh"
 #include "Command.hh"
 #include "CommandHandler.hh"
+#include "Error.hh"
 #include "InterfaceAdapter.hh"
 #include "Message.hh"
 #include "MessageAdapter.hh"

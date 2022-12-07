@@ -1,1 +1,28 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/invariantFail1.ple"><Sequence ColNo="0" LineNo="1"><NodeId>BLOCK__0</NodeId><PostCondition ColNo="2" LineNo="2"><AND ColNo="31" LineNo="2"><InvariantFailed ColNo="7" LineNo="2"><NodeId>A</NodeId></InvariantFailed><InvariantFailed ColNo="34" LineNo="2"><NodeRef dir="child">B</NodeRef></InvariantFailed></AND></PostCondition><Node ColNo="2" LineNo="3" NodeType="Empty"><NodeId>A</NodeId><InvariantCondition ColNo="7" LineNo="3"><BooleanValue>false</BooleanValue></InvariantCondition></Node><Node ColNo="2" LineNo="4" NodeType="Empty"><NodeId>B</NodeId><InvariantCondition ColNo="6" LineNo="4"><BooleanValue>false</BooleanValue></InvariantCondition></Node></Sequence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/invariantFail1.ple">
+   <Sequence ColNo="0" LineNo="1">
+      <NodeId generated="1">BLOCK__0</NodeId>
+      <PostCondition ColNo="2" LineNo="2">
+         <AND ColNo="31" LineNo="2">
+            <InvariantFailed ColNo="7" LineNo="2">
+               <NodeId>A</NodeId>
+            </InvariantFailed>
+            <InvariantFailed ColNo="34" LineNo="2">
+               <NodeRef dir="child">B</NodeRef>
+            </InvariantFailed>
+         </AND>
+      </PostCondition>
+      <Node ColNo="2" LineNo="3" NodeType="Empty">
+         <NodeId>A</NodeId>
+         <InvariantCondition ColNo="7" LineNo="3">
+            <BooleanValue>false</BooleanValue>
+         </InvariantCondition>
+      </Node>
+      <Node ColNo="2" LineNo="4" NodeType="Empty">
+         <NodeId>B</NodeId>
+         <InvariantCondition ColNo="6" LineNo="4">
+            <BooleanValue>false</BooleanValue>
+         </InvariantCondition>
+      </Node>
+   </Sequence>
+</PlexilPlan>

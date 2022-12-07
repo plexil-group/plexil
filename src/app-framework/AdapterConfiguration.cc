@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,10 +25,10 @@
 
 #include "AdapterConfiguration.hh"
 
+#include "plexil-config.h"
 #include "AdapterExecInterface.hh"
 #include "AdapterFactory.hh"
 #include "Command.hh"
-#include "commandUtils.hh"
 #include "Debug.hh"
 #include "DynamicLoader.h"
 #include "ExecListenerHub.hh"
@@ -82,11 +82,7 @@
 
 #include <map>
 
-#if defined(HAVE_CSTRING)
 #include <cstring>
-#elif defined(HAVE_STRING_H)
-#include <string.h>
-#endif
 
 namespace PLEXIL {
 
@@ -577,7 +573,7 @@ namespace PLEXIL {
       }
       debugMsg("AdapterConfiguration:updatePlanner",
                " sending planner update for node "
-               << update->getSource()->getNodeId());
+               << update->getNodeId());
       (handler)(update, m_manager);
     }
 

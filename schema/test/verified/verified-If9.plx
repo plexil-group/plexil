@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <GlobalDeclarations>
     <StateDeclaration>
@@ -42,7 +42,7 @@
               </EQNumeric>
             </NOT>
           </SkipCondition>
-          <NodeId generated="1">ep2cp_Sequence_d13e50</NodeId>
+          <NodeId generated="1">ep2cp_Sequence_d14e50</NodeId>
           <InvariantCondition>
             <NoChildFailed>
               <NodeRef dir="self"/>

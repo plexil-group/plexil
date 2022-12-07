@@ -1,1 +1,84 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/Sum.ple"><GlobalDeclarations ColNo="0" LineNo="3"><CommandDeclaration ColNo="0" LineNo="3"><Name>pprint</Name><AnyParameters/></CommandDeclaration></GlobalDeclarations><Sequence ColNo="0" LineNo="5"><NodeId>Sum</NodeId><VariableDeclarations><DeclareVariable ColNo="2" LineNo="6"><Name>n</Name><Type>Integer</Type><InitialValue><IntegerValue>10</IntegerValue></InitialValue></DeclareVariable><DeclareVariable ColNo="2" LineNo="7"><Name>sum</Name><Type>Integer</Type><InitialValue><IntegerValue>0</IntegerValue></InitialValue></DeclareVariable></VariableDeclarations><For ColNo="2" LineNo="8"><NodeId>for__0</NodeId><LoopVariable><DeclareVariable ColNo="7" LineNo="8"><Name>i</Name><Type>Integer</Type><InitialValue><IntegerValue>0</IntegerValue></InitialValue></DeclareVariable></LoopVariable><Condition><LE ColNo="24" LineNo="8"><IntegerVariable>i</IntegerVariable><IntegerVariable>n</IntegerVariable></LE></Condition><LoopVariableUpdate><ADD ColNo="32" LineNo="8"><IntegerVariable>i</IntegerVariable><IntegerValue>1</IntegerValue></ADD></LoopVariableUpdate><Action><Node ColNo="4" LineNo="9" NodeType="Assignment"><NodeId>ASSIGNMENT__2</NodeId><NodeBody><Assignment ColNo="4" LineNo="9"><IntegerVariable>sum</IntegerVariable><NumericRHS><ADD ColNo="14" LineNo="9"><IntegerVariable>sum</IntegerVariable><IntegerVariable>i</IntegerVariable></ADD></NumericRHS></Assignment></NodeBody></Node></Action></For><Node ColNo="2" LineNo="11" NodeType="Command"><NodeId>COMMAND__3</NodeId><NodeBody><Command ColNo="2" LineNo="11"><Name><StringValue>pprint</StringValue></Name><Arguments ColNo="10" LineNo="11"><StringValue>Sum up to </StringValue><IntegerVariable>n</IntegerVariable><StringValue> = </StringValue><IntegerVariable>sum</IntegerVariable></Arguments></Command></NodeBody></Node></Sequence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/Sum.ple">
+   <GlobalDeclarations ColNo="0" LineNo="3">
+      <CommandDeclaration ColNo="0" LineNo="3">
+         <Name>pprint</Name>
+         <AnyParameters/>
+      </CommandDeclaration>
+   </GlobalDeclarations>
+   <Sequence ColNo="0" LineNo="5">
+      <NodeId>Sum</NodeId>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="2" LineNo="6">
+            <Name>n</Name>
+            <Type>Integer</Type>
+            <InitialValue>
+               <IntegerValue>10</IntegerValue>
+            </InitialValue>
+         </DeclareVariable>
+         <DeclareVariable ColNo="2" LineNo="7">
+            <Name>sum</Name>
+            <Type>Integer</Type>
+            <InitialValue>
+               <IntegerValue>0</IntegerValue>
+            </InitialValue>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <For ColNo="2" LineNo="8">
+         <NodeId generated="1">for__0</NodeId>
+         <LoopVariable>
+            <DeclareVariable ColNo="7" LineNo="8">
+               <Name>i</Name>
+               <Type>Integer</Type>
+               <InitialValue>
+                  <IntegerValue>0</IntegerValue>
+               </InitialValue>
+            </DeclareVariable>
+         </LoopVariable>
+         <Condition>
+            <LE ColNo="24" LineNo="8">
+               <IntegerVariable>i</IntegerVariable>
+               <IntegerVariable>n</IntegerVariable>
+            </LE>
+         </Condition>
+         <LoopVariableUpdate>
+            <ADD ColNo="32" LineNo="8">
+               <IntegerVariable>i</IntegerVariable>
+               <IntegerValue>1</IntegerValue>
+            </ADD>
+         </LoopVariableUpdate>
+         <Action>
+            <Node ColNo="4" LineNo="9" NodeType="Assignment">
+               <NodeId generated="1">ASSIGNMENT__1</NodeId>
+               <NodeBody>
+                  <Assignment ColNo="4" LineNo="9">
+                     <IntegerVariable>sum</IntegerVariable>
+                     <NumericRHS>
+                        <ADD ColNo="14" LineNo="9">
+                           <IntegerVariable>sum</IntegerVariable>
+                           <IntegerVariable>i</IntegerVariable>
+                        </ADD>
+                     </NumericRHS>
+                  </Assignment>
+               </NodeBody>
+            </Node>
+         </Action>
+      </For>
+      <Node ColNo="2" LineNo="11" NodeType="Command">
+         <NodeId generated="1">COMMAND__2</NodeId>
+         <NodeBody>
+            <Command ColNo="2" LineNo="11">
+               <Name>
+                  <StringValue>pprint</StringValue>
+               </Name>
+               <Arguments ColNo="10" LineNo="11">
+                  <StringValue>Sum up to </StringValue>
+                  <IntegerVariable>n</IntegerVariable>
+                  <StringValue> = </StringValue>
+                  <IntegerVariable>sum</IntegerVariable>
+               </Arguments>
+            </Command>
+         </NodeBody>
+      </Node>
+   </Sequence>
+</PlexilPlan>

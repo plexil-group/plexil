@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,30 +30,33 @@ lib_LTLIBRARIES = libPlexilExec.la
 libPlexilExec_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/intfc \
  -I@top_srcdir@/expr -I@top_srcdir@/value -I@top_srcdir@/utils
 
-include_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
- ExecListenerBase.hh InterfaceSchema.hh \
- LibraryCallNode.hh ListNode.hh Mutex.hh Node.hh NodeImpl.hh NodeFactory.hh \
- NodeFunction.hh NodeOperator.hh NodeOperatorImpl.hh \
- NodeOperators.hh NodeTimepointValue.hh NodeTransition.hh \
- NodeVariableMap.hh NodeVariables.hh \
- PlexilExec.hh PlexilNodeType.hh UpdateNode.hh plan-utils.hh
+# Public interfaces, i.e. those a PLEXIL application developer may need for interfacing.
+include_HEADERS = ExecListenerBase.hh Node.hh NodeImpl.hh NodeTransition.hh \
+ NodeVariables.hh PlexilExec.hh PlexilNodeType.hh plan-utils.hh
+
+# Implementation details which don't need to be publicly advertised
+noinst_HEADERS = Assignment.hh AssignmentNode.hh CommandNode.hh \
+ LibraryCallNode.hh ListNode.hh Mutex.hh NodeFactory.hh NodeFunction.hh \
+ NodeOperator.hh NodeOperatorImpl.hh NodeOperators.hh NodeTimepointValue.hh \
+ NodeVariableMap.hh UpdateImpl.hh UpdateNode.hh
 
 libPlexilExec_la_SOURCES = Assignment.cc AssignmentNode.cc CommandNode.cc \
- InterfaceSchema.cc LibraryCallNode.cc \
- ListNode.cc Mutex.cc NodeImpl.cc NodeFactory.cc \
+ LibraryCallNode.cc ListNode.cc Mutex.cc NodeImpl.cc NodeFactory.cc \
  NodeFunction.cc NodeOperator.cc NodeOperatorImpl.cc \
  NodeOperators.cc NodeTimepointValue.cc NodeVariableMap.cc NodeVariables.cc \
  PlexilExec.cc PlexilNodeType.cc UpdateNode.cc plan-utils.cc
 
+libPlexilExec_la_LIBADD = @top_builddir@/intfc/libPlexilIntfc.la \
+ @top_builddir@/expr/libPlexilExpr.la \
+ @top_builddir@/value/libPlexilValue.la \
+ @top_builddir@/utils/libPlexilUtils.la
+
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/exec-module-tests
-  noinst_HEADERS =
+  noinst_HEADERS +=
   test_exec_module_tests_SOURCES = test/exec-test-module.cc test/module-tests.cc
-  test_exec_module_tests_CPPFLAGS = -I@top_srcdir@/intfc -I@top_srcdir@/expr \
- -I@top_srcdir@/value -I@top_srcdir@/utils
-  test_exec_module_tests_LDADD = libPlexilExec.la @top_srcdir@/intfc/libPlexilIntfc.la \
- @top_srcdir@/expr/libPlexilExpr.la @top_srcdir@/value/libPlexilValue.la \
- @top_srcdir@/utils/libPlexilUtils.la
+  test_exec_module_tests_CPPFLAGS = $(libPlexilExec_la_CPPFLAGS)
+  test_exec_module_tests_LDADD = libPlexilExec.la $(libPlexilExec_la_LIBADD)
 if JNI_OPT
     noinst_HEADERS += test/jni-adapter.hh
 	test_exec_module_tests_SOURCES += test/jni-adapter.cc

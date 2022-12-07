@@ -1,4 +1,4 @@
-## Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+## Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 ##  All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -23,17 +23,22 @@
 ## TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 ## USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Interface module subproject of PLEXIL_EXEC
+# External interface module of PLEXIL_EXEC
 
 add_library(PlexilIntfc ${PlexilExec_SHARED_OR_STATIC}
   CachedValue.cc CachedValueImpl.cc CommandFunction.cc CommandHandleVariable.cc
-  CommandImpl.cc CommandOperator.cc CommandOperatorImpl.cc commandUtils.cc
+  CommandImpl.cc
   Dispatcher.cc ExprVec.cc InterfaceError.cc Lookup.cc QueueEntry.cc
   ResourceArbiterInterface.cc State.cc StateCacheEntry.cc StateCache.cc
-  Update.cc)
+  )
 
 install(TARGETS PlexilIntfc
   DESTINATION ${CMAKE_INSTALL_LIBDIR})
+
+if(PlexilExec_SHLIB_INSTALL_RPATH)
+  set_target_properties(PlexilIntfc
+    PROPERTIES INSTALL_RPATH ${PlexilExec_SHLIB_INSTALL_RPATH})
+endif()
 
 include_directories(
   ${PlexilExec_SOURCE_DIR}/utils
@@ -44,12 +49,11 @@ include_directories(
 target_link_libraries(PlexilIntfc PUBLIC
   PlexilUtils PlexilValue PlexilExpr)
 
-# Public includes
+# Public APIs
 install(FILES 
-  Command.hh CommandFunction.hh CommandHandleVariable.hh CommandImpl.hh
-  commandUtils.hh Dispatcher.hh ExprVec.hh InputQueue.hh
-  InterfaceError.hh Lookup.hh LookupReceiver.hh Message.hh QueueEntry.hh
-  ResourceArbiterInterface.hh State.hh StateCache.hh Update.hh
+  Command.hh Dispatcher.hh ExprVec.hh InputQueue.hh InterfaceError.hh Lookup.hh
+  LookupReceiver.hh Message.hh QueueEntry.hh ResourceArbiterInterface.hh
+  State.hh StateCache.hh Update.hh
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 if(MODULE_TESTS)

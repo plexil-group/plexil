@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,8 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
+import org.w3c.dom.Document;
+
 public class PriorityNode extends PlexilTreeNode
 {
     public PriorityNode(Token t)
@@ -45,9 +47,9 @@ public class PriorityNode extends PlexilTreeNode
 		return new PriorityNode(this);
 	}
 
-    public void check(NodeContext context, CompilerState state)
+    public void earlyCheck(NodeContext context, CompilerState state)
     {
-        super.check (context, state);
+        super.earlyCheck(context, state);
         int p = Integer.parseInt (this.getChild(0).getText());
         if (p < 0) {
             state.addDiagnostic(this,
@@ -62,10 +64,10 @@ public class PriorityNode extends PlexilTreeNode
     }
 
     @Override
-    protected void constructXML()
+    protected void constructXML(Document root)
     {
-        super.constructXMLBase();
-        m_xml.appendChild(CompilerState.newTextNode(this.getChild(0).getText()));
+        super.constructXMLBase(root);
+        m_xml.appendChild(root.createTextNode(this.getChild(0).getText()));
     }
 
     public String getXMLElementName()

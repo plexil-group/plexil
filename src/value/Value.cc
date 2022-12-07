@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,16 +27,10 @@
 #include "Value.hh"
 
 #include "ArrayImpl.hh"
-#include "CommandHandle.hh"
-#include "NodeConstants.hh"
 #include "PlanError.hh"
 
 namespace PLEXIL
 {
-
-  // Explicit instantiation of templates used in this class
-  // template class std::unique_ptr<Array>;
-  // template class std::unique_ptr<String>;
 
   //
   // Constructors
@@ -56,7 +50,11 @@ namespace PLEXIL
     if (!m_known)
       return;
     switch (m_type) {
-      // Copy the original's value
+      // Unknown - do nothing
+    case UNKNOWN_TYPE:
+      return;
+
+      // Immediate data - copy it
     case BOOLEAN_TYPE:
       booleanValue = other.booleanValue;
       break;
@@ -85,10 +83,12 @@ namespace PLEXIL
       commandHandleValue = other.commandHandleValue;
       break;
 
+      // Copy the actual value
     case STRING_TYPE:
       new (&stringValue) std::unique_ptr<String>(new String(*other.stringValue));
       break;
 
+      // Copy the entire array
     case BOOLEAN_ARRAY_TYPE:
     case INTEGER_ARRAY_TYPE:
     case REAL_ARRAY_TYPE:
@@ -111,6 +111,10 @@ namespace PLEXIL
       return;
 
     switch (m_type) {
+      // Unknown - do nothing
+    case UNKNOWN_TYPE:
+      return;
+
       // Immediate data - copy it
     case BOOLEAN_TYPE:
       booleanValue = other.booleanValue;
@@ -194,54 +198,26 @@ namespace PLEXIL
   {
   }
 
-  Value::Value(uint8_t enumVal, ValueType typ)
-    : realValue(0.0), // don't know what type we are yet
-      m_type(typ),
-      m_known(enumVal != 0)
+  // Typed unknown
+  Value::Value(ValueType typ)
+    : m_type(typ),
+      m_known(false)
   {
-    if (enumVal == 0) {
-      m_known = false;
-      switch (m_type) {
-        case STRING_TYPE:
-          new (&stringValue) std::unique_ptr<String>();
-          break;
-
-        case BOOLEAN_ARRAY_TYPE:
-        case INTEGER_ARRAY_TYPE:
-        case REAL_ARRAY_TYPE:
-        case STRING_ARRAY_TYPE:
-          new (&arrayValue) std::unique_ptr<Array>();
-          break;
-
-        default:
-          break;
-        }
-      return;
-    }
-
-    // Enum val of some sort
     switch (m_type) {
-      // Internal enumerations
-    case NODE_STATE_TYPE:
-      stateValue = (NodeState) enumVal;
-      return;
-      
-    case OUTCOME_TYPE:
-      outcomeValue = (NodeOutcome) enumVal;
-      return;
+      // Ensure proper initialization for pointer
+    case STRING_TYPE:
+      new (&stringValue) std::unique_ptr<String>();
+      break;
 
-    case FAILURE_TYPE:
-      failureValue = (FailureType) enumVal;
-      return;
-
-    case COMMAND_HANDLE_TYPE:
-      commandHandleValue = (CommandHandleValue) enumVal;
-      return;
+    case BOOLEAN_ARRAY_TYPE:
+    case INTEGER_ARRAY_TYPE:
+    case REAL_ARRAY_TYPE:
+    case STRING_ARRAY_TYPE:
+      new (&arrayValue) std::unique_ptr<Array>();
+      break;
 
     default:
-      assertTrue_2(ALWAYS_FAIL, "Value constructor: illegal value for type");
-      return;
-      break;
+      break; // don't care
     }
   }
       
@@ -943,7 +919,7 @@ namespace PLEXIL
     return Value(*this);
   }
 
-  void Value::printValue(std::ostream &s) const
+  void Value::print(std::ostream &s) const
   {
     if (!m_known) {
       s << "[unknown_value]"; 
@@ -1006,15 +982,15 @@ namespace PLEXIL
 
   std::ostream &operator<<(std::ostream &str, Value const &val)
   {
-    val.printValue(str);
+    val.print(str);
     return str;
   }
 
   std::string Value::valueToString() const
   {
-    std::ostringstream s;
-    printValue(s);
-    return s.str();
+    std::ostringstream strm;
+    print(strm);
+    return strm.str();
   }
 
   // Issues:

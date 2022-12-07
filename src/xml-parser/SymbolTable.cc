@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,7 @@
 
 #include "Debug.hh"
 
+#include <memory>
 #include <stack>
 
 namespace PLEXIL
@@ -46,15 +47,6 @@ namespace PLEXIL
   {
   }
 
-  Symbol::Symbol(Symbol const &orig)
-    : m_name(orig.m_name),
-      m_paramTypes(orig.m_paramTypes),
-      m_symbolType(orig.m_symbolType),
-      m_returnType(orig.m_returnType),
-      m_anyParams(orig.m_anyParams)
-  {
-  }
-
   Symbol::Symbol(char const *name, SymbolType t)
     : m_name(name),
       m_paramTypes(),
@@ -64,20 +56,6 @@ namespace PLEXIL
   {
   }
 
-  Symbol::~Symbol()
-  {
-  }
-
-  Symbol &Symbol::operator=(Symbol const &orig)
-  {
-    m_name = orig.m_name;
-    m_paramTypes = orig.m_paramTypes;
-    m_symbolType = orig.m_symbolType;
-    m_returnType = orig.m_returnType;
-    m_anyParams = orig.m_anyParams;
-    return *this;
-  }
-
   std::string const &Symbol::name() const
   {
     return m_name;
@@ -85,24 +63,24 @@ namespace PLEXIL
 
   SymbolType Symbol::symbolType() const
   {
-    return (SymbolType) m_symbolType;
+    return m_symbolType;
   }
 
   ValueType Symbol::returnType() const
   {
-    return (ValueType) m_returnType;
+    return m_returnType;
   }
 
   ValueType Symbol::parameterType(size_t n) const
   {
     if (n > m_paramTypes.size())
       return UNKNOWN_TYPE;
-    return (ValueType) m_paramTypes[n];
+    return m_paramTypes[n];
   }
 
   void Symbol::setReturnType(ValueType t)
   {
-    m_returnType = (uint8_t) t;
+    m_returnType = t;
   }
 
   void Symbol::setAnyParameters()
@@ -117,7 +95,7 @@ namespace PLEXIL
 
   void Symbol::addParameterType(ValueType t)
   {
-    m_paramTypes.push_back((uint8_t) t);
+    m_paramTypes.push_back(t);
   }
 
   size_t Symbol::parameterCount() const
@@ -129,37 +107,11 @@ namespace PLEXIL
   // LibraryNodeSymbol
   //
 
-  LibraryNodeSymbol::LibraryNodeSymbol()
-    : m_name(),
-      m_paramInOutMap(),
-      m_paramTypeMap()
-  {
-  }
-
-  LibraryNodeSymbol::LibraryNodeSymbol(LibraryNodeSymbol const &orig)
-    : m_name(orig.m_name),
-      m_paramInOutMap(orig.m_paramInOutMap),
-      m_paramTypeMap(orig.m_paramTypeMap)
-  {
-  }
-
   LibraryNodeSymbol::LibraryNodeSymbol(char const *name)
     : m_name(name),
       m_paramInOutMap(),
       m_paramTypeMap()
   {
-  }
-
-  LibraryNodeSymbol::~LibraryNodeSymbol()
-  {
-  }
-
-  LibraryNodeSymbol &LibraryNodeSymbol::operator=(LibraryNodeSymbol const &orig)
-  {
-    m_name = orig.m_name;
-    m_paramInOutMap = orig.m_paramInOutMap;
-    m_paramTypeMap = orig.m_paramTypeMap;
-    return *this;
   }
 
   std::string const &LibraryNodeSymbol::name() const
@@ -222,8 +174,8 @@ namespace PLEXIL
     : public SymbolTable
   {
   private:
-    typedef std::map<std::string, Symbol *> SymbolMap;
-    typedef std::map<std::string, LibraryNodeSymbol *> LibraryMap;
+    using SymbolMap = std::map<std::string, std::unique_ptr<Symbol>>;
+    using LibraryMap = std::map<std::string, std::unique_ptr<LibraryNodeSymbol>>;
 
     SymbolMap m_commandMap;
     SymbolMap m_lookupMap;
@@ -232,39 +184,10 @@ namespace PLEXIL
     LibraryMap m_libraryMap;
 
   public:
-    SymbolTableImpl()
-      : SymbolTable()
-    {
-    }
 
-    ~SymbolTableImpl()
-    {
-      SymbolMap::iterator it = m_commandMap.begin();
-      while (it != m_commandMap.end()) {
-        delete it->second;
-        m_commandMap.erase(it);
-        it = m_commandMap.begin();
-      }
-      it = m_lookupMap.begin();
-      while (it != m_lookupMap.end()) {
-        delete it->second;
-        m_lookupMap.erase(it);
-        it = m_lookupMap.begin();
-      }
-      it = m_mutexMap.begin();
-      while (it != m_mutexMap.end()) {
-        delete it->second;
-        m_mutexMap.erase(it);
-        it = m_mutexMap.begin();
-      }
-      LibraryMap::iterator lit = m_libraryMap.begin();
-      while (lit != m_libraryMap.end()) {
-        delete lit->second;
-        m_libraryMap.erase(lit);
-        lit = m_libraryMap.begin();
-      }
-    }
+    SymbolTableImpl() = default;
 
+    ~SymbolTableImpl() = default;
     Symbol *addCommand(char const *name)
     {
       std::string const namestr(name);
@@ -272,7 +195,9 @@ namespace PLEXIL
         m_commandMap.find(namestr);
       if (it != m_commandMap.end())
         return nullptr; // duplicate
-      return (m_commandMap[namestr] = new Symbol(name, COMMAND_TYPE));
+      Symbol *result = new Symbol(name, COMMAND_TYPE);
+      m_commandMap.emplace(namestr, result);
+      return result;
     }
 
     Symbol *addLookup(char const *name)
@@ -282,7 +207,9 @@ namespace PLEXIL
         m_lookupMap.find(namestr);
       if (it != m_lookupMap.end())
         return nullptr; // duplicate
-      return (m_lookupMap[namestr] = new Symbol(name, LOOKUP_TYPE));
+      Symbol *result = new Symbol(name, LOOKUP_TYPE);
+      m_lookupMap.emplace(namestr, result);
+      return result;
     }
 
     Symbol *addMutex(char const *name)
@@ -295,7 +222,9 @@ namespace PLEXIL
 
       ensureGlobalMutex(name); // for effect
 
-      return (m_mutexMap[namestr] = new Symbol(name, MUTEX_TYPE));
+      Symbol *result = new Symbol(name, MUTEX_TYPE);
+      m_mutexMap.emplace(namestr, result);
+      return result;
     }
 
     LibraryNodeSymbol *addLibraryNode(char const *name)
@@ -305,7 +234,9 @@ namespace PLEXIL
         m_libraryMap.find(namestr);
       if (it != m_libraryMap.end())
         return nullptr; // duplicate
-      return (m_libraryMap[namestr] = new LibraryNodeSymbol(name));
+      LibraryNodeSymbol *result = new LibraryNodeSymbol(name);
+      m_libraryMap.emplace(namestr, result);
+      return result;
     }
 
     Symbol const *getCommand(char const *name)
@@ -315,7 +246,7 @@ namespace PLEXIL
         m_commandMap.find(namestr);
       if (it == m_commandMap.end())
         return nullptr;
-      return it->second;
+      return it->second.get();
     }
 
     Symbol const *getLookup(char const *name)
@@ -325,7 +256,7 @@ namespace PLEXIL
         m_lookupMap.find(namestr);
       if (it == m_lookupMap.end())
         return nullptr;
-      return it->second;
+      return it->second.get();
     }
 
     Symbol const *getMutex(char const *name)
@@ -335,7 +266,7 @@ namespace PLEXIL
         m_mutexMap.find(namestr);
       if (it == m_mutexMap.end())
         return nullptr;
-      return it->second;
+      return it->second.get();
     }
 
     LibraryNodeSymbol const *getLibraryNode(char const *name)
@@ -345,7 +276,7 @@ namespace PLEXIL
         m_libraryMap.find(namestr);
       if (it == m_libraryMap.end())
         return nullptr;
-      return it->second;
+      return it->second.get();
     }
 
   };

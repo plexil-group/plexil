@@ -29,11 +29,13 @@ lib_LTLIBRARIES = libPlexilUtils.la
 
 libPlexilUtils_la_CPPFLAGS = $(AM_CPPFLAGS)
 
-include_HEADERS = Debug.hh DynamicLoader.h Error.hh \
- LinkedQueue.hh Logging.hh ParserException.hh PlanError.hh SimpleMap.hh \
- SimpleSet.hh TestSupport.hh bitsetUtils.hh lifecycle-utils.h map-utils.hh \
- plexil-inttypes.h plexil-stdint.h stricmp.h timespec-utils.hh \
- timeval-utils.hh utils_main_page.hh
+# Public APIs
+include_HEADERS = Debug.hh DynamicLoader.h Error.hh ParserException.hh \
+ PlanError.hh SimpleMap.hh lifecycle-utils.h plexil-stdint.h stricmp.h
+
+# Implementation details which don't need to be publicly advertised
+noinst_HEADERS = LinkedQueue.hh Logging.hh SimpleSet.hh TestSupport.hh \
+ bitsetUtils.hh map-utils.hh timespec-utils.hh timeval-utils.hh
 
 libPlexilUtils_la_SOURCES = DynamicLoader.cc Error.cc Logging.cc \
  ParserException.cc PlanError.cc bitsetUtils.cc lifecycle-utils.c \
@@ -57,7 +59,7 @@ endif
 
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/utils-module-tests
-  noinst_HEADERS = test/TestData.hh test/util-test-module.hh
+  noinst_HEADERS += test/TestData.hh test/util-test-module.hh
   test_utils_module_tests_SOURCES = test/bitsetUtilsTest.cc test/LinkedQueueTest.cc \
  test/SimpleMapTest.cc test/SimpleSetTest.cc test/TestData.cc test/util-test-module.cc \
  test/module-tests.cc

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,15 +24,15 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ExecApplication.hh"
+#include "ExecApplication.hh" // includes plexil-config.h
 
 #include "AdapterConfiguration.hh"
 #include "Debug.hh"
-#include "Error.hh"
 #include "ExecListenerHub.hh"
 #include "InterfaceAdapter.hh"
 #include "InterfaceManager.hh"
 #include "InputQueue.hh"
+#include "ParserException.hh"
 #include "PlexilExec.hh"
 #include "PlexilSchema.hh"
 #include "StateCache.hh"
@@ -40,12 +40,8 @@
 #include "pugixml.hpp"
 
 #ifdef PLEXIL_WITH_THREADS
-#include "ThreadSemaphore.hh"
-#include <exception>
-#include <mutex>
-#include <thread>
 
-using ThreadMutexGuard = std::lock_guard<std::mutex>;
+#include "ThreadSemaphore.hh"
 
 #if defined(HAVE_PTHREAD_H)
 #include <pthread.h>
@@ -55,23 +51,19 @@ using ThreadMutexGuard = std::lock_guard<std::mutex>;
 #include <sys/types.h> // pid_t
 #endif
 
-#endif // PLEXIL_WITH_THREADS
-
-#if defined(HAVE_CSIGNAL)
-#include <csignal>
-#elif defined(HAVE_SIGNAL_H)
-#include <signal.h>
-#endif
-
-#if defined(HAVE_CSTRING)
-#include <cstring>
-#elif defined(HAVE_STRING_H)
-#include <string.h>
-#endif
-
 #if defined(HAVE_UNISTD_H)
 #include <unistd.h> // sleep()
 #endif
+
+#include <exception>
+#include <mutex>
+#include <thread>
+using ThreadMutexGuard = std::lock_guard<std::mutex>;
+
+#endif // PLEXIL_WITH_THREADS
+
+#include <csignal>
+#include <cstring>
 
 namespace PLEXIL
 {

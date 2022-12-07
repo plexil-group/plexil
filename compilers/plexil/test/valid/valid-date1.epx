@@ -1,1 +1,502 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/date1.ple"><GlobalDeclarations ColNo="5" LineNo="7"><CommandDeclaration ColNo="5" LineNo="7"><Name>getDate</Name><Return><Name>_return_0</Name><Type>Date</Type></Return><Parameter><Name>d</Name><Type>Date</Type></Parameter></CommandDeclaration><CommandDeclaration ColNo="9" LineNo="8"><Name>getDuration</Name><Return><Name>_return_0</Name><Type>Duration</Type></Return><Parameter><Name>d</Name><Type>Duration</Type></Parameter></CommandDeclaration><StateDeclaration ColNo="5" LineNo="10"><Name>TheDate</Name><Return><Name>_return_0</Name><Type>Date</Type></Return><Parameter><Name>d</Name><Type>Date</Type></Parameter></StateDeclaration><StateDeclaration ColNo="9" LineNo="11"><Name>TheDuration</Name><Return><Name>_return_0</Name><Type>Duration</Type></Return><Parameter><Name>d</Name><Type>Duration</Type></Parameter></StateDeclaration><LibraryNodeDeclaration ColNo="0" LineNo="13"><Name>f</Name><Interface><In><DeclareVariable ColNo="17" LineNo="13"><Name>indat</Name><Type>Date</Type></DeclareVariable><DeclareVariable ColNo="32" LineNo="13"><Name>indur</Name><Type>Duration</Type></DeclareVariable></In><InOut><DeclareVariable ColNo="17" LineNo="14"><Name>outdat</Name><Type>Date</Type></DeclareVariable><DeclareVariable ColNo="36" LineNo="14"><Name>outdur</Name><Type>Date</Type></DeclareVariable></InOut></Interface></LibraryNodeDeclaration></GlobalDeclarations><Sequence ColNo="0" LineNo="17"><NodeId>DateTest</NodeId><Interface><In><DeclareVariable ColNo="5" LineNo="21"><Name>dat0</Name><Type>Date</Type></DeclareVariable><DeclareVariable ColNo="5" LineNo="22"><Name>dur0</Name><Type>Duration</Type></DeclareVariable></In></Interface><VariableDeclarations><DeclareVariable ColNo="2" LineNo="25"><Name>dat1</Name><Type>Date</Type></DeclareVariable><DeclareVariable ColNo="2" LineNo="26"><Name>dat2</Name><Type>Date</Type><InitialValue><DateValue>2012-02-23T22:21:00.000</DateValue></InitialValue></DeclareVariable><DeclareVariable ColNo="2" LineNo="27"><Name>dur1</Name><Type>Duration</Type></DeclareVariable><DeclareVariable ColNo="2" LineNo="28"><Name>dur2</Name><Type>Duration</Type><InitialValue><DurationValue>PT0.5S</DurationValue></InitialValue></DeclareVariable><DeclareArray ColNo="2" LineNo="31"><Name>dats1</Name><Type>Date</Type><MaxSize>3</MaxSize><InitialValue><ArrayValue Type="Date"><DateValue>2012-02-23T22:21:00.000</DateValue><DateValue>2012-02-23T22:21:00.000</DateValue><DateValue>2012-02-23T22:21:00.000</DateValue></ArrayValue></InitialValue></DeclareArray><DeclareArray ColNo="2" LineNo="39"><Name>dats2</Name><Type>Date</Type><MaxSize>1</MaxSize></DeclareArray><DeclareArray ColNo="2" LineNo="40"><Name>durs1</Name><Type>Duration</Type><MaxSize>3</MaxSize><InitialValue><ArrayValue Type="Duration"><DurationValue>PT0.5S</DurationValue><DurationValue>PT0.5S</DurationValue><DurationValue>PT0.5S</DurationValue></ArrayValue></InitialValue></DeclareArray><DeclareArray ColNo="2" LineNo="41"><Name>durs2</Name><Type>Duration</Type><MaxSize>1</MaxSize></DeclareArray><DeclareVariable ColNo="2" LineNo="44"><Name>x</Name><Type>Integer</Type><InitialValue><IntegerValue>1</IntegerValue></InitialValue></DeclareVariable><DeclareVariable ColNo="2" LineNo="44"><Name>y</Name><Type>Integer</Type><InitialValue><IntegerValue>2</IntegerValue></InitialValue></DeclareVariable><DeclareVariable ColNo="2" LineNo="45"><Name>s</Name><Type>String</Type><InitialValue><StringValue>foo</StringValue></InitialValue></DeclareVariable><DeclareVariable ColNo="2" LineNo="45"><Name>t</Name><Type>String</Type><InitialValue><StringValue></StringValue></InitialValue></DeclareVariable></VariableDeclarations><Node ColNo="9" LineNo="48" NodeType="Command"><NodeId>ASSIGNMENT__0</NodeId><NodeBody><Command ColNo="2" LineNo="48"><DateVariable>dat1</DateVariable><Name><StringValue>getDate</StringValue></Name><Arguments ColNo="17" LineNo="48"><DateVariable>dat2</DateVariable></Arguments></Command></NodeBody></Node><Node ColNo="9" LineNo="49" NodeType="Command"><NodeId>ASSIGNMENT__1</NodeId><NodeBody><Command ColNo="2" LineNo="49"><DurationVariable>dur1</DurationVariable><Name><StringValue>getDuration</StringValue></Name><Arguments ColNo="21" LineNo="49"><DurationVariable>dur2</DurationVariable></Arguments></Command></NodeBody></Node><Node ColNo="2" LineNo="52" NodeType="Assignment"><NodeId>ASSIGNMENT__2</NodeId><NodeBody><Assignment ColNo="2" LineNo="52"><DateVariable>dat1</DateVariable><NumericRHS><Lookup ColNo="9" LineNo="52"><Name><StringValue>TheDate</StringValue></Name><Arguments ColNo="26" LineNo="52"><DateVariable>dat2</DateVariable></Arguments></Lookup></NumericRHS></Assignment></NodeBody></Node><Node ColNo="2" LineNo="53" NodeType="Assignment"><NodeId>ASSIGNMENT__3</NodeId><NodeBody><Assignment ColNo="2" LineNo="53"><DurationVariable>dur1</DurationVariable><NumericRHS><Lookup ColNo="9" LineNo="53"><Name><StringValue>TheDuration</StringValue></Name><Arguments ColNo="30" LineNo="53"><DurationVariable>dur2</DurationVariable></Arguments></Lookup></NumericRHS></Assignment></NodeBody></Node><Node ColNo="2" LineNo="56" NodeType="Assignment"><NodeId>ASSIGNMENT__4</NodeId><NodeBody><Assignment ColNo="2" LineNo="56"><DateVariable>dat1</DateVariable><NumericRHS><DateVariable>dat2</DateVariable></NumericRHS></Assignment></NodeBody></Node><Node ColNo="2" LineNo="57" NodeType="Assignment"><NodeId>ASSIGNMENT__5</NodeId><NodeBody><Assignment ColNo="2" LineNo="57"><DateVariable>dat1</DateVariable><NumericRHS><DateValue>2012-02-23T22:21:00.000</DateValue></NumericRHS></Assignment></NodeBody></Node><Node ColNo="2" LineNo="58" NodeType="Assignment"><NodeId>ASSIGNMENT__6</NodeId><NodeBody><Assignment ColNo="2" LineNo="58"><DurationVariable>dur1</DurationVariable><NumericRHS><DurationVariable>dur2</DurationVariable></NumericRHS></Assignment></NodeBody></Node><Node ColNo="2" LineNo="59" NodeType="Assignment"><NodeId>ASSIGNMENT__7</NodeId><NodeBody><Assignment ColNo="2" LineNo="59"><DurationVariable>dur1</DurationVariable><NumericRHS><DurationValue>PT0.5S</DurationValue></NumericRHS></Assignment></NodeBody></Node><Node ColNo="2" LineNo="60" NodeType="Assignment"><NodeId>ASSIGNMENT__8</NodeId><NodeBody><Assignment ColNo="2" LineNo="60"><ArrayElement><ArrayVariable>dats1</ArrayVariable><Index><IntegerValue>0</IntegerValue></Index></ArrayElement><NumericRHS><DateVariable>dat1</DateVariable></NumericRHS></Assignment></NodeBody></Node><Node ColNo="2" LineNo="61" NodeType="Assignment"><NodeId>ASSIGNMENT__9</NodeId><NodeBody><Assignment ColNo="2" LineNo="61"><ArrayElement><ArrayVariable>dats1</ArrayVariable><Index><IntegerValue>1</IntegerValue></Index></ArrayElement><NumericRHS><DateValue>2012-02-23T22:21:00.000</DateValue></NumericRHS></Assignment></NodeBody></Node><Node ColNo="2" LineNo="62" NodeType="Assignment"><NodeId>ASSIGNMENT__10</NodeId><NodeBody><Assignment ColNo="2" LineNo="62"><ArrayElement><ArrayVariable>durs1</ArrayVariable><Index><IntegerValue>1</IntegerValue></Index></ArrayElement><NumericRHS><DurationVariable>dur1</DurationVariable></NumericRHS></Assignment></NodeBody></Node><Node ColNo="2" LineNo="63" NodeType="Assignment"><NodeId>ASSIGNMENT__11</NodeId><NodeBody><Assignment ColNo="2" LineNo="63"><ArrayElement><ArrayVariable>durs1</ArrayVariable><Index><IntegerValue>2</IntegerValue></Index></ArrayElement><NumericRHS><DurationValue>PT0.5S</DurationValue></NumericRHS></Assignment></NodeBody></Node><Node ColNo="2" LineNo="66" NodeType="Assignment"><NodeId>ASSIGNMENT__12</NodeId><NodeBody><Assignment ColNo="2" LineNo="66"><DurationVariable>dur1</DurationVariable><NumericRHS><ADD ColNo="42" LineNo="66"><DurationVariable>dur1</DurationVariable><DurationVariable>dur2</DurationVariable><DurationValue>PT0.5S</DurationValue><DurationVariable>dur2</DurationVariable></ADD></NumericRHS></Assignment></NodeBody></Node><Node ColNo="2" LineNo="67" NodeType="Assignment"><NodeId>ASSIGNMENT__13</NodeId><NodeBody><Assignment ColNo="2" LineNo="67"><DateVariable>dat1</DateVariable><NumericRHS><ADD ColNo="21" LineNo="67"><DateVariable>dat1</DateVariable><DurationVariable>dur1</DurationVariable><DurationValue>PT0.5S</DurationValue></ADD></NumericRHS></Assignment></NodeBody></Node><Node ColNo="2" LineNo="71" NodeType="Assignment"><NodeId>ASSIGNMENT__14</NodeId><NodeBody><Assignment ColNo="2" LineNo="71"><DurationVariable>dur1</DurationVariable><NumericRHS><SUB ColNo="14" LineNo="71"><DurationVariable>dur1</DurationVariable><DurationVariable>dur2</DurationVariable></SUB></NumericRHS></Assignment></NodeBody></Node><Node ColNo="2" LineNo="72" NodeType="Assignment"><NodeId>ASSIGNMENT__15</NodeId><NodeBody><Assignment ColNo="2" LineNo="72"><DurationVariable>dur2</DurationVariable><NumericRHS><SUB ColNo="14" LineNo="72"><DateVariable>dat1</DateVariable><DateVariable>dat2</DateVariable></SUB></NumericRHS></Assignment></NodeBody></Node><Node ColNo="2" LineNo="73" NodeType="Assignment"><NodeId>ASSIGNMENT__16</NodeId><NodeBody><Assignment ColNo="2" LineNo="73"><DurationVariable>dur2</DurationVariable><NumericRHS><SUB ColNo="21" LineNo="73"><DateVariable>dat1</DateVariable><DateVariable>dat2</DateVariable><DurationVariable>dur1</DurationVariable></SUB></NumericRHS></Assignment></NodeBody></Node><Node ColNo="2" LineNo="74" NodeType="Assignment"><NodeId>ASSIGNMENT__17</NodeId><NodeBody><Assignment ColNo="2" LineNo="74"><DurationVariable>dur1</DurationVariable><NumericRHS><SUB ColNo="21" LineNo="74"><DurationVariable>dur1</DurationVariable><DurationVariable>dur2</DurationVariable><DurationVariable>dur1</DurationVariable></SUB></NumericRHS></Assignment></NodeBody></Node><Node ColNo="2" LineNo="75" NodeType="Assignment"><NodeId>ASSIGNMENT__18</NodeId><NodeBody><Assignment ColNo="2" LineNo="75"><DateVariable>dat1</DateVariable><NumericRHS><SUB ColNo="21" LineNo="75"><DateVariable>dat1</DateVariable><DurationVariable>dur1</DurationVariable><DurationVariable>dur2</DurationVariable></SUB></NumericRHS></Assignment></NodeBody></Node><Node ColNo="2" LineNo="78" NodeType="Empty"><NodeId>Sub1</NodeId><StartCondition ColNo="4" LineNo="80"><LT ColNo="15" LineNo="80"><DateVariable>dat1</DateVariable><DateVariable>dat2</DateVariable></LT></StartCondition><EndCondition ColNo="4" LineNo="81"><GT ColNo="13" LineNo="81"><DurationVariable>dur1</DurationVariable><DurationVariable>dur2</DurationVariable></GT></EndCondition><PostCondition ColNo="4" LineNo="82"><EQNumeric ColNo="14" LineNo="82"><DurationVariable>dur1</DurationVariable><DurationValue>PT0.5S</DurationValue></EQNumeric></PostCondition><SkipCondition ColNo="4" LineNo="83"><NENumeric ColNo="14" LineNo="83"><DateVariable>dat1</DateVariable><DateValue>2012-02-23T22:21:00.000</DateValue></NENumeric></SkipCondition></Node><Node ColNo="2" LineNo="87" NodeType="LibraryNodeCall"><NodeId>LibraryCall__19</NodeId><NodeBody><LibraryNodeCall ColNo="2" LineNo="87"><NodeId>f</NodeId><Alias><NodeParameter>indat</NodeParameter><DateVariable>dat1</DateVariable></Alias><Alias><NodeParameter>indur</NodeParameter><DurationVariable>dur1</DurationVariable></Alias><Alias><NodeParameter>outdat</NodeParameter><DateVariable>dat2</DateVariable></Alias><Alias><NodeParameter>outdur</NodeParameter><DurationVariable>dur2</DurationVariable></Alias></LibraryNodeCall></NodeBody></Node></Sequence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/date1.ple">
+   <GlobalDeclarations ColNo="5" LineNo="7">
+      <CommandDeclaration ColNo="5" LineNo="7">
+         <Name>getDate</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Date</Type>
+         </Return>
+         <Parameter>
+            <Name>d</Name>
+            <Type>Date</Type>
+         </Parameter>
+      </CommandDeclaration>
+      <CommandDeclaration ColNo="9" LineNo="8">
+         <Name>getDuration</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Duration</Type>
+         </Return>
+         <Parameter>
+            <Name>d</Name>
+            <Type>Duration</Type>
+         </Parameter>
+      </CommandDeclaration>
+      <StateDeclaration ColNo="5" LineNo="10">
+         <Name>TheDate</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Date</Type>
+         </Return>
+         <Parameter>
+            <Name>d</Name>
+            <Type>Date</Type>
+         </Parameter>
+      </StateDeclaration>
+      <StateDeclaration ColNo="9" LineNo="11">
+         <Name>TheDuration</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Duration</Type>
+         </Return>
+         <Parameter>
+            <Name>d</Name>
+            <Type>Duration</Type>
+         </Parameter>
+      </StateDeclaration>
+      <LibraryNodeDeclaration ColNo="0" LineNo="13">
+         <Name>f</Name>
+         <Interface>
+            <In>
+               <DeclareVariable ColNo="17" LineNo="13">
+                  <Name>indat</Name>
+                  <Type>Date</Type>
+               </DeclareVariable>
+               <DeclareVariable ColNo="32" LineNo="13">
+                  <Name>indur</Name>
+                  <Type>Duration</Type>
+               </DeclareVariable>
+            </In>
+            <InOut>
+               <DeclareVariable ColNo="17" LineNo="14">
+                  <Name>outdat</Name>
+                  <Type>Date</Type>
+               </DeclareVariable>
+               <DeclareVariable ColNo="36" LineNo="14">
+                  <Name>outdur</Name>
+                  <Type>Date</Type>
+               </DeclareVariable>
+            </InOut>
+         </Interface>
+      </LibraryNodeDeclaration>
+   </GlobalDeclarations>
+   <Sequence ColNo="0" LineNo="17">
+      <NodeId>DateTest</NodeId>
+      <Interface>
+         <In>
+            <DeclareVariable ColNo="5" LineNo="21">
+               <Name>dat0</Name>
+               <Type>Date</Type>
+            </DeclareVariable>
+            <DeclareVariable ColNo="5" LineNo="22">
+               <Name>dur0</Name>
+               <Type>Duration</Type>
+            </DeclareVariable>
+         </In>
+      </Interface>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="2" LineNo="25">
+            <Name>dat1</Name>
+            <Type>Date</Type>
+         </DeclareVariable>
+         <DeclareVariable ColNo="2" LineNo="26">
+            <Name>dat2</Name>
+            <Type>Date</Type>
+            <InitialValue>
+               <DateValue>2012-02-23T22:21:00.000</DateValue>
+            </InitialValue>
+         </DeclareVariable>
+         <DeclareVariable ColNo="2" LineNo="27">
+            <Name>dur1</Name>
+            <Type>Duration</Type>
+         </DeclareVariable>
+         <DeclareVariable ColNo="2" LineNo="28">
+            <Name>dur2</Name>
+            <Type>Duration</Type>
+            <InitialValue>
+               <DurationValue>PT0.5S</DurationValue>
+            </InitialValue>
+         </DeclareVariable>
+         <DeclareArray ColNo="2" LineNo="31">
+            <Name>dats1</Name>
+            <Type>Date</Type>
+            <MaxSize>3</MaxSize>
+            <InitialValue>
+               <ArrayValue Type="Date">
+                  <DateValue>2012-02-23T22:21:00.000</DateValue>
+                  <DateValue>2012-02-23T22:21:00.000</DateValue>
+                  <DateValue>2012-02-23T22:21:00.000</DateValue>
+               </ArrayValue>
+            </InitialValue>
+         </DeclareArray>
+         <DeclareArray ColNo="2" LineNo="39">
+            <Name>dats2</Name>
+            <Type>Date</Type>
+            <MaxSize>1</MaxSize>
+         </DeclareArray>
+         <DeclareArray ColNo="2" LineNo="40">
+            <Name>durs1</Name>
+            <Type>Duration</Type>
+            <MaxSize>3</MaxSize>
+            <InitialValue>
+               <ArrayValue Type="Duration">
+                  <DurationValue>PT0.5S</DurationValue>
+                  <DurationValue>PT0.5S</DurationValue>
+                  <DurationValue>PT0.5S</DurationValue>
+               </ArrayValue>
+            </InitialValue>
+         </DeclareArray>
+         <DeclareArray ColNo="2" LineNo="41">
+            <Name>durs2</Name>
+            <Type>Duration</Type>
+            <MaxSize>1</MaxSize>
+         </DeclareArray>
+         <DeclareVariable ColNo="2" LineNo="44">
+            <Name>x</Name>
+            <Type>Integer</Type>
+            <InitialValue>
+               <IntegerValue>1</IntegerValue>
+            </InitialValue>
+         </DeclareVariable>
+         <DeclareVariable ColNo="2" LineNo="44">
+            <Name>y</Name>
+            <Type>Integer</Type>
+            <InitialValue>
+               <IntegerValue>2</IntegerValue>
+            </InitialValue>
+         </DeclareVariable>
+         <DeclareVariable ColNo="2" LineNo="45">
+            <Name>s</Name>
+            <Type>String</Type>
+            <InitialValue>
+               <StringValue>foo</StringValue>
+            </InitialValue>
+         </DeclareVariable>
+         <DeclareVariable ColNo="2" LineNo="45">
+            <Name>t</Name>
+            <Type>String</Type>
+            <InitialValue>
+               <StringValue></StringValue>
+            </InitialValue>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <Node ColNo="9" LineNo="48" NodeType="Command">
+         <NodeId generated="1">COMMAND__0</NodeId>
+         <NodeBody>
+            <Command ColNo="2" LineNo="48">
+               <DateVariable>dat1</DateVariable>
+               <Name>
+                  <StringValue>getDate</StringValue>
+               </Name>
+               <Arguments ColNo="17" LineNo="48">
+                  <DateVariable>dat2</DateVariable>
+               </Arguments>
+            </Command>
+         </NodeBody>
+      </Node>
+      <Node ColNo="9" LineNo="49" NodeType="Command">
+         <NodeId generated="1">COMMAND__1</NodeId>
+         <NodeBody>
+            <Command ColNo="2" LineNo="49">
+               <DurationVariable>dur1</DurationVariable>
+               <Name>
+                  <StringValue>getDuration</StringValue>
+               </Name>
+               <Arguments ColNo="21" LineNo="49">
+                  <DurationVariable>dur2</DurationVariable>
+               </Arguments>
+            </Command>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="52" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__2</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="52">
+               <DateVariable>dat1</DateVariable>
+               <NumericRHS>
+                  <Lookup ColNo="9" LineNo="52">
+                     <Name>
+                        <StringValue>TheDate</StringValue>
+                     </Name>
+                     <Arguments ColNo="26" LineNo="52">
+                        <DateVariable>dat2</DateVariable>
+                     </Arguments>
+                  </Lookup>
+               </NumericRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="53" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__3</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="53">
+               <DurationVariable>dur1</DurationVariable>
+               <NumericRHS>
+                  <Lookup ColNo="9" LineNo="53">
+                     <Name>
+                        <StringValue>TheDuration</StringValue>
+                     </Name>
+                     <Arguments ColNo="30" LineNo="53">
+                        <DurationVariable>dur2</DurationVariable>
+                     </Arguments>
+                  </Lookup>
+               </NumericRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="56" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__4</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="56">
+               <DateVariable>dat1</DateVariable>
+               <NumericRHS>
+                  <DateVariable>dat2</DateVariable>
+               </NumericRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="57" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__5</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="57">
+               <DateVariable>dat1</DateVariable>
+               <NumericRHS>
+                  <DateValue>2012-02-23T22:21:00.000</DateValue>
+               </NumericRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="58" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__6</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="58">
+               <DurationVariable>dur1</DurationVariable>
+               <NumericRHS>
+                  <DurationVariable>dur2</DurationVariable>
+               </NumericRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="59" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__7</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="59">
+               <DurationVariable>dur1</DurationVariable>
+               <NumericRHS>
+                  <DurationValue>PT0.5S</DurationValue>
+               </NumericRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="60" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__8</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="60">
+               <ArrayElement>
+                  <ArrayVariable>dats1</ArrayVariable>
+                  <Index>
+                     <IntegerValue>0</IntegerValue>
+                  </Index>
+               </ArrayElement>
+               <NumericRHS>
+                  <DateVariable>dat1</DateVariable>
+               </NumericRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="61" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__9</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="61">
+               <ArrayElement>
+                  <ArrayVariable>dats1</ArrayVariable>
+                  <Index>
+                     <IntegerValue>1</IntegerValue>
+                  </Index>
+               </ArrayElement>
+               <NumericRHS>
+                  <DateValue>2012-02-23T22:21:00.000</DateValue>
+               </NumericRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="62" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__10</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="62">
+               <ArrayElement>
+                  <ArrayVariable>durs1</ArrayVariable>
+                  <Index>
+                     <IntegerValue>1</IntegerValue>
+                  </Index>
+               </ArrayElement>
+               <NumericRHS>
+                  <DurationVariable>dur1</DurationVariable>
+               </NumericRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="63" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__11</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="63">
+               <ArrayElement>
+                  <ArrayVariable>durs1</ArrayVariable>
+                  <Index>
+                     <IntegerValue>2</IntegerValue>
+                  </Index>
+               </ArrayElement>
+               <NumericRHS>
+                  <DurationValue>PT0.5S</DurationValue>
+               </NumericRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="66" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__12</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="66">
+               <DurationVariable>dur1</DurationVariable>
+               <NumericRHS>
+                  <ADD ColNo="42" LineNo="66">
+                     <DurationVariable>dur1</DurationVariable>
+                     <DurationVariable>dur2</DurationVariable>
+                     <DurationValue>PT0.5S</DurationValue>
+                     <DurationVariable>dur2</DurationVariable>
+                  </ADD>
+               </NumericRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="67" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__13</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="67">
+               <DateVariable>dat1</DateVariable>
+               <NumericRHS>
+                  <ADD ColNo="21" LineNo="67">
+                     <DateVariable>dat1</DateVariable>
+                     <DurationVariable>dur1</DurationVariable>
+                     <DurationValue>PT0.5S</DurationValue>
+                  </ADD>
+               </NumericRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="71" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__14</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="71">
+               <DurationVariable>dur1</DurationVariable>
+               <NumericRHS>
+                  <SUB ColNo="14" LineNo="71">
+                     <DurationVariable>dur1</DurationVariable>
+                     <DurationVariable>dur2</DurationVariable>
+                  </SUB>
+               </NumericRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="72" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__15</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="72">
+               <DurationVariable>dur2</DurationVariable>
+               <NumericRHS>
+                  <SUB ColNo="14" LineNo="72">
+                     <DateVariable>dat1</DateVariable>
+                     <DateVariable>dat2</DateVariable>
+                  </SUB>
+               </NumericRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="73" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__16</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="73">
+               <DurationVariable>dur2</DurationVariable>
+               <NumericRHS>
+                  <SUB ColNo="21" LineNo="73">
+                     <DateVariable>dat1</DateVariable>
+                     <DateVariable>dat2</DateVariable>
+                     <DurationVariable>dur1</DurationVariable>
+                  </SUB>
+               </NumericRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="74" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__17</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="74">
+               <DurationVariable>dur1</DurationVariable>
+               <NumericRHS>
+                  <SUB ColNo="21" LineNo="74">
+                     <DurationVariable>dur1</DurationVariable>
+                     <DurationVariable>dur2</DurationVariable>
+                     <DurationVariable>dur1</DurationVariable>
+                  </SUB>
+               </NumericRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="75" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__18</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="75">
+               <DateVariable>dat1</DateVariable>
+               <NumericRHS>
+                  <SUB ColNo="21" LineNo="75">
+                     <DateVariable>dat1</DateVariable>
+                     <DurationVariable>dur1</DurationVariable>
+                     <DurationVariable>dur2</DurationVariable>
+                  </SUB>
+               </NumericRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="78" NodeType="Empty">
+         <NodeId>Sub1</NodeId>
+         <StartCondition ColNo="4" LineNo="80">
+            <LT ColNo="15" LineNo="80">
+               <DateVariable>dat1</DateVariable>
+               <DateVariable>dat2</DateVariable>
+            </LT>
+         </StartCondition>
+         <EndCondition ColNo="4" LineNo="81">
+            <GT ColNo="13" LineNo="81">
+               <DurationVariable>dur1</DurationVariable>
+               <DurationVariable>dur2</DurationVariable>
+            </GT>
+         </EndCondition>
+         <PostCondition ColNo="4" LineNo="82">
+            <EQNumeric ColNo="14" LineNo="82">
+               <DurationVariable>dur1</DurationVariable>
+               <DurationValue>PT0.5S</DurationValue>
+            </EQNumeric>
+         </PostCondition>
+         <SkipCondition ColNo="4" LineNo="83">
+            <NENumeric ColNo="14" LineNo="83">
+               <DateVariable>dat1</DateVariable>
+               <DateValue>2012-02-23T22:21:00.000</DateValue>
+            </NENumeric>
+         </SkipCondition>
+      </Node>
+      <Node ColNo="2" LineNo="87" NodeType="LibraryNodeCall">
+         <NodeId generated="1">LibraryCall__19</NodeId>
+         <NodeBody>
+            <LibraryNodeCall ColNo="2" LineNo="87">
+               <NodeId>f</NodeId>
+               <Alias>
+                  <NodeParameter>indat</NodeParameter>
+                  <DateVariable>dat1</DateVariable>
+               </Alias>
+               <Alias>
+                  <NodeParameter>indur</NodeParameter>
+                  <DurationVariable>dur1</DurationVariable>
+               </Alias>
+               <Alias>
+                  <NodeParameter>outdat</NodeParameter>
+                  <DateVariable>dat2</DateVariable>
+               </Alias>
+               <Alias>
+                  <NodeParameter>outdur</NodeParameter>
+                  <DurationVariable>dur2</DurationVariable>
+               </Alias>
+            </LibraryNodeCall>
+         </NodeBody>
+      </Node>
+   </Sequence>
+</PlexilPlan>

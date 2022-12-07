@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -58,17 +58,17 @@ createExpression.$(OBJEXT): ExpressionMap.hh
 .gperf.hh:
 	$(GPERF) -m 8 --output-file=$@ $<
 
-
-# Libraries referenced by the executables below
-DEPENDED_LIBS = libPlexilXmlParser.la \
- @top_builddir@/third-party/pugixml/src/libpugixml.la @top_builddir@/exec/libPlexilExec.la \
- @top_builddir@/intfc/libPlexilIntfc.la @top_builddir@/expr/libPlexilExpr.la \
- @top_builddir@/value/libPlexilValue.la @top_builddir@/utils/libPlexilUtils.la
+libPlexilXmlParser_la_LIBADD = @top_builddir@/third-party/pugixml/src/libpugixml.la \
+ @top_builddir@/exec/libPlexilExec.la \
+ @top_builddir@/intfc/libPlexilIntfc.la \
+ @top_builddir@/expr/libPlexilExpr.la \
+ @top_builddir@/value/libPlexilValue.la \
+ @top_builddir@/utils/libPlexilUtils.la
 
 bin_PROGRAMS = analyzePlan
 
 analyzePlan_SOURCES = analyzePlan.cc
-analyzePlan_LDADD = $(DEPENDED_LIBS)
+analyzePlan_LDADD = libPlexilXmlParser.la $(libPlexilXmlParser_la_LIBADD)
 analyzePlan_CPPFLAGS = $(libPlexilXmlParser_la_CPPFLAGS)
 
 if MODULE_TESTS_OPT
@@ -80,10 +80,10 @@ if MODULE_TESTS_OPT
    test/arrayReferenceXmlParserTest.cc test/functionXmlParserTest.cc \
    test/commandXmlParserTest.cc test/lookupXmlParserTest.cc \
    test/updateXmlParserTest.cc test/nodeXmlParserTest.cc
-  test_parser_module_tests_LDADD = $(DEPENDED_LIBS)
   test_parser_module_tests_CPPFLAGS = $(libPlexilXmlParser_la_CPPFLAGS)
+  test_parser_module_tests_LDADD = libPlexilXmlParser.la $(libPlexilXmlParser_la_LIBADD)
 
   test_benchmark_SOURCES = test/benchmark.cc
-  test_benchmark_LDADD = $(DEPENDED_LIBS)
   test_benchmark_CPPFLAGS = $(libPlexilXmlParser_la_CPPFLAGS)
+  test_benchmark_LDADD = libPlexilXmlParser.la $(libPlexilXmlParser_la_LIBADD)
 endif

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,9 +26,14 @@
 
 package plexil;
 
+import plexil.xml.SaxonTransformer;
 import plexil.xml.SimpleXmlWriter;
 
 import java.io.File;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
@@ -38,26 +43,77 @@ import org.w3c.dom.Element;
 
 public class Compiler
 {
-    public static void main(String[] args)
-    {
-        CompilerState state = new CompilerState(args);
+    private CommandParser m_commandParser = null;
 
-        // open source file
+    // m_documentBuilder and m_epxTransformer are constructed when needed,
+    // and reused when multiple files are processed.
+    private DocumentBuilder m_documentBuilder = null;
+    private SaxonTransformer m_epxTransformer = null;
+
+    public static void main(String[] argv)
+    {
+        Compiler compiler = new Compiler();
+        int status = compiler.compilerMain(argv);
+        System.exit(status);
+    }
+
+    private Compiler()
+    {
+        m_commandParser = new CommandParser();
+    }
+
+    private int compilerMain(String[] argv)
+    {
+        int status = m_commandParser.parse(argv);
+        if (status != 0) {
+            return status;
+        }
+
+        File infile = m_commandParser.nextInputFile();
+        while (infile != null) {
+            CompilerState state = compileOne(infile);
+            int severity = state.maxErrorSeverity();
+            if (severity > status) {
+                status = severity;
+            }
+            infile = m_commandParser.nextInputFile();
+        }
+        if (status < 0) {
+            status = 0;
+        }
+        return status;
+    }
+
+    //*
+    // Compile one input file.
+    //
+    // \param infile The File to compile.
+    //
+    // \param cp The CommandParser instance.
+    //
+    // \return TBD
+    //
+    // \note Should only exit on truly fatal errors.
+    //
+    public CompilerState compileOne(File infile)
+    {
+        System.out.println("Compiling " + infile.toString());
+        CompilerState state = new CompilerState(infile, m_commandParser);
 
         // Pass 1: Parse plan
         PlexilTreeNode plan1 = pass1(state);
         if (plan1 == null) {
             state.displayDiagnostics();
             System.out.println("Syntax error(s) detected. Compilation aborted.");
-            System.exit(1);
+            return state;
         }
-        if (state.debug) {
+        if (m_commandParser.debug) {
             System.err.println("Pass 1 output:");
             System.err.println(plan1.toStringTree());
         }
-        if (state.syntaxOnly) {
+        if (m_commandParser.syntaxOnly) {
             state.displayDiagnostics();
-            System.exit(0);
+            return state;
         }
 
         // Pass 2: semantic checks
@@ -66,16 +122,16 @@ public class Compiler
             System.out.println("Semantic error(s) detected. Compilation aborted.");
             System.exit(1);
         }
-        if (state.debug)
+        if (m_commandParser.debug)
             System.err.println("Semantic checks succeeded"); 
-        if (state.semanticsOnly) {
+        if (m_commandParser.semanticsOnly) {
             state.displayDiagnostics();
             System.exit(0);
         }
 
         // Pass 3: Tree parse & transformations
         PlexilTreeNode plan2 = pass3(plan1, state);
-        if (state.debug) {
+        if (m_commandParser.debug) {
         	System.err.println("Pass 3 output:");
         	System.err.println(plan2.toStringTree());
         }
@@ -84,30 +140,47 @@ public class Compiler
         Document planXML = pass4(plan2, state);
         if (planXML == null) {
             state.displayDiagnostics();
-            System.out.println("Internal error: XML generation failed. Compilation aborted.");
-            System.exit(1);
+            System.err.println("Internal error: XML generation failed. Compilation aborted.");
+            return state;
         }
 
-        // Pass 5: translate Extended Plexil to Core Plexil
-        if (!state.epxOnly) {
-            if (!pass5(plan2, state, planXML)) {
-                state.displayDiagnostics();
-                System.out.println("Translation from Extended Plexil failed. Compilation aborted.");
-                System.exit(1);
+        // Write .epx file here if requested
+        if (m_commandParser.writeEpx) {
+            try {
+                SimpleXmlWriter writer = new SimpleXmlWriter(state.getEpxStream());
+                writer.setIndent(m_commandParser.indentOutput);
+                if (m_commandParser.debug)
+                    System.err.println("Writing Extended PLEXIL file " + state.getEpxFile());
+                writer.write(planXML);
+            }
+            catch (Throwable t) {
+                System.err.println("Internal error while writing Extended Plexil file:");
+                t.printStackTrace(System.err);
             }
         }
 
+        // Pass 5: translate Extended Plexil to Core Plexil
+        if (!m_commandParser.epxOnly) {
+            if (!pass5(plan2, state, planXML)) {
+                state.displayDiagnostics();
+                System.out.println("Translation from Extended Plexil failed. Compilation aborted.");
+                return state;
+            }
+        }
+
+        // We made it! Tell the user what went wrong.
         state.displayDiagnostics();
-        System.exit(0);
+        return state;
     }
 
-    // Parse the plan
-    public static PlexilTreeNode pass1(CompilerState state)
+    // Pass 1: Parse the plan
+
+    public PlexilTreeNode pass1(CompilerState state)
     {
         PlexilLexer lexer = new PlexilLexer(state.getInputStream(), state.sharedState);
         TokenStream tokenStream = new CommonTokenStream(lexer);
 
-        PlexilParser parser = new PlexilParser(tokenStream, state.sharedState);
+        PlexilParser parser = new PlexilParser(tokenStream, state);
         parser.setTreeAdaptor(new PlexilTreeAdaptor());
 
         try {
@@ -127,11 +200,12 @@ public class Compiler
         return null;
     }
 
-    // Perform checks on the plan
-    public static boolean pass2(PlexilTreeNode plan, CompilerState state)
+    // Pass 2: Perform semantic checks on the parse tree
+
+    public boolean pass2(PlexilTreeNode plan, CompilerState state)
     {
         try {
-            GlobalContext gcontext = GlobalContext.getGlobalContext();
+            GlobalContext gcontext = state.getGlobalContext();
             plan.earlyCheck(gcontext, state);
             plan.check(gcontext, state);
             return state.maxErrorSeverity() <= 0;
@@ -143,22 +217,22 @@ public class Compiler
         return false;
     }
 
-    // Transform the plan prior to output generation
-    public static PlexilTreeNode pass3(PlexilTreeNode plan1, CompilerState state)
+    // Pass 3: Transform the parse tree prior to output generation
+
+    public PlexilTreeNode pass3(PlexilTreeNode plan1, CompilerState state)
     {
         TreeAdaptor adaptor = new PlexilTreeAdaptor();
         TreeNodeStream treeStream = new CommonTreeNodeStream(adaptor, plan1);
-        PlexilTreeTransforms treeRewriter = new PlexilTreeTransforms(treeStream, state.sharedState);
+        PlexilTreeTransforms treeRewriter = new PlexilTreeTransforms(treeStream, state);
         treeRewriter.setTreeAdaptor(adaptor);
         
         try {
-            Object rewriteResult = treeRewriter.downup(plan1, state.debug);
+            Object rewriteResult = treeRewriter.downup(plan1, m_commandParser.debug);
             if (state.maxErrorSeverity() > 0)
                 return null; // errors already reported
             PlexilTreeNode rewritePlan = (PlexilTreeNode) rewriteResult;
-            if (rewritePlan == null)
+            if (rewritePlan == null) 
                 System.err.println("Internal error: Plan transformation pass resulted in empty plan");
-
             return rewritePlan;
         }
         catch (Throwable t) {
@@ -168,61 +242,75 @@ public class Compiler
         return null;
     }
 
-    // Generate Extended Plexil output as DOM
-    public static Document pass4(PlexilTreeNode plan, CompilerState state)
+    // Pass 4: Generate Extended Plexil output as DOM
+
+    public Document pass4(PlexilTreeNode plan, CompilerState state)
     {
-        Element rootElement = null;
+        Document planDoc = null;
         try {
-            rootElement = plan.getXML();
-        } catch (Throwable t) {
+            planDoc = constructRootDocument();
+            state.setRootDocument(planDoc);
+            Element rootElement = plan.getXML(planDoc);
+            planDoc.appendChild(rootElement);
+        }
+        catch (Throwable t) {
             System.err.println("Internal error while generating XML:");
             t.printStackTrace(System.err);
-            return null;
         }
-
-        Document planDoc = state.getRootDocument();
-        planDoc.appendChild(rootElement);
-
-        // Only write .epx file if requested to
-        if (state.writeEpx) {
-            try {
-                SimpleXmlWriter writer = new SimpleXmlWriter(state.getEpxStream());
-                writer.setIndent(state.indentOutput);
-                if (state.debug)
-                    System.err.println("Writing Extended PLEXIL file " + state.getEpxFile());
-                writer.write(planDoc);
-            } catch (Throwable t) {
-                System.err.println("Internal error while writing Extended Plexil file:");
-                t.printStackTrace(System.err);
-                if (state.epxOnly)
-                    return null; // this output was the whole point of the exercise
-            }
-        }
-
         return planDoc;
     }
 
-    // Expand the Extended Plexil into Core Plexil
-    public static boolean pass5(PlexilTreeNode plan, CompilerState state, Document planDoc)
+    // Pass 5: Transform the Extended Plexil XML into Core Plexil
+
+    public boolean pass5(PlexilTreeNode plan, CompilerState state, Document planDoc)
     {
         File outputFile = state.getOutputFile();
         try {
-            // Invoke XSLT translator
-            if (state.debug)
+            if (m_commandParser.debug)
                 System.err.println("Translating to Core PLEXIL file " + outputFile);
-
-            plexil.xml.SaxonTransformer xformer = new plexil.xml.SaxonTransformer();
-            xformer.setIndent(state.indentOutput);
-
-            File stylesheet =
-                new File(System.getenv("PLEXIL_HOME"),
-                         "schema/epx-translator/translate-plexil.xsl");
-            return xformer.translateDOM(stylesheet, planDoc, outputFile);
+            return ensureEpxTransformer().translateDOM(planDoc, outputFile);
         }
         catch (Exception e) {
             System.err.println("Extended Plexil translation error: " + e);
             return false;
         }
+    }
+
+    //
+    // Utilities
+    //
+
+    private DocumentBuilder ensureDocumentBuilder()
+    {
+        if (m_documentBuilder == null) {
+            // Configuration??
+            try {
+                m_documentBuilder =
+                    DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            } catch (ParserConfigurationException e) {
+                System.err.println("XML configuration error:\n" + e.toString());
+            }
+        }
+        return m_documentBuilder;
+    }
+
+    private Document constructRootDocument()
+    {
+        Document root = ensureDocumentBuilder().newDocument();
+        root.setXmlVersion("1.0");
+        return root;
+    }
+
+    private SaxonTransformer ensureEpxTransformer()
+    {
+        if (m_epxTransformer == null) {
+            m_epxTransformer = new plexil.xml.SaxonTransformer();
+            m_epxTransformer.setIndent(m_commandParser.indentOutput);
+            // Get stylesheet from jar file
+            String urlString = ClassLoader.getSystemResource("schema/epx-translator/translate-plexil.xsl").toString();
+            m_epxTransformer.loadStylesheetFromURL(urlString);
+        }
+        return m_epxTransformer;
     }
 
 }

@@ -1,1 +1,42 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/ArrayLookup.ple"><GlobalDeclarations ColNo="8" LineNo="1"><StateDeclaration ColNo="8" LineNo="1"><Name>foo</Name><Return><Name>_return_0</Name><Type>Real</Type><MaxSize>4</MaxSize></Return></StateDeclaration></GlobalDeclarations><Node ColNo="0" LineNo="3" NodeType="Assignment"><NodeId>BLOCK__0</NodeId><VariableDeclarations><DeclareVariable ColNo="2" LineNo="4"><Name>temp</Name><Type>Real</Type><InitialValue><RealValue>0</RealValue></InitialValue></DeclareVariable></VariableDeclarations><NodeBody><Assignment ColNo="2" LineNo="5"><RealVariable>temp</RealVariable><NumericRHS><ArrayElement><Lookup ColNo="9" LineNo="5"><Name><StringValue>foo</StringValue></Name></Lookup><Index><IntegerValue>1</IntegerValue></Index></ArrayElement></NumericRHS></Assignment></NodeBody></Node></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/ArrayLookup.ple">
+   <GlobalDeclarations ColNo="8" LineNo="1">
+      <StateDeclaration ColNo="8" LineNo="1">
+         <Name>foo</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Real</Type>
+            <MaxSize>4</MaxSize>
+         </Return>
+      </StateDeclaration>
+   </GlobalDeclarations>
+   <Node ColNo="0" LineNo="3" NodeType="Assignment">
+      <NodeId generated="1">ASSIGNMENT__0</NodeId>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="2" LineNo="4">
+            <Name>temp</Name>
+            <Type>Real</Type>
+            <InitialValue>
+               <RealValue>0</RealValue>
+            </InitialValue>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <NodeBody>
+         <Assignment ColNo="2" LineNo="5">
+            <RealVariable>temp</RealVariable>
+            <NumericRHS>
+               <ArrayElement>
+                  <Lookup ColNo="9" LineNo="5">
+                     <Name>
+                        <StringValue>foo</StringValue>
+                     </Name>
+                  </Lookup>
+                  <Index>
+                     <IntegerValue>1</IntegerValue>
+                  </Index>
+               </ArrayElement>
+            </NumericRHS>
+         </Assignment>
+      </NodeBody>
+   </Node>
+</PlexilPlan>

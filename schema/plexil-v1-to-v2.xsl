@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -271,11 +271,6 @@
         <Priority>
           <xsl:apply-templates select="ResourcePriority/*" />
         </Priority>
-        <xsl:if test="ResourceLowerBound">
-          <LowerBound>
-            <xsl:apply-templates select="ResourceLowerBound/*" />
-          </LowerBound>
-        </xsl:if>
         <xsl:if test="ResourceUpperBound">
           <UpperBound>
             <xsl:apply-templates select="ResourceUpperBound/*" />

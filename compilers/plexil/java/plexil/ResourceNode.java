@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,12 +28,12 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class ResourceNode extends PlexilTreeNode
 {
 	private ExpressionNode m_name = null;
-	private ExpressionNode m_lowerBound = null;
 	private ExpressionNode m_upperBound = null;
 	private ExpressionNode m_releaseAtTermination = null;
 	private ExpressionNode m_priority = null;
@@ -47,7 +47,6 @@ public class ResourceNode extends PlexilTreeNode
 	{
 		super(n);
 		m_name = n.m_name;
-		m_lowerBound = n.m_lowerBound;
 		m_upperBound = n.m_upperBound;
 		m_releaseAtTermination = n.m_releaseAtTermination;
 		m_priority = n.m_priority;
@@ -57,6 +56,18 @@ public class ResourceNode extends PlexilTreeNode
 	{
 		return new ResourceNode(this);
 	}
+
+    // format is:
+    // ^(RESOURCE_KYWD name_expr [ option_kywd value_expr ]* )
+
+    @Override
+    protected void earlyCheckChildren(NodeContext context, CompilerState state)
+    {
+        for (int i = 0; i < this.getChildCount(); i += 2) {
+            // Perform early checks on the expressions
+            this.getChild(i).earlyCheck(context, state);
+        }
+    }
 
     @Override
 	protected void earlyCheckSelf(NodeContext context, CompilerState state)
@@ -68,7 +79,6 @@ public class ResourceNode extends PlexilTreeNode
 			PlexilTreeNode kywd = this.getChild(i);
 			ExpressionNode valueExpr = (ExpressionNode) this.getChild(i + 1);
 			if (valueExpr == null) {
-				// TODO: complain if valueExpr null
 				if (this.getChild(i + 1) != null) {
 					state.addDiagnostic(this.getChild(i + 1),
 										"The value supplied for the Resource option "
@@ -87,17 +97,6 @@ public class ResourceNode extends PlexilTreeNode
 			}
 
 			switch (kywd.getType()) {
-
-			case PlexilLexer.LOWER_BOUND_KYWD:
-				if (m_lowerBound != null) {
-					// Repeated keyword error
-					state.addDiagnostic(kywd,
-										"The " + kywd.getText()
-										+ " keyword may only appear once per Resource statement",
-										Severity.ERROR);
-				}
-				m_lowerBound = valueExpr;
-				break;
 
 			case PlexilLexer.UPPER_BOUND_KYWD:
 				if (m_upperBound != null) {
@@ -123,7 +122,6 @@ public class ResourceNode extends PlexilTreeNode
 
 			case PlexilLexer.PRIORITY_KYWD:
 				if (m_priority != null) {
-					// TODO: repeated keyword error	
 					state.addDiagnostic(kywd,
 										"The " + kywd.getText()
 										+ " keyword may only appear once per Resource statement",
@@ -141,13 +139,15 @@ public class ResourceNode extends PlexilTreeNode
 				break;
 			}
 		}
-        // Priority is required
-        if (m_priority == null) {
-            state.addDiagnostic(this,
-                                "Resource statement missing Priority",
-                                Severity.ERROR);
-        }
 	}
+
+    @Override
+    protected void checkChildren(NodeContext context, CompilerState state)
+    {
+        for (int i = 0; i < this.getChildCount(); i += 2) {
+            this.getChild(i).check(context, state);
+        }
+    }
 
     @Override
 	protected void checkSelf(NodeContext context, CompilerState state)
@@ -160,15 +160,9 @@ public class ResourceNode extends PlexilTreeNode
 		}
 		
 		// Type check bounds, if supplied
-		if (m_lowerBound != null
-			&& !m_lowerBound.getDataType().isNumeric()) {
-			state.addDiagnostic(m_lowerBound,
-								"Resource LowerBound value is not a numeric expression",
-								Severity.ERROR);
-		}
 		if (m_upperBound != null
 			&& !m_upperBound.getDataType().isNumeric()) {
-			state.addDiagnostic(m_lowerBound,
+			state.addDiagnostic(m_upperBound,
 								"Resource UpperBound value is not a numeric expression",
 								Severity.ERROR);
 		}
@@ -190,31 +184,26 @@ public class ResourceNode extends PlexilTreeNode
 		}
 	}
 
-	@Override
-    protected void constructXML()
+    @Override
+	protected void constructXML(Document root)
 	{
-		super.constructXMLBase();
-		Element nameElt = CompilerState.newElement("ResourceName");
-		nameElt.appendChild(m_name.getXML());
+		super.constructXMLBase(root);
+		Element nameElt = root.createElement("ResourceName");
+		nameElt.appendChild(m_name.getXML(root));
 		m_xml.appendChild(nameElt);
-
-        Element prio = CompilerState.newElement("ResourcePriority");
-        prio.appendChild(m_priority.getXML());
-        m_xml.appendChild(prio);
-
-		if (m_lowerBound != null) {
-			Element lbound = CompilerState.newElement("ResourceLowerBound");
-			lbound.appendChild(m_lowerBound.getXML());
-			m_xml.appendChild(lbound);
-		}
+        if (m_priority != null) {
+            Element prio = root.createElement("ResourcePriority");
+            prio.appendChild(m_priority.getXML(root));
+            m_xml.appendChild(prio);
+        }
 		if (m_upperBound != null) {
-			Element ubound = CompilerState.newElement("ResourceUpperBound");
-			ubound.appendChild(m_upperBound.getXML());
+			Element ubound = root.createElement("ResourceUpperBound");
+			ubound.appendChild(m_upperBound.getXML(root));
 			m_xml.appendChild(ubound);
 		}
 		if (m_releaseAtTermination != null) {
-			Element rat = CompilerState.newElement("ResourceReleaseAtTermination");
-			rat.appendChild(m_releaseAtTermination.getXML());
+			Element rat = root.createElement("ResourceReleaseAtTermination");
+			rat.appendChild(m_releaseAtTermination.getXML(root));
 			m_xml.appendChild(rat);
 		}
 	}

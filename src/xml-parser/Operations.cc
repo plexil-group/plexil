@@ -27,6 +27,7 @@
 #include "Operations.hh"
 
 #include "CachedFunction.hh"
+#include "Error.hh"
 #include "Function.hh"
 
 #include <limits>
@@ -153,7 +154,9 @@ namespace PLEXIL
                       size_t minArgs,
                       size_t maxArgs)
   {
-    return std::make_unique<SimpleOperation>(name, oper, argType, returnType, minArgs, maxArgs);
+    return std::unique_ptr<SimpleOperation>(new SimpleOperation(name, oper,
+                                                                argType, returnType,
+                                                                minArgs, maxArgs));
   }
 
 
@@ -199,9 +202,9 @@ namespace PLEXIL
                             size_t minArgs,
                             size_t maxArgs)
   {
-    return std::make_unique<CachedSimpleOperation>(name, oper,
-                                                   argType, returnType,
-                                                   minArgs, maxArgs);
+    return std::unique_ptr<CachedSimpleOperation>(new CachedSimpleOperation(name, oper,
+                                                                            argType, returnType,
+                                                                            minArgs, maxArgs));
   }
 
   // Represents an operation which accepts arguments of any type,
@@ -259,8 +262,8 @@ namespace PLEXIL
                       size_t minArgs,
                       size_t maxArgs)
   {
-    return std::make_unique<AnyArgOperation>(name, oper, returnType,
-                                             minArgs, maxArgs);
+    return std::unique_ptr<AnyArgOperation>(new AnyArgOperation(name, oper, returnType,
+                                                                minArgs, maxArgs));
   }
 
   //
@@ -388,8 +391,8 @@ namespace PLEXIL
                           size_t minArgs,
                           size_t maxArgs)
   {
-    return std::make_unique<ArithmeticOperation>(name, integerOper, realOper,
-                                                 minArgs, maxArgs);
+    return std::unique_ptr<ArithmeticOperation>(new ArithmeticOperation(name, integerOper, realOper,
+                                                                        minArgs, maxArgs));
   }
 
 
@@ -441,7 +444,7 @@ namespace PLEXIL
                                  Operator const *oper,
                                  ValueType returnType)
   {
-    return std::make_unique<SpecialArithmeticOperation>(name, oper, returnType);
+    return std::unique_ptr<SpecialArithmeticOperation>(new SpecialArithmeticOperation(name, oper, returnType));
   }
 
   // Special behavior for conversion operators
@@ -512,7 +515,7 @@ namespace PLEXIL
                                     Operator const *integerOper,
                                     Operator const *realOper)
   {
-    return std::make_unique<ArithmeticConversionOperation>(name, integerOper, realOper);
+    return std::unique_ptr<ArithmeticConversionOperation>(new ArithmeticConversionOperation(name, integerOper, realOper));
   }
 
   //
@@ -583,7 +586,7 @@ namespace PLEXIL
   std::unique_ptr<Operation>
   makeEqualityOperation(std::string const &name, Operator const *oper)
   {
-    return std::make_unique<EqualityOperation>(name, oper);
+    return std::unique_ptr<EqualityOperation>(new EqualityOperation(name, oper));
   }
 
   //
@@ -724,7 +727,7 @@ namespace PLEXIL
                           Operator const *realOper,
                           Operator const *stringOper)
   {
-    return std::make_unique<ComparisonOperation>(name, integerOper, realOper, stringOper);
+    return std::unique_ptr<ComparisonOperation>(new ComparisonOperation(name, integerOper, realOper, stringOper));
   }
 
   //! Operations which take one array parameter and return a value of a particular type.
@@ -776,7 +779,7 @@ namespace PLEXIL
                      Operator const *oper,
                      ValueType returnType)
   {
-    return std::make_unique<ArrayOperation>(name, oper, returnType);
+    return std::unique_ptr<ArrayOperation>(new ArrayOperation(name, oper, returnType));
   }
 
 } // namespace PLEXIL

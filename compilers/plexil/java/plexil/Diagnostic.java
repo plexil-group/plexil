@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -30,9 +30,11 @@ public class Diagnostic
     private Severity m_severity;
     private String m_message;
     private PlexilTreeNode m_location;
+    private String m_file;
 
-    public Diagnostic(PlexilTreeNode location, String message, Severity severity)
+    public Diagnostic(String file, PlexilTreeNode location, String message, Severity severity)
     {
+        m_file = file;
         m_location = location;
         m_message = message;
         m_severity = severity;
@@ -40,19 +42,22 @@ public class Diagnostic
 
     public String toString()
     {
-        if (m_location == null) {
-            return
-                m_severity.toString() + ": "
-                + m_message;
+        StringBuilder s = new StringBuilder(m_severity.toString());
+        s.append(": ");
+        if (m_file != null) {
+            s.append(m_file);
+            s.append(":");
         }
-        else {
-            return
-                m_severity.toString() + ": "
-                // TODO: file name goes here
-                + "line " + String.valueOf(m_location.getLine()) + ':'
-                + String.valueOf(m_location.getCharPositionInLine()) + ": "
-                + m_message;
+        if (m_location != null) {
+            s.append(String.valueOf(m_location.getLine()));
+            s.append(':');
+            s.append(String.valueOf(m_location.getCharPositionInLine()));
         }
+        if (m_file != null || m_location != null) {
+            s.append(": ");
+        }
+        s.append(m_message);
+        return s.toString();
     }
 
     public int severity() { return m_severity.rank; }

@@ -1,1 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/update1.ple"><Node ColNo="2" LineNo="2" NodeType="Update"><NodeId>Update__1</NodeId><NodeBody><Update><Pair><Name>x</Name><IntegerValue>1</IntegerValue></Pair></Update></NodeBody></Node></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/update1.ple">
+   <Node ColNo="2" LineNo="2" NodeType="Update">
+      <NodeId generated="1">Update__0</NodeId>
+      <NodeBody>
+         <Update>
+            <Pair>
+               <Name>x</Name>
+               <IntegerValue>1</IntegerValue>
+            </Pair>
+         </Update>
+      </NodeBody>
+   </Node>
+</PlexilPlan>

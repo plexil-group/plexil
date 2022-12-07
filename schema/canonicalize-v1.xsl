@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <!--
-* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -177,7 +177,6 @@ canonicalized plan to determine if they are equivalent. -->
       </xsl:perform-sort>
       <xsl:apply-templates select="ResourceName" />
       <xsl:apply-templates select="ResourcePriority" />
-      <xsl:apply-templates select="ResourceLowerBound" />
       <xsl:apply-templates select="ResourceUpperBound" />
       <xsl:apply-templates select="ResourceReleaseAtTermination" />
     </Resource>

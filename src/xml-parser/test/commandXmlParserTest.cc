@@ -67,7 +67,6 @@ static bool testCommandParserBasics()
     assertTrue_1(simple->getName() == "foo");
     assertTrue_1(simple->getArgValues().empty());
     assertTrue_1(simple->getCommand() == State("foo"));
-    simple->fixResourceValues();
     assertTrue_1(simple->getResourceValues().empty());
     delete simple;
   }
@@ -93,7 +92,6 @@ static bool testCommandParserBasics()
     assertTrue_1(empty->getName() == "empty");
     assertTrue_1(empty->getArgValues().empty());
     assertTrue_1(empty->getCommand() == State("empty"));
-    empty->fixResourceValues();
     assertTrue_1(empty->getResourceValues().empty());
     delete empty;
   }
@@ -121,7 +119,6 @@ static bool testCommandParserBasics()
     State arghState = State("argh", 1);
     arghState.setParameter(0, Value((int32_t) 0));
     assertTrue_1(argh->getCommand() == arghState);
-    argh->fixResourceValues();
     assertTrue_1(argh->getResourceValues().empty());
     delete argh;
   }
@@ -147,7 +144,6 @@ static bool testCommandParserBasics()
     assertTrue_1(resultant->getName() == "resultant");
     assertTrue_1(resultant->getArgValues().empty());
     assertTrue_1(resultant->getCommand() == State("resultant"));
-    resultant->fixResourceValues();
     assertTrue_1(resultant->getResourceValues().empty());
     delete resultant;
   }
@@ -173,7 +169,6 @@ static bool testCommandParserBasics()
     assertTrue_1(resourceless->getName() == "resourceless");
     assertTrue_1(resourceless->getArgValues().empty());
     assertTrue_1(resourceless->getCommand() == State("resourceless"));
-    resourceless->fixResourceValues();
     assertTrue_1(resourceless->getResourceValues().empty());
     delete resourceless;
   }
@@ -202,7 +197,6 @@ static bool testCommandParserBasics()
     assertTrue_1(resourceful->getName() == "resourceful");
     assertTrue_1(resourceful->getArgValues().empty());
     assertTrue_1(resourceful->getCommand() == State("resourceful"));
-    resourceful->fixResourceValues();
     ResourceValueList const &rlist = resourceful->getResourceValues();
     assertTrue_1(rlist.size() == 1);
     ResourceValue const &rmap = rlist.front();
@@ -236,7 +230,6 @@ static bool testCommandParserBasics()
     assertTrue_1(remorseful->getName() == "remorseful");
     assertTrue_1(remorseful->getArgValues().empty());
     assertTrue_1(remorseful->getCommand() == State("remorseful"));
-    remorseful->fixResourceValues();
     ResourceValueList const &slist = remorseful->getResourceValues();
     assertTrue_1(slist.size() == 1);
     ResourceValue const &smap = slist.front();
@@ -274,7 +267,6 @@ static bool testCommandParserBasics()
     State regretCmd = State("regretful", 1);
     regretCmd.setParameter(0, Value(true));
     assertTrue_1(regretful->getCommand() == regretCmd);
-    regretful->fixResourceValues();
     ResourceValueList const &tlist = regretful->getResourceValues();
     assertTrue_1(tlist.size() == 1);
     ResourceValue const &tmap = tlist.front();

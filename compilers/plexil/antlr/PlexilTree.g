@@ -66,6 +66,7 @@ declaration :
     commandDeclaration
   | lookupDeclaration
   | libraryActionDeclaration
+  | mutexDeclaration
  ;
 
 commandDeclaration :
@@ -87,6 +88,8 @@ libraryActionDeclaration :
  ;
 
 libraryParamsSpec : ^(PARAMETERS ( (IN_KYWD | IN_OUT_KYWD) typeName NCNAME INT? )* ) ;
+
+mutexDeclaration : ^(MUTEX_KYWD NCNAME*) ;
 
 //
 // Actions
@@ -232,7 +235,11 @@ block :
 
 comment : ^(COMMENT_KYWD STRING) ;
 
-nodeDeclaration : interfaceDeclaration | variableDeclaration ;
+nodeDeclaration :
+    interfaceDeclaration
+  | variableDeclaration
+  | mutexDeclaration
+  ;
 
 interfaceDeclaration :
     ^((IN_KYWD | IN_OUT_KYWD)
@@ -288,6 +295,7 @@ nodeAttribute :
     nodeCondition
   | priority
   | resource
+  | mutexReference
  ;
 
 nodeCondition : 
@@ -321,6 +329,8 @@ resourceOption :
     | ( RELEASE_AT_TERM_KYWD expression )
       { /* check that expression is Boolean */ }
  ;
+
+mutexReference : ^(USING_KYWD NCNAME*) ;
 
 ///////////////////
 //  EXPRESSIONS  //

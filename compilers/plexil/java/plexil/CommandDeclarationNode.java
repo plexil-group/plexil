@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,11 +25,13 @@
 
 package plexil;
 
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class CommandDeclarationNode extends PlexilTreeNode
@@ -56,7 +58,7 @@ public class CommandDeclarationNode extends PlexilTreeNode
     {
         // check that name is not already defined
         String cmdName = this.getChild(0).getText();
-        if (GlobalContext.getGlobalContext().isCommandName(cmdName)) {
+        if (state.getGlobalContext().isCommandName(cmdName)) {
             // Report duplicate definition
             state.addDiagnostic(this.getChild(0),
                                 "Command \"" + cmdName + "\" is already defined",
@@ -64,11 +66,11 @@ public class CommandDeclarationNode extends PlexilTreeNode
         }
 
         // Parse parameter list, if supplied
-        Vector<VariableName> parmSpecs = null;
+        List<VariableName> parmSpecs = null;
         ParameterSpecNode parmAST = getParameters();
         if (parmAST != null) {
             parmAST.earlyCheck(context, state); // for effect
-            parmSpecs = parmAST.getParameterVector();
+            parmSpecs = parmAST.getParameterList();
             if (parmSpecs != null) {
                 for (VariableName vn : parmSpecs) {
                     if (vn instanceof InterfaceVariableName) {
@@ -82,45 +84,46 @@ public class CommandDeclarationNode extends PlexilTreeNode
         }
 
         // Parse return type, if supplied
-        Vector<VariableName> returnSpecs = null;
+        VariableName returnSpec = null;
         ReturnSpecNode returnAST = (ReturnSpecNode) getReturn();
         if (returnAST != null) {
             returnAST.earlyCheck(context, state); // for effect
-            returnSpecs = returnAST.getReturnVector();
+            returnSpec = returnAST.getReturnSpec();
         } 
 
         // TODO: Handle resource list
 
         // Define in global environment
-        GlobalContext.getGlobalContext().addCommandName(this, cmdName, parmSpecs, returnSpecs);
+        state.getGlobalContext().addCommandName(this, cmdName, parmSpecs, returnSpec);
     }
 
     @Override
-    protected void constructXML()
+    protected void constructXML(Document root)
     {
-        this.constructXMLBase();
+        this.constructXMLBase(root);
 
         // add name
         PlexilTreeNode nameTree = this.getChild(0);
-        Element nameXML = CompilerState.newElement("Name");
-        nameXML.appendChild(CompilerState.newTextNode(nameTree.getText()));
+        Element nameXML = root.createElement("Name");
+        nameXML.appendChild(root.createTextNode(nameTree.getText()));
         m_xml.appendChild(nameXML);
 
         if (this.getChildCount() > 1) {
             // Add return spec(s) if provided
             ReturnSpecNode returnSpec = getReturn();
             if (returnSpec != null) {
-                returnSpec.constructReturnXML(m_xml);
+                returnSpec.constructReturnXML(root, m_xml);
             }
 
             // Add parameter spec(s) if provided
             ParameterSpecNode parametersSpec = getParameters();
             if (parametersSpec != null)
-                parametersSpec.constructParameterXML(m_xml);
+                parametersSpec.constructParameterXML(root, m_xml);
 
             // TODO: add resource list if provided
             PlexilTreeNode resourceList = getResourceList();
             if (resourceList != null) {
+
             }
         }
     }

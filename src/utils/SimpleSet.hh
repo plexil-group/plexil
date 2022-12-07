@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -42,10 +42,10 @@ namespace PLEXIL
   class SimpleSet
   {
   public:
-    typedef std::vector<VALUE_TYPE> STORE_TYPE;
+    using STORE_TYPE = std::vector<VALUE_TYPE>;
 
-    typedef typename STORE_TYPE::const_iterator const_iterator;
-    typedef typename STORE_TYPE::iterator iterator;
+    using const_iterator = typename STORE_TYPE::const_iterator;
+    using iterator = typename STORE_TYPE::iterator;
 
     SimpleSet()
     {

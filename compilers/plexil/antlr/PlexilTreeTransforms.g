@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -49,11 +49,15 @@ import plexil.*;
 
 @members
 {
-    GlobalContext m_globalContext = GlobalContext.getGlobalContext();
-    NodeContext m_context = m_globalContext;
+    CompilerState m_compilerState = null;
     Stack<String> m_paraphrases = new Stack<String>();
+    
+	public PlexilTreeTransforms(TreeNodeStream input, CompilerState state)
+    {
+		super(input, state.sharedState);
+        m_compilerState = state;
+	}
 
-	// Overrides to enhance error reporting
 	public String getErrorMessage(RecognitionException e,
 		   		  				  String[] tokenNames)
 	{
@@ -67,9 +71,9 @@ import plexil.*;
 	public void displayRecognitionError(String[] tokenNames,
 										RecognitionException e)
 	{
-	  CompilerState.getCompilerState().addDiagnostic((PlexilTreeNode) e.node,
-													 getErrorHeader(e) + " " + getErrorMessage(e, tokenNames),
-													 Severity.ERROR);
+        m_compilerState.addDiagnostic((PlexilTreeNode) e.node,
+                                      getErrorHeader(e) + " " + getErrorMessage(e, tokenNames),
+                                      Severity.ERROR);
 	}
 
     // Debugging aid.
@@ -108,23 +112,14 @@ bottomup:
 //
 
 enterContext:
-        bindingContextNode
-        {
-            m_context = $bindingContextNode.start.getContext();
-//            System.out.println("Enter context " + m_context.getNodeName()); // DEBUG
-        } ;
+        bindingContextNode ;
 
 //
 // Bottom-up transforms
 //
 
 exitContext:
-        bindingContextNode
-        {
-//            System.out.println("Exit context " + m_context.getNodeName()); // DEBUG
-            m_context = m_context.getParentContext();
-//            System.out.println("Restore context " + m_context.getNodeName()); // DEBUG
-        } ;
+        bindingContextNode ;
 
 //
 // Expression simplification
@@ -203,20 +198,27 @@ booleanEqualityNegation:
         
 // Block flattening
 
+// Note that while tree nodes with node contexts may be elided, the
+// original tree of node contexts remains intact.
+
 flattenTrivialCheckedBlock:
-        ^(ACTION ^(checkedBlock innerUnnamed=unnamedAction))
-        -> $innerUnnamed
-    |   ^(ACTION ^(checkedBlock innerNamed=namedAction))
+        ^(ACTION ^(checkedBlock innerNamed=namedAction))
         -> $innerNamed
+    |   ^(ACTION ^(checkedBlock innerUnnamed=unnamedAction))
+        -> $innerUnnamed
     |   ^(ACTION NCNAME ^(checkedBlock namedAction)) // no transform
-    |   ^(ACTION outerId=NCNAME ^(checkedBlock ^(ACTION body=.)))
-        -> ^(ACTION $outerId $body)
+    |   ^(outerAction=ACTION outerId=NCNAME ^(checkedBlock ^(ACTION body=.)))
+        -> ^($outerAction $outerId $body)
     ;
 
 //
 // Recognizer rules
 //
 
+// N.B. A '{' token not preceded by a sequence variant keyword can be
+// transformed into a BLOCK by the parser rule 'block'.
+// All but FOR_KYWD are instances of BlockNode
+// All implement the PlexilNode interface
 bindingContextNode:
         BLOCK
     | LBRACE
@@ -229,15 +231,17 @@ bindingContextNode:
 
 // A checked block has an outcome of FAILURE if some child fails.
 // Therefore can be collapsed if only 1 child.
+// All are (or should be) instances of BlockNode
 checkedBlock:
-        CHECKED_SEQUENCE_KWYD
+        CHECKED_SEQUENCE_KYWD
     |   SEQUENCE_KYWD
     |   BLOCK
     |   LBRACE
-    |   TRY
+    |   TRY_KYWD
     ;
 
-// An unchecked block has an outcome of SUCCESS if all children fail.
+// An unchecked block has an outcome of SUCCESS by default,
+// irrespective of its childrens' outcomes.
 uncheckedBlock:
         UNCHECKED_SEQUENCE_KYWD
     |   CONCURRENCE_KYWD
@@ -261,21 +265,3 @@ namedAction:
 unnamedAction:
         ^(ACTION .)
  ;
-
-condition:
-        ^(conditionKywd .)
- ;
-
-
-conditionKywd:
-        END_CONDITION_KYWD
-    |   EXIT_CONDITION_KYWD
-    |   INVARIANT_CONDITION_KYWD
-    |   POST_CONDITION_KYWD
-    |   PRE_CONDITION_KYWD
-    |   REPEAT_CONDITION_KYWD
-    |   SKIP_CONDITION_KYWD
-    |   START_CONDITION_KYWD
-    ;
-
-        

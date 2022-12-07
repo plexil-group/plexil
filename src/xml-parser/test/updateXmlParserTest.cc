@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,7 +26,7 @@
 
 #include "TestSupport.hh"
 #include "test/TrivialNodeConnector.hh"
-#include "Update.hh"
+#include "UpdateImpl.hh"
 #include "updateXmlParser.hh"
 
 #include "pugixml.hpp"
@@ -52,7 +52,7 @@ static bool testUpdateParserBasics()
     catch (ParserException const &exc) {
       assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception: " << exc.what());
     }
-    Update *emptyUpdate = constructUpdate(&conn, emptyUpdateXml);
+    UpdateImpl *emptyUpdate = constructUpdate(&conn, emptyUpdateXml);
     try {
       finalizeUpdate(emptyUpdate, &conn, emptyUpdateXml);
       emptyUpdate->fixValues();
@@ -78,7 +78,7 @@ static bool testUpdateParserBasics()
       assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception: " << exc.what());
     }
 
-    Update *simple = constructUpdate(&conn, simpleXml);
+    UpdateImpl *simple = constructUpdate(&conn, simpleXml);
     try {
       finalizeUpdate(simple, &conn, simpleXml);
       simple->fixValues();

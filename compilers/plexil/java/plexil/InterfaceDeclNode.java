@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,14 +25,15 @@
 
 package plexil;
 
-import java.util.Vector;
-
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class InterfaceDeclNode extends PlexilTreeNode
 {
-    Vector<InterfaceVariableName> m_variables = new Vector<InterfaceVariableName>();
+    List<InterfaceVariableName> m_variables = new ArrayList<InterfaceVariableName>();
 
     public InterfaceDeclNode(Token t)
     {
@@ -64,6 +65,7 @@ public class InterfaceDeclNode extends PlexilTreeNode
     // Parent is always a BlockNode, which always has its own context.
     //
 
+    @Override
     public void earlyCheck(NodeContext context, CompilerState state)
     {
         boolean isInOut = this.getType() == PlexilLexer.IN_OUT_KYWD;

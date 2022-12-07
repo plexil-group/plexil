@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -35,34 +35,19 @@ namespace PLEXIL
 
   LibraryCallNode::LibraryCallNode(char const *nodeId, NodeImpl *parent)
     : ListNode(nodeId, parent),
-      m_aliasMap()
+      m_aliasMap(nullptr)
   {
   }
 
-  /**
-   * @brief Alternate constructor.  Used only by Exec test module.
-   */
   LibraryCallNode::LibraryCallNode(const std::string& type,
                                    const std::string& name, 
                                    NodeState state,
                                    NodeImpl *parent)
     : ListNode(type, name, state, parent),
-      m_aliasMap()
+      m_aliasMap(nullptr)
   {
     checkError(type == LIBRARYNODECALL,
                "Invalid node type " << type << " for a LibraryCallNode");
-  }
-
-  /**
-   * @brief Destructor.  Cleans up this entire part of the node tree.
-   */
-  LibraryCallNode::~LibraryCallNode()
-  {
-    debugMsg("LibraryCallNode:~LibraryCallNode", '<' << m_nodeId << '>');
-
-    cleanUpConditions();
-    cleanUpNodeBody();
-    cleanUpVars();
   }
 
   void LibraryCallNode::cleanUpNodeBody()
@@ -70,14 +55,18 @@ namespace PLEXIL
     if (m_cleanedBody)
       return;
 
-    ListNode::cleanUpNodeBody();
+    debugMsg("LibraryCallNode:cleanUpNodeBody", " for " << m_nodeId);
 
+    // Aliases may point to expressions owned by m_localVariables,
+    // so delete alias map first.
     delete m_aliasMap.release();
+
+    ListNode::cleanUpNodeBody();
   }
 
   void LibraryCallNode::allocateAliasMap(size_t n)
   {
-    m_aliasMap = NodeVariableMapPtr(new NodeVariableMap(nullptr));
+    m_aliasMap.reset(new NodeVariableMap(nullptr));
     m_aliasMap->grow(n);
   }
 

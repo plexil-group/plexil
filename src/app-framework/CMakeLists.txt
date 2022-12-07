@@ -1,4 +1,4 @@
-## Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+## Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 ##  All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -27,9 +27,9 @@ add_library(PlexilAppFramework ${PlexilExec_SHARED_OR_STATIC}
   AdapterConfiguration.cc AdapterFactory.cc CommandHandler.cc Configuration.cc
   ExecApplication.cc ExecListener.cc ExecListenerFactory.cc
   ExecListenerFilter.cc ExecListenerFilterFactory.cc ExecListenerHub.cc
-  InterfaceManager.cc Launcher.cc ListenerFilters.cc LookupHandler.cc
-  MessageAdapter.cc SerializedInputQueue.cc SimpleInputQueue.cc TimeAdapter.cc
-  Timebase.cc TimebaseFactory.cc UtilityAdapter.cc
+  InterfaceManager.cc InterfaceSchema.cc Launcher.cc ListenerFilters.cc
+  LookupHandler.cc MessageAdapter.cc SerializedInputQueue.cc SimpleInputQueue.cc
+  TimeAdapter.cc Timebase.cc TimebaseFactory.cc UtilityAdapter.cc
   )
 
 install(TARGETS PlexilAppFramework
@@ -42,16 +42,20 @@ include_directories(
   ${PlexilExec_SOURCE_DIR}/expr
   ${PlexilExec_SOURCE_DIR}/intfc
   ${PlexilExec_SOURCE_DIR}/exec
-  ${pugixml_SOURCE_DIR}
+  ${PlexilExec_SOURCE_DIR}/third-party/pugixml/src
   ${PlexilExec_SOURCE_DIR}/xml-parser
   )
 
 target_link_libraries(PlexilAppFramework PUBLIC
   PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec
-  -L${pugixml_LIB_DIR} -lpugixml
-  PlexilXmlParser)
+  pugixml PlexilXmlParser)
 
-if(PLEXIL_WITH_THREADS AND HAVE_LIBPTHREAD)
+if(PlexilExec_SHLIB_INSTALL_RPATH)
+  set_target_properties(PlexilAppFramework
+    PROPERTIES INSTALL_RPATH ${PlexilExec_SHLIB_INSTALL_RPATH})
+endif()
+
+if(WITH_THREADS AND HAVE_LIBPTHREAD)
   target_link_libraries(PlexilAppFramework PUBLIC pthread)
 endif()
 
@@ -67,8 +71,8 @@ install(FILES
   AdapterConfiguration.hh AdapterExecInterface.hh AdapterFactory.hh
   CommandHandler.hh Configuration.hh ExecApplication.hh ExecListener.hh
   ExecListenerFactory.hh ExecListenerFilter.hh ExecListenerFilterFactory.hh
-  ExecListenerHub.hh InterfaceAdapter.hh InterfaceManager.hh ListenerFilters.hh
-  LookupHandler.hh MessageAdapter.hh PlannerUpdateHandler.hh
+  ExecListenerHub.hh InterfaceAdapter.hh InterfaceManager.hh InterfaceSchema.hh
+  ListenerFilters.hh LookupHandler.hh MessageAdapter.hh PlannerUpdateHandler.hh
   SerializedInputQueue.hh SimpleInputQueue.hh Timebase.hh TimebaseFactory.hh
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
@@ -81,7 +85,7 @@ if(PLAN_DEBUG_LISTENER)
   endif()
 endif()
 
-if(HAVE_IPC_ADAPTER)
+if(IPC_ADAPTER)
   target_include_directories(PlexilAppFramework PRIVATE
     ${PlexilExec_SOURCE_DIR}/interfaces/IpcUtils
     ${PlexilExec_SOURCE_DIR}/interfaces/IpcAdapter)
@@ -91,7 +95,7 @@ if(HAVE_IPC_ADAPTER)
   endif()
 endif()
 
-if(HAVE_LUV_LISTENER)
+if(VIEWER_LISTENER)
   target_include_directories(PlexilAppFramework PRIVATE
     ${PlexilExec_SOURCE_DIR}/interfaces/LuvListener)
   if(NOT BUILD_SHARED_LIBS)
@@ -100,7 +104,7 @@ if(HAVE_LUV_LISTENER)
   endif()
 endif()
 
-if(HAVE_UDP_ADAPTER)
+if(UDP_ADAPTER)
   target_include_directories(PlexilAppFramework PRIVATE
     ${PlexilExec_SOURCE_DIR}/interfaces/UdpAdapter)
   if(NOT BUILD_SHARED_LIBS)
@@ -121,9 +125,11 @@ if(MODULE_TESTS AND WITH_THREADS)
     )
 
   target_link_libraries(timebase-test
-    PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec
-    -L${pugixml_LIB_DIR} -lpugixml
-    )
+    PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec pugixml)
+
+  if(HAVE_LIBRT)
+    target_link_libraries(timebase-test rt)
+  endif()
 
   if(HAVE_LIBRT)
     target_link_libraries(timebase-test rt)

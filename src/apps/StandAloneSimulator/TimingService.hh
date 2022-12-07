@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,11 +29,7 @@
 
 #include "plexil-config.h"
 
-#if defined(HAVE_CSIGNAL)
 #include <csignal>
-#elif defined(HAVE_SIGNAL_H)
-#include <signal.h>
-#endif
 
 #ifdef HAVE_SYS_TIME_H
 #include <sys/time.h>

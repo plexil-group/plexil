@@ -1,4 +1,4 @@
-## Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+## Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 ##  All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -23,50 +23,14 @@
 ## TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 ## USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 3.6 FATAL_ERROR)
-
 project(PlexilExec
   DESCRIPTION "An executive for the PLEXIL language"
   LANGUAGES CXX C)
 
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)  
-
-# cmake modules
-include(CMakeDependentOption)
-include(ExternalProject)
 include(GNUInstallDirs)
 
-#
-# Options
-#
-
-#
-# How to build it
-option(BUILD_SHARED_LIBS "Build shared instead of static libraries" ON)
-
-# Built-in featulres
-option(DEBUG_MESSAGES "Support for tracing internals at runtime" ON)
-option(WITH_THREADS "Use POSIX thread support" ON)
-
-# What to build
-option(UNIVERSAL_EXEC "Build the universalExec application" ON)
-option(TEST_EXEC "Build the TestExec application" ON)
-option(UDP_ADAPTER "Build adapter for interfacing via UDP" OFF)
-option(PLAN_DEBUG_LISTENER "Build the PlanDebugListener module" ON)
-option(VIEWER_LISTENER "Build interface for Plexil Viewer" ON)
-option(MODULE_TESTS "Build unit test executables for submodules" OFF)
-#
-# Not strictly exec code
-option(STANDALONE_SIMULATOR "Build the StandAloneSimulator application" OFF)
-
-#
-# Implementation choices
-option(JAVA_NATIVE_INTERFACE "Support for calling PlexilExec from Java" OFF)
-
-# Dependent options
-CMAKE_DEPENDENT_OPTION(IPC_ADAPTER "Build TCA-IPC and adapter for interapp comms" ON
-  "NOT STANDALONE_SIMULATOR" ON)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #
 # Create plexil-config.h from platform characteristics and options
@@ -78,55 +42,34 @@ install(FILES ${CMAKE_BINARY_DIR}/plexil-config.h
   DESTINATION include)
 
 # This is the build time location of plexil-config.h
-# This is global for a good reason!
 include_directories(${CMAKE_BINARY_DIR})
 
 # TODO: create compile-time environment file plexil-config.env
 
-#
-# If building shared libraries, define macro PIC for all source code 
-# for consistency with GNU libtool
-#
 if(BUILD_SHARED_LIBS)
-  add_definitions(-DPIC)
-endif()
-
-# Set default RPATH for executables
-if(${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
-  set(PlexilExec_EXE_INSTALL_RPATH "@executable_path/../${CMAKE_INSTALL_LIBDIR}"
-    CACHE STRING
-    "The rpath value to use when installing Plexil executables")
-else()
-  # Presumes system with ELF linker
-  set(PlexilExec_EXE_INSTALL_RPATH "\$ORIGIN/../${CMAKE_INSTALL_LIBDIR}"
-    CACHE STRING
-    "The rpath value to use when installing Plexil executables")
+  # Set default RUNPATH for executables, and libraries if needed
+  if(${CMAKE_SYSTEM_NAME} STREQUAL Darwin)
+    set(PlexilExec_EXE_INSTALL_RPATH "@executable_path/../${CMAKE_INSTALL_LIBDIR}"
+      CACHE STRING
+      "The rpath value to set when installing Plexil executables")
+  else()
+    set(PlexilExec_EXE_INSTALL_RPATH "\$ORIGIN/../${CMAKE_INSTALL_LIBDIR}"
+      CACHE STRING
+      "The rpath value to set when installing Plexil executables")
+    set(PlexilExec_SHLIB_INSTALL_RPATH "\$ORIGIN"
+      CACHE STRING
+      "The rpath value to set when installing Plexil shared libraries")
+  endif()
 endif()
 
 #
 # pugixml as an external project
 #
 
-ExternalProject_add(pugixml
-
-  # When included as separate checkout
-  # GIT_REPOSITORY https://github.com/zeux/pugixml
-  # GIT_TAG v1.10
-  
-  # When checked out as part of plexil
-  SOURCE_DIR ${PlexilExec_SOURCE_DIR}/third-party/pugixml
-
-  # Common
-  PREFIX third-party/pugixml
-  CMAKE_ARGS -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
-  -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-  -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-  STEP_TARGETS build
- )
-
-ExternalProject_Get_Property(pugixml SOURCE_DIR BINARY_DIR)
-set(pugixml_SOURCE_DIR ${SOURCE_DIR}/src)
-set(pugixml_LIB_DIR ${BINARY_DIR})
+# From https://cliutils.gitlab.io/modern-cmake/chapters/projects/submodule.html
+if(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/third-party/pugixml/CMakeLists.txt")
+    message(FATAL_ERROR "Submodule pugixml not found at ${CMAKE_CURRENT_LIST_DIR}/third-party/pugixml")
+endif()
 
 if(BUILD_SHARED_LIBS)
   set(PlexilExec_SHARED_OR_STATIC SHARED)
@@ -141,6 +84,7 @@ add_subdirectory(value)
 add_subdirectory(expr)
 add_subdirectory(intfc)
 add_subdirectory(exec)
+add_subdirectory(third-party/pugixml)
 add_subdirectory(xml-parser)
 add_subdirectory(app-framework)
 
@@ -163,21 +107,7 @@ if(UDP_ADAPTER)
 endif()
 
 if(IPC_ADAPTER)
-  ExternalProject_Add(
-    ipc
-
-    SOURCE_DIR ${PlexilExec_SOURCE_DIR}/third-party/ipc
-    PREFIX third-party/ipc
-    CMAKE_ARGS -DTHREADED=ON -DBUILD_SHARED_LIBS=${BUILD_SHARED_LIBS}
-    -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
-    -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
-    STEP_TARGETS build
-    )
-
-  ExternalProject_Get_Property(ipc SOURCE_DIR BINARY_DIR)
-  set(ipc_SOURCE_DIR ${SOURCE_DIR}/src)
-  set(ipc_LIB_DIR ${BINARY_DIR})
-
+  add_subdirectory(third-party/ipc)
   add_subdirectory(interfaces/IpcUtils)
   add_subdirectory(interfaces/IpcAdapter)
 

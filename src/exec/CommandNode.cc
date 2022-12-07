@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -48,9 +48,7 @@ namespace PLEXIL
   class CommandHandleInterruptible : public NodeOperatorImpl<Boolean>
   {
   public:
-    ~CommandHandleInterruptible()
-    {
-    }
+    virtual ~CommandHandleInterruptible() = default;
 
     DECLARE_NODE_OPERATOR_STATIC_INSTANCE(CommandHandleInterruptible)
 
@@ -85,7 +83,7 @@ namespace PLEXIL
     {
     }
 
-    // Not implemented
+    // Copy, move constructors, assignment operators not implemented.
     CommandHandleInterruptible(CommandHandleInterruptible const &) = delete;
     CommandHandleInterruptible(CommandHandleInterruptible &&) = delete;
     CommandHandleInterruptible &operator=(CommandHandleInterruptible const &) = delete;
@@ -99,9 +97,7 @@ namespace PLEXIL
   {
   }
 
-  /**
-   * @brief Alternate constructor.  Used only by Exec test module.
-   */
+  // Constructor for unit test.
   CommandNode::CommandNode(const std::string& type,
                            const std::string& name, 
                            NodeState state,
@@ -109,7 +105,6 @@ namespace PLEXIL
     : NodeImpl(type, name, state, parent),
       m_command(new CommandImpl(name))
   {
-    // Set up dummy command for unit test
     initDummyCommand();
 
     switch (m_state) {
@@ -138,9 +133,6 @@ namespace PLEXIL
 
   }
 
-  /**
-   * @brief Destructor.  Cleans up this entire part of the node tree.
-   */
   CommandNode::~CommandNode()
   {
     debugMsg("CommandNode:~CommandNode", " destructor for " << m_nodeId);
@@ -149,12 +141,6 @@ namespace PLEXIL
     cleanUpConditions();
 
     cleanUpNodeBody();
-
-    // Delete command last
-    if (m_command) {
-      debugMsg("CommandNode:~CommandNode", '<' << m_nodeId << "> Cleaning up command.");
-      m_command->cleanUp();
-    }
   }
 
   void CommandNode::cleanUpNodeBody()
@@ -176,11 +162,11 @@ namespace PLEXIL
     assertTrue_1(cmd);
     m_command.reset(cmd);
 
-    // Construct action-complete condition
+    // Set action-complete condition from command
     m_conditions[actionCompleteIdx] = m_command->getCommandHandleKnownFn();
     m_garbageConditions[actionCompleteIdx] = false;
 
-    // Construct command-aborted condition
+    // Set command-aborted condition from command
     m_conditions[abortCompleteIdx] = m_command->getAbortComplete();
     m_garbageConditions[abortCompleteIdx] = false;
   }
@@ -540,7 +526,6 @@ namespace PLEXIL
     assertTrue_1(m_command);
     m_command->activate();
     m_command->fixValues();
-    m_command->fixResourceValues();
     exec->enqueueCommand(m_command.get());
   }
 

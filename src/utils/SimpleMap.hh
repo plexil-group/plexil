@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -91,11 +91,11 @@ namespace PLEXIL
   class SimpleMap
   {
   public:
-    typedef std::pair<KEY_TYPE, VALUE_TYPE> MAP_ENTRY_TYPE;
-    typedef std::vector<MAP_ENTRY_TYPE> MAP_STORE_TYPE;
+    using MAP_ENTRY_TYPE = std::pair<KEY_TYPE, VALUE_TYPE>;
+    using MAP_STORE_TYPE = std::vector<MAP_ENTRY_TYPE>;
 
-    typedef typename MAP_STORE_TYPE::const_iterator const_iterator;
-    typedef typename MAP_STORE_TYPE::iterator iterator;
+    using const_iterator = typename MAP_STORE_TYPE::const_iterator;
+    using iterator = typename MAP_STORE_TYPE::iterator;
 
     SimpleMap()
     {

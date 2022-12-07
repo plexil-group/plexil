@@ -1,6 +1,7 @@
 # Top level Makefile for Plexil
+# Presumes GNU make
 
-# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,24 +26,23 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-SHELL = /bin/sh
+SHELL := /bin/sh
 
 # Check environment
 # N.B.: dir leaves a trailing /
 MAKEFILE_DIR := $(realpath $(join $(dir $(firstword $(MAKEFILE_LIST))),.))
 
-ifeq ($(PLEXIL_HOME),)
-PLEXIL_HOME := $(MAKEFILE_DIR)
-$(info Setting PLEXIL_HOME to $(PLEXIL_HOME))
-else
 ifneq ($(PLEXIL_HOME),$(MAKEFILE_DIR))
-$(error Environment variable PLEXIL_HOME is in error. It must be set to $(MAKEFILE_DIR) before proceeding)
-endif
+PLEXIL_HOME := $(MAKEFILE_DIR)
+$(info Setting environment variable PLEXIL_HOME to $(MAKEFILE_DIR))
 endif
 
 export PLEXIL_HOME
 
-include $(PLEXIL_HOME)/makeinclude/standard-defs.make
+# Files in git submodules
+SUBMODULES := src/third-party/pugixml/src
+
+include makeinclude/standard-defs.make
 
 #
 # Locations for prerequisites
@@ -66,7 +66,7 @@ tools: universalExec TestExec IpcAdapter UdpAdapter plexil-compiler plexilscript
 essentials: universalExec TestExec IpcAdapter UdpAdapter plexil-compiler plexilscript checker plexilsim
 
 #
-# Standalone targets
+# Java targets
 #
 
 checker: checker/global-decl-checker.jar
@@ -74,10 +74,14 @@ checker: checker/global-decl-checker.jar
 checker/global-decl-checker.jar:
 	(cd checker && ant jar)
 
+.PHONY: checker/global-decl-checker.jar
+
 pv: viewers/pv/luv.jar
 
 viewers/pv/luv.jar:
 	(cd viewers/pv && ant jar)
+
+.PHONY: viewers/pv/luv.jar
 
 plexil-compiler: jars/PlexilCompiler.jar
 
@@ -89,8 +93,18 @@ plexilscript: jars/plexilscript.jar
 jars/plexilscript.jar:
 	(cd compilers/plexilscript && ant install)
 
-.PHONY: checker/global-decl-checker.jar viewers/pv/luv.jar
 .PHONY: jars/PlexilCompiler.jar jars/plexilscript.jar
+
+#
+# ** TODO ** Documentation
+#
+
+# doc: doc/html/index.html
+
+# doc/html/index.html:
+# 	$(MAKE) -C doc
+
+#.PHONY: doc/html/index.html
 
 #
 # Targets which depend on the Automake targets below
@@ -171,7 +185,8 @@ most-install: most-build src/Makefile
 	$(MAKE) -C src install
 
 # At bootstrap time, values of these variables come from makeinclude/standard-defs.make
-src/Makefile: src/configure
+# If already configured, they should come from src/configure.env
+src/Makefile: src/configure $(SUBMODULES)
 	cd ./src && ./configure --prefix="$(PREFIX)" --exec-prefix="$(EXEC_PREFIX)" \
  --bindir="$(BINDIR)" --includedir="$(INCLUDEDIR)" --libdir="$(LIBDIR)" \
  CC="$(CC)" CXX="$(CXX)" \
@@ -179,47 +194,72 @@ src/Makefile: src/configure
  --disable-static --enable-ipc --enable-sas --enable-test-exec --enable-udp
 
 #
-# Bootstrapping autobuild files
+# Bootstrapping
 #
 
+# Ensure that submodules have been cloned as well
+$(SUBMODULES):
+	git submodule update --init --recursive
+
 # Must recreate configure if any of the Makefile.am files changes
-MAKEFILE_AMS = $(wildcard src/**/Makefile.am)
+MAKEFILE_AMS := $(shell find src -name Makefile.am -print)
+AUTOMAKE_DIRS := $(dir $(MAKEFILE_AMS))
 
 # Create m4 directory - some older versions of autotools won't do it for us
 src/configure: src/configure.ac $(MAKEFILE_AMS)
-	cd ./src && mkdir -p m4 && $(AUTORECONF) -f -i
+	(cd ./src && mkdir -p m4 && $(AUTORECONF) -f -i)
 
 #
-# End Automake targets
+# Cleaning targets
 #
 
-clean:: clean-examples
-	-@$(MAKE) -C src $@ > /dev/null 2>&1
-	-@$(MAKE) -C compilers/plexil $@ > /dev/null 2>&1
-	@(cd compilers/plexilscript && ant $@)
-	@(cd checker && ant $@)
-	@(cd jars && $(RM) plexilscript.jar)
-	@(cd viewers/pv && ant $@)
-	@$(RM) lib/lib* bin/* include/*
-	@$(RM) examples/checkpoint/saves/*.xml
-	@ echo Done.
+# Overall cleanup
+clean:: clean-examples clean-exec-all
+	@(cd compilers/plexil && ant $@) > /dev/null 2>&1
+	-@$(MAKE) -C compilers/plexil/test $@ > /dev/null 2>&1
+	@(cd compilers/plexilscript && ant $@) > /dev/null 2>&1
+	@(cd checker && ant $@) > /dev/null 2>&1
+	-@test/TestExec-regression-test/cleanup-test-files $@
+	@(cd viewers/pv && ant $@) > /dev/null 2>&1
 
 clean-examples:
-#	-@$(MAKE) -C examples $@
+	-@$(MAKE) -C examples/checkpoint clean > /dev/null 2>&1
+	-@$(MAKE) -C examples/multi-exec/udp clean > /dev/null 2>&1
+	-@$(MAKE) -C examples/robosim clean > /dev/null 2>&1
+	-@$(MAKE) -C examples/sample-app clean > /dev/null 2>&1
 
-# Clean up after autotools
-distclean squeaky-clean: | clean
-	@(cd src && $(RM) */Makefile */Makefile.in)
-	@(cd src/apps && $(RM) */Makefile */Makefile.in)
-	@(cd src/interfaces && $(RM) */Makefile */Makefile.in)
-	@(cd src/third-party/ipc && $(RM) Makefile Makefile.in)
-	@(cd src/third-party/pugixml/src && $(RM) Makefile Makefile.in)
-	@(cd src && $(RM) Makefile Makefile.in aclocal.m4 \
- compile configure configure~ configure.env config.guess config.guess~ \
- config.log config.status config.sub config.sub~ \
- cppcheck.sh depcomp INSTALL install-sh libtool ltmain.sh missing \
- plexil-config.h plexil-config.h.in plexil-config.h.in~ stamp-h1)
-	@(cd src && $(RM) -rf m4 autom4te.cache)
+# Clean just the Exec build directories
+clean-exec:
+	-@$(MAKE) -C src $@ > /dev/null 2>&1
+
+# Clean up all files generated by configure
+clean-exec-configuration: clean-exec
+	@for dir in $(AUTOMAKE_DIRS) ; do (cd "$$dir" && $(RM) Makefile) ; done
+	@(cd src && $(RM) config.log config.status configure.env plexil-config.h stamp-h1)
+
+# Clean up after autoreconf, automake, libtoolize, etc.
+clean-exec-all: clean-exec-configuration
+	@for dir in $(AUTOMAKE_DIRS) ; do (cd "$$dir" && $(RM) Makefile.in) ; done
+	@(cd src && $(RM) aclocal.m4 compile configure configure~ \
+ cppcheck.sh config.guess config.sub depcomp INSTALL install-sh \
+ libtool ltmain.sh missing plexil-config.h.in plexil-config.h.in.~)
+	@(cd src && $(RM) -r m4 autom4te.cache)
+
+.PHONY: clean clean-examples clean-exec clean-exec-configuration clean-exec-all
+
+# Uninstall all programs and libraries
+uninstall:
+	@$(RM) $(LIBDIR)/lib* $(BINDIR)/* $(INCLUDEDIR)/*
+	@(cd compilers/plexil && ant $@) > /dev/null 2>&1
+	@(cd compilers/plexilscript && ant $@) > /dev/null 2>&1
+
+# Restore the source tree to a just-checked-out state
+distclean squeaky-clean: clean
+	@(cd schema/validator && $(RM) -r .venv)
+	@(cd compilers/plexil && ant uninstall) > /dev/null 2>&1
+	@(cd compilers/plexilscript && ant uninstall) > /dev/null 2>&1
+
+.PHONY: uninstall distclean squeaky-clean
 
 # *** TODO: release target(s) ***
 
@@ -240,6 +280,6 @@ jtags:
 alltags:
 	@ find . \( -name "*.cc" -or -name "*.cpp" -or -name "*.hh" -or -name "*.hpp" -or -name "*.java" -or -name "*.xml" -or -name Makefile \) | etags -
 
-.PHONY: app-framework exec-core ipc IpcAdapter IpcUtils 
+.PHONY: app-framework exec-core ipc IpcAdapter IpcUtils
 
-.PHONY: alltags clean ctags jtags most most-build most-install plexil-default squeaky-clean tags
+.PHONY: alltags ctags jtags most most-build most-install plexil-default tags uninstall

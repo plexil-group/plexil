@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -111,7 +111,6 @@ namespace PLEXIL
   constexpr char const RESOURCE_LIST_TAG[] = "ResourceList";
   constexpr char const RESOURCE_NAME_TAG[] = "ResourceName";
   constexpr char const RESOURCE_PRIORITY_TAG[] = "ResourcePriority";
-  constexpr char const RESOURCE_LOWER_BOUND_TAG[] = "ResourceLowerBound";
   constexpr char const RESOURCE_UPPER_BOUND_TAG[] = "ResourceUpperBound";
   constexpr char const RESOURCE_RELEASE_AT_TERMINATION_TAG[] = "ResourceReleaseAtTermination";
 

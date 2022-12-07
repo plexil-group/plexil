@@ -1,1 +1,24 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/CallWithPostCondition.ple"><GlobalDeclarations ColNo="0" LineNo="1"><LibraryNodeDeclaration ColNo="0" LineNo="1"><Name>Foo</Name></LibraryNodeDeclaration></GlobalDeclarations><Node ColNo="0" LineNo="3" NodeType="LibraryNodeCall"><NodeId>CallWithPostCondition</NodeId><PostCondition ColNo="2" LineNo="5"><EQInternal ColNo="28" LineNo="5"><NodeOutcomeVariable ColNo="20" LineNo="5"><NodeId>Foo</NodeId></NodeOutcomeVariable><NodeOutcomeValue>SUCCESS</NodeOutcomeValue></EQInternal></PostCondition><NodeBody><LibraryNodeCall ColNo="2" LineNo="6"><NodeId>Foo</NodeId></LibraryNodeCall></NodeBody></Node></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/CallWithPostCondition.ple">
+   <GlobalDeclarations ColNo="0" LineNo="1">
+      <LibraryNodeDeclaration ColNo="0" LineNo="1">
+         <Name>Foo</Name>
+      </LibraryNodeDeclaration>
+   </GlobalDeclarations>
+   <Node ColNo="0" LineNo="3" NodeType="LibraryNodeCall">
+      <NodeId>CallWithPostCondition</NodeId>
+      <PostCondition ColNo="2" LineNo="5">
+         <EQInternal ColNo="28" LineNo="5">
+            <NodeOutcomeVariable ColNo="20" LineNo="5">
+               <NodeId>Foo</NodeId>
+            </NodeOutcomeVariable>
+            <NodeOutcomeValue>SUCCESS</NodeOutcomeValue>
+         </EQInternal>
+      </PostCondition>
+      <NodeBody>
+         <LibraryNodeCall ColNo="2" LineNo="6">
+            <NodeId>Foo</NodeId>
+         </LibraryNodeCall>
+      </NodeBody>
+   </Node>
+</PlexilPlan>

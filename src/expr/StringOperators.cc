@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,16 @@ namespace PLEXIL
   StringConcat::StringConcat()
     : OperatorImpl<String>("Concat")
   {
+  }
+
+  bool StringConcat::checkArgCount(size_t /* count */) const
+  {
+    return true;
+  }
+
+  bool StringConcat::checkArgTypes(std::vector<ValueType> const &typeVec) const
+  {
+    return allSameTypeOrUnknown(STRING_TYPE, typeVec);
   }
 
   bool StringConcat::operator()(String &result) const
@@ -89,6 +99,16 @@ namespace PLEXIL
   StringLength::StringLength()
     : OperatorImpl<Integer>("STRLEN")
   {
+  }
+
+  bool StringLength::checkArgCount(size_t count) const
+  {
+    return count == 1;
+  }
+
+  bool StringLength::checkArgTypes(std::vector<ValueType> const &typeVec) const
+  {
+    return typeVec.at(0) == STRING_TYPE || typeVec.at(0) == UNKNOWN_TYPE;
   }
 
   bool StringLength::operator()(Integer &result, Expression const *arg) const

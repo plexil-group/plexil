@@ -1,4 +1,4 @@
-## Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+## Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 ##  All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -23,6 +23,9 @@
 ## TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 ## USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#
+# Configuration checks for the PLEXIL Executive and associated programs
+#
 
 include(CheckCXXSourceCompiles)
 include(CheckCXXSymbolExists)
@@ -33,74 +36,25 @@ include(CheckLibraryExists)
 include(CheckTypeSize)
 
 #
-# Optional modules
-#
-
-if(IPC_ADAPTER)
-  set(HAVE_IPC_ADAPTER ON)
-else()
-  unset(HAVE_IPC_ADAPTER CACHE)
-endif()
-
-if(PLAN_DEBUG_LISTENER)
-  set(HAVE_DEBUG_LISTENER ON)
-else()
-  unset(HAVE_DEBUG_LISTENER CACHE)
-endif()
-
-if(VIEWER_LISTENER)
-  set(HAVE_LUV_LISTENER ON)
-else()
-  unset(HAVE_LUV_LISTENER CACHE)
-endif()
-
-if(UDP_ADAPTER)
-  set(HAVE_UDP_ADAPTER ON)
-else()
-  unset(HAVE_UDP_ADAPTER CACHE)
-endif()
-
-#
-# Platform checks
-#
-
-#
-# External programs
-#
-
-find_program(GPERF gperf)
-
-#
-# Libraries
-#
-
-find_library(MATH_LIBRARY m)
-
-CHECK_LIBRARY_EXISTS(dl dlopen "/usr/lib" HAVE_LIBDL)
-CHECK_LIBRARY_EXISTS(pthread pthread_sigmask "/usr/lib" HAVE_LIBPTHREAD)
-CHECK_LIBRARY_EXISTS(rt timer_create "/usr/lib" HAVE_LIBRT)
-CHECK_LIBRARY_EXISTS(dispatch dispatch_activate "/usr/local/lib" HAVE_LIBDISPATCH)
-
-#
 # Headers
 #
 
 # Check quietly, please
 set(CMAKE_REQUIRED_QUIET 1)
 
-# Since this code may have to compile on some very backward compilers,
-# we need to check for both the C++ and C versions of most C standard headers.
+# Check for both the C++ and C versions of C standard headers.
 
 # C++
 CHECK_INCLUDE_FILE_CXX(cassert HAVE_CASSERT)
+CHECK_INCLUDE_FILE_CXX(cctype HAVE_CCTYPE)
 CHECK_INCLUDE_FILE_CXX(cerrno HAVE_CERRNO)
 CHECK_INCLUDE_FILE_CXX(cfloat HAVE_CFLOAT)
-CHECK_INCLUDE_FILE_CXX(cinttypes HAVE_CINTTYPES)  # C++11
+CHECK_INCLUDE_FILE_CXX(cinttypes HAVE_CINTTYPES)
 CHECK_INCLUDE_FILE_CXX(climits HAVE_CLIMITS)
 CHECK_INCLUDE_FILE_CXX(cmath HAVE_CMATH)
 CHECK_INCLUDE_FILE_CXX(csignal HAVE_CSIGNAL)
 CHECK_INCLUDE_FILE_CXX(cstddef HAVE_CSTDDEF)
-CHECK_INCLUDE_FILE_CXX(cstdint HAVE_CSTDINT)      # C++11
+CHECK_INCLUDE_FILE_CXX(cstdint HAVE_CSTDINT)
 CHECK_INCLUDE_FILE_CXX(cstdio HAVE_CSTDIO)
 CHECK_INCLUDE_FILE_CXX(cstdlib HAVE_CSTDLIB)
 CHECK_INCLUDE_FILE_CXX(cstring HAVE_CSTRING)
@@ -186,44 +140,6 @@ CHECK_INCLUDE_FILE(sys/times.h HAVE_SYS_TIMES_H)
 # Functions
 #
 
-# Time and timers
-
-CHECK_FUNCTION_EXISTS(clock_gettime HAVE_CLOCK_GETTIME) # Timebase and derived classes
-CHECK_FUNCTION_EXISTS(ctime_r HAVE_CTIME_R) # utils/Logging.cc only
-CHECK_FUNCTION_EXISTS(getitimer HAVE_GETITIMER) # StandAloneSimulator
-CHECK_FUNCTION_EXISTS(gettimeofday HAVE_GETTIMEOFDAY) # various
-CHECK_FUNCTION_EXISTS(localtime_r HAVE_LOCALTIME_R) # utils/test/jni-adapter.cc only
-CHECK_FUNCTION_EXISTS(setitimer HAVE_SETITIMER) # ItimerTimebase, StandAloneSimulator
-#CHECK_CXX_SYMBOL_EXISTS(timer_create "ctime;time.h" HAVE_TIMER_CREATE)
-
-#
-# For some reason timer_create and timer_delete don't show up under gcc 5.2.0
-# using the normal tools.
-#
-
-cmake_policy(SET CMP0075 NEW)
-set(CMAKE_REQUIRED_LIBRARIES "rt")
-CHECK_CXX_SOURCE_COMPILES(
-  "
-#include <signal.h>
-#include <time.h>
-
-int main(int argc, char ** /* argv */)
-{
-  struct sigevent se; 
-  timer_t tymer;
-
-  return timer_create(CLOCK_REALTIME, &se, &tymer);
-}
-"
-  HAVE_TIMER_CREATE)
-unset(CMAKE_REQUIRED_LIBRARIES)
-
-# Other POSIX specifics
-CHECK_FUNCTION_EXISTS(gethostbyname HAVE_GETHOSTBYNAME) # UdpAdapter, IPC
-CHECK_FUNCTION_EXISTS(getpid HAVE_GETPID) # Logging, ExecApplication
-CHECK_FUNCTION_EXISTS(isatty HAVE_ISATTY) # utils/Logging.cc only
-
 # Math
 # These are defined as macros or intrinsics in some compilers.
 #
@@ -261,11 +177,70 @@ int main(int argc, char **argv)
   PLEXIL_CHECK_MATH_FN(trunc)
 endif()
 
+# Time and timers
+
+CHECK_FUNCTION_EXISTS(clock_gettime HAVE_CLOCK_GETTIME) # Timebase and derived classes
+CHECK_FUNCTION_EXISTS(ctime_r HAVE_CTIME_R) # utils/Logging.cc only
+CHECK_FUNCTION_EXISTS(getitimer HAVE_GETITIMER) # StandAloneSimulator
+CHECK_FUNCTION_EXISTS(gettimeofday HAVE_GETTIMEOFDAY) # various
+CHECK_FUNCTION_EXISTS(localtime_r HAVE_LOCALTIME_R) # utils/test/jni-adapter.cc only
+CHECK_FUNCTION_EXISTS(setitimer HAVE_SETITIMER) # ItimerTimebase, StandAloneSimulator
+
+#CHECK_CXX_SYMBOL_EXISTS(timer_create "ctime;time.h" HAVE_TIMER_CREATE)
+
+#
+# For some reason timer_create and timer_delete don't show up under gcc 5.2.0
+# using the normal tools.
+#
+
+# This policy first appeared in CMake 3.12.
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.12")
+  cmake_policy(SET CMP0075 NEW)
+endif()
+set(CMAKE_REQUIRED_LIBRARIES "rt")
+CHECK_CXX_SOURCE_COMPILES(
+  "
+#include <signal.h>
+#include <time.h>
+
+int main(int argc, char ** /* argv */)
+{
+  struct sigevent se; 
+  timer_t tymer;
+
+  return timer_create(CLOCK_REALTIME, &se, &tymer);
+}
+"
+  HAVE_TIMER_CREATE)
+unset(CMAKE_REQUIRED_LIBRARIES)
+
+# Other POSIX specifics
+CHECK_FUNCTION_EXISTS(gethostbyname HAVE_GETHOSTBYNAME) # UdpAdapter, IPC
+CHECK_FUNCTION_EXISTS(getpid HAVE_GETPID) # Logging, ExecApplication
+CHECK_FUNCTION_EXISTS(isatty HAVE_ISATTY) # utils/Logging.cc only
+
+#
+# Libraries
+#
+
+find_library(MATH_LIBRARY m)
+
+CHECK_LIBRARY_EXISTS(dl dlopen "/usr/lib" HAVE_LIBDL)
+CHECK_LIBRARY_EXISTS(pthread pthread_sigmask "/usr/lib" HAVE_LIBPTHREAD)
+CHECK_LIBRARY_EXISTS(rt timer_create "/usr/lib" HAVE_LIBRT)
+CHECK_LIBRARY_EXISTS(dispatch dispatch_activate "/usr/local/lib" HAVE_LIBDISPATCH)
+
 #
 # Types
 #
 
 CHECK_TYPE_SIZE(suseconds_t SUSECONDS_T)
+
+#
+# External programs
+#
+
+find_program(GPERF gperf)
 
 #
 # Build time options:
@@ -287,13 +262,14 @@ else()
   unset(HAVE_JNI CACHE)
 endif()
 
-if(STANDALONE_SIMULATOR)
-  set(HAVE_STANDALONE_SIM ON)
-else()
-  unset(HAVE_STANDALONE_SIM CACHE)
-endif()
-
 # These set corresponding macros in plexil-config.h
+
+if(BUILD_SHARED_LIBS)
+  # Mimic GNU autotools behavior
+  set(PIC ON)
+else()
+  unset(PIC CACHE)
+endif()
 
 if(DEBUG_MESSAGES)
   unset(NO_DEBUG_MESSAGE_SUPPORT CACHE)
@@ -308,7 +284,34 @@ elseif(NOT HAVE_PTHREAD_H)
 else()
   set(PLEXIL_WITH_THREADS ON)
 endif()
-  
+
+#
+# Compiler macros for optional modules
+#
+
+if(IPC_ADAPTER)
+  set(HAVE_IPC_ADAPTER ON)
+else()
+  unset(HAVE_IPC_ADAPTER CACHE)
+endif()
+
+if(PLAN_DEBUG_LISTENER)
+  set(HAVE_DEBUG_LISTENER ON)
+else()
+  unset(HAVE_DEBUG_LISTENER CACHE)
+endif()
+
+if(UDP_ADAPTER)
+  set(HAVE_UDP_ADAPTER ON)
+else()
+  unset(HAVE_UDP_ADAPTER CACHE)
+endif()
+
+if(VIEWER_LISTENER)
+  set(HAVE_LUV_LISTENER ON)
+else()
+  unset(HAVE_LUV_LISTENER CACHE)
+endif()
 
 #
 # Construct configuration header file

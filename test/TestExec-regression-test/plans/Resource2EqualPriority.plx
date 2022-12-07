@@ -71,9 +71,6 @@
                   <ResourcePriority>
                     <IntegerVariable>priority20</IntegerVariable>
                   </ResourcePriority>
-                  <ResourceLowerBound>
-                    <RealValue>1.0</RealValue>
-                  </ResourceLowerBound>
                   <ResourceUpperBound>
                     <RealValue>1.0</RealValue>
                   </ResourceUpperBound>
@@ -116,9 +113,6 @@
                   <ResourcePriority>
                     <IntegerVariable>mem_priority2</IntegerVariable>
                   </ResourcePriority>
-                  <ResourceLowerBound>
-                    <RealValue>1.0</RealValue>
-                  </ResourceLowerBound>
                   <ResourceUpperBound>
                     <RealValue>1.0</RealValue>
                   </ResourceUpperBound>

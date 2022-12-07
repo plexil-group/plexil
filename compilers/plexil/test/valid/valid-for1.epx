@@ -1,1 +1,49 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/for1.ple"><GlobalDeclarations ColNo="0" LineNo="3"><CommandDeclaration ColNo="0" LineNo="3"><Name>pprint</Name><AnyParameters/></CommandDeclaration></GlobalDeclarations><For ColNo="0" LineNo="5"><NodeId>Root</NodeId><LoopVariable><DeclareVariable ColNo="7" LineNo="7"><Name>i</Name><Type>Integer</Type><InitialValue><IntegerValue>0</IntegerValue></InitialValue></DeclareVariable></LoopVariable><Condition><LE ColNo="24" LineNo="7"><IntegerVariable>i</IntegerVariable><IntegerValue>5</IntegerValue></LE></Condition><LoopVariableUpdate><ADD ColNo="32" LineNo="7"><IntegerVariable>i</IntegerVariable><IntegerValue>1</IntegerValue></ADD></LoopVariableUpdate><Action><Node ColNo="37" LineNo="7" NodeType="Command"><NodeId>COMMAND__1</NodeId><NodeBody><Command ColNo="37" LineNo="7"><Name><StringValue>pprint</StringValue></Name><Arguments ColNo="45" LineNo="7"><StringValue>i: </StringValue><IntegerVariable>i</IntegerVariable></Arguments></Command></NodeBody></Node></Action></For></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/for1.ple">
+   <GlobalDeclarations ColNo="0" LineNo="3">
+      <CommandDeclaration ColNo="0" LineNo="3">
+         <Name>pprint</Name>
+         <AnyParameters/>
+      </CommandDeclaration>
+   </GlobalDeclarations>
+   <For ColNo="0" LineNo="5">
+      <NodeId>Root</NodeId>
+      <LoopVariable>
+         <DeclareVariable ColNo="7" LineNo="7">
+            <Name>i</Name>
+            <Type>Integer</Type>
+            <InitialValue>
+               <IntegerValue>0</IntegerValue>
+            </InitialValue>
+         </DeclareVariable>
+      </LoopVariable>
+      <Condition>
+         <LE ColNo="24" LineNo="7">
+            <IntegerVariable>i</IntegerVariable>
+            <IntegerValue>5</IntegerValue>
+         </LE>
+      </Condition>
+      <LoopVariableUpdate>
+         <ADD ColNo="32" LineNo="7">
+            <IntegerVariable>i</IntegerVariable>
+            <IntegerValue>1</IntegerValue>
+         </ADD>
+      </LoopVariableUpdate>
+      <Action>
+         <Node ColNo="37" LineNo="7" NodeType="Command">
+            <NodeId generated="1">COMMAND__0</NodeId>
+            <NodeBody>
+               <Command ColNo="37" LineNo="7">
+                  <Name>
+                     <StringValue>pprint</StringValue>
+                  </Name>
+                  <Arguments ColNo="45" LineNo="7">
+                     <StringValue>i: </StringValue>
+                     <IntegerVariable>i</IntegerVariable>
+                  </Arguments>
+               </Command>
+            </NodeBody>
+         </Node>
+      </Action>
+   </For>
+</PlexilPlan>

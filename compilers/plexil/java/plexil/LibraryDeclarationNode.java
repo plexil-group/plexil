@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,11 +25,12 @@
 
 package plexil;
 
-import java.util.Vector;
+import java.util.List;
 
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class LibraryDeclarationNode extends PlexilTreeNode
@@ -54,45 +55,36 @@ public class LibraryDeclarationNode extends PlexilTreeNode
 
     public void earlyCheck(NodeContext context, CompilerState state)
     {
-        // check that name is not already defined
+        // check that name is not already declared
         String libraryName = this.getChild(0).getText();
-        if (GlobalContext.getGlobalContext().isCommandName(libraryName)) {
+        if (state.getGlobalContext().isCommandName(libraryName)) {
             // Report duplicate definition
             state.addDiagnostic(this.getChild(0),
-                                "Library action \"" + libraryName + "\" is already defined",
+                                "Library node \"" + libraryName + "\" is already declared",
                                 Severity.ERROR);
         }
 
         // Parse parameter list, if supplied
-        Vector<VariableName> ifSpecs = null;
-        ParameterSpecNode ifVarAST = (ParameterSpecNode) this.getChild(1);
+        List<VariableName> ifSpecs = null;
+        LibraryInterfaceSpecNode ifVarAST = (LibraryInterfaceSpecNode) this.getChild(1);
         if (ifVarAST != null) {
             ifVarAST.earlyCheck(context, state); // for effect
-            ifSpecs = ifVarAST.getParameterVector();
-            if (ifSpecs != null) {
-                for (VariableName vn : ifSpecs) {
-                    if (vn.getVariableType() == PlexilDataType.ANY_TYPE) {
-                        state.addDiagnostic(vn.getDeclaration(),
-                                            "Illegal type for library action interface variable",
-                                            Severity.ERROR);
-                    }
-                }
-            }
+            ifSpecs = ifVarAST.getParameterList();
         }
 
         // Define in global environment
-        GlobalContext.getGlobalContext().addLibraryNode(this, libraryName, ifSpecs);
+        state.getGlobalContext().addLibraryNode(this, libraryName, ifSpecs);
     }
 
     @Override
-    protected void constructXML()
+    protected void constructXML(Document root)
     {
-        super.constructXMLBase();
-        Element nameXML = CompilerState.newElement("Name");
-        nameXML.appendChild(CompilerState.newTextNode(this.getChild(0).getText()));
+        super.constructXMLBase(root);
+        Element nameXML = root.createElement("Name");
+        nameXML.appendChild(root.createTextNode(this.getChild(0).getText()));
         m_xml.appendChild(nameXML);
         if (this.getChildCount() > 1 && this.getChild(1).getChildCount() > 0)
-            m_xml.appendChild(this.getChild(1).getXML());
+            m_xml.appendChild(this.getChild(1).getXML(root));
     }
 
     public String getXMLElementName() { return "LibraryNodeDeclaration"; }

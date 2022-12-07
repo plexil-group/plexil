@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <PlexilPlan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <GlobalDeclarations>
     <DeclareMutex>
@@ -6,7 +6,7 @@
     </DeclareMutex>
   </GlobalDeclarations>
   <Node NodeType="NodeList" epx="OnCommand">
-    <NodeId generated="1">ep2cp_OnCommand_d13e11</NodeId>
+    <NodeId generated="1">ep2cp_OnCommand_d14e11</NodeId>
     <VariableDeclarations>
       <DeclareVariable>
         <Name>distance</Name>

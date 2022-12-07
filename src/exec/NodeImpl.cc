@@ -1,28 +1,27 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
-*  All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*     * Redistributions of source code must retain the above copyright
-*       notice, this list of conditions and the following disclaimer.
-*     * Redistributions in binary form must reproduce the above copyright
-*       notice, this list of conditions and the following disclaimer in the
-*       documentation and/or other materials provided with the distribution.
-*     * Neither the name of the Universities Space Research Association nor the
-*       names of its contributors may be used to endorse or promote products
-*       derived from this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
-* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
-* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
+//  All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//     * Neither the name of the Universities Space Research Association nor the
+//       names of its contributors may be used to endorse or promote products
+//       derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+// OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+// TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+// USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "NodeImpl.hh"
 
@@ -38,21 +37,11 @@
 #include "UserVariable.hh"
 
 #include <algorithm> // std::sort
-
-#if defined(HAVE_CFLOAT)
-#include <cfloat>    // DBL_MAX
-#elif defined(HAVE_FLOAT_H)
-#include <float.h>   // DBL_MAX
-#endif
-
-#if defined(HAVE_CSTRING)
-#include <cstring>   // strcmp(), strnlen()
-#elif defined(HAVE_STRING_H)
-#include <string.h>  // strcmp(), strnlen()
-#endif
-
 #include <iomanip>   // std::setprecision
 #include <sstream>
+
+#include <cfloat>    // DBL_MAX
+#include <cstring>   // strcmp(), strnlen()
 
 namespace PLEXIL
 {
@@ -155,13 +144,13 @@ namespace PLEXIL
   }
 
   NodeImpl::NodeImpl(char const *nodeId, NodeImpl *parent)
-    : Node(),
-      Notifier(),
+    : Notifier(),
       m_next(nullptr),
       m_queueStatus(QUEUE_NONE),
       m_state(INACTIVE_STATE),
       m_outcome(NO_OUTCOME),
       m_failureType(NO_FAILURE),
+      m_pad(),
       m_nextState(NO_NODE_STATE),
       m_nextOutcome(NO_OUTCOME),
       m_nextFailureType(NO_FAILURE),
@@ -179,9 +168,9 @@ namespace PLEXIL
       m_currentStateStartTime(0.0),
       m_timepoints(),
       m_garbageConditions(),
+      m_cleanedBody(false),
       m_cleanedConditions(false),
-      m_cleanedVars(false),
-      m_cleanedBody(false)
+      m_cleanedVars(false)
   {
     debugMsg("NodeImpl:NodeImpl", " Constructor for \"" << m_nodeId << "\"");
     commonInit();
@@ -198,6 +187,7 @@ namespace PLEXIL
       m_state(state),
       m_outcome(NO_OUTCOME),
       m_failureType(NO_FAILURE),
+      m_pad(),
       m_nextState(NO_NODE_STATE),
       m_nextOutcome(NO_OUTCOME),
       m_nextFailureType(NO_FAILURE),
@@ -215,9 +205,9 @@ namespace PLEXIL
       m_currentStateStartTime(0.0),
       m_timepoints(),
       m_garbageConditions(),
+      m_cleanedBody(false),
       m_cleanedConditions(false), 
-      m_cleanedVars(false),
-      m_cleanedBody(false)
+      m_cleanedVars(false)
   {
     static Value const falseValue(false);
 
@@ -300,14 +290,13 @@ namespace PLEXIL
     assertTrue_1(!m_localVariables); // illegal to call this twice
     m_localVariables.reset(new std::vector<ExpressionPtr>());
     m_localVariables->reserve(n);
-    m_variablesByName =
-      NodeVariableMapPtr(new NodeVariableMap(m_parent
-                                             ? m_parent->getChildVariableMap()
-                                             : nullptr));
+    NodeVariableMap const *parentMap = nullptr;
+    if (m_parent)
+      parentMap = m_parent->getChildVariableMap();
+    m_variablesByName = NodeVariableMapPtr(new NodeVariableMap(parentMap));
     m_variablesByName->grow(n);
   }
 
-  // Default method.
   NodeVariableMap const *NodeImpl::getChildVariableMap() const
   {
     return nullptr; // this node has no children
@@ -411,7 +400,7 @@ namespace PLEXIL
     this->specializedCreateConditionWrappers();
   }
 
-  // Default method does nothing.
+  // Default method does nothing.  Applies to Empty and Assignment nodes.
   void NodeImpl::specializedCreateConditionWrappers()
   {
   }
@@ -482,7 +471,7 @@ namespace PLEXIL
     m_cleanedConditions = true;
   }
 
-  // Default method.
+  // Default method. Applies to Empty and Assignment nodes.
   void NodeImpl::cleanUpNodeBody()
   {
   }
@@ -577,18 +566,12 @@ namespace PLEXIL
     return sl_emptyNodeVec;
   }
 
-  //! Notifies the node that one of its conditions has changed.
-  //! @note This method signature is part of the ExpressionListener API.
   void NodeImpl::notifyChanged()
   {
-    notifyChanged(g_exec);
+    notify(g_exec);
   }
   
-  //! Notify the node that its conditions may have changed.
-  //! @param exec The PlexilExec instance.
-  //! @note This method signature can be called for notifications
-  //! resulting from action by the executive.
-  void NodeImpl::notifyChanged(PlexilExec *exec)
+  void NodeImpl::notify(PlexilExec *exec)
   {
     switch (m_queueStatus) {
     case QUEUE_NONE:              // add to check queue
@@ -652,6 +635,9 @@ namespace PLEXIL
 
   //! Reserve the resource(s)
   //! If resource(s) busy, place node on resource(s)'s pending queues.
+
+  // FIXME: Refactor to delegate assignment variable acquisition to
+  // AssignmentNode class.
   bool NodeImpl::tryResourceAcquisition()
   {
     bool success = true;
@@ -801,15 +787,55 @@ namespace PLEXIL
              << " from " << nodeStateName(m_state)
              << " to " << nodeStateName(m_nextState)
              << " at " << std::setprecision(15) << time);
+
+    // Transition out of current state
+    switch (m_state) {
+    case INACTIVE_STATE:        transitionFromInactive();       break;
+    case WAITING_STATE:         transitionFromWaiting();        break;
+    case EXECUTING_STATE:       transitionFromExecuting(exec);  break;
+    case FINISHING_STATE:       transitionFromFinishing(exec);  break;
+    case FINISHED_STATE:        transitionFromFinished();       break;
+    case FAILING_STATE:         transitionFromFailing(exec);    break;
+    case ITERATION_ENDED_STATE: transitionFromIterationEnded(); break;
+
+    default:
+      errorMsg("NodeImpl::transition for " << m_nodeId
+               << ": Invalid node state value " << m_state);
+    }
     
-    transitionFrom(exec);
-    transitionTo(exec, time);
+    // Transition into next state
+    switch (m_nextState) {
+    case INACTIVE_STATE:        transitionToInactive();       break;
+    case WAITING_STATE:         transitionToWaiting();        break;
+    case EXECUTING_STATE:       transitionToExecuting();      break;
+    case FINISHING_STATE:       transitionToFinishing();      break;
+    case FINISHED_STATE:        transitionToFinished();       break;
+    case FAILING_STATE:         transitionToFailing(exec);    break;
+    case ITERATION_ENDED_STATE: transitionToIterationEnded(); break;
+
+    default:
+      errorMsg("NodeImpl::transition for " << m_nodeId
+               << ": Invalid next node state value " << m_nextState);
+    }
+
+    // Update state, outcome, failure type variables to reflect transition
+    setState(exec, (NodeState) m_nextState, time);
+    if (m_nextOutcome != NO_OUTCOME) {
+      setNodeOutcome((NodeOutcome) m_nextOutcome);
+      if (m_nextFailureType != NO_FAILURE) 
+        setNodeFailureType((FailureType) m_nextFailureType);
+    }
+
+    // Execute the node if appropriate
+    if (m_nextState == EXECUTING_STATE)
+      execute(exec);
 
     // Clear pending-transition variables
     m_nextState = NO_NODE_STATE;
     m_nextOutcome = NO_OUTCOME;
     m_nextFailureType = NO_FAILURE;
 
+    // Debug output, primarily for TestExec regression suite
     condDebugMsg(m_state == FINISHED_STATE || m_state == ITERATION_ENDED_STATE,
                  "Node:outcome",
                  " Outcome of " << m_nodeId << ' ' << this <<
@@ -820,90 +846,8 @@ namespace PLEXIL
                  " Failure type of " << m_nodeId << ' ' << this <<
                  " is " << failureTypeName((FailureType) m_failureType));
 
+    // Notify any listeners
     this->publishChange();
-  }
-
-  // Common method 
-  void NodeImpl::transitionFrom(PlexilExec *exec)
-  {
-    switch (m_state) {
-    case INACTIVE_STATE:
-      transitionFromInactive();
-      break;
-
-    case WAITING_STATE:
-      transitionFromWaiting();
-      break;
-
-    case EXECUTING_STATE:
-      transitionFromExecuting(exec);
-      break;
-
-    case FINISHING_STATE:
-      transitionFromFinishing(exec);
-      break;
-
-    case FINISHED_STATE:
-      transitionFromFinished();
-      break;
-
-    case FAILING_STATE:
-      transitionFromFailing(exec);
-      break;
-
-    case ITERATION_ENDED_STATE:
-      transitionFromIterationEnded();
-      break;
-
-    default:
-      errorMsg("NodeImpl::transitionFrom: Invalid node state " << m_state);
-    }
-  }
-
-  // Common method 
-  void NodeImpl::transitionTo(PlexilExec *exec, double time)
-  {
-    switch (m_nextState) {
-    case INACTIVE_STATE:
-      transitionToInactive();
-      break;
-
-    case WAITING_STATE:
-      transitionToWaiting();
-      break;
-
-    case EXECUTING_STATE:
-      transitionToExecuting();
-      break;
-
-    case FINISHING_STATE:
-      transitionToFinishing();
-      break;
-
-    case FINISHED_STATE:
-      transitionToFinished();
-      break;
-
-    case FAILING_STATE:
-      transitionToFailing(exec);
-      break;
-
-    case ITERATION_ENDED_STATE:
-      transitionToIterationEnded();
-      break;
-
-    default:
-      errorMsg("NodeImpl::transitionTo: Invalid destination state " << m_nextState);
-    }
-
-    setState(exec, (NodeState) m_nextState, time);
-    if (m_nextOutcome != NO_OUTCOME) {
-      setNodeOutcome((NodeOutcome) m_nextOutcome);
-      if (m_nextFailureType != NO_FAILURE) 
-        setNodeFailureType((FailureType) m_nextFailureType);
-    }
-    if (m_nextState == EXECUTING_STATE)
-      execute(exec);
   }
 
   //
@@ -1011,7 +955,6 @@ namespace PLEXIL
     if (m_nextState == WAITING_STATE) {
       activateAncestorExitInvariantConditions();
       activateAncestorEndCondition();
-      return;
     }
     // Only other legal transition is to FINISHED,
     // in which case no action is required.
@@ -1026,7 +969,8 @@ namespace PLEXIL
   // Conditions active: AncestorEnd, AncestorExit, AncestorInvariant, Exit, Pre, Skip, Start
   // Legal successor states: EXECUTING, FINISHED, ITERATION_ENDED
 
-  // ** N.B. Preceding state must ensure that AncestorEnd, AncestorExit, and AncestorInvariant are active.
+  // ** N.B. Transition from preceding state must ensure that
+  // AncestorEnd, AncestorExit, and AncestorInvariant are active.
 
   // Common method
   void NodeImpl::transitionToWaiting()
@@ -1307,7 +1251,8 @@ namespace PLEXIL
   // Conditions active: AncestorEnd, AncestorExit, AncestorInvariant, Repeat
   // Legal successor states: FINISHED, WAITING
 
-  // *** N.B.: Preceding state must ensure that AncestorEnd, AncestorExit, and AncestorInvariant are active!
+  // *** N.B.: Transition from preceding state must ensure that
+  // AncestorEnd, AncestorExit, and AncestorInvariant are active!
 
   // Common method
   void NodeImpl::transitionToIterationEnded() 
@@ -1523,7 +1468,8 @@ namespace PLEXIL
   // *** END NODE STATE LOGIC ***
   // ***
 
-  NodeState NodeImpl::getState() const {
+  NodeState NodeImpl::getState() const
+  {
     return (NodeState) m_state;
   }
 
@@ -1541,7 +1487,7 @@ namespace PLEXIL
       // with no parent, it cannot be reset, therefore cannot transition again.
       exec->markRootNodeFinished(this); // puts node on exec's finished queue
     else
-      notifyChanged(exec); // check for potential of additional transitions
+      notify(exec); // check for potential of additional transitions
   }
 
   //
@@ -1573,12 +1519,6 @@ namespace PLEXIL
     }
   }
 
-  /**
-   * @brief Gets the time at which this node entered the given state.
-   * @param state The state.
-   * @return Time value as a double.
-   * @note Used by PlanDebugListener.
-   */
   double NodeImpl::getStateStartTime(NodeState state) const
   {
     if (state == (NodeState) m_state)
@@ -1757,6 +1697,7 @@ namespace PLEXIL
   void NodeImpl::activateAncestorEndCondition()
   {
   }
+
   void NodeImpl::activateAncestorExitInvariantConditions()
   {
   }
@@ -1822,6 +1763,7 @@ namespace PLEXIL
   void NodeImpl::deactivateAncestorEndCondition()
   {
   }
+
   void NodeImpl::deactivateAncestorExitInvariantConditions()
   {
   }
@@ -1917,6 +1859,7 @@ namespace PLEXIL
     m_failureType = NO_FAILURE;
   }
 
+  // Common method
   void NodeImpl::deactivateExecutable(PlexilExec *exec) 
   {
     specializedDeactivateExecutable(exec);

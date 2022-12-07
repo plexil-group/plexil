@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,9 @@
 #ifndef LIFECYCLE_UTILS__H
 #define LIFECYCLE_UTILS__H
 
-/*
- * Tools for handling initialization and finalization in a controlled fashion
+/**
+ * \file lifecycle-utils.h
+ * \brief Functions to support orderly cleanup when an application exits.
  */
 
 #ifdef __cplusplus
@@ -36,13 +37,26 @@ extern "C" {
 #endif
 
 /*
- * The lc_operator type is a pointer to a function which takes a void * argument
- * and returns void.
+ * \typedef lc_operator
+ * \brief Shorthand for a pointer to a function which takes a void * argument
+ *        and returns void.
+ * \ingroup Utils
  */
 typedef void (*lc_operator)() ;
 
+/**
+ * \brief Add the given function to the list of functions to run at program exit.
+ * \param op Pointer to the function.
+ * \ingroup Utils
+ */
 void plexilAddFinalizer(lc_operator op);
 
+/**
+ * \brief Run all the functions registered by plexilAddFinalizer, 
+ *        in last-in, first-out order.
+ * \note The application should call this function immediately before exiting.
+ * \ingroup Utils
+ */
 void plexilRunFinalizers();
 
 #ifdef __cplusplus

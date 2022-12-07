@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -33,7 +33,6 @@
 
 #include "AdapterConfiguration.hh"
 #include "Command.hh"
-#include "commandUtils.hh"
 #include "Debug.hh"
 #include "ExecApplication.hh"
 #include "ExecListenerHub.hh"
@@ -56,11 +55,7 @@
 #include <limits>
 #include <sstream>
 
-#if defined(HAVE_CSTRING)
 #include <cstring>
-#elif defined(HAVE_STRING_H)
-#include <string.h>
-#endif
 
 namespace PLEXIL
 {
@@ -266,7 +261,7 @@ namespace PLEXIL
     }
     
     debugMsg("InterfaceManager:handleUpdateAck",
-             " for node " << upd->getSource()->getNodeId()
+             " for node " << upd->getNodeId()
              << ", ack = " << (ack ? "true" : "false"));
 
     assertTrue_1(m_inputQueue);
@@ -528,7 +523,7 @@ namespace PLEXIL
           debugMsg("InterfaceManager:processQueue",
                    " received update ack " << (ack ? "true" : "false")
                    << " for node "
-                   << entry->update->getSource()->getNodeId());
+                   << entry->update->getNodeId());
           entry->update->acknowledge(ack);
         }
         needsStep = true;

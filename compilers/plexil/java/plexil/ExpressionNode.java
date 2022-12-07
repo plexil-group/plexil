@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2016, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -30,9 +30,12 @@ import org.antlr.runtime.tree.*;
 
 import plexil.PlexilTreeNode;
 
-public class ExpressionNode extends PlexilTreeNode
+public class ExpressionNode
+    extends PlexilTreeNode
+    implements Expression
 {
-    // May be overridden in derived classes
+    // Default type is void.
+    // May be overridden in derived classes.
     protected PlexilDataType m_dataType = PlexilDataType.VOID_TYPE;
 
     //
@@ -69,6 +72,7 @@ public class ExpressionNode extends PlexilTreeNode
         m_dataType = dtype;
     }
 
+    // Expression interface
     public PlexilDataType getDataType()
     {
         return m_dataType;
@@ -88,21 +92,6 @@ public class ExpressionNode extends PlexilTreeNode
         myState.addDiagnostic(this,
                               "Expression may not be assigned to",
                               Severity.ERROR);
-    }
-
-    // Lookup expressions can override this if needed (?)
-    public String assignmentRHSElementName()
-    {
-        if (m_dataType.isNumeric() || m_dataType.isTemporal())
-            return "NumericRHS";
-        else if (m_dataType.isArray())
-            return "ArrayRHS";
-        else if (m_dataType == PlexilDataType.STRING_TYPE)
-            return "StringRHS";
-        else if (m_dataType == PlexilDataType.BOOLEAN_TYPE)
-            return "BooleanRHS";
-        else 
-            return "ERROR_RHS";
     }
 
     /**
@@ -149,27 +138,28 @@ public class ExpressionNode extends PlexilTreeNode
      */
     protected boolean assumeType(PlexilDataType t, CompilerState myState)
     {
+        // If our type is null, void, or error, fail.
+        if (!PlexilDataType.isValid(m_dataType))
+            return false;
+
         // If target type is Void, Error, or underspec'd array, fail.
-        if (t == PlexilDataType.VOID_TYPE
-            || t == PlexilDataType.ERROR_TYPE
-            || t == PlexilDataType.UNKNOWN_ARRAY_TYPE) {
+        if (!PlexilDataType.isValid(t)) {
             myState.addDiagnostic(null,
-                                  "Internal error: ExpressionNode.assumeType called with illegal first argument of "
-                                  + t.typeName(),
+                                  "Internal error: ExpressionNode.assumeType() called with invalid type "
+                                  + t,
                                   Severity.FATAL);
             return false;
         }
 
-        // If target type is Any, succeed.
+        // If target type is Any, always succeed.
         if (t == PlexilDataType.ANY_TYPE)
             return true;
 
-        // If our type is Void, fail.
-        if (m_dataType == PlexilDataType.VOID_TYPE)
-            return false;
-
-        // If our type is Any, assume the requested type
+        // If our type is Any, assume the requested type but warn
         if (m_dataType == PlexilDataType.ANY_TYPE) {
+            myState.addDiagnostic(this,
+                                  "Any-type expression coerced to " + t,
+                                  Severity.WARNING);
             m_dataType = t;
             return true;
         }

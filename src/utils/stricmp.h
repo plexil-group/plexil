@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,11 +28,18 @@
 #define STRICMP_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
 #endif
- int stricmp(const char * s1, const char * s2);
-#ifdef __cplusplus
-}
-#endif
+
+/**
+ * \brief Lexicographically compare two null-terminated strings,
+ *        ignoring alphabetic case.
+ * \param s1 Pointer to const null terminated string.
+ * \param s2 Pointer to const null terminated string.
+ * \return 1 if s1 is greater than s2; 0 if the two strings are
+ *         equal; -1 if s1 is less than s2.
+ * \ingroup Utils
+ */
+int stricmp(const char * s1, const char * s2);
 
 #endif /* STRICMP_H */

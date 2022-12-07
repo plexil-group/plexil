@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -33,17 +33,8 @@
 
 #include "pugixml.hpp"
 
-#if defined(HAVE_CSTDLIB)
 #include <cstdlib>
-#elif defined(HAVE_STDLIB_H)
-#include <stdlib.h>
-#endif
-
-#if defined(HAVE_CSTRING)
 #include <cstring>
-#elif defined(HAVE_STRING_H)
-#include <string.h>
-#endif
 
 namespace PLEXIL
 {

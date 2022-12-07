@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,6 +25,7 @@
 
 package plexil;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class WildcardVariableName extends VariableName
@@ -36,9 +37,9 @@ public class WildcardVariableName extends VariableName
         super(decl, s_wildcardName, PlexilDataType.ANY_TYPE);
     }
 
-    public Element makeGlobalDeclarationElement(String ignoredElementType)
+    public Element makeGlobalDeclarationElement(Document root, String ignoredElementType)
     {
-        return CompilerState.newElement("AnyParameters");
+        return root.createElement("AnyParameters");
     }
 
 }

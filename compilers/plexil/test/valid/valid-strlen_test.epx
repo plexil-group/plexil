@@ -1,1 +1,29 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/strlen_test.ple"><Node ColNo="0" LineNo="1" NodeType="Assignment"><NodeId>strlen_test</NodeId><VariableDeclarations><DeclareVariable ColNo="2" LineNo="3"><Name>s</Name><Type>String</Type><InitialValue><StringValue>ess</StringValue></InitialValue></DeclareVariable><DeclareVariable ColNo="2" LineNo="4"><Name>l</Name><Type>Integer</Type></DeclareVariable></VariableDeclarations><NodeBody><Assignment ColNo="2" LineNo="6"><IntegerVariable>l</IntegerVariable><NumericRHS><STRLEN ColNo="6" LineNo="6"><StringVariable>s</StringVariable></STRLEN></NumericRHS></Assignment></NodeBody></Node></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/strlen_test.ple">
+   <Node ColNo="0" LineNo="1" NodeType="Assignment">
+      <NodeId>strlen_test</NodeId>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="2" LineNo="3">
+            <Name>s</Name>
+            <Type>String</Type>
+            <InitialValue>
+               <StringValue>ess</StringValue>
+            </InitialValue>
+         </DeclareVariable>
+         <DeclareVariable ColNo="2" LineNo="4">
+            <Name>l</Name>
+            <Type>Integer</Type>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <NodeBody>
+         <Assignment ColNo="2" LineNo="6">
+            <IntegerVariable>l</IntegerVariable>
+            <NumericRHS>
+               <STRLEN ColNo="6" LineNo="6">
+                  <StringVariable>s</StringVariable>
+               </STRLEN>
+            </NumericRHS>
+         </Assignment>
+      </NodeBody>
+   </Node>
+</PlexilPlan>

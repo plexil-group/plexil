@@ -1,1 +1,44 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/sequence2.ple"><GlobalDeclarations ColNo="0" LineNo="1"><CommandDeclaration ColNo="0" LineNo="1"><Name>C</Name><Parameter><Type>String</Type></Parameter></CommandDeclaration></GlobalDeclarations><Sequence ColNo="0" LineNo="3"><NodeId>Root</NodeId><VariableDeclarations><DeclareVariable ColNo="2" LineNo="5"><Name>s</Name><Type>String</Type></DeclareVariable></VariableDeclarations><Node ColNo="2" LineNo="6" NodeType="Assignment"><NodeId>ASSIGNMENT__0</NodeId><NodeBody><Assignment ColNo="2" LineNo="6"><StringVariable>s</StringVariable><StringRHS><StringValue>foo</StringValue></StringRHS></Assignment></NodeBody></Node><Node ColNo="2" LineNo="7" NodeType="Command"><NodeId>COMMAND__1</NodeId><NodeBody><Command ColNo="2" LineNo="7"><Name><StringValue>C</StringValue></Name><Arguments ColNo="5" LineNo="7"><StringVariable>s</StringVariable></Arguments></Command></NodeBody></Node></Sequence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/sequence2.ple">
+   <GlobalDeclarations ColNo="0" LineNo="1">
+      <CommandDeclaration ColNo="0" LineNo="1">
+         <Name>C</Name>
+         <Parameter>
+            <Type>String</Type>
+         </Parameter>
+      </CommandDeclaration>
+   </GlobalDeclarations>
+   <Sequence ColNo="0" LineNo="3">
+      <NodeId>Root</NodeId>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="2" LineNo="5">
+            <Name>s</Name>
+            <Type>String</Type>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <Node ColNo="2" LineNo="6" NodeType="Assignment">
+         <NodeId generated="1">ASSIGNMENT__0</NodeId>
+         <NodeBody>
+            <Assignment ColNo="2" LineNo="6">
+               <StringVariable>s</StringVariable>
+               <StringRHS>
+                  <StringValue>foo</StringValue>
+               </StringRHS>
+            </Assignment>
+         </NodeBody>
+      </Node>
+      <Node ColNo="2" LineNo="7" NodeType="Command">
+         <NodeId generated="1">COMMAND__1</NodeId>
+         <NodeBody>
+            <Command ColNo="2" LineNo="7">
+               <Name>
+                  <StringValue>C</StringValue>
+               </Name>
+               <Arguments ColNo="5" LineNo="7">
+                  <StringVariable>s</StringVariable>
+               </Arguments>
+            </Command>
+         </NodeBody>
+      </Node>
+   </Sequence>
+</PlexilPlan>

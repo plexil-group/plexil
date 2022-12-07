@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,11 +36,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import java.util.Vector;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -48,144 +45,55 @@ import org.w3c.dom.Text;
 
 public class CompilerState
 {
-    String[] m_args; //* arguments passed to Compiler.main()
-
-    protected String m_sourceFileName = null;
+    protected CommandParser m_commandParser = null;
     protected File m_infile = null; //* as supplied, may be null
-    protected File m_outfile = null;
-
-    // Processing-related flags
-    public boolean debug = false;
-    public boolean epxOnly = false;
-    public boolean indentOutput = false;
-    public boolean semanticsOnly = false;
-    public boolean syntaxOnly = false;
-    public boolean writeEpx = false;
+    protected GlobalContext m_globalContext = null;
 
     protected CharStream m_instream; //* the stream to use initially
 
     public RecognizerSharedState sharedState; //* shared state to pass between parsers
 
-    Vector<Diagnostic> m_diagnostics = new Vector<Diagnostic>();
+    List<Diagnostic> m_diagnostics = new ArrayList<Diagnostic>();
 
     private Document m_rootDocument = null;
 
-    private static DocumentBuilder s_documentBuilder = null;
+    // protected static CompilerState s_instance = null; // FIXME
 
-    protected static CompilerState s_instance = null;
-
-    public CompilerState(String[] args)
+    public CompilerState(File infile, CommandParser cp)
     {
-        s_instance = this;
-        m_args = args;
-
-        // parse args
-        if (!parseArgs()) {
-            usage();
-            System.exit(-1);
-        }
+        m_commandParser = cp;
+        m_infile = infile;
+        m_globalContext = new GlobalContext();
+        sharedState = new RecognizerSharedState();
 
         // open stream
         if (m_infile == null) {
-            // stream is standard input
+            // stream is standard input (FIXME)
             try {
                 m_instream = new ANTLRInputStream(System.in);
             }
             catch (IOException x) {
-                System.out.println("Fatal error opening standard input: " +  x.toString());
-                System.exit(-1);
+                System.err.println("Fatal error opening standard input: " +  x.toString());
+                System.exit(1);
             }
         }
         else {
             // open the file
             m_instream = openInputFile(m_infile);
             if (m_instream == null) {
-                System.exit(-1);
+                System.exit(1);
             }
         }
     }
 
     public String getSourceFileName()
     { 
-        return m_sourceFileName; 
+        return m_infile.toString(); 
     }
 
-    // Singleton accessor is required because some methods which
-    // don't get the state passed into them need to generate diagnostics.
-    public static CompilerState getCompilerState() { return s_instance; }
-
-    public boolean parseArgs()
+    public GlobalContext getGlobalContext()
     {
-        int i = 0; // index of arg being processed
-
-        // Parse options
-        while (i < m_args.length) {
-            if (m_args[i].equals("-h") || m_args[i].equals("--help")) {
-                // Print usage message and exit
-                usage();
-                System.exit(0);
-            }
-            else if (m_args[i].equals("-v") || m_args[i].equals("--version")) {
-                // Print version and exit
-                System.out.println("PlexilCompiler version 2.0.0d1");
-                System.exit(0);
-            }
-            else if (m_args[i].equals("-d") || m_args[i].equals("--debug")) {
-                debug = true;
-            }
-            else if (m_args[i].equals("-e") || m_args[i].equals("--epx-only")) {
-                epxOnly = true;
-                writeEpx = true;
-            }
-            else if (m_args[i].equals("-w") || m_args[i].equals("--write-epx")) {
-                writeEpx = true;
-            }
-            else if (m_args[i].equals("-o")) {
-                m_outfile = new File(m_args[++i]);
-            }
-            else if (m_args[i].equals("-p") || m_args[i].equals("--pretty-print")) {
-                indentOutput = true;
-            }
-            else if (m_args[i].equals("-m") || m_args[i].equals("--semantics-only")) {
-                semanticsOnly = true;
-            }
-            else if (m_args[i].equals("-s") || m_args[i].equals("--syntax-only")) {
-                syntaxOnly = true;
-            }
-            else {
-                // Not a recognized option, go on to process input file name(s)
-                break;
-            }
-            ++i;
-        }
-
-		if (i >= m_args.length) {
-			// No file name supplied
-			usage();
-			System.exit(1);
-		}
-
-        // whatever's left must be the source file name(s)
-        m_sourceFileName = m_args[i];
-        m_infile = new File(m_sourceFileName);
-        return true;
-    }
-
-    public void usage()
-    {
-        System.out.println("Usage:  PlexilCompiler [options] [sourcefile]");
-        System.out.println(" Options for information (no sourcefile required): ");
-        System.out.println("  -h, --help            Prints this message and exits");
-        System.out.println("  -v, --version         Prints version number and exits");
-        System.out.println(" Options for output control: ");
-        System.out.println("  -o <filename>         Writes output to filename");
-        System.out.println("  -p, --pretty-print    Format XML output for readability");
-        System.out.println(" Options primarily for compiler testing:");
-        System.out.println("  -d, --debug           Enable debug output to standard-error stream");
-        System.out.println("  -w, --write-epx       Write an Extended Plexil XML output file");
-        System.out.println("  -e, --epx-only        Write EPX and do not translate to Core Plexil");
-        System.out.println("  -m, --semantics-only  Perform syntax and semantic checks, but do not generate code");
-        System.out.println("  -s, --syntax-only     Perform surface syntax parsing only");
+        return m_globalContext;
     }
 
     public CharStream openInputFile(File f)
@@ -198,8 +106,6 @@ public class CompilerState
         }
         return null;
     }
-
-    public boolean getDebug() { return debug; }
 
     public CharStream getInputStream() 
     {
@@ -224,44 +130,22 @@ public class CompilerState
 
     public File getEpxFile()
     {
-        if (m_outfile == null) {
-            if (m_infile == null)
-                return null;
-            else
-                // substitute ".epx" for ".ple" in infile name
-                return replaceFileExtension(m_infile, "epx");
+        if (m_infile == null) {
+            return null;
         }
-        else if (epxOnly)
-            return m_outfile;
-        else
-            // substitute ".epx" for ".plx" in supplied outfile name
-            return replaceFileExtension(m_outfile, "epx");
+        else {
+            return m_commandParser.getOutputFile(m_infile, "epx");
+        }
     }
 
     public File getOutputFile()
     {
-        if (m_outfile == null) {
-            if (m_infile == null)
-                return null;
-            else 
-                // substitute ".plx" for ".ple" in infile name
-                return replaceFileExtension(m_infile, "plx");
+        if (m_infile == null) {
+            return null;
         }
-        else
-            // return spec'd outfile
-            return m_outfile;
-    }
-
-    private File replaceFileExtension(File f, String newExtension)
-    {
-        String fname = f.getName();
-        int dotIdx = fname.lastIndexOf('.');
-        if (dotIdx == -1)
-            return new File(f.getParent(),
-                            fname + "." + newExtension);
-        else
-            return new File(f.getParent(),
-                            fname.substring(0, dotIdx + 1) + newExtension);
+        else {
+            return m_commandParser.getOutputFile(m_infile, "plx");
+        }
     }
 
     public void addDiagnostic(Diagnostic d)
@@ -271,10 +155,8 @@ public class CompilerState
 
     public void addDiagnostic(PlexilTreeNode location, String message, Severity severity)
     {
-        m_diagnostics.add(new Diagnostic(location, message, severity));
+        m_diagnostics.add(new Diagnostic(m_infile.toString(), location, message, severity));
     }
-
-    public Vector<Diagnostic> getDiagnostics() { return m_diagnostics; }
 
     public void displayDiagnostics()
     {
@@ -292,37 +174,14 @@ public class CompilerState
         return result;
     }
 
+    public void setRootDocument(Document root)
+    {
+        m_rootDocument = root;
+    }
+
     public Document getRootDocument()
     {
-        // Bootstrapping
-        if (s_documentBuilder == null) {
-            // Configuration??
-            try {
-            s_documentBuilder =
-                DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            } catch (ParserConfigurationException p) {
-                System.err.println("Fatal error: unable to boostrap XML construction:\n"
-                                   + p.toString());
-                return null;
-            };
-        }
-
-        // Construct a new Extended PLEXIL XML document
-        if (m_rootDocument == null) {
-            m_rootDocument = s_documentBuilder.newDocument();
-            m_rootDocument.setXmlVersion("1.0");
-        }
         return m_rootDocument;
-    }
-
-    public static Element newElement(String tagName)
-    {
-        return getCompilerState().getRootDocument().createElement(tagName);
-    }
-
-    public static Text newTextNode(String contents)
-    {
-        return getCompilerState().getRootDocument().createTextNode(contents);
     }
 
 }

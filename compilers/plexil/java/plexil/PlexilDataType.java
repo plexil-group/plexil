@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2011, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -120,10 +120,15 @@ public final class PlexilDataType
     public PlexilDataType prev() { return m_prev; }
 
     // Invalid/temporary types
+
+    // Has no value at all, e.g. commands that return no value
+    // This is default value for ExpressionNode
+    public static final PlexilDataType VOID_TYPE =
+        new PlexilDataType("VOID_TYPE", "Void", false);
+
+    // Indicates a failed semantic check.
     public static final PlexilDataType ERROR_TYPE =
         new PlexilDataType("ERROR_TYPE", "Error", false);
-    public static final PlexilDataType UNKNOWN_TYPE =
-        new PlexilDataType("UNKNOWN_TYPE", "Unknown", false);
 
     // Primitive types
     public static final PlexilDataType BOOLEAN_TYPE =
@@ -152,10 +157,9 @@ public final class PlexilDataType
     public static final PlexilDataType STATE_NAME_TYPE =
         new PlexilDataType("STATE_NAME_TYPE", "StateName", false);
 
-    // Has no value at all, e.g. commands that return no value
-    public static final PlexilDataType VOID_TYPE = new PlexilDataType("VOID_TYPE", "Void", false);
-
-    // May assume any type
+    // For parameters, may accept any type.
+    // For return values, may provide any type.
+    // Must be explicitly specified.
     public static final PlexilDataType ANY_TYPE = new PlexilDataType("ANY_TYPE", "Any", true);
 
     // Array types
@@ -174,5 +178,45 @@ public final class PlexilDataType
     // this is for use before semantic checking has determined the value type
     public static final PlexilDataType UNKNOWN_ARRAY_TYPE =
         new PlexilDataType("UNKNOWN_ARRAY_TYPE", "Array", ERROR_TYPE);
+
+    public static boolean isValid(PlexilDataType t)
+    {
+        if (t == null)
+            return false;
+        if (t == VOID_TYPE
+            || t == ERROR_TYPE
+            || t == UNKNOWN_ARRAY_TYPE
+            )
+            return false;
+        return true;
+    }
+
+    public boolean canReceiveType(PlexilDataType other)
+    {
+        if (!isValid(other))
+            return false;
+        if (this == other)
+            return true;
+        if (this == ANY_TYPE)
+            return true;
+        // Real can accept all other numeric types
+        if (other.isNumeric())
+            return this == REAL_TYPE;
+        return false;
+    }
+
+    public boolean canAssumeType(PlexilDataType other)
+    {
+        if (!isValid(other))
+            return false;
+        if (this == other)
+            return true;
+        if (other == ANY_TYPE)
+            return true;
+        // Real can accept all other numeric types
+        if (other == REAL_TYPE)
+            return this.isNumeric();
+        return false;
+    }
 
 }

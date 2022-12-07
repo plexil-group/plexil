@@ -1,1 +1,17 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/inactive1.ple"><Sequence ColNo="0" LineNo="1"><NodeId>BLOCK__0</NodeId><Node ColNo="2" LineNo="2" NodeType="Empty"><NodeId>A</NodeId><StartCondition ColNo="7" LineNo="2"><Inactive ColNo="13" LineNo="2"><NodeId>B</NodeId></Inactive></StartCondition></Node><Node ColNo="2" LineNo="3" NodeType="Empty"><NodeId>B</NodeId></Node></Sequence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/inactive1.ple">
+   <Sequence ColNo="0" LineNo="1">
+      <NodeId generated="1">BLOCK__0</NodeId>
+      <Node ColNo="2" LineNo="2" NodeType="Empty">
+         <NodeId>A</NodeId>
+         <StartCondition ColNo="7" LineNo="2">
+            <Inactive ColNo="13" LineNo="2">
+               <NodeId>B</NodeId>
+            </Inactive>
+         </StartCondition>
+      </Node>
+      <Node ColNo="2" LineNo="3" NodeType="Empty">
+         <NodeId>B</NodeId>
+      </Node>
+   </Sequence>
+</PlexilPlan>

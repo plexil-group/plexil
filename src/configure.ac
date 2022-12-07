@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -26,22 +26,35 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-# Because an ancient version of vxWorks only offered this version
-#AC_PREREQ(2.59)
-AC_PREREQ(2.62)
-AC_INIT([Plexil], [7.0.0d1], [plexil-support@sourceforge.net], [plexil], [https://plexil.wiki.sourceforge.net/])
+#
+# N.B. This file does not, and will not, support versions of the GNU
+# autotools predating C++11.  The following minimum versions are
+# required:
+#
+#  autoconf 2.69
+#  automake 1.11.1
+#  libtool 2.4
+#  m4 1.4.15
+#
+# If the build environment doesn't support these minimum versions, use
+# a PLEXIL release from the 4.x series.  These older releases support
+# older versions of the C++ standard.
+#
+
+AC_PREREQ(2.69)
+AC_INIT([Plexil], [6.0.0d4], [plexil-support@sourceforge.net], [plexil], [https://plexil.wiki.sourceforge.net/])
 AC_LANG(C++)
 AC_CONFIG_SRCDIR([app-framework/AdapterConfiguration.cc])
-AC_CONFIG_HEADER([plexil-config.h])
+AC_CONFIG_HEADERS([plexil-config.h])
 AC_CONFIG_MACRO_DIR([m4])
 
 # Check whether compilers exist and work
 
 # Note that AC_PROG_CXX sets CXXFLAGS to '-g -O2' if not already set
-# This version of PLEXIL requires C++14 or later, so set the standard
+# This version of PLEXIL requires C++11 or later, so set the standard
 # in the CXXFLAGS defaults.
 # This bit of hackery is straight out of the GNU Autoconf manual
-: ${CXXFLAGS="-std=c++14 -g -O2"}
+: ${CXXFLAGS="-std=c++11 -g -O2"}
 
 AC_PROG_CXX
 AC_PROG_CC
@@ -50,10 +63,7 @@ AC_PROG_CC
 AC_PATH_PROG([GPERF], [gperf])
 AS_IF([test "x${GPERF}" = 'x'], [AC_MSG_ERROR([Required program 'gperf' not found. Aborting.])])
 
-# Use this with autoconf 2.62 and newer
 LT_INIT([])
-# Use this with autoconf 2.61 and older
-#AC_PROG_LIBTOOL
 
 AC_SUBST([LIBTOOL_DEPS])
 
@@ -93,8 +103,8 @@ AC_ARG_ENABLE([universal-exec],
 
 # Conditionals for makefiles
 # These default to enabled (with)
-AM_CONDITIONAL([DEBUG_LISTENER_OPT], [test "x$enable_debug_listener" != "xno"])
 AM_CONDITIONAL([DEBUG_LOGGING_OPT], [test "x$enable_debug_logging" != "xno"])
+AM_CONDITIONAL([DEBUG_LISTENER_OPT], [test "x$enable_debug_listener" != "xno"])
 AM_CONDITIONAL([THREADS_OPT], [test "x$with_threads" != "xno"])
 AM_CONDITIONAL([VIEWER_OPT], [test "x$enable_viewer" != "xno"])
 AM_CONDITIONAL([UNIVERSAL_EXEC_OPT], [test "x$enable_universal_exec" != "xno"])
@@ -135,12 +145,14 @@ AS_IF([test "x$enable_udp" = "xyes"],[
 
 # Checks for libraries.
 
+# dynamic loading - implied by header check for dlfcn.h
+AC_SEARCH_LIBS([dlopen], [dl])
+# pthread signal handling support
+AC_SEARCH_LIBS([pthread_sigmask], [pthread])
 # Math
 AC_SEARCH_LIBS([cos], [m])
-# pthread support
-AC_SEARCH_LIBS([pthread_sigmask], [pthread])
-# dynamic loading - see also header dlfcn.h
-AC_SEARCH_LIBS([dlopen], [dl])
+# Used by UdpAdapter
+AC_SEARCH_LIBS([inet_ntoa], [nsl])
 # POSIX timer - not present on macOS
 AC_SEARCH_LIBS([timer_create], [rt])
 # Dispatch queues - macOS
@@ -149,35 +161,16 @@ AC_SEARCH_LIBS([dispatch_main], [dispatch])
 # Checks for header files.
 
 # C++ standard headers for PLEXIL core functionality
-AC_CHECK_HEADERS_ONCE([cassert ctype cerrno cfloat cinttypes climits cmath csignal cstddef cstdint cstdio cstdlib cstring ctime])
+AC_CHECK_HEADERS_ONCE([cassert cctype cerrno cfloat cinttypes climits cmath csignal cstddef cstdint cstdio cstdlib cstring ctime])
 
 # Standard C (C90, C99, etc.) headers for PLEXIL core functionality
 # Some platforms (e.g. vxWorks) may lack some of these
 # NOTE: checks only apply to PLEXIL source code, not imported third party code
 AC_CHECK_HEADERS_ONCE([assert.h ctype.h errno.h float.h inttypes.h math.h signal.h stddef.h stdint.h stdio.h stdlib.h string.h time.h])
-
-# Check whether cstdint (stdint.h) and cinttypes (inttypes.h) behave correctly
-# This is required because of a misfeature in the C99 spec
-
-AC_COMPILE_IFELSE(
-  [AC_LANG_PROGRAM([[@%:@include <stdint.h>]],
-                   [[return argc < INT8_MAX;]])],
-  [AC_DEFINE([HAVE_GOOD_STDINT_H], 1,
-             [Define to 1 if stdint.h defines limit and constant macros correctly under C++])])
-
-AC_COMPILE_IFELSE(
-  [AC_LANG_PROGRAM([[@%:@include <stdio.h>
-@%:@include <inttypes.h>]],
-                   [[printf("%" PRId32 " ", 1);
-                     return 0;]])],
-  [AC_DEFINE([HAVE_GOOD_INTTYPES_H], 1,
-  [Define to 1 if inttypes.h defines format macros correctly under C++])])
-
 # POSIX dependencies for core functionality
 AC_CHECK_HEADERS_ONCE([dlfcn.h fcntl.h pthread.h semaphore.h unistd.h sys/stat.h sys/time.h])
 # POSIX headers for network functionality
 AC_CHECK_HEADERS_ONCE([netdb.h poll.h arpa/inet.h netinet/in.h sys/socket.h])
-
 # glibc backtrace functionality
 AC_CHECK_HEADERS_ONCE([execinfo.h])
 
@@ -229,7 +222,6 @@ AC_CONFIG_FILES([configure.env
                  expr/Makefile
                  intfc/Makefile
                  exec/Makefile
-                 third-party/pugixml/src/Makefile
                  xml-parser/Makefile
                  app-framework/Makefile])
 

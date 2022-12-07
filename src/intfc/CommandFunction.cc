@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -26,13 +26,8 @@
 
 #include "CommandFunction.hh"
 
-#include "ArrayImpl.hh"
-#include "Error.hh"
 #include "CommandImpl.hh"
 #include "CommandOperator.hh"
-#include "PlanError.hh"
-#include "PlexilTypeTraits.hh"
-#include "Value.hh"
 
 namespace PLEXIL
 {
@@ -40,10 +35,6 @@ namespace PLEXIL
     : Propagator(),
       m_op(op),
       m_command(command)
-  {
-  }
-
-  CommandFunction::~CommandFunction()
   {
   }
 
@@ -78,34 +69,9 @@ namespace PLEXIL
     m_op->doPropagationSources(&m_command, oper);
   }
 
-#define DEFINE_COMMAND_FUNC_GET_VALUE_METHOD(_rtype) \
-  bool CommandFunction::getValue(_rtype &result) const \
-  { \
-    return (*m_op)(result, &m_command); \
+  bool CommandFunction::getValue(Boolean &result) const
+  {
+    return (*m_op)(result, &m_command);
   }
-
-  DEFINE_COMMAND_FUNC_GET_VALUE_METHOD(Boolean)
-  // Only Boolean operators implemented to date,
-  // uncomment these as necessary
-  // DEFINE_COMMAND_FUNC_GET_VALUE_METHOD(uint16_t)
-  // DEFINE_COMMAND_FUNC_GET_VALUE_METHOD(Integer)
-  // DEFINE_COMMAND_FUNC_GET_VALUE_METHOD(Real)
-  // DEFINE_COMMAND_FUNC_GET_VALUE_METHOD(String)
-
-#undef DEFINE_COMMAND_FUNC_GET_VALUE_METHOD
-
-// Uncomment this if we ever need String or Array results
-// #define DEFINE_COMMAND_FUNC_GET_VALUE_PTR_METHOD(_rtype) \
-//   bool CommandFunction::getValuePointer(_rtype const *&ptr) const \
-//   { \
-//     reportPlanError("getValuePointer not implemented for type " << #_type \
-//                     << " for " << m_op->getName());                     \
-//     return false;                               \
-//   }
-
-//   // Only Boolean operators implemented to date
-//   // DEFINE_COMMAND_FUNC_GET_VALUE_PTR_METHOD(String)
-  
-// #undef DEFINE_COMMAND_FUNC_GET_VALUE_PTR_METHOD
 
 } // namespace PLEXIL

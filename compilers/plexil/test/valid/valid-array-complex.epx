@@ -1,1 +1,193 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/array-complex.ple"><Sequence ColNo="0" LineNo="1"><NodeId>ArrayComplex</NodeId><VariableDeclarations><DeclareArray ColNo="2" LineNo="3"><Name>foo</Name><Type>Real</Type><MaxSize>4</MaxSize><InitialValue><ArrayValue Type="Real"><RealValue>0.0</RealValue><RealValue>-0.0</RealValue><RealValue>0.0</RealValue><RealValue>-0.0</RealValue></ArrayValue></InitialValue></DeclareArray><DeclareArray ColNo="2" LineNo="4"><Name>bar</Name><Type>Real</Type><MaxSize>30</MaxSize></DeclareArray></VariableDeclarations><For ColNo="2" LineNo="6"><NodeId>for__0</NodeId><LoopVariable><DeclareVariable ColNo="7" LineNo="6"><Name>i</Name><Type>Integer</Type><InitialValue><IntegerValue>0</IntegerValue></InitialValue></DeclareVariable></LoopVariable><Condition><LT ColNo="24" LineNo="6"><IntegerVariable>i</IntegerVariable><IntegerValue>30</IntegerValue></LT></Condition><LoopVariableUpdate><ADD ColNo="32" LineNo="6"><IntegerVariable>i</IntegerVariable><IntegerValue>1</IntegerValue></ADD></LoopVariableUpdate><Action><Node ColNo="4" LineNo="7" NodeType="Assignment"><NodeId>ASSIGNMENT__2</NodeId><NodeBody><Assignment ColNo="4" LineNo="7"><ArrayElement><ArrayVariable>bar</ArrayVariable><Index><IntegerVariable>i</IntegerVariable></Index></ArrayElement><NumericRHS><RealValue>0.0</RealValue></NumericRHS></Assignment></NodeBody></Node></Action></For><For ColNo="2" LineNo="10"><NodeId>for__3</NodeId><LoopVariable><DeclareVariable ColNo="7" LineNo="10"><Name>i</Name><Type>Real</Type><InitialValue><RealValue>0.0</RealValue></InitialValue></DeclareVariable></LoopVariable><Condition><LT ColNo="23" LineNo="10"><RealVariable>i</RealVariable><RealValue>10.0</RealValue></LT></Condition><LoopVariableUpdate><ADD ColNo="33" LineNo="10"><RealVariable>i</RealVariable><IntegerValue>1</IntegerValue></ADD></LoopVariableUpdate><Action><Sequence ColNo="38" LineNo="10"><NodeId>BLOCK__4</NodeId><Node ColNo="4" LineNo="11" NodeType="Assignment"><NodeId>ASSIGNMENT__5</NodeId><NodeBody><Assignment ColNo="4" LineNo="11"><ArrayElement><ArrayVariable>foo</ArrayVariable><Index><IntegerValue>1</IntegerValue></Index></ArrayElement><NumericRHS><ADD ColNo="20" LineNo="11"><ArrayElement><ArrayVariable>foo</ArrayVariable><Index><IntegerValue>1</IntegerValue></Index></ArrayElement><RealValue>1.0</RealValue></ADD></NumericRHS></Assignment></NodeBody></Node><Node ColNo="4" LineNo="12" NodeType="Assignment"><NodeId>ASSIGNMENT__6</NodeId><NodeBody><Assignment ColNo="4" LineNo="12"><ArrayElement><ArrayVariable>bar</ArrayVariable><Index><IntegerValue>2</IntegerValue></Index></ArrayElement><NumericRHS><ADD ColNo="20" LineNo="12"><ArrayElement><ArrayVariable>bar</ArrayVariable><Index><IntegerValue>2</IntegerValue></Index></ArrayElement><RealValue>2.0</RealValue></ADD></NumericRHS></Assignment></NodeBody></Node><Node ColNo="4" LineNo="13" NodeType="Assignment"><NodeId>ASSIGNMENT__7</NodeId><NodeBody><Assignment ColNo="4" LineNo="13"><ArrayElement><ArrayVariable>foo</ArrayVariable><Index><IntegerValue>3</IntegerValue></Index></ArrayElement><NumericRHS><ADD ColNo="20" LineNo="13"><ArrayElement><ArrayVariable>foo</ArrayVariable><Index><IntegerValue>3</IntegerValue></Index></ArrayElement><RealValue>3.0</RealValue></ADD></NumericRHS></Assignment></NodeBody></Node><Node ColNo="4" LineNo="14" NodeType="Assignment"><NodeId>ASSIGNMENT__8</NodeId><NodeBody><Assignment ColNo="4" LineNo="14"><ArrayElement><ArrayVariable>bar</ArrayVariable><Index><IntegerValue>15</IntegerValue></Index></ArrayElement><NumericRHS><ADD ColNo="22" LineNo="14"><ArrayElement><ArrayVariable>bar</ArrayVariable><Index><IntegerValue>15</IntegerValue></Index></ArrayElement><RealValue>4.0</RealValue></ADD></NumericRHS></Assignment></NodeBody></Node></Sequence></Action></For></Sequence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/array-complex.ple">
+   <Sequence ColNo="0" LineNo="1">
+      <NodeId>ArrayComplex</NodeId>
+      <VariableDeclarations>
+         <DeclareArray ColNo="2" LineNo="3">
+            <Name>foo</Name>
+            <Type>Real</Type>
+            <MaxSize>4</MaxSize>
+            <InitialValue>
+               <ArrayValue Type="Real">
+                  <RealValue>0.0</RealValue>
+                  <RealValue>-0.0</RealValue>
+                  <RealValue>0.0</RealValue>
+                  <RealValue>-0.0</RealValue>
+               </ArrayValue>
+            </InitialValue>
+         </DeclareArray>
+         <DeclareArray ColNo="2" LineNo="4">
+            <Name>bar</Name>
+            <Type>Real</Type>
+            <MaxSize>30</MaxSize>
+         </DeclareArray>
+      </VariableDeclarations>
+      <For ColNo="2" LineNo="6">
+         <NodeId generated="1">for__0</NodeId>
+         <LoopVariable>
+            <DeclareVariable ColNo="7" LineNo="6">
+               <Name>i</Name>
+               <Type>Integer</Type>
+               <InitialValue>
+                  <IntegerValue>0</IntegerValue>
+               </InitialValue>
+            </DeclareVariable>
+         </LoopVariable>
+         <Condition>
+            <LT ColNo="24" LineNo="6">
+               <IntegerVariable>i</IntegerVariable>
+               <IntegerValue>30</IntegerValue>
+            </LT>
+         </Condition>
+         <LoopVariableUpdate>
+            <ADD ColNo="32" LineNo="6">
+               <IntegerVariable>i</IntegerVariable>
+               <IntegerValue>1</IntegerValue>
+            </ADD>
+         </LoopVariableUpdate>
+         <Action>
+            <Node ColNo="4" LineNo="7" NodeType="Assignment">
+               <NodeId generated="1">ASSIGNMENT__1</NodeId>
+               <NodeBody>
+                  <Assignment ColNo="4" LineNo="7">
+                     <ArrayElement>
+                        <ArrayVariable>bar</ArrayVariable>
+                        <Index>
+                           <IntegerVariable>i</IntegerVariable>
+                        </Index>
+                     </ArrayElement>
+                     <NumericRHS>
+                        <RealValue>0.0</RealValue>
+                     </NumericRHS>
+                  </Assignment>
+               </NodeBody>
+            </Node>
+         </Action>
+      </For>
+      <For ColNo="2" LineNo="10">
+         <NodeId generated="1">for__2</NodeId>
+         <LoopVariable>
+            <DeclareVariable ColNo="7" LineNo="10">
+               <Name>i</Name>
+               <Type>Real</Type>
+               <InitialValue>
+                  <RealValue>0.0</RealValue>
+               </InitialValue>
+            </DeclareVariable>
+         </LoopVariable>
+         <Condition>
+            <LT ColNo="23" LineNo="10">
+               <RealVariable>i</RealVariable>
+               <RealValue>10.0</RealValue>
+            </LT>
+         </Condition>
+         <LoopVariableUpdate>
+            <ADD ColNo="33" LineNo="10">
+               <RealVariable>i</RealVariable>
+               <IntegerValue>1</IntegerValue>
+            </ADD>
+         </LoopVariableUpdate>
+         <Action>
+            <Sequence ColNo="38" LineNo="10">
+               <NodeId generated="1">BLOCK__3</NodeId>
+               <Node ColNo="4" LineNo="11" NodeType="Assignment">
+                  <NodeId generated="1">ASSIGNMENT__4</NodeId>
+                  <NodeBody>
+                     <Assignment ColNo="4" LineNo="11">
+                        <ArrayElement>
+                           <ArrayVariable>foo</ArrayVariable>
+                           <Index>
+                              <IntegerValue>1</IntegerValue>
+                           </Index>
+                        </ArrayElement>
+                        <NumericRHS>
+                           <ADD ColNo="20" LineNo="11">
+                              <ArrayElement>
+                                 <ArrayVariable>foo</ArrayVariable>
+                                 <Index>
+                                    <IntegerValue>1</IntegerValue>
+                                 </Index>
+                              </ArrayElement>
+                              <RealValue>1.0</RealValue>
+                           </ADD>
+                        </NumericRHS>
+                     </Assignment>
+                  </NodeBody>
+               </Node>
+               <Node ColNo="4" LineNo="12" NodeType="Assignment">
+                  <NodeId generated="1">ASSIGNMENT__5</NodeId>
+                  <NodeBody>
+                     <Assignment ColNo="4" LineNo="12">
+                        <ArrayElement>
+                           <ArrayVariable>bar</ArrayVariable>
+                           <Index>
+                              <IntegerValue>2</IntegerValue>
+                           </Index>
+                        </ArrayElement>
+                        <NumericRHS>
+                           <ADD ColNo="20" LineNo="12">
+                              <ArrayElement>
+                                 <ArrayVariable>bar</ArrayVariable>
+                                 <Index>
+                                    <IntegerValue>2</IntegerValue>
+                                 </Index>
+                              </ArrayElement>
+                              <RealValue>2.0</RealValue>
+                           </ADD>
+                        </NumericRHS>
+                     </Assignment>
+                  </NodeBody>
+               </Node>
+               <Node ColNo="4" LineNo="13" NodeType="Assignment">
+                  <NodeId generated="1">ASSIGNMENT__6</NodeId>
+                  <NodeBody>
+                     <Assignment ColNo="4" LineNo="13">
+                        <ArrayElement>
+                           <ArrayVariable>foo</ArrayVariable>
+                           <Index>
+                              <IntegerValue>3</IntegerValue>
+                           </Index>
+                        </ArrayElement>
+                        <NumericRHS>
+                           <ADD ColNo="20" LineNo="13">
+                              <ArrayElement>
+                                 <ArrayVariable>foo</ArrayVariable>
+                                 <Index>
+                                    <IntegerValue>3</IntegerValue>
+                                 </Index>
+                              </ArrayElement>
+                              <RealValue>3.0</RealValue>
+                           </ADD>
+                        </NumericRHS>
+                     </Assignment>
+                  </NodeBody>
+               </Node>
+               <Node ColNo="4" LineNo="14" NodeType="Assignment">
+                  <NodeId generated="1">ASSIGNMENT__7</NodeId>
+                  <NodeBody>
+                     <Assignment ColNo="4" LineNo="14">
+                        <ArrayElement>
+                           <ArrayVariable>bar</ArrayVariable>
+                           <Index>
+                              <IntegerValue>15</IntegerValue>
+                           </Index>
+                        </ArrayElement>
+                        <NumericRHS>
+                           <ADD ColNo="22" LineNo="14">
+                              <ArrayElement>
+                                 <ArrayVariable>bar</ArrayVariable>
+                                 <Index>
+                                    <IntegerValue>15</IntegerValue>
+                                 </Index>
+                              </ArrayElement>
+                              <RealValue>4.0</RealValue>
+                           </ADD>
+                        </NumericRHS>
+                     </Assignment>
+                  </NodeBody>
+               </Node>
+            </Sequence>
+         </Action>
+      </For>
+   </Sequence>
+</PlexilPlan>

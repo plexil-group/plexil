@@ -1,32 +1,30 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
-*  All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*     * Redistributions of source code must retain the above copyright
-*       notice, this list of conditions and the following disclaimer.
-*     * Redistributions in binary form must reproduce the above copyright
-*       notice, this list of conditions and the following disclaimer in the
-*       documentation and/or other materials provided with the distribution.
-*     * Neither the name of the Universities Space Research Association nor the
-*       names of its contributors may be used to endorse or promote products
-*       derived from this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
-* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
-* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
+//  All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//     * Neither the name of the Universities Space Research Association nor the
+//       names of its contributors may be used to endorse or promote products
+//       derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+// OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+// TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+// USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "PlexilExec.hh"
 
-#include "Assignable.hh"
 #include "Assignment.hh"
 #include "CommandImpl.hh"
 #include "Debug.hh"
@@ -54,8 +52,9 @@ namespace PLEXIL
   // Local classes
   //
 
-  // Comparison function for conflict queues
-  // FIXME - turn into lambda?
+  // FIXME - use lambda instead?
+
+  //! \brief Comparison functor for conflict queues
   struct PriorityCompare
   {
     bool operator() (Node const &x, Node const &y) const
@@ -64,7 +63,9 @@ namespace PLEXIL
     }
   };
 
-
+  //! \class PlexilExecImpl
+  //! \brief Implements the PlexilExec API.
+  //! \ingroup Exec-Core
   class PlexilExecImpl final:
     public PlexilExec
   {
@@ -74,24 +75,31 @@ namespace PLEXIL
     // Private member variables
     //
 
-    LinkedQueue<Node> m_candidateQueue;    /*<! Nodes whose conditions have changed and may be eligible to transition. */
-    LinkedQueue<Node> m_stateChangeQueue;  /*<! Nodes awaiting state transition.*/
-    LinkedQueue<Node> m_finishedRootNodes; /*<! Root nodes which are no longer eligible to execute. */
-    PriorityQueue<Node, PriorityCompare> m_pendingQueue; /*<! Nodes waiting to acquire a mutex or assign a variable. */ 
-    LinkedQueue<Assignment> m_assignmentsToExecute;
-    LinkedQueue<Assignment> m_assignmentsToRetract;
+    // Working storage
+    std::list<NodePtr> m_plan;                           //!< Active root nodes.
+    LinkedQueue<Node> m_candidateQueue;                  //!< Nodes whose conditions have changed and
+                                                         //!< may be eligible to transition.
+    LinkedQueue<Node> m_stateChangeQueue;                //!< Nodes actively transitioning.
+    PriorityQueue<Node, PriorityCompare> m_pendingQueue; //!< Nodes eligible to transition, but
+                                                         //!< waiting on resources in use.
 
-    LinkedQueue<CommandImpl> m_commandsToExecute;
-    LinkedQueue<CommandImpl> m_commandsToAbort;
+    // Output queues
+    LinkedQueue<Assignment>  m_assignmentsToExecute; //!< Assignments to be executed.
+    LinkedQueue<Assignment>  m_assignmentsToRetract; //!< Assignments to be retracted.
+    LinkedQueue<CommandImpl> m_commandsToExecute;    //!< Commands to be executed.
+    LinkedQueue<CommandImpl> m_commandsToAbort;      //!< Commands to be aborted.
+    LinkedQueue<Update>      m_updatesToExecute;     //!< Updates to be executed. 
+    LinkedQueue<Node>        m_finishedRootNodes;    //!< Root nodes which are no longer eligible to execute.
 
-    LinkedQueue<Update> m_updatesToExecute;
+    std::vector<NodeTransition> m_transitionsToPublish;  //!< State transitions to be published to the listener.
 
-    std::list<NodePtr> m_plan; /*<! The root of the plan.*/
-    std::vector<NodeTransition> m_transitionsToPublish;
-    std::unique_ptr<ResourceArbiterInterface> m_arbiter;
-    Dispatcher *m_dispatcher;
-    ExecListenerBase *m_listener;
-    bool m_finishedRootNodesDeleted; /*<! True if at least one finished plan has been deleted */
+    // Interface objects
+    std::unique_ptr<ResourceArbiterInterface>  m_arbiter;     //!< The command resource arbiter. 
+    Dispatcher                                *m_dispatcher;  //!< The external interface.
+    ExecListenerBase                          *m_listener;    //!< The Exec listener.
+
+    // Flag
+    bool m_finishedRootNodesDeleted; //!< True if at least one finished plan has been deleted */
 
   public:
 
@@ -99,97 +107,112 @@ namespace PLEXIL
     // Public API
     //
     
+    //! \brief Default constructor.
     PlexilExecImpl()
-      : PlexilExec(),
+      : m_plan(),
         m_candidateQueue(),
         m_stateChangeQueue(),
-        m_finishedRootNodes(),
         m_pendingQueue(),
         m_assignmentsToExecute(),
         m_assignmentsToRetract(),
         m_commandsToExecute(),
         m_commandsToAbort(),
-        m_plan(),
+        m_updatesToExecute(),
+        m_finishedRootNodes(),
+        m_transitionsToPublish(),
         m_arbiter(makeResourceArbiter()),
         m_dispatcher(),
         m_listener(),
         m_finishedRootNodesDeleted(false)
     {}
 
+    //! \brief Virtual destructor.
     virtual ~PlexilExecImpl() 
     {
       m_candidateQueue.clear();
       m_stateChangeQueue.clear();
       m_finishedRootNodes.clear();
       m_pendingQueue.clear();
+      m_transitionsToPublish.clear(),
       m_assignmentsToExecute.clear();
       m_assignmentsToRetract.clear();
       m_commandsToExecute.clear();
       m_commandsToAbort.clear();
+      m_plan.clear();
     }
 
+    //! \brief Get the command resource arbiter.
+    //! \return Pointer to the arbiter instance.  May be null.
     virtual ResourceArbiterInterface *getArbiter() override
     {
       return m_arbiter.get();
     }
 
+    //! \brief Set the dispatcher
+    //! \param intf Pointer to the Dispatcher instance.
     virtual void setDispatcher(Dispatcher *intf) override
     {
       m_dispatcher = intf;
     }
 
+    //! \brief Set the exec listener.
+    //! \param listener Pointer to the listener instance.
     virtual void setExecListener(ExecListenerBase *l) override
     {
       m_listener = l;
     }
 
+    //! \brief Get the exec listener.
+    //! \return Pointer to the listener instance.  May be null.
     virtual ExecListenerBase *getExecListener() override
     {
       return m_listener;
     }
 
-    /**
-     * @brief Get the list of active plans.
-     */
+    //! \brief Get the list of active plans.
+    //! \return Const reference to the list of root nodes.
     virtual std::list<NodePtr> const &getPlans() const override
     {
       return m_plan;
     }
 
+    //! \brief Prepare the given plan for execution.
+    //! \param root Pointer to the plan's root node.
+    //! \return True if succesful, false otherwise.
     virtual bool addPlan(Node *root) override
     {
       m_plan.emplace_back(NodePtr(root));
       debugMsg("PlexilExec:addPlan",
                "Added plan: \n" << root->toString());
-      root->notifyChanged(this); // make sure root is considered first
+      root->notify(this); // make sure root is considered first
       root->activateNode();
       return true;
     }
 
-    /**
-     * @brief Queries whether all plans are finished.
-     * @return true if all finished, false otherwise.
-     */
-
+    //! \brief Queries whether all plans are finished.
+    //! \return true if at least one plan has been run and all have finished, false otherwise.
     virtual bool allPlansFinished() const override
     {
       bool result = m_finishedRootNodesDeleted; // return value in the event no plan is active
 
       debugMsg("PlexilExec:allPlansFinished", ' ' << m_plan.size() << " plans");
       for (NodePtr const &root : m_plan) {
-        if (root->getState() != FINISHED_STATE) {
-          // Some node is not finished
-          debugMsg("PlexilExec:allPlansFinished", " return false");
-          return false;
-        }
-        else
+        if (root->getState() == FINISHED_STATE) {
           result = true;
+        }
+        else {
+          // Some node is not finished
+          result = false;
+          break;
+        }
       }
       debugMsg("PlexilExec:allPlansFinished",
                " return " << (result ? "true" : "false"));
       return result;
     }
 
+    //! \brief Mark node as finished and no longer eligible for execution.
+    //! \param node Pointer to the Node.
     virtual void markRootNodeFinished(Node *node) override
     {
       checkError(node,
@@ -197,6 +220,7 @@ namespace PLEXIL
       addFinishedRootNode(node);
     }
 
+    //! \brief Delete any plans (root nodes) which have finished.
     virtual void deleteFinishedPlans() override
     {
       while (!m_finishedRootNodes.empty()) {
@@ -212,11 +236,16 @@ namespace PLEXIL
                " now " << m_plan.size() << " root nodes");
     }
 
+    //! \brief Query whether the Exec needs to be stepped.
+    //! \return True if the Exec needs to be stepped, false otherwise.
     virtual bool needsStep() const override
     {
       return !m_candidateQueue.empty();
     }
 
+    //! \brief Run a single "macro step" i.e. the entire quiescence cycle.
+    //! \param startTime The time at which the step is run.  Used as the
+    //!                  timestamp for node transitions in this step.
     virtual void step(double startTime) override
     {
       //
@@ -235,13 +264,12 @@ namespace PLEXIL
       debugMsg("PlexilExec:step", " ==>Start cycle " << cycleNum);
 
       // A Node is initially inserted on the pending queue when it is eligible to
-      // transition to EXECUTING, and it needs to acquire one or more mutexes.
+      // transition to EXECUTING, and it needs to acquire one or more resources.
       // It is removed when:
       //  - its conditions have changed and it is no longer eligible to execute;
-      //  - it has acquired the mutexes and is transitioning to EXECUTING.
+      //  - it has acquired the resources and is transitioning to EXECUTING.
       //
       // At each step, each node in the pending queue is checked.
-      // 
 
       // BEGIN QUIESCENCE LOOP
       do {
@@ -351,6 +379,7 @@ namespace PLEXIL
              && m_commandsToAbort.empty()
              && !m_candidateQueue.empty());
       // END QUIESCENCE LOOP
+
       // Perform side effects
       StateCache::instance().incrementCycleCount();
       performAssignments();
@@ -368,46 +397,46 @@ namespace PLEXIL
       //
     }
 
+    //! \brief Consider a node for potential state transition.
+    //! \param node Pointer to the node.
+    //! \note Node's queue status must be QUEUE_NONE.
     virtual void addCandidateNode(Node *node) override
     {
       m_candidateQueue.push(node);
     }
 
-    /**
-     * @brief Schedule this assignment for execution.
-     */
+    //! \brief Schedule this assignment for execution.
+    //! \param assign Pointer to the Assignment.
     virtual void enqueueAssignment(Assignment *assign) override
     {
       m_assignmentsToExecute.push(assign);
     }
 
-    /**
-     * @brief Schedule this assignment for retraction.
-     */
+    //! \brief Schedule this assignment for retraction.
+    //! \param assign Pointer to the Assignment.
     virtual void enqueueAssignmentForRetraction(Assignment *assign) override
     {
       m_assignmentsToRetract.push(assign);
     }
 
-    /**
-     * @brief Schedule this command for execution.
-     */
+    //! \brief Schedule this command for execution.
+    //! \param cmd Pointer to the CommandImpl.
     virtual void enqueueCommand(CommandImpl *cmd) override
     {
       m_commandsToExecute.push(cmd);
-    };
+    }
 
-    /**
-     * @brief Schedule this command to be aborted.
-     */
+
+    //! \brief Schedule this command to be aborted.
+    //! \param cmd Pointer to the CommandImpl.
     virtual void enqueueAbortCommand(CommandImpl *cmd) override
     {
       m_commandsToAbort.push(cmd);
-    };
+    }
 
-    /**
-     * @brief Schedule this update for execution.
-     */
+
+    //! \brief Schedule this update for execution.
+    //! \param update Pointer to the Update.
     virtual void enqueueUpdate(Update *update) override
     {
       m_updatesToExecute.push(update);
@@ -441,6 +470,8 @@ namespace PLEXIL
     // Returns false if no chance of conflict,
     // true if potential for conflict must be evaluated before transition.
 
+    //! \brief Does executing this node require resources which may be in conflict?
+    //! \return true if resources are required, false if not.
     bool resourceCheckRequired(Node *node)
     {
       if (node->getNextState() != EXECUTING_STATE)
@@ -448,10 +479,10 @@ namespace PLEXIL
       return node->acquiresResources();
     }
 
-    //! @brief Check whether a node on the pending queue should attempt to acquire resources.
+    //! \brief Check whether a node on the pending queue should attempt to acquire resources.
     //!        Remove from pending queue if no longer eligible to execute.
     //!        Add to the state change queue if should transition to some other state.
-    //! @return True if eligible for resource acquisition, false otherwise.
+    //! \return True if eligible for resource acquisition, false otherwise.
     bool resourceCheckEligible(Node *node)
     {
       switch (node->getQueueStatus()) {
@@ -510,7 +541,8 @@ namespace PLEXIL
       }
     }      
 
-    // Only called if pending queue not empty
+    //! \brief Resolve resource conflicts among the best priority
+    //! nodes on the pending queue.
     void resolveResourceConflicts()
     {
       Node *priorityHead = m_pendingQueue.front();
@@ -558,6 +590,7 @@ namespace PLEXIL
       }
     }
 
+    //! \brief Execute assignments and assignment retractions.
     void performAssignments() 
     {
       condDebugMsg(!m_assignmentsToExecute.empty() || !m_assignmentsToRetract.empty(),
@@ -572,12 +605,14 @@ namespace PLEXIL
       m_assignmentsToRetract.clear();
     }
 
+    //! \brief Peform external actions such as command execution and
+    //! planner updates.
     void executeOutboundQueue()
     {
       assertTrue_2(m_dispatcher,
                    "PlexilExec: attempt to execute without an ExternalInterface!");
 
-      if (m_arbiter) {
+      if (m_arbiter && !m_commandsToExecute.empty()) {
         // Arbitrate commands to be executed
         LinkedQueue<CommandImpl> accepted, rejected;
         m_arbiter->arbitrateCommands(m_commandsToExecute, accepted, rejected);
@@ -620,11 +655,10 @@ namespace PLEXIL
 
     // N.B. A node can be in only one queue at a time.
 
-    /**
-     * @brief Dequeue a node from the candidate queue.
-     * @return Pointer to the top node in the queue, or nullptr if queue empty.
-     */
-    Node *getCandidateNode() {
+    //! \brief Dequeue a node from the candidate queue.
+    //! \return Pointer to the top node in the queue, or nullptr if queue empty.
+    Node *getCandidateNode()
+    {
       Node *result = m_candidateQueue.front();
       if (!result)
         return nullptr;
@@ -634,7 +668,10 @@ namespace PLEXIL
       return result;
     }
 
-    Node *getStateChangeNode() {
+    //! \brief Dequeue a node from the state change queue.
+    //! \return Pointer to the top node in the queue, or NULL if queue empty.
+    Node *getStateChangeNode()
+    {
       Node *result = m_stateChangeQueue.front();
       if (!result)
         return nullptr;
@@ -643,11 +680,14 @@ namespace PLEXIL
       m_stateChangeQueue.pop();
       result->setQueueStatus(QUEUE_NONE);
       if (was == QUEUE_TRANSITION_CHECK)
-        result->notifyChanged(this);
+        result->notify(this);
       return result;
     }
       
-    void addStateChangeNode(Node *node) {
+    //! \brief Add a node to the state change queue.
+    //! \param node Pointer to the node.
+    void addStateChangeNode(Node *node)
+    {
       switch (node->getQueueStatus()) {
       case QUEUE_NONE:   // normal case
         debugMsg("PlexilExec:step",
@@ -693,6 +733,8 @@ namespace PLEXIL
       }
     }
 
+    //! \brief Add a node to the pending queue.
+    //! \param node The node.
     void addPendingNode(Node *node)
     {
       debugMsg("PlexilExec:step",
@@ -702,7 +744,10 @@ namespace PLEXIL
       m_pendingQueue.insert(node);
     }
 
-    // Should only happen in QUEUE_PENDING and QUEUE_PENDING_TRY.
+    //! \brief Remove the node from the pending queue.
+    //! \param node The node.
+    //! \note Should only happen in if the node's queue status is
+    //!       QUEUE_PENDING or QUEUE_PENDING_TRY.
     void removePendingNode(Node *node)
     {
       m_pendingQueue.remove(node);
@@ -710,7 +755,10 @@ namespace PLEXIL
       node->releaseResourceReservations();
     }
 
-    Node *getFinishedRootNode() {
+    //! \brief Get the first node in the finished root node queue, if any.
+    //! \return Pointer to the first such node, or nullptr if queue is empty.
+    Node *getFinishedRootNode()
+    {
       Node *result = m_finishedRootNodes.front();
       if (!result)
         return nullptr;
@@ -720,7 +768,10 @@ namespace PLEXIL
       return result;
     }
   
-    void addFinishedRootNode(Node *node) {
+    //! \brief Add a node to the finished root node queue.
+    //! \param node Pointer to the node.
+    void addFinishedRootNode(Node *node)
+    {
       switch (node->getQueueStatus()) {
       
       case QUEUE_CHECK: // seems plausible?
@@ -745,7 +796,11 @@ namespace PLEXIL
       }
     }
 
-    std::string conditionCheckQueueStr() const {
+    //! \brief Get a printed representation of the candidate queue.
+    //! \return The printed representation as a string.
+    //! \note Intended for debugging or regression testing.
+    std::string conditionCheckQueueStr() const
+    {
       std::ostringstream retval;
       Node *node = m_candidateQueue.front();
       while (node) {
@@ -755,7 +810,11 @@ namespace PLEXIL
       return retval.str();
     }
 
-    std::string stateChangeQueueStr() const {
+    //! \brief Get a printed representation of the state change queue.
+    //! \return The printed representation as a string.
+    //! \note Intended for debugging or regression testing.
+    std::string stateChangeQueueStr() const
+    {
       std::ostringstream retval;
       Node *node = m_stateChangeQueue.front();
       while (node) {
@@ -765,6 +824,7 @@ namespace PLEXIL
       return retval.str();
     }
 
+    //! \brief Print the contents of the candidate queue to the debug output stream.
     void printConditionCheckQueue() const
     {
 #ifndef NO_DEBUG_MESSAGE_SUPPORT
@@ -779,10 +839,11 @@ namespace PLEXIL
 #endif
     }
 
-    // TODO: add mutex, variable info
+    //! \brief Print the contents of the pending queue to the debug output stream.
     void printPendingQueue() const
     {
 #ifndef NO_DEBUG_MESSAGE_SUPPORT
+      // TODO: add mutex, variable info
       std::ostream &s = getDebugOutputStream();
       s << " Pending queue: ";
       Node *node = m_pendingQueue.front();
@@ -794,6 +855,7 @@ namespace PLEXIL
 #endif
     }
 
+    //! \brief Print the contents of the state change queue to the debug output stream.
     void printStateChangeQueue() const
     {
 #ifndef NO_DEBUG_MESSAGE_SUPPORT
@@ -810,7 +872,6 @@ namespace PLEXIL
 
   };
 
-  // Public constructor
   PlexilExec *makePlexilExec()
   {
     return new PlexilExecImpl();

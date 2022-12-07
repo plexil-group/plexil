@@ -1,1 +1,54 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/FibNodeTest.ple"><GlobalDeclarations ColNo="0" LineNo="7"><LibraryNodeDeclaration ColNo="0" LineNo="7"><Name>PrintFib</Name><Interface><In><DeclareVariable ColNo="22" LineNo="7"><Name>n</Name><Type>Integer</Type></DeclareVariable></In></Interface></LibraryNodeDeclaration></GlobalDeclarations><For ColNo="0" LineNo="9"><NodeId>FibNodeTest</NodeId><LoopVariable><DeclareVariable ColNo="7" LineNo="11"><Name>i</Name><Type>Integer</Type><InitialValue><IntegerValue>0</IntegerValue></InitialValue></DeclareVariable></LoopVariable><Condition><LT ColNo="24" LineNo="11"><IntegerVariable>i</IntegerVariable><IntegerValue>10</IntegerValue></LT></Condition><LoopVariableUpdate><ADD ColNo="32" LineNo="11"><IntegerVariable>i</IntegerVariable><IntegerValue>1</IntegerValue></ADD></LoopVariableUpdate><Action><Node ColNo="37" LineNo="11" NodeType="LibraryNodeCall"><NodeId>LibraryCall__1</NodeId><NodeBody><LibraryNodeCall ColNo="37" LineNo="11"><NodeId>PrintFib</NodeId><Alias><NodeParameter>n</NodeParameter><IntegerVariable>i</IntegerVariable></Alias></LibraryNodeCall></NodeBody></Node></Action></For></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/FibNodeTest.ple">
+   <GlobalDeclarations ColNo="0" LineNo="7">
+      <LibraryNodeDeclaration ColNo="0" LineNo="7">
+         <Name>PrintFib</Name>
+         <Interface>
+            <In>
+               <DeclareVariable ColNo="22" LineNo="7">
+                  <Name>n</Name>
+                  <Type>Integer</Type>
+               </DeclareVariable>
+            </In>
+         </Interface>
+      </LibraryNodeDeclaration>
+   </GlobalDeclarations>
+   <For ColNo="0" LineNo="9">
+      <NodeId>FibNodeTest</NodeId>
+      <LoopVariable>
+         <DeclareVariable ColNo="7" LineNo="11">
+            <Name>i</Name>
+            <Type>Integer</Type>
+            <InitialValue>
+               <IntegerValue>0</IntegerValue>
+            </InitialValue>
+         </DeclareVariable>
+      </LoopVariable>
+      <Condition>
+         <LT ColNo="24" LineNo="11">
+            <IntegerVariable>i</IntegerVariable>
+            <IntegerValue>10</IntegerValue>
+         </LT>
+      </Condition>
+      <LoopVariableUpdate>
+         <ADD ColNo="32" LineNo="11">
+            <IntegerVariable>i</IntegerVariable>
+            <IntegerValue>1</IntegerValue>
+         </ADD>
+      </LoopVariableUpdate>
+      <Action>
+         <Node ColNo="37" LineNo="11" NodeType="LibraryNodeCall">
+            <NodeId generated="1">LibraryCall__0</NodeId>
+            <NodeBody>
+               <LibraryNodeCall ColNo="37" LineNo="11">
+                  <NodeId>PrintFib</NodeId>
+                  <Alias>
+                     <NodeParameter>n</NodeParameter>
+                     <IntegerVariable>i</IntegerVariable>
+                  </Alias>
+               </LibraryNodeCall>
+            </NodeBody>
+         </Node>
+      </Action>
+   </For>
+</PlexilPlan>

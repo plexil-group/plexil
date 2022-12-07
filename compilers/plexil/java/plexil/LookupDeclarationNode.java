@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,11 +25,12 @@
 
 package plexil;
 
-import java.util.Vector;
+import java.util.List;
 
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class LookupDeclarationNode extends PlexilTreeNode
@@ -56,7 +57,7 @@ public class LookupDeclarationNode extends PlexilTreeNode
     {
         // check that name is not already defined
         String lookupName = this.getChild(0).getText();
-        if (GlobalContext.getGlobalContext().isLookupName(lookupName)) {
+        if (state.getGlobalContext().isLookupName(lookupName)) {
             // Report duplicate definition
             state.addDiagnostic(this.getChild(0),
                                 "Lookup \"" + lookupName + "\" is already defined",
@@ -66,49 +67,38 @@ public class LookupDeclarationNode extends PlexilTreeNode
         // Parse return spec
         ReturnSpecNode returnAST = (ReturnSpecNode) this.getChild(1);
         returnAST.earlyCheck(context, state); // for effect
-        Vector<VariableName> returnSpecs = returnAST.getReturnVector();
+        VariableName returnSpec = returnAST.getReturnSpec();
 
         // Parse parameter list, if supplied
-        Vector<VariableName> parmSpecs = null;
+        List<VariableName> parmSpecs = null;
         ParameterSpecNode parmAST = (ParameterSpecNode) this.getChild(2);
         if (parmAST != null) {
             parmAST.earlyCheck(context, state); // for effect
-            parmSpecs = parmAST.getParameterVector();
-            if (parmSpecs != null) {
-                for (VariableName vn : parmSpecs) {
-                    if (vn instanceof InterfaceVariableName) {
-                        state.addDiagnostic(vn.getDeclaration(),
-                                            (vn.isAssignable() ? "InOut" : "In")
-                                            + " declaration is illegal in " +
-                                            "lookup parameter declarations",
-                                            Severity.ERROR);
-                    }
-                }
-            }
+            parmSpecs = parmAST.getParameterList();
         }
 
         // Define in global environment
-        GlobalContext.getGlobalContext().addLookupName(this, lookupName, parmSpecs, returnSpecs);
+        state.getGlobalContext().addLookupName(this, lookupName, parmSpecs, returnSpec);
     }
 
     @Override
-    protected void constructXML()
+    protected void constructXML(Document root)
     {
-        super.constructXMLBase();
+        super.constructXMLBase(root);
 
         // add name
         PlexilTreeNode nameTree = this.getChild(0);
-        Element nameXML = CompilerState.newElement("Name");
-        nameXML.appendChild(CompilerState.newTextNode(nameTree.getText()));
+        Element nameXML = root.createElement("Name");
+        nameXML.appendChild(root.createTextNode(nameTree.getText()));
         m_xml.appendChild(nameXML);
 
         // Add return spec
-        ((ReturnSpecNode) this.getChild(1)).constructReturnXML(m_xml);
+        ((ReturnSpecNode) this.getChild(1)).constructReturnXML(root, m_xml);
 
         // Add parameter spec(s) if provided
         ParameterSpecNode parametersSpec = (ParameterSpecNode) this.getChild(2);
         if (parametersSpec != null) 
-            parametersSpec.constructParameterXML(m_xml);
+            parametersSpec.constructParameterXML(root, m_xml);
     }
 
     public String getXMLElementName() { return "StateDeclaration"; }

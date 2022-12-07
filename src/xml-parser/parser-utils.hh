@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,10 @@
 #ifndef PLEXIL_PARSER_UTILS_HH
 #define PLEXIL_PARSER_UTILS_HH
 
+#include "Error.hh" // PLEXIL_NORETURN
 #include "ValueType.hh"
+
+#include <sstream>
 
 //
 // General purpose xml parsing utilities
@@ -71,7 +74,7 @@ namespace PLEXIL
 #define reportParserExceptionWithLocation(loc, msg) { \
   std::ostringstream whatstr; \
   whatstr << msg; \
-  throwParserException(whatstr.str().c_str(), loc); \
+  PLEXIL::throwParserException(whatstr.str().c_str(), loc); \
 }
 
 /**

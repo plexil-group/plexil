@@ -1,1 +1,17 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/waiting1.ple"><Sequence ColNo="0" LineNo="1"><NodeId>BLOCK__0</NodeId><EndCondition ColNo="2" LineNo="2"><Waiting ColNo="6" LineNo="2"><NodeId>A</NodeId></Waiting></EndCondition><Node ColNo="2" LineNo="3" NodeType="Empty"><NodeId>A</NodeId><StartCondition ColNo="7" LineNo="3"><BooleanValue>false</BooleanValue></StartCondition></Node></Sequence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/waiting1.ple">
+   <Sequence ColNo="0" LineNo="1">
+      <NodeId generated="1">BLOCK__0</NodeId>
+      <EndCondition ColNo="2" LineNo="2">
+         <Waiting ColNo="6" LineNo="2">
+            <NodeId>A</NodeId>
+         </Waiting>
+      </EndCondition>
+      <Node ColNo="2" LineNo="3" NodeType="Empty">
+         <NodeId>A</NodeId>
+         <StartCondition ColNo="7" LineNo="3">
+            <BooleanValue>false</BooleanValue>
+         </StartCondition>
+      </Node>
+   </Sequence>
+</PlexilPlan>

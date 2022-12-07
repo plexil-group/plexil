@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,16 +27,6 @@
 
 #ifndef PLEXIL_CONFIG_H
 #define PLEXIL_CONFIG_H
-
-//
-// Libraries
-//
-
-#cmakedefine HAVE_LIBDL 1
-#cmakedefine HAVE_LIBM 1
-#cmakedefine HAVE_LIBPTHREAD 1
-#cmakedefine HAVE_LIBRT 1
-#cmakedefine HAVE_LIBDISPATCH 1
 
 //
 // Headers
@@ -106,9 +96,9 @@
 #cmakedefine HAVE_VXWORKS_H 1
 #cmakedefine HAVE_SYS_TIMES_H 1
 
-/*************/
-/* Functions */
-/*************/
+//
+// Functions
+//
 
 /* Time and timers */
 #cmakedefine HAVE_CLOCK_GETTIME 1
@@ -136,19 +126,18 @@
 // Types
 //
 
-#cmakedefine HAVE_PID_T 1
 #cmakedefine HAVE_SUSECONDS_T 1
 
 //
 // Build time options
 //
 
+#cmakedefine PIC 1
 #cmakedefine NO_DEBUG_MESSAGE_SUPPORT 1
 #cmakedefine PLEXIL_WITH_THREADS 1
 #cmakedefine HAVE_DEBUG_LISTENER 1
 #cmakedefine HAVE_IPC_ADAPTER 1
 #cmakedefine HAVE_LUV_LISTENER 1
-#cmakedefine HAVE_STANDALONE_SIM 1
 #cmakedefine HAVE_UDP_ADAPTER 1
 
 #endif /* PLEXIL_CONFIG_H */

@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,6 +29,8 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
+import org.w3c.dom.Document;
+
 // 
 // A specialized AST node that does code generation for string literals.
 // 
@@ -52,16 +54,9 @@ public class StringLiteralNode extends LiteralNode
         m_stringValue = n.m_stringValue;
 	}
 
-    // Override LiteralNode method
-    @Override
-    protected void setInitialDataTypeFromTokenType()
-    {
-        m_dataType = PlexilDataType.STRING_TYPE;
-    }
-
 	public Tree dupNode()
 	{
-		return new StringLiteralNode(this);
+        return new StringLiteralNode(this);
 	}
 
     public String getStringValue()
@@ -72,16 +67,18 @@ public class StringLiteralNode extends LiteralNode
     @Override
     protected void earlyCheckSelf(NodeContext context, CompilerState state)
     {
+        m_dataType = PlexilDataType.STRING_TYPE;
+
         // Check that format is correct, and extract actual value w/o escapes
         parseStringValue(state);
     }
 
     // Override LiteralNode method
     @Override
-    protected void constructXML()
+    protected void constructXML(Document root)
     {
-        super.constructXMLBase();
-        m_xml.appendChild(CompilerState.newTextNode(m_stringValue));
+        super.constructXMLBase(root);
+        m_xml.appendChild(root.createTextNode(m_stringValue));
     }
 
     //

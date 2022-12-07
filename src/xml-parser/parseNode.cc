@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -53,17 +53,8 @@
 #include <algorithm> // std::distance(), std::find_if()
 #include <limits>
 
-#if defined(HAVE_CSTDLIB)
 #include <cstdlib>  // strtoul()
-#elif defined(HAVE_STDLIB_H)
-#include <stdlib.h> // strtoul()
-#endif
-
-#if defined(HAVE_CSTRING)
 #include <cstring>  // strcmp()
-#elif defined(HAVE_STRING_H)
-#include <string.h> // strcmp()
-#endif
 
 using pugi::xml_attribute;
 using pugi::xml_node;

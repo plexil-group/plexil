@@ -1,1 +1,25 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/NestedBlocks6.ple"><GlobalDeclarations ColNo="0" LineNo="1"><CommandDeclaration ColNo="0" LineNo="1"><Name>print</Name><AnyParameters/></CommandDeclaration></GlobalDeclarations><UncheckedSequence ColNo="0" LineNo="4"><NodeId>NestedBlocks6</NodeId><Node ColNo="4" LineNo="7" NodeType="Command"><NodeId>COMMAND__1</NodeId><NodeBody><Command ColNo="4" LineNo="7"><Name><StringValue>print</StringValue></Name><Arguments ColNo="10" LineNo="7"><StringValue>NestedBlocks6</StringValue></Arguments></Command></NodeBody></Node></UncheckedSequence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/NestedBlocks6.ple">
+   <GlobalDeclarations ColNo="0" LineNo="1">
+      <CommandDeclaration ColNo="0" LineNo="1">
+         <Name>print</Name>
+         <AnyParameters/>
+      </CommandDeclaration>
+   </GlobalDeclarations>
+   <UncheckedSequence ColNo="0" LineNo="4">
+      <NodeId>NestedBlocks6</NodeId>
+      <Node ColNo="4" LineNo="7" NodeType="Command">
+         <NodeId generated="1">COMMAND__1</NodeId>
+         <NodeBody>
+            <Command ColNo="4" LineNo="7">
+               <Name>
+                  <StringValue>print</StringValue>
+               </Name>
+               <Arguments ColNo="10" LineNo="7">
+                  <StringValue>NestedBlocks6</StringValue>
+               </Arguments>
+            </Command>
+         </NodeBody>
+      </Node>
+   </UncheckedSequence>
+</PlexilPlan>

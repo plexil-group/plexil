@@ -1,4 +1,4 @@
-## Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+## Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 ##  All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -37,6 +37,11 @@ add_library(PlexilExpr ${Plexil_Exec_SHARED_OR_STATIC}
 install(TARGETS PlexilExpr
   DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
+if(PlexilExec_SHLIB_INSTALL_RPATH)
+  set_target_properties(PlexilExpr
+    PROPERTIES INSTALL_RPATH ${PlexilExec_SHLIB_INSTALL_RPATH})
+endif()
+
 include_directories(
   ${PlexilExec_SOURCE_DIR}/utils
   ${PlexilExec_SOURCE_DIR}/value
@@ -49,13 +54,10 @@ if(MATH_LIBRARY)
   target_link_libraries(PlexilExpr PUBLIC ${MATH_LIBRARY})
 endif()
 
-# Public includes
+# Public APIs
 install(FILES
-  Alias.hh ArrayReference.hh ArrayVariable.hh Assignable.hh CachedFunction.hh
-  Constant.hh ConversionOperators.hh Expression.hh ExpressionConstants.hh
-  ExpressionListener.hh Function.hh GetValueImpl.hh Listenable.hh
-  NodeConnector.hh NodeConstantExpressions.hh Notifier.hh Operator.hh
-  Propagator.hh Reservable.hh SimpleBooleanVariable.hh UserVariable.hh
+  Assignable.hh Expression.hh ExpressionListener.hh GetValueImpl.hh
+  Listenable.hh NodeConnector.hh Notifier.hh
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
 if(MODULE_TESTS)

@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -25,11 +25,12 @@
 
 package plexil;
 
-import java.util.Vector;
+import java.util.List;
 
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class LookupNode extends ExpressionNode
@@ -93,7 +94,7 @@ public class LookupNode extends ExpressionNode
         if (invocation.getType() == PlexilLexer.STATE_NAME) {
             // Do additional checking if state name is a literal
             String stateName = invocation.getChild(0).getText();
-            m_state = GlobalContext.getGlobalContext().getLookupDeclaration(stateName);
+            m_state = state.getGlobalContext().getLookupDeclaration(stateName);
             if (m_state == null) {
                 // FIXME: should this be an error instead?
                 state.addDiagnostic(invocation.getChild(0),
@@ -107,7 +108,7 @@ public class LookupNode extends ExpressionNode
                 m_dataType = m_state.getReturnType();
 
                 // Check arglist
-                Vector<VariableName> argSpecs = m_state.getParameterVariables();
+                List<VariableName> argSpecs = m_state.getParameterVariables();
                 if (argSpecs == null) {
                     if (m_arguments != null) {
                         state.addDiagnostic(invocation,
@@ -121,7 +122,7 @@ public class LookupNode extends ExpressionNode
                     // No parameters given
                     if (m_arguments == null) {
                         if (argSpecs.size() == 1 &&
-                            argSpecs.elementAt(0) instanceof WildcardVariableName) {
+                            argSpecs.get(0) instanceof WildcardVariableName) {
                             // No parameters required, do nothing
                         }
                         else {
@@ -133,7 +134,7 @@ public class LookupNode extends ExpressionNode
                         }
                     }
                     // Check arg count
-                    else {
+                    else{
                         m_arguments.earlyCheckArgumentList(context,
                                                            state,
                                                            "State",
@@ -157,7 +158,7 @@ public class LookupNode extends ExpressionNode
         if (m_state != null) {
             // Check arglist
             // Formal vs. actual counts have already been done in checkSelf()
-            Vector<VariableName> argSpecs = m_state.getParameterVariables();
+            List<VariableName> argSpecs = m_state.getParameterVariables();
             if (argSpecs != null
                 && m_arguments != null) {
                 // Check arg types
@@ -210,32 +211,32 @@ public class LookupNode extends ExpressionNode
     }
 
     @Override
-    protected void constructXML()
+    protected void constructXML(Document root)
     {
-        super.constructXMLBase();
+        super.constructXMLBase(root);
 
         // Add state
-        Element nameXML = CompilerState.newElement("Name");
+        Element nameXML = root.createElement("Name");
         m_xml.appendChild(nameXML);
         if (this.getChild(0).getType() == PlexilLexer.STATE_NAME) {
             // literal name
-            Element literalNameXML = CompilerState.newElement("StringValue");
+            Element literalNameXML = root.createElement("StringValue");
             nameXML.appendChild(literalNameXML);
-            literalNameXML.appendChild(CompilerState.newTextNode(this.getChild(0).getChild(0).getText()));
+            literalNameXML.appendChild(root.createTextNode(this.getChild(0).getChild(0).getText()));
         }
         else // name expression
-            nameXML.appendChild(this.getChild(0).getXML());
+            nameXML.appendChild(this.getChild(0).getXML(root));
 
         // Add tolerance
         if (m_tolerance != null) {
-            Element tolXML = CompilerState.newElement("Tolerance");
+            Element tolXML = root.createElement("Tolerance");
             m_xml.appendChild(tolXML);
-            tolXML.appendChild(m_tolerance.getXML());
+            tolXML.appendChild(m_tolerance.getXML(root));
         }
 
         // Add parameters
         if (m_arguments != null) {
-            m_xml.appendChild(m_arguments.getXML());
+            m_xml.appendChild(m_arguments.getXML(root));
         }
 
     }

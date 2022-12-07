@@ -1,1 +1,88 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/for2.ple"><For ColNo="0" LineNo="1"><NodeId>BLOCK__0</NodeId><VariableDeclarations><DeclareVariable ColNo="2" LineNo="2"><Name>result</Name><Type>Integer</Type></DeclareVariable><DeclareVariable ColNo="2" LineNo="3"><Name>s1</Name><Type>Integer</Type><InitialValue><IntegerValue>0</IntegerValue></InitialValue></DeclareVariable><DeclareVariable ColNo="2" LineNo="3"><Name>s2</Name><Type>Integer</Type><InitialValue><IntegerValue>1</IntegerValue></InitialValue></DeclareVariable></VariableDeclarations><LoopVariable><DeclareVariable ColNo="7" LineNo="4"><Name>i</Name><Type>Integer</Type><InitialValue><IntegerValue>2</IntegerValue></InitialValue></DeclareVariable></LoopVariable><Condition><LE ColNo="24" LineNo="4"><IntegerVariable>i</IntegerVariable><IntegerValue>10</IntegerValue></LE></Condition><LoopVariableUpdate><ADD ColNo="33" LineNo="4"><IntegerVariable>i</IntegerVariable><IntegerValue>1</IntegerValue></ADD></LoopVariableUpdate><Action><Sequence ColNo="2" LineNo="5"><NodeId>BLOCK__2</NodeId><Node ColNo="4" LineNo="7" NodeType="Assignment"><NodeId>ASSIGNMENT__3</NodeId><NodeBody><Assignment ColNo="4" LineNo="7"><IntegerVariable>result</IntegerVariable><NumericRHS><ADD ColNo="16" LineNo="7"><IntegerVariable>s1</IntegerVariable><IntegerVariable>s2</IntegerVariable></ADD></NumericRHS></Assignment></NodeBody></Node><Node ColNo="4" LineNo="8" NodeType="Assignment"><NodeId>ASSIGNMENT__4</NodeId><NodeBody><Assignment ColNo="4" LineNo="8"><IntegerVariable>s1</IntegerVariable><NumericRHS><IntegerVariable>s2</IntegerVariable></NumericRHS></Assignment></NodeBody></Node><Node ColNo="4" LineNo="9" NodeType="Assignment"><NodeId>ASSIGNMENT__5</NodeId><NodeBody><Assignment ColNo="4" LineNo="9"><IntegerVariable>s2</IntegerVariable><NumericRHS><IntegerVariable>result</IntegerVariable></NumericRHS></Assignment></NodeBody></Node></Sequence></Action></For></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/for2.ple">
+   <For ColNo="0" LineNo="1">
+      <NodeId generated="1">for__0</NodeId>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="2" LineNo="2">
+            <Name>result</Name>
+            <Type>Integer</Type>
+         </DeclareVariable>
+         <DeclareVariable ColNo="2" LineNo="3">
+            <Name>s1</Name>
+            <Type>Integer</Type>
+            <InitialValue>
+               <IntegerValue>0</IntegerValue>
+            </InitialValue>
+         </DeclareVariable>
+         <DeclareVariable ColNo="2" LineNo="3">
+            <Name>s2</Name>
+            <Type>Integer</Type>
+            <InitialValue>
+               <IntegerValue>1</IntegerValue>
+            </InitialValue>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <LoopVariable>
+         <DeclareVariable ColNo="7" LineNo="4">
+            <Name>i</Name>
+            <Type>Integer</Type>
+            <InitialValue>
+               <IntegerValue>2</IntegerValue>
+            </InitialValue>
+         </DeclareVariable>
+      </LoopVariable>
+      <Condition>
+         <LE ColNo="24" LineNo="4">
+            <IntegerVariable>i</IntegerVariable>
+            <IntegerValue>10</IntegerValue>
+         </LE>
+      </Condition>
+      <LoopVariableUpdate>
+         <ADD ColNo="33" LineNo="4">
+            <IntegerVariable>i</IntegerVariable>
+            <IntegerValue>1</IntegerValue>
+         </ADD>
+      </LoopVariableUpdate>
+      <Action>
+         <Sequence ColNo="2" LineNo="5">
+            <NodeId generated="1">BLOCK__1</NodeId>
+            <Node ColNo="4" LineNo="7" NodeType="Assignment">
+               <NodeId generated="1">ASSIGNMENT__2</NodeId>
+               <NodeBody>
+                  <Assignment ColNo="4" LineNo="7">
+                     <IntegerVariable>result</IntegerVariable>
+                     <NumericRHS>
+                        <ADD ColNo="16" LineNo="7">
+                           <IntegerVariable>s1</IntegerVariable>
+                           <IntegerVariable>s2</IntegerVariable>
+                        </ADD>
+                     </NumericRHS>
+                  </Assignment>
+               </NodeBody>
+            </Node>
+            <Node ColNo="4" LineNo="8" NodeType="Assignment">
+               <NodeId generated="1">ASSIGNMENT__3</NodeId>
+               <NodeBody>
+                  <Assignment ColNo="4" LineNo="8">
+                     <IntegerVariable>s1</IntegerVariable>
+                     <NumericRHS>
+                        <IntegerVariable>s2</IntegerVariable>
+                     </NumericRHS>
+                  </Assignment>
+               </NodeBody>
+            </Node>
+            <Node ColNo="4" LineNo="9" NodeType="Assignment">
+               <NodeId generated="1">ASSIGNMENT__4</NodeId>
+               <NodeBody>
+                  <Assignment ColNo="4" LineNo="9">
+                     <IntegerVariable>s2</IntegerVariable>
+                     <NumericRHS>
+                        <IntegerVariable>result</IntegerVariable>
+                     </NumericRHS>
+                  </Assignment>
+               </NodeBody>
+            </Node>
+         </Sequence>
+      </Action>
+   </For>
+</PlexilPlan>

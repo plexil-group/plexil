@@ -1,50 +1,40 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
-*  All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*     * Redistributions of source code must retain the above copyright
-*       notice, this list of conditions and the following disclaimer.
-*     * Redistributions in binary form must reproduce the above copyright
-*       notice, this list of conditions and the following disclaimer in the
-*       documentation and/or other materials provided with the distribution.
-*     * Neither the name of the Universities Space Research Association nor the
-*       names of its contributors may be used to endorse or promote products
-*       derived from this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
-* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
-* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
+//  All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//     * Neither the name of the Universities Space Research Association nor the
+//       names of its contributors may be used to endorse or promote products
+//       derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+// OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+// TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+// USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "Timebase.hh" // includes plexil-config.h
+#include "plexil-config.h"
+
+#include "Timebase.hh"
 
 #include "Debug.hh"
 #include "InterfaceError.hh"
 #include "InterfaceSchema.hh"
+#include "TimebaseFactory.hh" // REGISTER_TIMEBASE() macro
 
-#include "pugixml.hpp"
-
-#include <iomanip> // std::fixed, std::setprecision()
-
-#if defined(HAVE_CERRNO)
 #include <cerrno>
-#elif defined(HAVE_ERRNO_H)
-#include <errno.h>
-#endif
-
-#if defined(HAVE_CSTRING)
 #include <cstring>  // strerror()
-#elif defined(HAVE_STRING_H)
-#include <string.h> // strerror()
-#endif
+#include <iomanip> // std::fixed, std::setprecision()
 
 // Issues:
 // * Is a timer thread necessary?
@@ -52,6 +42,11 @@
 //    POSIX itimer: no
 //    Dispatch timer: no* (for global queues)
 //    Kqueue timer: yes
+
+// Local constants
+#ifndef NSEC_PER_SEC
+#define NSEC_PER_SEC (1000000000ull)
+#endif
 
 namespace PLEXIL
 {
@@ -62,10 +57,11 @@ namespace PLEXIL
 
   Timebase *Timebase::s_instance = nullptr;
 
-  Timebase::Timebase(WakeupFn f, void *arg)
+  Timebase::Timebase(WakeupFn const &f)
     : m_nextWakeup(0),
       m_wakeupFn(f),
-      m_wakeupArg(arg)
+      m_interval_usec(0),
+      m_started(false)
   {
     if (!s_instance)
       s_instance = this;
@@ -89,6 +85,11 @@ namespace PLEXIL
     return 0;
   }
 
+  void Timebase::timebaseWakeup(Timebase *tb)
+  {
+    tb->m_wakeupFn();
+  }
+
 } // namespace PLEXIL
 
 //
@@ -100,11 +101,7 @@ namespace PLEXIL
 
 #if defined(HAVE_CLOCK_GETTIME)
 
-#if defined(HAVE_CTIME)
 #include <ctime>
-#elif defined(HAVE_TIME_H)
-#include <time.h>
-#endif
 
 #include "timespec-utils.hh"
 

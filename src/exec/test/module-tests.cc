@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -30,14 +30,10 @@
 #include "TestSupport.hh"
 #include "lifecycle-utils.h"
 
-#if defined(HAVE_CSTRING)
-#include <cstring>  // strcmp()
-#elif defined(HAVE_STRING_H)
-#include <string.h> // strcmp()
-#endif
-
 #include <fstream>
 #include <string>
+
+#include <cstring>  // strcmp()
 
 // Declarations of tests
 extern bool stateTransitionTests();

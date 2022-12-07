@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,8 +27,7 @@
 #ifndef PLEXIL_ADAPTER_EXEC_INTERFACE_HH
 #define PLEXIL_ADAPTER_EXEC_INTERFACE_HH
 
-#include "CommandHandle.hh"
-#include "ValueType.hh" // Date typedef
+#include "ValueType.hh"
 
 #include <memory>
 

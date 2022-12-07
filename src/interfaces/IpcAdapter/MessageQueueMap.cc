@@ -136,7 +136,7 @@ namespace PLEXIL
       QueueMap::iterator it = m_map.find(message);
       if (m_map.end() == it) {
         it = m_map.emplace(QueueMap::value_type(message,
-                                                std::make_unique<PairingQueue>(message))).first;
+                                                std::unique_ptr<PairingQueue>(new PairingQueue(message)))).first;
       }
       return it->second.get();
     }

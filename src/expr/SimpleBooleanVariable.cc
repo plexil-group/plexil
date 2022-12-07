@@ -114,15 +114,4 @@ namespace PLEXIL
     }
   }
 
-  // void SimpleBooleanVariable::setValue(Value const &val)
-  // {
-  //   assertTrueMsg(val.valueType() == BOOLEAN_TYPE,
-  //                 "setValue: can't assign a " << valueTypeName(val.valueType())
-  //                 << " value to a SimpleBooleanVariable");
-  //   bool bval;
-  //   assertTrueMsg(val.getValue(bval),
-  //                 "setValue: can't assign UNKNOWN to a SimpleBooleanVariable");
-  //   setValue(bval);
-  // }
-
 } // namespace PLEXIL

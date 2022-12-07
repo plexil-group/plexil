@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,13 +28,15 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
-import org.w3c.dom.Element;
+import org.w3c.dom.Document;
 
 public class GlobalDeclarationsNode extends PlexilTreeNode
 {
-    public GlobalDeclarationsNode(int ttype)
+    private GlobalContext m_context = null;
+
+    public GlobalDeclarationsNode(Token t)
     {
-        super(new CommonToken(ttype, "GLOBAL_DECLARATIONS"));
+        super(t);
     }
 
 	public GlobalDeclarationsNode(GlobalDeclarationsNode n)
@@ -48,21 +50,41 @@ public class GlobalDeclarationsNode extends PlexilTreeNode
 		return new GlobalDeclarationsNode(this);
 	}
 
+    // Capture the global context and check that it is in fact global.
     @Override
-    protected void constructXML()
+    protected void earlyCheckSelf(NodeContext context, CompilerState state)
     {
-        super.constructXML();
-        // Generate mutex declarations separately
-        for (MutexName mn : GlobalContext.getGlobalContext().getMutexes())
-            m_xml.appendChild(mn.makeDeclarationXML());
+        if (context.isGlobalContext())
+            m_context = (GlobalContext) context;
+        else
+            state.addDiagnostic(this,
+                                "Internal error: GlobalDeclarationsNode context is not global!",
+                                Severity.FATAL);
+    }
 
+    // Add global mutex declarations.
+    @Override
+    protected void constructXML(Document root)
+    {
+        super.constructXML(root);
+        if (m_context != null) {
+            for (MutexName mn : m_context.getMutexes())
+                m_xml.appendChild(mn.makeDeclarationXML(root));
+        }
+    }
+
+    @Override
+    protected void addSourceLocatorAttributes()
+    {
         // set source locator to location of 1st child (?)
-        PlexilTreeNode firstChild = this.getChild(0);
-        if (firstChild != null) {
-            m_xml.setAttribute("LineNo",
-                               String.valueOf(firstChild.getToken().getLine()));
-            m_xml.setAttribute("ColNo",
-                               String.valueOf(firstChild.getToken().getCharPositionInLine()));
+        if (m_xml != null) {
+            PlexilTreeNode firstChild = this.getChild(0);
+            if (firstChild != null) {
+                m_xml.setAttribute("LineNo",
+                                   String.valueOf(firstChild.getToken().getLine()));
+                m_xml.setAttribute("ColNo",
+                                   String.valueOf(firstChild.getToken().getCharPositionInLine()));
+            }
         }
     }
    

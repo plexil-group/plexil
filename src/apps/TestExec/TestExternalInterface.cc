@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,7 +28,6 @@
 
 #include "Assignable.hh"
 #include "Command.hh"
-#include "commandUtils.hh"
 #include "Debug.hh"
 #include "Error.hh"
 #include "LookupReceiver.hh"
@@ -401,7 +400,7 @@ namespace PLEXIL
         t = BOOLEAN_TYPE;
       else if (type == "string")
         t = STRING_TYPE;
-      return Value(0, t);
+      return Value(t);
     }
     else if (type == "int") {
       Integer value;
@@ -583,7 +582,7 @@ namespace PLEXIL
     Update::PairValueMap const &pairs = update->getPairs();
     for (Update::PairValueMap::const_iterator pairIt = pairs.begin(); pairIt != pairs.end(); ++pairIt)
       debugMsg("Test:testOutput", " " << pairIt->first << " => " << pairIt->second);
-    m_waitingUpdates.insert(std::make_pair(update->getSource()->getNodeId(), update));
+    m_waitingUpdates.insert(std::make_pair(update->getNodeId(), update));
   }
 
   static std::string getText(const State& c)

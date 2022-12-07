@@ -4,6 +4,10 @@
          default = "jar"
          basedir = ".">
 
+  <!-- Java versions for compatibility -->
+  <property name="ant.build.javac.source" value="1.8"/>
+  <property name="ant.build.javac.target" value="1.8"/>
+
   <!-- application specific build variables (change these) -->
 
   <property name = "app-name"           value = "luv"/>

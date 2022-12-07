@@ -77,9 +77,6 @@
                   <ResourcePriority>
                     <IntegerVariable>priority10</IntegerVariable>
                   </ResourcePriority>
-                  <ResourceLowerBound>
-                    <RealValue>1.0</RealValue>
-                  </ResourceLowerBound>
                   <ResourceUpperBound>
                     <RealValue>1.0</RealValue>
                   </ResourceUpperBound>
@@ -130,9 +127,6 @@
                   <ResourcePriority>
                     <IntegerVariable>priority30</IntegerVariable>
                   </ResourcePriority>
-                  <ResourceLowerBound>
-                    <RealValue>1.0</RealValue>
-                  </ResourceLowerBound>
                   <ResourceUpperBound>
                     <RealValue>1.0</RealValue>
                   </ResourceUpperBound>

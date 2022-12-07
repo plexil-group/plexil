@@ -1,1 +1,70 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/time_tolerance_test.ple"><GlobalDeclarations ColNo="5" LineNo="1"><StateDeclaration ColNo="5" LineNo="1"><Name>time</Name><Return><Name>_return_0</Name><Type>Date</Type></Return></StateDeclaration><StateDeclaration ColNo="5" LineNo="2"><Name>start</Name><Return><Name>_return_0</Name><Type>Date</Type></Return></StateDeclaration><StateDeclaration ColNo="9" LineNo="3"><Name>duration</Name><Return><Name>_return_0</Name><Type>Duration</Type></Return></StateDeclaration></GlobalDeclarations><Node ColNo="0" LineNo="5" NodeType="Empty"><NodeId>time_tolerance_test</NodeId><StartCondition ColNo="4" LineNo="7"><GE ColNo="41" LineNo="7"><Lookup ColNo="10" LineNo="7"><Name><StringValue>time</StringValue></Name><Tolerance><DurationValue>PT1S</DurationValue></Tolerance></Lookup><Lookup ColNo="44" LineNo="7"><Name><StringValue>start</StringValue></Name></Lookup></GE></StartCondition><EndCondition ColNo="4" LineNo="8"><LE ColNo="41" LineNo="8"><Lookup ColNo="10" LineNo="8"><Name><StringValue>time</StringValue></Name><Tolerance><DurationValue>PT1S</DurationValue></Tolerance></Lookup><ADD ColNo="65" LineNo="8"><NodeTimepointValue ColNo="44" LineNo="8"><NodeRef dir="self"/><NodeStateValue>EXECUTING</NodeStateValue><Timepoint>START</Timepoint></NodeTimepointValue><Lookup ColNo="67" LineNo="8"><Name><StringValue>duration</StringValue></Name></Lookup></ADD></LE></EndCondition></Node></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/time_tolerance_test.ple">
+   <GlobalDeclarations ColNo="5" LineNo="1">
+      <StateDeclaration ColNo="5" LineNo="1">
+         <Name>time</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Date</Type>
+         </Return>
+      </StateDeclaration>
+      <StateDeclaration ColNo="5" LineNo="2">
+         <Name>start</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Date</Type>
+         </Return>
+      </StateDeclaration>
+      <StateDeclaration ColNo="9" LineNo="3">
+         <Name>duration</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Duration</Type>
+         </Return>
+      </StateDeclaration>
+   </GlobalDeclarations>
+   <Node ColNo="0" LineNo="5" NodeType="Empty">
+      <NodeId>time_tolerance_test</NodeId>
+      <StartCondition ColNo="4" LineNo="7">
+         <GE ColNo="41" LineNo="7">
+            <Lookup ColNo="10" LineNo="7">
+               <Name>
+                  <StringValue>time</StringValue>
+               </Name>
+               <Tolerance>
+                  <DurationValue>PT1S</DurationValue>
+               </Tolerance>
+            </Lookup>
+            <Lookup ColNo="44" LineNo="7">
+               <Name>
+                  <StringValue>start</StringValue>
+               </Name>
+            </Lookup>
+         </GE>
+      </StartCondition>
+      <EndCondition ColNo="4" LineNo="8">
+         <LE ColNo="41" LineNo="8">
+            <Lookup ColNo="10" LineNo="8">
+               <Name>
+                  <StringValue>time</StringValue>
+               </Name>
+               <Tolerance>
+                  <DurationValue>PT1S</DurationValue>
+               </Tolerance>
+            </Lookup>
+            <ADD ColNo="65" LineNo="8">
+               <NodeTimepointValue ColNo="44" LineNo="8">
+                  <NodeRef dir="self"/>
+                  <NodeStateValue>EXECUTING</NodeStateValue>
+                  <Timepoint>START</Timepoint>
+               </NodeTimepointValue>
+               <Lookup ColNo="67" LineNo="8">
+                  <Name>
+                     <StringValue>duration</StringValue>
+                  </Name>
+               </Lookup>
+            </ADD>
+         </LE>
+      </EndCondition>
+   </Node>
+</PlexilPlan>

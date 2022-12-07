@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -81,8 +81,9 @@ public class ArrayVariableDeclNode extends VariableDeclNode
         // Check for name conflict (issues diagnostics on failure)
         // and define the variable if no conflict found
         PlexilTreeNode nameNode = getNameNode();
-        if (context.checkVariableName(nameNode))
-            m_variable = context.declareArrayVariable(this,
+        if (context.checkVariableName(state, nameNode))
+            m_variable = context.declareArrayVariable(state,
+                                                      this,
                                                       nameNode,
                                                       getVariableType(),
                                                       getArraySizeNode().getText(),

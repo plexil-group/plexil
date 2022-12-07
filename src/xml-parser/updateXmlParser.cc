@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -28,15 +28,11 @@
 #include "ExpressionFactory.hh"
 #include "parser-utils.hh"
 #include "PlexilSchema.hh"
-#include "Update.hh"
+#include "UpdateImpl.hh"
 
 #include "pugixml.hpp"
 
-#if defined(HAVE_CSTRING)
 #include <cstring>
-#elif defined(HAVE_STRING_H)
-#include <string.h>
-#endif
 
 using pugi::node_element;
 using pugi::xml_node;
@@ -79,16 +75,16 @@ namespace PLEXIL
   }
 
   // Pass 2
-  Update *constructUpdate(NodeConnector *node, pugi::xml_node const updXml)
+  UpdateImpl *constructUpdate(NodeConnector *node, pugi::xml_node const updXml)
   {
-    Update *result = new Update(node);
+    UpdateImpl *result = new UpdateImpl(node);
     result->reservePairs(std::distance(updXml.begin(), updXml.end()));
     return result;
   }
 
   // Unit test entry point
 
-  void finalizeUpdate(Update *update, NodeConnector *node, pugi::xml_node const updXml)
+  void finalizeUpdate(UpdateImpl *update, NodeConnector *node, pugi::xml_node const updXml)
   {
     xml_node pr = updXml.last_child();
     while (pr) {

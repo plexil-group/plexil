@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
  *  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -1686,10 +1686,10 @@ static bool testScalarLessThan()
   }
 
   // unknown but typed
-  Value *unkbool = new Value(0, BOOLEAN_TYPE);
-  Value *unkint = new Value(0, INTEGER_TYPE);
-  Value *unkreal = new Value(0, REAL_TYPE);
-  Value *unkstr = new Value(0, STRING_TYPE);
+  Value *unkbool = new Value(BOOLEAN_TYPE);
+  Value *unkint = new Value(INTEGER_TYPE);
+  Value *unkreal = new Value(REAL_TYPE);
+  Value *unkstr = new Value(STRING_TYPE);
 
   assertTrue_1(!(*unkbool < *unkbool));
   assertTrue_1(!(*unkint < *unkint));
@@ -1919,7 +1919,7 @@ static bool testScalarLessThan()
 
 static bool testBooleanArrayLessThan()
 {
-  Value *ubav = new Value(0, BOOLEAN_ARRAY_TYPE);
+  Value *ubav = new Value(BOOLEAN_ARRAY_TYPE);
   assertTrue_1(!(*ubav < *ubav));
 
   Value *ebav = nullptr;
@@ -2002,7 +2002,7 @@ static bool testBooleanArrayLessThan()
 
 static bool testIntegerArrayLessThan()
 {
-  Value *uiav = new Value(0, INTEGER_ARRAY_TYPE);
+  Value *uiav = new Value(INTEGER_ARRAY_TYPE);
   assertTrue_1(!(*uiav < *uiav));
 
   Value *eiav = nullptr;
@@ -2084,7 +2084,7 @@ static bool testIntegerArrayLessThan()
 
 static bool testRealArrayLessThan()
 {
-  Value *urav = new Value(0, REAL_ARRAY_TYPE);
+  Value *urav = new Value(REAL_ARRAY_TYPE);
   assertTrue_1(!(*urav < *urav));
 
   Value *erav = nullptr;
@@ -2170,7 +2170,7 @@ static bool testRealArrayLessThan()
 
 static bool testStringArrayLessThan()
 { 
-  Value *usav = new Value(0, STRING_ARRAY_TYPE);
+  Value *usav = new Value(STRING_ARRAY_TYPE);
   assertTrue_1(!(*usav < *usav));
 
   Value *esav = nullptr;

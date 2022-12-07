@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,6 +28,7 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
+import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 public class NodeVariableNode extends ExpressionNode
@@ -54,7 +55,8 @@ public class NodeVariableNode extends ExpressionNode
         case PlexilLexer.NODE_TIMEPOINT_VALUE:
             // We can't know yet whether time is Real or Date
             // This is determined in the type checking pass (check())
-            m_dataType = PlexilDataType.UNKNOWN_TYPE;
+            // Default to Real.
+            m_dataType = PlexilDataType.REAL_TYPE;
             break;
 
         default:
@@ -80,10 +82,11 @@ public class NodeVariableNode extends ExpressionNode
 	}
 
     @Override
-    protected void checkSelf(NodeContext context, CompilerState state)
+    protected void earlyCheckSelf(NodeContext context, CompilerState state)
     {
+        // Get base type of node timepoints from compiler state
         if (this.getToken().getType() == PlexilLexer.NODE_TIMEPOINT_VALUE)
-            m_dataType = GlobalContext.getGlobalContext().getTimeType();
+            m_dataType = state.getGlobalContext().getTimeType();
     }
 
     @Override
@@ -111,32 +114,32 @@ public class NodeVariableNode extends ExpressionNode
     }
 
     @Override
-    protected void constructXML()
+    protected void constructXML(Document root)
     {
-        this.constructXMLBase();
+        this.constructXMLBase(root);
 
 		PlexilTreeNode nodeRef = this.getChild(0);
 		if (nodeRef.getToken().getType() == PlexilLexer.NCNAME) {
-			Element id = CompilerState.newElement("NodeId");
-			id.appendChild(CompilerState.newTextNode(this.getChild(0).getText()));
+			Element id = root.createElement("NodeId");
+			id.appendChild(root.createTextNode(this.getChild(0).getText()));
 			m_xml.appendChild(id);
 		}
 		else if (nodeRef instanceof NodeRefNode) {
 			// NodeRef
-			m_xml.appendChild(nodeRef.getXML());
+			m_xml.appendChild(nodeRef.getXML(root));
 		}
 		else {
-			Element err = CompilerState.newElement("_NODE_REF_ERROR_");
+			Element err = root.createElement("_NODE_REF_ERROR_");
 			m_xml.appendChild(err);
 		}
 
 		if (this.getToken().getType() == PlexilLexer.NODE_TIMEPOINT_VALUE) {
-			Element state = CompilerState.newElement("NodeStateValue");
-			state.appendChild(CompilerState.newTextNode(this.getChild(1).getText()));
+			Element state = root.createElement("NodeStateValue");
+			state.appendChild(root.createTextNode(this.getChild(1).getText()));
 			m_xml.appendChild(state);
 
-			Element tp = CompilerState.newElement("Timepoint");
-			tp.appendChild(CompilerState.newTextNode(this.getChild(2).getText()));
+			Element tp = root.createElement("Timepoint");
+			tp.appendChild(root.createTextNode(this.getChild(2).getText()));
 			m_xml.appendChild(tp);
 		}
     }

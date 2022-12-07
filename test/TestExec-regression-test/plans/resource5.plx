@@ -13,9 +13,6 @@
             <ResourcePriority>
               <RealValue>2.3</RealValue>
             </ResourcePriority>
-            <ResourceLowerBound>
-              <RealValue>10.0</RealValue>
-            </ResourceLowerBound>
             <ResourceUpperBound>
               <RealValue>20.0</RealValue>
             </ResourceUpperBound>

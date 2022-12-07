@@ -1,4 +1,4 @@
-## Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+## Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 ##  All rights reserved.
 ##
 ## Redistribution and use in source and binary forms, with or without
@@ -31,18 +31,20 @@ add_library(IpcUtils ${PlexilExec_SHARED_OR_STATIC}
 install(TARGETS IpcUtils
   DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
+if(PlexilExec_SHLIB_INSTALL_RPATH)
+  set_target_properties(IpcUtils
+    PROPERTIES INSTALL_RPATH ${PlexilExec_SHLIB_INSTALL_RPATH})
+endif()
+
 target_include_directories(IpcUtils PUBLIC
   ${PlexilExec_SOURCE_DIR}/utils
   ${PlexilExec_SOURCE_DIR}/value
-  ${ipc_SOURCE_DIR}
+  ${PlexilExec_SOURCE_DIR}/third-party/ipc/src
   )
 
 target_link_libraries(IpcUtils PUBLIC
-  PlexilUtils PlexilValue
-  -L${ipc_LIB_DIR} -lipc
+  PlexilUtils PlexilValue ipc
   )
-
-add_dependencies(IpcUtils ipc-build)
 
 # Public includes
 install(FILES

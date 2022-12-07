@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,11 +28,15 @@ package plexil;
 import org.antlr.runtime.*;
 import org.antlr.runtime.tree.*;
 
+import org.w3c.dom.Document;
+
 public class PlexilPlanNode extends PlexilTreeNode
 {
-    public PlexilPlanNode(int ttype)
+    private String m_filename = null;
+
+    public PlexilPlanNode(Token t)
     {
-        super(new CommonToken(ttype, "PLEXIL"));
+        super(t);
         this.getToken().setLine(0);
         this.getToken().setCharPositionInLine(0);
     }
@@ -48,13 +52,19 @@ public class PlexilPlanNode extends PlexilTreeNode
         return new PlexilPlanNode(this);
     }
 
+    @Override
+    protected void earlyCheckSelf(NodeContext context, CompilerState state)
+    {
+        m_filename = state.getSourceFileName();
+    }
+
     /**
      * @brief Construct the XML representing this part of the parse tree, and store it in m_xml.
      */
     @Override
-    protected void constructXML()
+    protected void constructXML(Document root)
     {
-        super.constructXML();
+        super.constructXML(root);
 
         // Add namespace, etc.
         // Maybe later - breaks validation
@@ -72,6 +82,7 @@ public class PlexilPlanNode extends PlexilTreeNode
         return "PlexilPlan";
     }
 
+
     /**
      * @brief Add new source locator attributes to m_xml, or replace the existing ones.
      * @note Don't bother with LineNo, ColNo attributes here.
@@ -80,10 +91,8 @@ public class PlexilPlanNode extends PlexilTreeNode
     @Override
     protected void addSourceLocatorAttributes()
     {
-        if (m_xml != null) {
-            String fname = CompilerState.getCompilerState().getSourceFileName();
-            if (fname != null)
-                m_xml.setAttribute("FileName", fname);
+        if (m_xml != null && m_filename != null) {
+            m_xml.setAttribute("FileName", m_filename);
         }
     }
 

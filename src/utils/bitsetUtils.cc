@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -24,15 +24,10 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <bitset>
-
 #include "plexil-stdint.h" // UINT32_MAX
 
-#if defined(HAVE_CLIMITS)
-#include <climits>
-#elif defined(HAVE_LIMITS_H)
-#include <limits.h>
-#endif
+#include <bitset>
+#include <climits> // ULONG_MAX
 
 namespace PLEXIL
 {

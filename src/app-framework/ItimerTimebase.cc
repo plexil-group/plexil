@@ -1,60 +1,38 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
-*  All rights reserved.
-*
-* Redistribution and use in source and binary forms, with or without
-* modification, are permitted provided that the following conditions are met:
-*     * Redistributions of source code must retain the above copyright
-*       notice, this list of conditions and the following disclaimer.
-*     * Redistributions in binary form must reproduce the above copyright
-*       notice, this list of conditions and the following disclaimer in the
-*       documentation and/or other materials provided with the distribution.
-*     * Neither the name of the Universities Space Research Association nor the
-*       names of its contributors may be used to endorse or promote products
-*       derived from this software without specific prior written permission.
-*
-* THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
-* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-* MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-* DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
-* INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-* BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-* OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-* TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-* USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
+//  All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//     * Redistributions of source code must retain the above copyright
+//       notice, this list of conditions and the following disclaimer.
+//     * Redistributions in binary form must reproduce the above copyright
+//       notice, this list of conditions and the following disclaimer in the
+//       documentation and/or other materials provided with the distribution.
+//     * Neither the name of the Universities Space Research Association nor the
+//       names of its contributors may be used to endorse or promote products
+//       derived from this software without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY USRA ``AS IS'' AND ANY EXPRESS OR IMPLIED
+// WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+// MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+// DISCLAIMED. IN NO EVENT SHALL USRA BE LIABLE FOR ANY DIRECT, INDIRECT,
+// INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+// BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+// OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+// ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+// TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+// USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 //
 // PLEXIL timebase implmentation based on setitimer()
 // Fallback for older macOS and possibly others
 //
 
-#include "Timebase.hh"
+// N.B. This file is included into Timebase.cc.
 
-#include "Debug.hh"
-#include "InterfaceError.hh"
-#include "TimebaseFactory.hh" // REGISTER_TIMEBASE() macro
 #include "timeval-utils.hh"
 
-#include <iomanip> // std::fixed, std::setprecision()
-
-#if defined(HAVE_CERRNO)
-#include <cerrno>
-#elif defined(HAVE_ERRNO_H)
-#include <errno.h>
-#endif
-
-#if defined(HAVE_CSIGNAL)
 #include <csignal>
-#elif defined(HAVE_SIGNAL_H)
-#include <signal.h>
-#endif
-
-#if defined(HAVE_CSTRING)
-#include <cstring>   // strerror()
-#elif defined(HAVE_STRING_H)
-#include <string.h> // strerror()
-#endif
 
 #if defined(HAVE_SYS_TIME_H)
 #include <sys/time.h>
@@ -63,14 +41,18 @@
 namespace PLEXIL
 {
 
+  //! \class ItimerTimebase
+  //! \brief An implementation of the Timebase API for platforms which
+  //! support the older itimer POSIX API.
+  //! \see Timebase
   class ItimerTimebase : public Timebase
   {
   public:
 
-    ItimerTimebase(WakeupFn fn, void *arg)
-      : Timebase(fn, arg),
-        m_interval_usec(0),
-        m_started(false)
+    //! \brief Public constructor.
+    //! \param fn Pointer to the wakeup function.
+    ItimerTimebase(WakeupFn const &fn)
+      : Timebase(fn)
     {
       debugMsg("ItimerTimebase", " constructor");
     }
@@ -104,11 +86,6 @@ namespace PLEXIL
       m_started = true;
       debugMsg("ItimerTimebase:start", " entered");
 
-      // UGLY HACK
-      // Necessary because I cannot find a way to pass user data
-      // into the handler through this archaic API.
-      s_timebase = this;
-
       // Set up timer signal handling
       struct sigaction saction;
       sigemptyset(&saction.sa_mask);
@@ -119,7 +96,7 @@ namespace PLEXIL
       sigaddset(&saction.sa_mask, SIGUSR1);
       sigaddset(&saction.sa_mask, SIGUSR2);
       saction.sa_flags = 0;  // !SA_SIGINFO
-      saction.sa_handler = (void(*)(int)) &sigalrmHandler;
+      saction.sa_handler = &sigalrmHandler;
 
       checkInterfaceError(!sigaction(SIGALRM, &saction, nullptr),
                           "ItimerTimebase::start: sigaction failed, errno = "
@@ -202,7 +179,7 @@ namespace PLEXIL
                  " new value " << std::fixed << std::setprecision(6) << d
                  << " is in past, calling wakeup function now");
         m_nextWakeup = 0;
-        (m_wakeupFn)(m_wakeupArg);
+        m_wakeupFn();
         return;
       }
 
@@ -229,17 +206,14 @@ namespace PLEXIL
     // pass our wakeup function and args through the
     // archaic sigaction() API.
 
-    static ItimerTimebase* s_timebase;
-    static void sigalrmHandler(int /* signo */)
+    //! \brief Handler function passed to setitimer().
+    //! \param signo Signal number for which the handler is called; ignored.
+    static void sigalrmHandler(int signo)
     {
-      (s_timebase->m_wakeupFn)(s_timebase->m_wakeupArg);
+      timebaseWakeup(Timebase::s_instance);
     }
 
-    uint32_t m_interval_usec;
-    bool m_started;
   };
-
-  ItimerTimebase* ItimerTimebase::s_timebase = nullptr;
 
   void registerItimerTimebase()
   {

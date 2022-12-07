@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -31,43 +31,43 @@
 #include "LinkedQueue.hh"
 
 #include <algorithm> // std::stable_sort()
-#include <cctype>
+#include <fstream>
 #include <map>
 #include <set>
 
-#if defined(HAVE_CSTDLIB)
+#include <cctype>
 #include <cstdlib> // strtod()
-#elif defined(HAVE_STDLIB_H)
-#include <stdlib.h> // strtod()
-#endif
-
-#if defined(HAVE_CSTRING)
 #include <cstring> // strspn(), strcspn() et al
-#elif defined(HAVE_STRING_H)
-#include <string.h> // strspn(), strcspn() et al
-#endif
 
 namespace PLEXIL
 {
-  template <typename T> struct NameComparator
-  {
-    bool operator() (T const &x, T const &y) const
-    {
-      return x.name < y.name;
-    }
-  };
 
+  //! \struct ChildResourceNode
+  //! \brief Represents both a child resource in the resource
+  //!        hierarchy, and a resource request by a command.
+  //! \see ResourceNode
   struct ChildResourceNode final
   {
+
+    //! \brief Constructor.
+    //! \param _weight The weight of this resource.
+    //! \param _name The name of this resource.
+    //! \param _release Whether this resource is released when the command using it completes.
     ChildResourceNode(const double _weight,
-                      const std::string& _name,
+                      const std::string &_name,
                       const bool _release = true)
       : name(_name),
         weight(_weight),
         release(_release)
-    {}
+    {
+    }
 
-    // The rest should only be used by container templates.
+    //
+    // The constructors and assignment operators below should only be
+    // used by container templates.
+    //
+
+    //! \brief Default constructor.
     ChildResourceNode()
       : name(),
         weight(0.0),
@@ -75,54 +75,107 @@ namespace PLEXIL
     {
     }
 
+    //! \brief Copy constructor.
     ChildResourceNode(ChildResourceNode const &) = default;
+
+    //! \brief Move constructor.
     ChildResourceNode(ChildResourceNode &&) = default;
+
+    //! \brief Copy assignment operator.
     ChildResourceNode &operator=(ChildResourceNode const &) = default;
+
+    //! \brief Move assignment operator.
     ChildResourceNode &operator=(ChildResourceNode &&) = default;
 
+    //! \brief Destructor.
     ~ChildResourceNode() = default;
 
-    std::string name;
-    double weight;
-    bool release;
+    std::string name;  //!< The name of this resource.
+    double weight;     //!< The weight of this resource.
+    bool release;      //!< Whether the resource is released when a command completes.
   };
 
+  //! \brief Compare two ChildResourceNode instances by their names.
+  //! \param x Const reference to a ChildResourceNode.
+  //! \param y Const reference to another ChildResourceNode.
+  //! \return true if x.name < y.name, false otherwise.
+  inline bool operator<(ChildResourceNode const &x, ChildResourceNode const &y)
+  {
+    return x.name < y.name;
+  }
+
+  //! \typedef ResourceSet
+  //! \brief A sorted set of ChildResourceNodes.
+  //! \see ResourceMap
+  using ResourceSet = std::set<ChildResourceNode>;
+
+  //! \typedef ResourceMap
+  //! \brief A map, keyed by command, to a set of resources required by that command.
+  //! \see ResourceSet
+  using ResourceMap = std::map<CommandImpl *, ResourceSet>;
+
+  //! \typedef ResourceMapEntry
+  //! \brief The type of an entry in a ResourceMap.
+  //! \see ResourceMap
+  using ResourceMapEntry = ResourceMap::value_type;
+
+  //! \struct ResourceNode
+  //! \brief Represents a resource, optionally with children.
+  //!        Its name is stored in the ResourceHierarchyMap.
+  //! \see ChildResourceNode
   struct ResourceNode final
   {
-    ResourceNode(const double _maxConsumableValue, 
-                 const std::vector<ChildResourceNode>& _children)
-      : children(_children),
-      maxConsumableValue(_maxConsumableValue)
-      {
-      }
+    ResourceNode(const double _maxConsumableValue)
+      : children(),
+        maxConsumableValue(_maxConsumableValue)
+    {
+    }
 
-    ResourceNode(const double _maxConsumableValue, 
-                 std::vector<ChildResourceNode> &&_children)
-      : children(std::move(_children)),
-      maxConsumableValue(_maxConsumableValue)
-      {
-      }
+    //
+    // The constructors and assignment operators below should only be
+    // used by container templates.
+    //
 
-    // These should only be used by container templates
+    //! \brief Default constructor.
     ResourceNode()
-      : maxConsumableValue(0.0)
-      {}
+      : children(),
+        maxConsumableValue(0.0)
+    {
+    }
 
+    //! \brief Copy constructor.
     ResourceNode(ResourceNode const &) = default;
+
+    //! \brief Move constructor.
     ResourceNode(ResourceNode &&) = default;
+
+    //! \brief Copy assignment operator.
     ResourceNode &operator=(ResourceNode const &) = default;
+
+    //! \brief Move assignment operator.
     ResourceNode &operator=(ResourceNode &&) = default;
 
+    //! \brief Destructor.
     ~ResourceNode() = default;
 
-    std::vector<ChildResourceNode> children;
-    double maxConsumableValue;
+    std::vector<ChildResourceNode> children; //!< The children of this resource.
+    double maxConsumableValue;               //!< The available amount of this resource.
   };
 
-  typedef std::set<ChildResourceNode, NameComparator<ChildResourceNode> > ResourceSet;
+  //! \typedef ResourceHierarchyMap
+  //! \brief A map, keyed by resource name, of ResourceNode instances.
+  //! \see Resource Node
+  using ResourceHierarchyMap = std::map<std::string, ResourceNode>;
 
-  struct CommandPriorityEntry
+  //! \struct CommandPriorityEntry
+  //! \brief Associates a command to be executed, its priority, and
+  //!        the resources it requires.
+  struct CommandPriorityEntry final
   {
+
+    //! \brief Constructor.
+    //! \param prio The command priority.
+    //! \param cmd Pointer to the actual command instance.
     CommandPriorityEntry(int32_t prio, CommandImpl *cmd)
       : resources(),
         command(cmd),
@@ -130,95 +183,132 @@ namespace PLEXIL
     {
     }
 
+    //! \brief Copy constructor.
     CommandPriorityEntry(CommandPriorityEntry const &) = default;
+
+    //! \brief Move constructor.
     CommandPriorityEntry(CommandPriorityEntry &&) = default;
+
+    //! \brief Copy assignment operator.
     CommandPriorityEntry &operator=(CommandPriorityEntry const &) = default;
+
+    //! \brief Move assignment operator.
     CommandPriorityEntry &operator=(CommandPriorityEntry &&) = default;
 
-    ResourceSet resources;
-    CommandImpl *command;
-    int32_t priority;
+    ResourceSet resources;  //!< The resources requested by this command.
+    CommandImpl *command;   //!< Pointer to the command instance.
+    int32_t priority;       //!< The priority of the command.
   };
 
-  // Used internally by optimalResourceAllocation() method.
-  struct ResourceEstimate
+  //! \brief Overloaded less-than operator for CommandPriorityEntry instances.
+  //! \param x Const reference to a CommandPriorityEntry instance.
+  //! \param y Const reference to another CommandPriorityEntry instance.
+  //! \return true if x.priority < y.priority, false otherwise.
+  bool operator<(CommandPriorityEntry const &x, CommandPriorityEntry const &y)
   {
+    return x.priority < y.priority;
+  }
+
+  //! \typedef CommandPriorityList
+  //! \brief A container of CommandPriorityEntry instances.
+  using CommandPriorityList = std::vector<CommandPriorityEntry>;
+
+  //! \struct ResourceEstimate
+  //! \brief Represents the renewable and consumable usage of a
+  //         resource.  Used internally by
+  //         ResourceArbiterImpl::optimalResourceAllocation().
+  struct ResourceEstimate final
+  {
+    //! \brief Constructor.
+    //! \param initial The available amount of a resource at the start
+    //!                of arbitration.
+    ResourceEstimate(double initial)
+      : renewable(initial),
+        consumable(initial)
+    {
+    }
+
+    //! \brief Default constructor.
     ResourceEstimate()
       : renewable(0.0),
         consumable(0.0)
     {
     }
 
-    ResourceEstimate(double initial)
-      : renewable(initial),
-        consumable(initial)
-    {
-    }
+    //! \brief Copy constuctor.
+    ResourceEstimate(ResourceEstimate const &) = default;
+
+    //! \brief Move constructor.
+    ResourceEstimate(ResourceEstimate &&) = default;
+
+    //! \brief Copy assignment operator.
+    ResourceEstimate &operator=(ResourceEstimate const &) = default;
+
+    //! \brief Move assignment operator.
+    ResourceEstimate &operator=(ResourceEstimate &&) = default;
+
+    //! \brief Destructor.
+    ~ResourceEstimate() = default;
   
     double renewable;
     double consumable;
   };
 
-  typedef std::map<std::string, ResourceEstimate> EstimateMap;
+  //! \typedef EstimateMap
+  //! \brief A map, keyed by resource name, of estimated resource usage.
+  using EstimateMap = std::map<std::string, ResourceEstimate>;
 
-  // Type names
-  typedef std::pair<CommandImpl *, ResourceSet> ResourceMapEntry;
-  typedef std::map<CommandImpl *, ResourceSet> ResourceMap;
-  typedef std::map<std::string, ResourceNode> ResourceHierarchyMap;
-  typedef std::vector<CommandPriorityEntry> CommandPriorityList;
-
-
-  struct CommandPriorityComparator
-  {
-    bool operator() (CommandPriorityEntry const &x, CommandPriorityEntry const &y) const
-    {
-      return x.priority < y.priority;
-    }
-  };
-
-  // Flatten resource request into a preorder list (vector)
-  static void determineChildResources(std::string const &resName,
+  //! \brief Recursively collect the descendants of a resource and their weights.
+  //! \param[in] The map of all known resources.
+  //! \param[in] resName The name of a resource.
+  //! \param[in] release Whether the resource will be released upon command completion.
+  //! \param[out] flattenedRes The resulting list of the resource and its descendants.
+  static void determineChildResources(ResourceHierarchyMap const &resourceHierarchy,
+                                      std::string const &resName,
                                       bool release,
-                                      ResourceHierarchyMap const &resourceHierarchy,
-                                      std::vector<ChildResourceNode>& flattenedRes)
+                                      std::vector<ChildResourceNode> &flattenedRes)
   {
-    debugMsg("ResourceArbiterInterface:determineChildResources", ' ' << resName);
+    debugMsg("ResourceArbiter:determineChildResources", ' ' << resName);
     ResourceHierarchyMap::const_iterator it = resourceHierarchy.find(resName);
     if (it == resourceHierarchy.end())
       return;
 
-    const std::vector<ChildResourceNode>& children = it->second.children;
+    const std::vector<ChildResourceNode> &children = it->second.children;
     if (children.empty())
       return;
     
     // Recurse over children
-    for (std::vector<ChildResourceNode>::const_iterator cIter = children.begin();
-         cIter != children.end();
-         ++cIter) {
-      flattenedRes.emplace_back(ChildResourceNode(cIter->weight, cIter->name, release));
-      determineChildResources(cIter->name, release, resourceHierarchy, flattenedRes);
+    for (ChildResourceNode const &child : children) {
+      flattenedRes.emplace_back(ChildResourceNode(child.weight, child.name, release));
+      determineChildResources(resourceHierarchy, child.name, release, flattenedRes);
     }
   }
 
-  static void determineAllChildResources(ResourceValue const &res,
-                                         ResourceHierarchyMap const &resourceHierarchy,
+  //! \brief ???
+  //! \param[in] resourceHierarchy The map of all known resources.
+  //! \param[in] request Const reference to a ResourceValue
+  //!                    representing one resource requirement from a
+  //!                    command.
+  //! \param[in,out] resourcesNeeded The complete list of resources
+  //!                                needed by the command.
+  static void determineAllChildResources(ResourceHierarchyMap const &resourceHierarchy,
+                                         ResourceValue const &request,
                                          ResourceSet &resourcesNeeded)
   {
-    debugMsg("ResourceArbiterInterface:determineAllChildResources", ' ' << res.name);
+    debugMsg("ResourceArbiter:determineAllChildResources", ' ' << request.name);
+    std::string const &requestName = request.name;
+    bool release = request.releaseAtTermination;
 
+    // Collect the descendants of the requested resource
     std::vector<ChildResourceNode> flattenedRes;
-    std::string const &resName = res.name;
-    bool release = res.releaseAtTermination;
-    flattenedRes.emplace_back(ChildResourceNode(res.upperBound, resName, release));
-    determineChildResources(resName, release, resourceHierarchy, flattenedRes);
+    flattenedRes.emplace_back(ChildResourceNode(request.upperBound, requestName, release));
+    determineChildResources(resourceHierarchy, requestName, release, flattenedRes);
 
-    //loop through each hierarchy element in the flattened structure
-    for (std::vector<ChildResourceNode>::const_iterator rIter = flattenedRes.begin();
-         rIter != flattenedRes.end();
-         ++rIter) {
-      if (resourcesNeeded.find(*rIter) == resourcesNeeded.end())
-        resourcesNeeded.insert(*rIter);
-      else if (rIter->name == resName)
+    // loop through each hierarchy element in the flattened structure
+    for (ChildResourceNode const &fres : flattenedRes) {
+      if (resourcesNeeded.find(fres) == resourcesNeeded.end())
+        resourcesNeeded.insert(fres);
+      else if (fres.name == requestName)
         // If current is explicitly specified in 
         // the command then the value can be overwritten. The
         // child resource scales will not be overwritten however.
@@ -226,49 +316,103 @@ namespace PLEXIL
         // of the flattened vector. This means that if a resource value
         // has to be overwritten it has to be explicitly scpecified in the 
         // plan
-        resourcesNeeded.insert(*rIter);
+        resourcesNeeded.insert(fres);
     }
   }
+
+  //! \brief Partition a list of commands into commands with and
+  //!        without resource requirements, determine the total
+  //!        requirements of each command, and sort the commands with
+  //!        resource requirements by their priority.
+  //! \param[in] resourceHierarchy The map of all known resources.
+  //! \param[in] cmds A list of commands to be partitioned.  The list
+  //!                 is consumed by this function and left empty upon
+  //!                 return.
+  //! \param[out] acceptCmds The list of commands which do not have resource requests.
+  //! \param[out] sortedCommands Commands with resource requests, sorted by priority.
+  static void partitionCommands(ResourceHierarchyMap const &resourceHierarchy,
+                                LinkedQueue<CommandImpl> &cmds,
+                                LinkedQueue<CommandImpl> &acceptCmds,
+                                CommandPriorityList &sortedCommands)
+  {
+    while (!cmds.empty()) {
+      CommandImpl *cmd = cmds.front();
+      cmds.pop();
+      const ResourceValueList &resList = cmd->getResourceValues();
+      if (resList.empty()) {
+        debugMsg("ResourceArbiter:partitionCommands",
+                 " accepting command \"" << cmd->getName() << "\" with no resource requests");
+        acceptCmds.push(cmd);
+      }
+      else {
+        // Add the command to the list of commands in contention
+        sortedCommands.emplace_back(CommandPriorityEntry(resList.front().priority, cmd));
+
+        // Determine the total resource requirements of the command
+        ResourceSet &resources = sortedCommands.back().resources; // initially empty
+        for (ResourceValue const &request : resList)
+          determineAllChildResources(resourceHierarchy, request, resources);
+      }
+    }
+
+    // Sort the list of commands with resource requirements by priority
+    if (sortedCommands.size() > 1)
+      std::stable_sort(sortedCommands.begin(),
+                       sortedCommands.end());
+  }
+
 
   class ResourceArbiterImpl : public ResourceArbiterInterface
   {
   private:
-    // Persistent state across calls to arbitrateCommands(),
-    // releaseResourcesForCommand()
-    std::map<std::string, double> m_allocated;
-    ResourceMap m_cmdResMap;
 
-    // Set at initialization
+    //! \brief The map of all known resources and their initial values.
     ResourceHierarchyMap m_resourceHierarchy;
+
+    //! \brief The map of the resources currently allocated.
+    std::map<std::string, double> m_allocated;
+
+    //! \brief All currently executing commands with resource requirements.
+    ResourceMap m_cmdResMap;
     
   public:
+
+    //! \brief Default constructor.
     ResourceArbiterImpl() = default;
+
+    //! \brief Virtual destructor.
     virtual ~ResourceArbiterImpl() = default;
 
+    //! \brief Read in a resource hierarchy file.
+    //! \param[in] fName The file name as a const reference to string.
+    //! \return true if successful, false if not.
     virtual bool readResourceHierarchyFile(const std::string& fName)
     {
       std::ifstream myFile(fName);
       if (!myFile.is_open() || !myFile.good()) {
-        debugMsg("ResourceArbiterInterface:readResourceHierarchyFile",
+        debugMsg("ResourceArbiter:readResourceHierarchyFile",
                  " Unable to open file " << fName << ". No resources read.");
         return false;
       }
       bool result = readResourceHierarchy(myFile);
       myFile.close();
       condDebugMsg(result,
-                   "ResourceArbiterInterface:readResourceHierarchyFile",
+                   "ResourceArbiter:readResourceHierarchyFile",
                    " successfully read " << fName);
       return result;
     }
-      
-    virtual bool readResourceHierarchy(std::ifstream &s)
+
+    //! \brief Read the resource hierarchy from an input stream.
+    //! \param[in] s The stream.
+    //! \return true if successful, false if not.
+    virtual bool readResourceHierarchy(std::istream &s)
     {
       static char const *WHITESPACE = " \t\n\r\v\f";
 
       m_resourceHierarchy.clear();
+      std::string dataStr;
       while (!s.eof()) {
-        std::string dataStr;
-        std::getline(s, dataStr);
+        std::getline(s, dataStr); // clears dataStr
         if (dataStr.empty())
           continue;
 
@@ -300,7 +444,15 @@ namespace PLEXIL
           return false;
         }
 
-        debugMsg("ResourceArbiterInterface:readResourceHierarchy",
+        // We have enough information to construct the ResourceNode
+        std::pair<ResourceHierarchyMap::iterator, bool> emplaceResult =
+          m_resourceHierarchy.emplace(pName, ResourceNode(maxCons));
+        if (!emplaceResult.second) {
+          std::cerr << "Error: resource " << pName << " defined twice" << std::endl;
+          return false;
+        }
+
+        debugMsg("ResourceArbiter:readResourceHierarchy",
                  " got resource name " << pName << ", value " << maxCons);
 
         // Skip whitespace
@@ -308,7 +460,8 @@ namespace PLEXIL
         len -= (endptr - data);
         data = endptr;
 
-        std::vector<ChildResourceNode> children;
+        // Get children vector from the ResourceNode we emplaced above
+        std::vector<ChildResourceNode> &children = emplaceResult.first->second.children;
         while (len && *data) {
           // Read dependent resource weight - name pairs
           double d = strtod(data, &endptr);
@@ -333,8 +486,8 @@ namespace PLEXIL
           ws = strcspn(data, WHITESPACE);
           std::string const cName(data, ws);
 
-          debugMsg("ResourceArbiterInterface:readResourceHierarchy",
-                   " got dependent resource value " << d << ", name " << cName);
+          debugMsg("ResourceArbiter:readResourceHierarchy",
+                   "  got dependent resource value " << d << ", name " << cName);
           
           children.emplace_back(ChildResourceNode(d, cName));
 
@@ -346,101 +499,96 @@ namespace PLEXIL
           len -= offset;
           data += offset;
         }
-
-        m_resourceHierarchy[pName] = ResourceNode(maxCons, children);
-
       }
       return true;
     }
     
+    //! \brief Partition a list of commands into accepted and rejected
+    //!        requests by resources requested and priority.
+    //! \param cmds Reference to a LinkedQueue which is consumed by the function.
+    //! \param acceptCmds Reference to a LinkedQueue provided by the caller to receive accepted commands.
+    //! \param rejectCmds Reference to a LinkedQueue provided by the caller to receive rejected commands.
     virtual void arbitrateCommands(LinkedQueue<CommandImpl> &cmds,
                                    LinkedQueue<CommandImpl> &acceptCmds,
                                    LinkedQueue<CommandImpl> &rejectCmds)
     {
-      debugMsg("ResourceArbiterInterface:arbitrateCommands",
+      debugMsg("ResourceArbiter:arbitrateCommands",
                " processing " << cmds.size() << " commands");
 
+      // Do initial partitioning of commands without resource requirements,
+      // and sorting of the commands with requirements by their priority
       CommandPriorityList sortedCommands;
-      partitionCommands(cmds, acceptCmds, sortedCommands); // consumes cmds
+      partitionCommands(m_resourceHierarchy, cmds, acceptCmds, sortedCommands); // consumes cmds
 
-      debugStmt("ResourceArbiterInterface:printSortedCommands",
+      debugStmt("ResourceArbiter:printSortedCommands",
                 printSortedCommands(sortedCommands));
 
-      optimalResourceArbitration(acceptCmds, rejectCmds, sortedCommands);
+      optimalResourceArbitration(sortedCommands, acceptCmds, rejectCmds);
     
-      debugStmt("ResourceArbiterInterface:printAcceptedCommands",
+      debugStmt("ResourceArbiter:printAcceptedCommands",
                 printAcceptedCommands(acceptCmds));
       // Also print all the locked resources. 
-      debugStmt("ResourceArbiterInterface:printAllocatedResources",
+      debugStmt("ResourceArbiter:printAllocatedResources",
                 printAllocatedResources());
     }
 
+    //! \brief Release the resources reserved by the given command, if any.
+    //! \param[in] cmd Pointer to the command.
     virtual void releaseResourcesForCommand(CommandImpl *cmd)
     {
-      // loop through all the resources used by the command and remove each of them
-      // from the locked list as well as the command list if there are releasable.
+      // Review all resources used by the command and remove
+      // releaseable reservations from the allocated list.
       ResourceMap::iterator resListIter = m_cmdResMap.find(cmd);
-      if (resListIter != m_cmdResMap.end()) {
-        for (ResourceSet::const_iterator resIter = resListIter->second.begin();
-             resIter != resListIter->second.end();
-             ++resIter) {
-          if (resIter->release) 
-            m_allocated[resIter->name] -= resIter->weight;
-          if (m_allocated[resIter->name] == 0)
-            m_allocated.erase(resIter->name);
+      if (resListIter == m_cmdResMap.end())
+        return;
+
+      for (ChildResourceNode const &res : resListIter->second) {
+        if (res.release) {
+          m_allocated[res.name] -= res.weight;
+          if (m_allocated[res.name] == 0.0)
+            m_allocated.erase(res.name);
         }
-        m_cmdResMap.erase(resListIter);
       }
+      m_cmdResMap.erase(resListIter);
     
-      debugMsg("ResourceArbiterInterface:releaseResourcesForCommand", 
-               "remaining locked resources after releasing for command " << cmd->getName());
-      printAllocatedResources();
+      condDebugMsg(m_allocated.empty(),
+                   "ResourceArbiter:releaseResourcesForCommand", 
+                   " released command " << cmd->getName()
+                   << ", no resources currently allocated");
+      condDebugMsg(!m_allocated.empty(),
+                   "ResourceArbiter:releaseResourcesForCommand", 
+                   " released command " << cmd->getName()
+                   << ", remaining resource allocations:");
+      condDebugStmt(!m_allocated.empty(),
+                   "ResourceArbiter:releaseResourcesForCommand", 
+                    printAllocatedResources();
+                    );
     }
 
   private:
-    
-    // Consumes cmds
-    void partitionCommands(LinkedQueue<CommandImpl> &cmds,
-                           LinkedQueue<CommandImpl> &acceptCmds,
-                           CommandPriorityList &sortedCommands)
-    {
-      while (CommandImpl *cmd = cmds.front()) {
-        cmds.pop();
-        const ResourceValueList& resList = cmd->getResourceValues();
-        if (resList.empty()) {
-          debugMsg("ResourceArbiterInterface:partitionCommands",
-                   " accepting " << cmd->getName() << " with no resource requests");
-          acceptCmds.push(cmd);
-        }
-        else {
-          sortedCommands.emplace_back(CommandPriorityEntry(resList.front().priority, cmd));
-        }
 
-        ResourceSet &resources = sortedCommands.back().resources;
-        for (ResourceValueList::const_iterator resListIter = resList.begin();
-             resListIter != resList.end();
-             ++resListIter)
-          determineAllChildResources(*resListIter, m_resourceHierarchy, resources);
-      }
-
-      // Sort the resulting list by priority
-      if (sortedCommands.size() > 1)
-        std::stable_sort(sortedCommands.begin(),
-                         sortedCommands.end(),
-                         CommandPriorityComparator());
-    }
-
-    // Populates acceptCmds, rejectCmds
-    void optimalResourceArbitration(LinkedQueue<CommandImpl> &acceptCmds,
-                                    LinkedQueue<CommandImpl> &rejectCmds,
-                                    CommandPriorityList const &sortedCommands)
+    //! \brief Evaluates resource requests and determines which
+    //!        commands may be executed based on their resource
+    //!        requirements and the current resource levels.
+    //!        Appends to acceptCmds and rejectCmds.
+    //! \param[in] sortedCommands Commands and their resource
+    //!                            requirements, sorted by priority.
+    //! \param[in,out] acceptCmds List of commands which can be
+    //!                           executed.  Will be appended to by
+    //!                           this function.
+    //! \param[out] rejectCmds List of commands which cannot be
+    //!                        executed due to resource limitations.
+    //!                        Will be appended to by this function.
+    void optimalResourceArbitration(CommandPriorityList const &sortedCommands,
+                                    LinkedQueue<CommandImpl> &acceptCmds,
+                                    LinkedQueue<CommandImpl> &rejectCmds)
     {
       EstimateMap estimates;
 
       // Prepare estimate map and ensure entries in allocated map based on requests
-      for (CommandPriorityEntry const entry : sortedCommands) {
+      for (CommandPriorityEntry const &entry : sortedCommands) {
         ResourceSet const &requests = entry.resources;
-        for (ChildResourceNode res : requests) {
+        for (ChildResourceNode const &res : requests) {
           std::string const &resName = res.name;
           double value = 0.0;
           if (m_allocated.find(resName) == m_allocated.end())
@@ -451,19 +599,19 @@ namespace PLEXIL
         }
       }
 
-      for (CommandPriorityEntry const entry : sortedCommands) {
+      for (CommandPriorityEntry const &entry : sortedCommands) {
         EstimateMap savedEstimates = estimates;
         CommandImpl *cmd = entry.command;
         ResourceSet const &requests = entry.resources;
         bool invalid = false;
         
-        debugMsg("ResourceArbiterInterface:optimalResourceArbitration",
-                 " considering " << cmd->getName());
+        debugMsg("ResourceArbiter:optimalResourceArbitration",
+                 " considering \"" << cmd->getName() << '"');
 
-        for (ChildResourceNode res : requests) {
+        for (ChildResourceNode const &res : requests) {
           ResourceEstimate &est = estimates[res.name];
 
-          debugMsg("ResourceArbiterInterface:optimalResourceArbitration",
+          debugMsg("ResourceArbiter:optimalResourceArbitration",
                    "  " << cmd->getName() << " requires " << res.weight << " of " << res.name);
 
           if (res.weight < 0.0)
@@ -477,14 +625,14 @@ namespace PLEXIL
           double resMax = maxConsumableResourceValue(res.name);
           if (est.renewable < 0.0 || est.renewable > resMax) {
             invalid = true;
-            debugMsg("ResourceArbiterInterface:optimalResourceArbitration",
+            debugMsg("ResourceArbiter:optimalResourceArbitration",
                      " rejecting " << cmd->getName()
                      << " because renewable usage of " << res.name << " exceeds limits");
             break; // from inner loop
           }
-          else if (est.consumable < 0 || est.consumable > resMax) {
+          if (est.consumable < 0.0 || est.consumable > resMax) {
             invalid = true;
-            debugMsg("ResourceArbiterInterface:optimalResourceArbitration",
+            debugMsg("ResourceArbiter:optimalResourceArbitration",
                      " rejecting " << cmd->getName()
                      << " because consumable usage of " << res.name << " exceeds limits");
             break; // from inner loop
@@ -497,23 +645,17 @@ namespace PLEXIL
           rejectCmds.push(cmd);
         }
         else {
-          debugMsg("ResourceArbiterInterface:optimalResourceArbitration",
+          debugMsg("ResourceArbiter:optimalResourceArbitration",
                    " accepting " << cmd->getName());
 
           acceptCmds.push(cmd);
           m_cmdResMap[cmd] = requests;
 
           // Update the allocated resource map to include the chosen command
-          for (ChildResourceNode res : requests)
+          for (ChildResourceNode const &res : requests)
             m_allocated[res.name] += res.weight;
         }
       }
-    }
-
-    bool isResourceUsageOutsideLimits(const double resNeeded, 
-                                      const std::string& resName) const
-    {
-      return resNeeded < 0.0 || resNeeded > maxConsumableResourceValue(resName);
     }
 
     double maxConsumableResourceValue(const std::string& resName) const
@@ -525,19 +667,18 @@ namespace PLEXIL
 
     void printSortedCommands(CommandPriorityList &sortedCommands) const
     {
-      for (CommandPriorityList::const_iterator iter = sortedCommands.begin();
-           iter != sortedCommands.end();
-           ++iter)
-        debugMsg("ResourceArbiterInterface:printSortedCommands", 
-                 "CommandName: " << iter->command->getName()
-                 << " Priority: " << iter->priority);
+      for (CommandPriorityEntry const &cmd : sortedCommands) {
+        debugMsg("ResourceArbiter:printSortedCommands", 
+                 " command \"" << cmd.command->getName()
+                 << "\", priority " << cmd.priority);
+      }
     }
 
     void printAllocatedResources() const
     {
-      for (std::map<std::string, double>::const_iterator it = m_allocated.begin(); 
-           it != m_allocated.end(); ++it)
-        debugMsg("ResourceArbiterInterface:printAllocatedResources", ' ' << it->first << " = " << it->second);
+      for (std::pair<const std::string, double> const &pr : m_allocated) {
+        debugMsg("ResourceArbiter:printAllocatedResources", ' ' << pr.first << " = " << pr.second);
+      }
     }
 
     void printAcceptedCommands(LinkedQueue<CommandImpl> const &acceptCmds)
@@ -545,14 +686,19 @@ namespace PLEXIL
       // Print accepted commands and the resources they consume.
       CommandImpl *cmd = acceptCmds.front();
       while (cmd) {
-        debugMsg("ResourceArbiterInterface:printAcceptedCommands", 
-                 " Accepted command: " << cmd->getName()
-                 << " uses resources:");
-        ResourceSet const &res = m_cmdResMap[cmd];
-        for (ResourceSet::const_iterator resIter = res.begin();
-             resIter != res.end();
-             ++resIter)
-          debugMsg("ResourceArbiterInterface:printAcceptedCommands", "  " << resIter->name);
+        ResourceMap::const_iterator resMapIt = m_cmdResMap.find(cmd);
+        if (resMapIt != m_cmdResMap.end()) {
+          debugMsg("ResourceArbiter:printAcceptedCommands",
+                   " Accepted command \"" << cmd->getName()
+                   << "\" uses resources:");
+          for (ChildResourceNode const &res : resMapIt->second) {
+            debugMsg("ResourceArbiter:printAcceptedCommands", "  " << res.name);
+          }
+        }
+        else {
+          debugMsg("ResourceArbiter:printAcceptedCommands",
+                   " Accepted command \"" << cmd->getName() << '"');
+        }
         cmd = cmd->next();
       }
     }

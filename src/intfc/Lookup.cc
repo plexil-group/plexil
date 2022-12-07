@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -35,13 +35,8 @@
 #include "StateCache.hh"
 #include "ValueType.hh"
 
-#include <memory>
-
-#if defined(HAVE_CMATH)
 #include <cmath>  // fabs()
-#elif defined(HAVE_MATH_H)
-#include <math.h> // fabs()
-#endif
+#include <memory>
 
 namespace PLEXIL
 {
@@ -66,6 +61,10 @@ namespace PLEXIL
   //  - frequently active for many Exec cycles
   //
 
+  //! \class LookupImpl
+  //! \brief Base implementation class for PLEXIL Lookup, LookupNow,
+  //!        and LookupOnChange expressions.  Implements the
+  //!        Expression API.
   class LookupImpl : public Lookup
   {
   protected:
@@ -74,19 +73,46 @@ namespace PLEXIL
     // Member variables shared with derived class LookupOnChange
     //
 
+    //! \brief The cached value of the Lookup's state.
     State m_cachedState;
+
+    //! \brief The expression specifying the state name.
     Expression *m_stateName;
+
+    //! \brief The parameters to the Lookup's state.
     ExprVec *m_paramVec;
+
+    //! \brief This Lookup's entry in the state cache.
     StateCacheEntry* m_entry;
+
+    //! \brief The declared return type of this Lookup;
     ValueType m_declaredType;
+
+    //! \brief Whether the value of the Lookup is currently known.
     bool m_known;
+
+    //! \brief Whether the Lookup's state is fully known.
     bool m_stateKnown;
-    bool m_stateIsConstant; // allows early caching of state value
+
+    //! \brief Whether the Lookup's state is constant. Supports early
+    //!        caching of state value.
+    bool m_stateIsConstant;
+
+    //! \brief If true, m_stateName is owned by the Lookup, and will
+    //!        be deleted by the Lookup's destructor.
     bool m_stateNameIsGarbage;
+
+    //! \brief Whether the Lookup is currently registered in the state
+    //!        cache.
     bool m_isRegistered;
 
   public:
 
+    //! \brief Constructor.
+    //! \param stateName Pointer to a string valued Expression.
+    //! \param stateNameIsGarbage If true, stateName will be deleted by the Lookup destructor.
+    //! \param declaredType The expected type of the Lookup's value.
+    //! \param paramVec Pointer to a vector of parameters.
     LookupImpl(Expression *stateName,
                bool stateNameIsGarbage,
                ValueType declaredType,
@@ -123,6 +149,7 @@ namespace PLEXIL
       }
     }
 
+    //! \brief Virtual destructor.
     virtual ~LookupImpl()
     {
       if (m_entry) {
@@ -135,24 +162,68 @@ namespace PLEXIL
     }
 
     //
-    // Standard Expression API
+    // Listenable API
+    //
+
+
+    //! \brief Can this expression generate change notifications even
+    //!        if none of its subexpressions change?
+    //! \return True if the object can generate its own change
+    //!         notifications, false if not.
+    //! \note A Lookup's value can change independently of its
+    //!       parameters.
+    virtual bool isPropagationSource() const override
+    {
+      return true; // value may change independently of parameters
+    }
+
+    //
+    // Propagator API
+    //
+
+    //! \brief Add a change listener to this object.
+    //! \param ptr Pointer to the listener.
+    //! \note Lookups must explicitly listen to their parameters,
+    //!       because the lookup's value can change when the
+    //!       parameters change.
+    //! \note Wraps the Propagator method.
+    virtual void addListener(ExpressionListener *l) override
+    {
+      if (!hasListeners()) {
+        m_stateName->addListener(this);
+        if (m_paramVec)
+          m_paramVec->addListener(this);
+      }
+      Propagator::addListener(l);
+    }
+
+    //! \brief Remove a change listener from this object.
+    //! \param ptr Pointer to the listener to remove.
+    //! \note Wraps the Propagator method.
+    virtual void removeListener(ExpressionListener *l) override
+    {
+      Propagator::removeListener(l);
+      if (!hasListeners()) {
+        if (m_paramVec)
+          m_paramVec->removeListener(this);
+        m_stateName->removeListener(this);
+      }
+    }
+
+    //
+    // Expression API
     //
     
-    virtual bool isAssignable() const override
-    {
-      return false;
-    }
-    
+    //! \brief Return a print name for the expression type.
+    //! \return Pointer to const character string.
     virtual const char *exprName() const override
     {
       return "LookupNow";
     }
 
-    virtual void printValue(std::ostream &str) const override
-    {
-      str << this->toValue();
-    }
-
+    //! \brief Print the subexpressions of this expression to a stream.
+    //! \param s Reference to the output stream.
+    //! \see Expression::print
     virtual void printSubexpressions(std::ostream &str) const override
     {
       str << " name " << *m_stateName;
@@ -162,37 +233,6 @@ namespace PLEXIL
           str << ' ' << *(*m_paramVec)[i];
       }
       str << ' ';
-    }
-
-    // Lookups must explicitly listen to their parameters,
-    // because the lookup value changes when the params change.
-    virtual void addListener(ExpressionListener *l) override
-    {
-      if (!hasListeners()) {
-        m_stateName->addListener(this);
-        if (m_paramVec)
-          m_paramVec->addListener(this);
-      }
-      Notifier::addListener(l);
-    }
-
-    virtual void removeListener(ExpressionListener *l) override
-    {
-      Notifier::removeListener(l);
-      if (!hasListeners()) {
-        if (m_paramVec)
-          m_paramVec->removeListener(this);
-        m_stateName->removeListener(this);
-      }
-    }
-
-    /**
-     * @brief Query whether this expression is a source of change events.
-     * @return True if the value may change independently of any subexpressions, false otherwise.
-     */
-    virtual bool isPropagationSource() const override
-    {
-      return true; // value changes independently of parameters
     }
 
     //
@@ -206,8 +246,10 @@ namespace PLEXIL
       return m_declaredType;
     }
 
-    // Delegated to the StateCacheEntry in every case
 
+    //! \brief Determine whether the value of this expression is known or unknown.
+    //! \return True if known, false otherwise.
+    //! \note Delegated to the StateCacheEntry, if any.
     virtual bool isKnown() const override
     {
       if (!this->isActive() || !m_entry)
@@ -215,15 +257,24 @@ namespace PLEXIL
       return m_entry->isKnown();
     }
 
-    /**
-     * @brief Retrieve the value of this Expression.
-     * @param The appropriately typed place to put the result.
-     * @return True if known, false if unknown or invalid.
-     * @note The expression value is not copied if the return value is false.
-     */
+    //! \brief Get the value of this expression as a Value instance.
+    //! \return The Value instance.
+    virtual Value toValue() const override
+    {
+      if (!this->isActive() || !m_entry || !m_entry->cachedValue())
+        return Value();
+      return m_entry->cachedValue()->toValue();
+    }
 
-    // Local macro
+    //! \brief Print the expression's value to a stream.
+    //! \param s Reference to the stream.
+    virtual void printValue(std::ostream &str) const override
+    {
+      str << this->toValue();
+    }
 
+    //! \brief Local macro to define Lookup::getValue() methods.
+    //! \param _rtype_ The name of the method's result type.
 #define DEFINE_LOOKUP_GET_VALUE_METHOD(_rtype_)                 \
     virtual bool getValue(_rtype_ &result) const override       \
     {                                                           \
@@ -246,14 +297,8 @@ namespace PLEXIL
 
 #undef DEFINE_LOOKUP_GET_VALUE_METHOD
 
-    /**
-     * @brief Retrieve a pointer to the (const) value of this Expression.
-     * @param ptr Reference to the pointer variable to receive the result.
-     * @return True if known, false if unknown or invalid.
-     * @note The pointer is not copied if the return value is false.
-     */
-
-    // Local macro
+    //! \brief Local macro to define Lookup::getValuePointer() methods.
+    //! \param _rtype_ The name of the method's result type.
 #define DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD(_rtype_)                 \
     virtual bool getValuePointer(_rtype_ const *&ptr) const override    \
     {                                                                   \
@@ -272,36 +317,22 @@ namespace PLEXIL
 
 #undef DEFINE_LOOKUP_GET_VALUE_POINTER_METHOD
 
-    /**
-     * @brief Get the value of this expression as a Value instance.
-     * @return The Value instance.
-     */
-    virtual Value toValue() const override
-    {
-      if (!this->isActive() || !m_entry || !m_entry->cachedValue())
-        return Value();
-      return m_entry->cachedValue()->toValue();
-    }
-
     //
     // API to state cache
     //
 
-    //!
-    // @brief Notify this Lookup that its value has been updated.
-    //
+    //! \brief Notify this Lookup that its value has been updated.
     virtual void valueChanged() override
     {
       publishChange();
     }
 
-    //!
-    // @brief Get this lookup's high and low thresholds.
-    // @param high Place to store the high threshold value.
-    // @param low Place to store the low threshold value.
-    // @return True if this lookup has active thresholds, false otherwise.
-    // @note The base class method always returns false.
-    //
+    //! \brief Get this lookup's high and low thresholds.
+    //! \param high Place to store the high threshold value.
+    //! \param low Place to store the low threshold value.
+    //! \return True if this lookup has active thresholds, false otherwise.
+    //! \note The base class method always returns false.
+    ///@{
     virtual bool getThresholds(Integer &high, Integer &low) const override
     {
       return false;
@@ -311,13 +342,29 @@ namespace PLEXIL
     {
       return false;
     }
+    ///@}
 
   protected:
 
     //
-    // NotifierImpl API
+    // Listenable API
+    //
+
+    //! \brief Call a function on all subexpressions of this object.
+    //! \param oper A function of one argument, a pointer to Listenable,
+    //!             returning void.
+    virtual void doSubexprs(ListenableUnaryOperator const &oper) override
+    {
+      (oper)(m_stateName);
+      if (m_paramVec)
+        m_paramVec->doSubexprs(oper);
+    }
+
+    //
+    // Notifier API
     // 
 
+    //! \brief Perform any necessary actions to enter the active state.
     virtual void handleActivate() override
     {
       debugMsg("Lookup:handleActivate", " called");
@@ -338,6 +385,7 @@ namespace PLEXIL
         ensureRegistered();
     }
 
+    //! \brief Perform any necessary actions to enter the inactive state.
     virtual void handleDeactivate() override
     {
       // Dectivate all subexpressions
@@ -352,7 +400,13 @@ namespace PLEXIL
       if (!m_stateIsConstant)
         m_entry = nullptr;
     }
-      
+
+    //
+    // Propagator API
+    //
+
+    //! \brief Perform whatever action is necessary when a change
+    //!        notification is received.
     virtual void handleChange() override
     {
       debugMsg("Lookup:handleChange", ' ' << *this);
@@ -360,22 +414,13 @@ namespace PLEXIL
         publishChange();
     }
 
-    virtual void doSubexprs(ListenableUnaryOperator const &oper) override
-    {
-      (oper)(m_stateName);
-      if (m_paramVec)
-        m_paramVec->doSubexprs(oper);
-    }
-
     //
     // Shared behavior needed by LookupOnChange
     //
 
-    /**
-     * @brief Get the State for this Lookup, if known.
-     * @param result The variable in which to store the result.
-     * @return True if fully known, false if not.
-     */
+    //! \brief Get the State for this Lookup, if known.
+    //! \param result The variable in which to store the result.
+    //! \return True if fully known, false if not.
     bool getState(State &result) const
     {
       std::string name;
@@ -395,9 +440,12 @@ namespace PLEXIL
       return true;
     }
     
-    // Return true if state changed, false otherwise
+    //! \brief Handle a change notification.
+    //! \return true if state changed, false otherwise
     bool handleChangeInternal()
     {
+      debugMsg("LookupImpl:handleChangeInternal", " entered");
+
       State newState;
       bool oldKnown = m_stateKnown;
       m_stateKnown = getState(newState);
@@ -419,7 +467,7 @@ namespace PLEXIL
       return stateChanged;
     }
 
-    // Register this lookup with the state cache (?)
+    //! \brief Ensure this lookup is registered with the state cache.
     void ensureRegistered()
     {
       if (m_isRegistered)
@@ -429,6 +477,7 @@ namespace PLEXIL
       m_isRegistered = true;
     }
 
+    //! \brief Unregister this lookup from the state cache.
     void unregister()
     {
       if (!m_isRegistered)
@@ -438,7 +487,8 @@ namespace PLEXIL
       m_isRegistered = false;
     }
 
-    // called before updating state to new value
+    //! \brief Invalidate the cached state value, by unregistering
+    //! from the state cache.
     virtual void invalidateOldState()
     {
       unregister();
@@ -454,77 +504,85 @@ namespace PLEXIL
     LookupImpl &operator=(LookupImpl &&) = delete;
   };
 
-
   //
   // LookupOnChange implementation details
   //
-
-  // I wanted to define these classes entirely within the LookupOnChange
-  // class definition, since they are only used within LookupOnChange, 
-  // but I was not able to define specializations of member functions
-  // of a class template inside the parent class definition.
+  // I had hoped to define these classes entirely within the
+  // LookupOnChange class definition, since they are only used within
+  // LookupOnChange, but I was not able to define specializations of
+  // member functions of a class template inside the parent class
+  // definition.
+  //
   // C++ sucks at information hiding.
-
+  //
+    
+  //! \class ThresholdCache
+  //! \brief Abstract base class for caching a LookupOnChange's
+  //!        threshold values.
   class ThresholdCache
   {
   public:
-    ThresholdCache() = default;
+    //! \brief Virtual destructor.
     virtual ~ThresholdCache() = default;
 
-    /**
-     * @brief Check whether the threshold value itself has changed.
-     * @param tolerance Tolerance expression.
-     * @return True if changed.
-     */
+    //! \brief Check whether the tolerance value itself has changed.
+    //! \param tolerance Tolerance expression.
+    //! \return true if the tolerance expression's value changed,
+    //!         false otherwise.
     virtual bool toleranceChanged(Expression const *tolerance) const = 0;
 
-    /**
-     * @brief Check whether the current value is beyond the thresholds.
-     * @param entry Pointer to the value.
-     * @return True if exceeded, false otherwise.
-     */
+    //! \brief Check whether the current value is beyond the thresholds.
+    //! \param entry Pointer to the value.
+    //! \return True if exceeded, false otherwise.
     virtual bool thresholdsExceeded(CachedValue const *value) const = 0;
 
-    /**
-     * @brief Set the thresholds based on the given cached value.
-     * @param entry Pointer to state cache entry.
-     */
+    //! \brief Set the thresholds based on the given cached value.
+    //! \param value Pointer to the state cache entry.
+    //! \param tolerance Pointer to the tolerance expression.
     virtual void setThresholds(CachedValue const *value, Expression const *tolerance) = 0;
 
-
-    /**
-     * @brief Get the current thresholds.
-     * @param high Place to store the current high threshold.
-     * @param low Place to store the current low threshold.
-     * @note Default methods.
-     */
-
+    //! \brief Get the current thresholds.
+    //! \param high Place to store the current high threshold.
+    //! \param low Place to store the current low threshold.
+    //! \note Default methods report an error.
+    ///@{
     virtual void getThresholds(Integer & /* high */, Integer & /* low */) const
     {
       errorMsg("LookupOnChange:getThresholds: "
-               "attempt to get Integer thresholds from non-Integer");
+               "attempt to get Integer thresholds from non-Integer Lookup");
     }
 
     virtual void getThresholds(Real & /* high */, Real & /* low */) const
     {
       errorMsg("LookupOnChange:getThresholds: "
-               "attempt to get Real thresholds from non-Real");
+               "attempt to get Real thresholds from non-Real Lookup");
     }
+    ///@}
 
   };
 
+  //! \class ThresholdCacheImpl
+  //! \brief Implementation class for Lookup threshold caching,
+  //!        templated by value type of the threshold.
+  //! \param NUM A numeric type name.
   template <typename NUM>
   class ThresholdCacheImpl : public ThresholdCache
   {
   public:
+
+    //! \brief Default constructor.
     ThresholdCacheImpl()
-      : ThresholdCache(),
-        m_wasKnown(false)
+      : m_wasKnown(false)
     {
     }
 
-    ~ThresholdCacheImpl() = default;
+    //! \brief Virtual destructor.
+    virtual ~ThresholdCacheImpl() = default;
 
+    //! \brief Check whether the tolerance value itself has changed.
+    //! \param tolerance Tolerance expression.
+    //! \return true if the tolerance expression's value changed,
+    //!         false otherwise.
     virtual bool toleranceChanged(Expression const *tolerance) const override
     {
       check_error_1(tolerance); // paranoid check
@@ -543,9 +601,15 @@ namespace PLEXIL
       return true;
     }
 
-    // See below for implementations of this method.
+    //! \brief Check whether the current value is beyond the thresholds.
+    //! \param entry Pointer to the value cache entry.
+    //! \return true if exceeded, false otherwise.
+    //! \note Implementations are specialized by the template type parameter.
     virtual bool thresholdsExceeded(CachedValue const *value) const override;
 
+    //! \brief Set the thresholds based on the given cached value.
+    //! \param value Pointer to the state cache entry.
+    //! \param tolerance Pointer to the tolerance expression.
     virtual void setThresholds(CachedValue const *value, Expression const *tolerance) override
     {
       debugMsg("ThresholdCache:setThresholds", " entered");
@@ -587,7 +651,10 @@ namespace PLEXIL
     bool m_wasKnown;
   };
 
-  // Threshold check for Integer-valued lookups
+  //! \brief Check whether the current value is beyond the thresholds
+  //!        for Integer-valued Lookups.
+  //! \param entry Pointer to the value cache entry.
+  //! \return true if exceeded, false otherwise.
   template <>
   bool ThresholdCacheImpl<Integer>::thresholdsExceeded(CachedValue const *value) const
   {
@@ -598,8 +665,12 @@ namespace PLEXIL
     return m_wasKnown; 
   }
 
-  // Threshold check for Real-valued lookups
-  // Covers up a horde of sins, notably timers returning early (!)
+  //! \brief Check whether the current value is beyond the thresholds
+  //!        for Real-valued Lookups.
+  //! \param entry Pointer to the value cache entry.
+  //! \return true if exceeded, false otherwise.
+  //! \note Implements comparison tolerance, to account for floating
+  //!       point arithmetic accuracy issues.
   template <>
   bool ThresholdCacheImpl<Real>::thresholdsExceeded(CachedValue const *value) const
   {
@@ -617,7 +688,7 @@ namespace PLEXIL
       return true;
 
     // Put guard bands around thresholds
-    Real epsilon = fabs(currentValue) * 1e-13; // on the order of 150 usec for time
+    Real epsilon = fabs(currentValue) * 1e-13;
     if (m_high - currentValue < epsilon)
       return true;
     if (currentValue - m_low < epsilon)
@@ -625,6 +696,13 @@ namespace PLEXIL
     return false;
   }
 
+  //! \brief Construct the appropriate ThresholdCache instance for a
+  //!        PLEXIL ValueType.
+  //! \param typ The ValueType.
+  //! \return Pointer to a ThresholdCacheImpl object.
+  //! \note Inteprets UNKNOWN_TYPE as REAL_TYPE.
+  //! \note Reports an error if there is no corresponding
+  //!       ThresholdCacheImpl for the requested type.
   static ThresholdCache * ThresholdCacheFactory(ValueType typ)
   {
     switch (typ) {
@@ -635,25 +713,20 @@ namespace PLEXIL
       warn("ThresholdCacheFactory: type unknown, defaulting to REAL");
       // drop thru
 
-      // FIXME: Implement for non-Real date, duration types
     case DATE_TYPE:
     case DURATION_TYPE:
-
     case REAL_TYPE:
       return new ThresholdCacheImpl<Real>();
 
     default:
-      errorMsg("ThresholdCacheFactory: invalid or unimplemented type");
+      errorMsg("ThresholdCacheFactory: invalid or unimplemented type " << valueTypeName(typ));
       return nullptr;
     }
   }
 
-  //!
-  // @class LookupOnChange
-  // @brief Represents a Lookup which ignores changes within
-  //        the provided tolerance.
-  //
-
+  //! \class LookupOnChange
+  //! \brief Represents a Lookup which ignores changes within the
+  //!        provided tolerance.
   class LookupOnChange final : public LookupImpl
   {
   private:
@@ -662,13 +735,28 @@ namespace PLEXIL
     // State local to LookupOnChange
     //
 
+    //! \brief Threshold cache.
     std::unique_ptr<ThresholdCache> m_thresholds;
+
+    //! \brief Pointer to the state cache entry, if any.
     std::unique_ptr<CachedValue> m_cachedValue;
+
+    //! \brief Expression specifying the tolerance.  May be null.
     Expression *m_tolerance;
+
+    //! \brief Whether to delete the tolerance expression when the
+    //!        Lookup is deleted.
     bool m_toleranceIsGarbage;
 
   public:
 
+    //! \brief Constructor.
+    //! \param stateName Pointer to a string valued Expression.
+    //! \param stateNameIsGarbage If true, the stateName expression will be deleted by the Lookup destructor.
+    //! \param declaredType The expected type of the Lookup's value.
+    //! \param tolerance Pointer to a string valued Expression.
+    //! \param toleranceIsGarbage If true, the tolerance expression will be deleted by the Lookup destructor.
+    //! \param paramVec Pointer to a vector of parameters.
     LookupOnChange(Expression *stateName,
                    bool stateNameIsGarbage,
                    ValueType declaredType,
@@ -683,12 +771,15 @@ namespace PLEXIL
     {
     }
 
+    //! \brief Virtual destructor.
     virtual ~LookupOnChange()
     {
       if (m_toleranceIsGarbage)
         delete m_tolerance;
     }
 
+    //! \brief Return a print name for the expression type.
+    //! \return Pointer to const character string.
     virtual const char *exprName() const override
     {
       return "LookupOnChange";
@@ -698,7 +789,8 @@ namespace PLEXIL
     // API to state cache
     //
 
-    // May be called before lookup fully activated
+    //! \brief Notify this Lookup that its value has been updated.
+    //! \note May be called before lookup fully activated
     virtual void valueChanged() override
     {
       if (!this->isActive()) {
@@ -714,6 +806,11 @@ namespace PLEXIL
       }
     }
 
+    ///@{
+    //! \brief Get this lookup's high and low thresholds.
+    //! \param high Place to store the high threshold value.
+    //! \param low Place to store the low threshold value.
+    //! \return True if this lookup has active thresholds, false otherwise.
     virtual bool getThresholds(Integer &high, Integer &low) const override
     {
       if (!this->isActive()) {
@@ -755,9 +852,12 @@ namespace PLEXIL
                << low << ", " << high << "], returning true");
       return true;
     }
+    ///@}
 
-    // Change lookups must explicitly listen to their tolerance,
-    // because the lookup value can change when the tolerance changes.
+    //! \brief Add a change listener to this object.
+    //! \param ptr Pointer to the listener.
+    //! \note The value of a LookupOnChange may change when its
+    //!       tolerance value changes.
     virtual void addListener(ExpressionListener *l) override
     {
       if (!hasListeners())
@@ -765,6 +865,8 @@ namespace PLEXIL
       LookupImpl::addListener(l);
     }
 
+    //! \brief Remove a change listener from this object.
+    //! \param ptr Pointer to the listener to remove.
     virtual void removeListener(ExpressionListener *l) override
     {
       LookupImpl::removeListener(l);
@@ -772,25 +874,18 @@ namespace PLEXIL
         m_tolerance->removeListener(this);
     }
 
-    /**
-     * @brief Retrieve the value of this Expression.
-     * @param The appropriately typed place to put the result.
-     * @return True if known, false if unknown or invalid.
-     * @note The expression value is not copied if the return value is false.
-     */
+    //! \brief Local macro for defining LookupOnChange::getValue() methods.
+    //! \param _rtype_ The name of the result type.
 
-    // Local macro
-
-    // Use local cache if we have a tolerance, as it may differ from state cache value
-
+    // Prefer locally cached value, as it may differ from state cache value.
 #define DEFINE_CHANGE_LOOKUP_GET_VALUE_METHOD(_rtype_)              \
     virtual bool getValue(_rtype_ &result) const override           \
     {                                                               \
       if (!this->isActive() || !m_entry || !m_entry->cachedValue()) \
         return false;                                               \
-      else if (m_cachedValue)                                       \
+      if (m_cachedValue)                                            \
         return m_cachedValue->getValue(result);                     \
-      else if (m_entry->isKnown())                                  \
+      if (m_entry->isKnown())                                       \
         return m_entry->cachedValue()->getValue(result);            \
       return false;                                                 \
     }
@@ -801,18 +896,17 @@ namespace PLEXIL
 
 #undef DEFINE_CHANGE_LOOKUP_GET_VALUE_METHOD
 
-    /**
-     * @brief Get the value of this expression as a Value instance.
-     * @return The Value instance.
-     */
+    //! \brief Get the value of this expression as a Value instance.
+    //! \return The Value instance.
     virtual Value toValue() const override
     {
       if (!this->isActive() || !m_entry || !m_entry->cachedValue())
         return Value();
-      // Use local cache if we have a tolerance, as it may differ from state cache value
-      else if (m_cachedValue)
+      // Use local cache, as the value cached locally may differ from
+      // state cache value.
+      if (m_cachedValue)
         return m_cachedValue->toValue();
-      else if (m_entry->isKnown())
+      if (m_entry->isKnown())
         return m_entry->cachedValue()->toValue();
       return Value();
     }
@@ -820,9 +914,10 @@ namespace PLEXIL
   protected:
 
     //
-    // NotifierImpl API
+    // Notifier API
     //
 
+    //! \brief Perform any necessary actions to enter the active state.
     virtual void handleActivate() override
     {
       check_error_1(m_tolerance); // paranoid check
@@ -837,21 +932,25 @@ namespace PLEXIL
 
     // TODO: Optimization opportunity if state is known to be constant
 
-    // Sets m_thresholds and m_cachedValue to null if they are not already.
-
+    //! \brief Perform any necessary actions to enter the inactive state.
     virtual void handleDeactivate() override
     {
       debugMsg("LookupOnChange:handleDeactivate", " called");
       LookupImpl::handleDeactivate();
       m_tolerance->deactivate();
+      // Clear m_thresholds and m_cachedValue if they are not already.
       if (m_thresholds) {
         m_thresholds.reset();
         m_cachedValue.reset();
       }
     }
 
-    // Consider possibility that tolerance has changed.
-    // Consider possibility lookup may not be fully activated yet.
+    // TODO:
+    //  Consider possibility lookup may not be fully activated yet.
+    //  Consider possibility that tolerance has changed.
+
+    //! \brief Perform whatever action is necessary when a change
+    //!        notification is received.
     virtual void handleChange() override
     {
       debugMsg("LookupOnChange:handleChange", " called");
@@ -859,14 +958,18 @@ namespace PLEXIL
         publishChange();
     }
 
+    //! \brief Call a function on all subexpressions of this object.
+    //! \param oper A function of one argument, a pointer to Listenable,
+    //!             returning void.
     virtual void doSubexprs(ListenableUnaryOperator const &oper) override
     {
       LookupImpl::doSubexprs(oper);
       (oper)(m_tolerance);
     }
 
-    // Wrapper for base class method
-    // Sets m_thresholds and m_cachedValue to null if they are not already
+    //! \brief Invalidate the cached state value, by unregistering
+    //!       from the state cache, and resetting any internal state.
+    //! \note Wrapper for base class method.
     virtual void invalidateOldState() override
     {
       LookupImpl::invalidateOldState();
@@ -877,6 +980,7 @@ namespace PLEXIL
     }
 
   private:
+
     // Prohibit default constructor, copy, assign
     LookupOnChange() = delete;
     LookupOnChange(LookupOnChange const &) = delete;
@@ -887,13 +991,17 @@ namespace PLEXIL
     // Called at: (1) activation (2) subexpression change (3) value change
     // Returns true if event should trigger notification, false otherwise.
     // Updated state and cache entry should be valid if state is known.
+
+    //! \brief Update this LookupOnChange's internal state as appropriate.
+    //! \param valueChanged Whether the state cache value has changed.
     bool updateInternal(bool valueChanged)
     {
       debugMsg("LookupOnChange:update",
                ' ' << this->m_cachedState << ", valueChanged = " << valueChanged);
 
       if (m_thresholds) {
-        // Had the state changed, m_thresholds would have been deleted already.
+        // Had the state name or parameters changed, m_thresholds
+        // would have been deleted already.
         // Therefore state is unchanged.
         // m_cachedState, m_entry, and m_cachedValue are valid.
         if (m_tolerance->isKnown()) {
@@ -911,8 +1019,8 @@ namespace PLEXIL
             // TODO? Check that value hasn't changed type
             debugMsg("LookupOnChange:update",
                      ' ' << this->m_cachedState
-                     << " threshold exceeded, propagating new value and updating thresholds");
-            // Should be only place m_cachedValue is reassigned
+                     << " threshold exceeded, propagating new value "
+                     << val->toValue() << ", updating thresholds");
             *m_cachedValue = *val;
             m_thresholds->setThresholds(val, m_tolerance);
             m_entry->updateThresholds(m_cachedState);
@@ -956,14 +1064,8 @@ namespace PLEXIL
       return valueChanged;
     }
 
-    // Unique member data
-
-    // Presumes both lookup value and tolerance value are known.
-
   };
 
-
-  // Construct a Lookup expression.
   Expression *makeLookup(Expression *stateName,
                          bool stateNameIsGarbage,
                          ValueType declaredType,
@@ -972,7 +1074,6 @@ namespace PLEXIL
     return new LookupImpl(stateName, stateNameIsGarbage, declaredType, paramVec);
   }
 
-  // Construct a LookupOnChange expression.
   Expression *makeLookupOnChange(Expression *stateName,
                                  bool stateNameIsGarbage,
                                  ValueType declaredType,

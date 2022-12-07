@@ -1,1 +1,76 @@
-<?xml version="1.0" encoding="UTF-8"?><PlexilPlan FileName="input/sync-cmd-test.ple"><GlobalDeclarations ColNo="0" LineNo="1"><CommandDeclaration ColNo="0" LineNo="1"><Name>A</Name></CommandDeclaration><CommandDeclaration ColNo="0" LineNo="2"><Name>B</Name><Parameter><Type>Integer</Type></Parameter></CommandDeclaration><CommandDeclaration ColNo="8" LineNo="3"><Name>C</Name><Return><Name>_return_0</Name><Type>Integer</Type></Return></CommandDeclaration></GlobalDeclarations><Sequence ColNo="0" LineNo="5"><NodeId>root</NodeId><VariableDeclarations><DeclareVariable ColNo="2" LineNo="7"><Name>i</Name><Type>Integer</Type></DeclareVariable></VariableDeclarations><SynchronousCommand ColNo="2" LineNo="9"><NodeId>SynchronousCommand__0</NodeId><Command ColNo="21" LineNo="9"><Name><StringValue>A</StringValue></Name></Command></SynchronousCommand><SynchronousCommand ColNo="2" LineNo="10"><NodeId>SynchronousCommand__1</NodeId><Timeout><RealValue>2</RealValue></Timeout><Command ColNo="21" LineNo="10"><Name><StringValue>B</StringValue></Name><Arguments ColNo="23" LineNo="10"><IntegerValue>1</IntegerValue></Arguments></Command></SynchronousCommand><SynchronousCommand ColNo="2" LineNo="11"><NodeId>SynchronousCommand__2</NodeId><Command ColNo="21" LineNo="11"><IntegerVariable>i</IntegerVariable><Name><StringValue>C</StringValue></Name></Command></SynchronousCommand><SynchronousCommand ColNo="2" LineNo="12"><NodeId>SynchronousCommand__3</NodeId><Timeout><RealValue>2</RealValue></Timeout><Tolerance><RealValue>.1</RealValue></Tolerance><Command ColNo="21" LineNo="12"><IntegerVariable>i</IntegerVariable><Name><StringValue>C</StringValue></Name></Command></SynchronousCommand></Sequence></PlexilPlan>
+<?xml version="1.0" encoding="UTF-8"?>
+<PlexilPlan FileName="input/sync-cmd-test.ple">
+   <GlobalDeclarations ColNo="0" LineNo="1">
+      <CommandDeclaration ColNo="0" LineNo="1">
+         <Name>A</Name>
+      </CommandDeclaration>
+      <CommandDeclaration ColNo="0" LineNo="2">
+         <Name>B</Name>
+         <Parameter>
+            <Type>Integer</Type>
+         </Parameter>
+      </CommandDeclaration>
+      <CommandDeclaration ColNo="8" LineNo="3">
+         <Name>C</Name>
+         <Return>
+            <Name>_return_0</Name>
+            <Type>Integer</Type>
+         </Return>
+      </CommandDeclaration>
+   </GlobalDeclarations>
+   <Sequence ColNo="0" LineNo="5">
+      <NodeId>root</NodeId>
+      <VariableDeclarations>
+         <DeclareVariable ColNo="2" LineNo="7">
+            <Name>i</Name>
+            <Type>Integer</Type>
+         </DeclareVariable>
+      </VariableDeclarations>
+      <SynchronousCommand ColNo="2" LineNo="9">
+         <NodeId generated="1">SynchronousCommand__0</NodeId>
+         <Command ColNo="21" LineNo="9">
+            <Name>
+               <StringValue>A</StringValue>
+            </Name>
+         </Command>
+      </SynchronousCommand>
+      <SynchronousCommand ColNo="2" LineNo="10">
+         <NodeId generated="1">SynchronousCommand__2</NodeId>
+         <Timeout>
+            <RealValue>2</RealValue>
+         </Timeout>
+         <Command ColNo="21" LineNo="10">
+            <Name>
+               <StringValue>B</StringValue>
+            </Name>
+            <Arguments ColNo="23" LineNo="10">
+               <IntegerValue>1</IntegerValue>
+            </Arguments>
+         </Command>
+      </SynchronousCommand>
+      <SynchronousCommand ColNo="2" LineNo="11">
+         <NodeId generated="1">SynchronousCommand__4</NodeId>
+         <Command ColNo="21" LineNo="11">
+            <IntegerVariable>i</IntegerVariable>
+            <Name>
+               <StringValue>C</StringValue>
+            </Name>
+         </Command>
+      </SynchronousCommand>
+      <SynchronousCommand ColNo="2" LineNo="12">
+         <NodeId generated="1">SynchronousCommand__6</NodeId>
+         <Timeout>
+            <RealValue>2</RealValue>
+            <Tolerance>
+               <RealValue>.1</RealValue>
+            </Tolerance>
+         </Timeout>
+         <Command ColNo="21" LineNo="12">
+            <IntegerVariable>i</IntegerVariable>
+            <Name>
+               <StringValue>C</StringValue>
+            </Name>
+         </Command>
+      </SynchronousCommand>
+   </Sequence>
+</PlexilPlan>

@@ -1,4 +1,4 @@
-# Copyright (c) 2006-2018, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -29,17 +29,23 @@ lib_LTLIBRARIES = libPlexilValue.la
 
 libPlexilValue_la_CPPFLAGS = $(AM_CPPFLAGS) -I@top_srcdir@/utils
 
-include_HEADERS = Array.hh ArrayFwd.hh ArrayImpl.hh CommandHandle.hh \
- NodeConstants.hh PlexilTypeTraits.hh Value.hh ValueType.hh
+# Public APIs
+include_HEADERS = Array.hh ArrayImpl.hh CommandHandle.hh NodeConstants.hh \
+ Value.hh ValueType.hh
+
+# Implementation details which don't need to be publicly advertised
+noinst_HEADERS = PlexilTypeTraits.hh
 
 libPlexilValue_la_SOURCES = Array.cc ArrayImpl.cc CommandHandle.cc \
  NodeConstants.cc Value.cc ValueType.cc
 
+libPlexilValue_la_LIBADD = @top_builddir@/utils/libPlexilUtils.la
+
 if MODULE_TESTS_OPT
   bin_PROGRAMS = test/value-module-tests
-  noinst_HEADERS =
+  noinst_HEADERS +=
   test_value_module_tests_SOURCES = test/arrayTest.cc test/serializeTest.cc \
  test/valueTest.cc test/valueTypeTest.cc test/value-test-module.cc
   test_value_module_tests_CPPFLAGS = $(libPlexilValue_la_CPPFLAGS)
-  test_value_module_tests_LDADD = libPlexilValue.la @top_srcdir@/utils/libPlexilUtils.la
+  test_value_module_tests_LDADD = libPlexilValue.la $(libPlexilValue_la_LIBADD)
 endif
