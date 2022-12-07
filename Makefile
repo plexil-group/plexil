@@ -45,7 +45,7 @@ SUBMODULES := src/third-party/pugixml/src
 include makeinclude/standard-defs.make
 
 #
-# Locations for prerequisites
+# Locations for GNU autotools
 #
 
 # Have to do it this way because 'command' is a shell builtin; the

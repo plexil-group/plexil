@@ -1,6 +1,6 @@
-#! /usr/bin/env python3
+#! /usr/bin/env python
 
-# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2014, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -234,7 +234,7 @@ if valid_plexil_home:
     if os.path.exists(COMPLETE_DEBUG):
         os.remove(COMPLETE_DEBUG)
 
-    print("\nSearching for debug messages in .cc, .cpp, .hh and .h files...\n\n")
+    print "\nSearching for debug messages in .cc, .cpp, .hh and .h files...\n\n"
     
     locate_debug_msgs(FILE_TYPE="*.cc", PATTERN="debugMsg(")
     locate_debug_msgs(FILE_TYPE="*.cpp", PATTERN="debugMsg(")
@@ -260,9 +260,20 @@ if valid_plexil_home:
     sort_tags_alphabetically()
     remove_duplicate_flags()
     delete_temp_files()
-    print("Created a complete debug flag file:")
-    print(COMPLETE_DEBUG + "\n")
-    print("Created a debug flag definition file:")
-    print(DEBUG_DEFINITIONS + "\n")
+    print "Created a complete debug flag file:"
+    print COMPLETE_DEBUG + "\n"
+    print "Created a debug flag definition file:"
+    print DEBUG_DEFINITIONS + "\n"
 else:
-    print("\nFAIL: PLEXIL_HOME was not set and so could not search for debug messages")
+    print "\nFAIL: PLEXIL_HOME was not set and so could not search for debug messages"
+    
+
+
+ 
+
+
+
+
+    
+
+

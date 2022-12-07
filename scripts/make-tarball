@@ -99,7 +99,6 @@ export PLEXIL_HOME
 echo 'Installing autotools files and building configure script'
 make src/configure
 
-echo "Making XML parser expression map"
 # Prebuild expression parser core
 # NOTE: this command line must track what is in src/xml-parser/Makefile.am
 # and src/xml-parser/CMakeLists.txt

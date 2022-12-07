@@ -1,9 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<!DOCTYPE schema PUBLIC "-//W3C//DTD XMLSCHEMA 200102//EN" "http://www.w3.org/2001/XMLSchema.dtd" >
-
-<!--
-* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2013, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,43 +22,38 @@
 * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
--->
+*/
 
-<!-- Schema for Core PLEXIL as implemented by the Plexil Executive. -->
+#ifndef _H_sample_system
+#define _H_sample_system
 
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xml:lang="en">
-  <xs:include schemaLocation='plexil-base-v2.xsd' />
+// This is a very simple abstraction of a real system that a Plexil plan might
+// operate on.  It contains mutable state variables of varying types, and
+// several commands.
 
-  <!-- Names of commands and lookups -->
-  <xs:element name="Name">
-    <xs:complexType>
-      <xs:group ref="GeneralizedStringExpression"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
+float getSize ();
+void setSize (const float& s);
 
-  <xs:simpleType name="AtomicTypeValues">
-    <xs:restriction base="xs:NMTOKEN">
-      <xs:enumeration value="Integer"/>
-      <xs:enumeration value="Real"/>
-      <xs:enumeration value="Boolean"/>
-      <xs:enumeration value="String"/>
-    </xs:restriction>
-  </xs:simpleType>
+int getSpeed ();
+void setSpeed (const int& s);
 
-  <xs:simpleType name="ParameterTypeValues">
-    <xs:restriction base="xs:NMTOKEN">
-      <xs:enumeration value="Integer"/>
-      <xs:enumeration value="Real"/>
-      <xs:enumeration value="Boolean"/>
-      <xs:enumeration value="String"/>
-      <xs:enumeration value="Array"/>
-      <xs:enumeration value="IntegerArray"/>
-      <xs:enumeration value="RealArray"/>
-      <xs:enumeration value="BooleanArray"/>
-      <xs:enumeration value="StringArray"/>
-      <xs:enumeration value="Any"/>
-    </xs:restriction>
-  </xs:simpleType>
+std::string getColor ();
+void setColor (const std::string&);
 
-</xs:schema>
+// The overloaded 'at' functions support three variants of a
+// parameterized state called 'At'.
+//
+std::string at ();
+bool at (const std::string& location);
+bool at (int x, int y);
+
+// This command changes the 'at' state.
+void move (const std::string& location, int x, int y);
+
+// A trivial, obligatory example.
+void hello ();  
+
+// A command that is essentially a math function
+int square (int x);
+
+#endif

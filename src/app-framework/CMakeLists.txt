@@ -131,10 +131,6 @@ if(MODULE_TESTS AND WITH_THREADS)
     target_link_libraries(timebase-test rt)
   endif()
 
-  if(HAVE_LIBRT)
-    target_link_libraries(timebase-test rt)
-  endif()
-
   if(PlexilExec_EXE_INSTALL_RPATH)
     set_target_properties(timebase-test
       PROPERTIES INSTALL_RPATH ${PlexilExec_EXE_INSTALL_RPATH})

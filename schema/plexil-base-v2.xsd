@@ -30,47 +30,22 @@
 -->
 
 <!-- Common elements that are included in several PLEXIL schemas.
-
-NOTE: this is an incomplete schema, as it doesn't define the following elements
-and types, which differ between Safe PLEXIL, Core PLEXIL, and Extended PLEXIL:
-
- Action
- AtomicTypeValues
- BooleanExpression
- DeclaredVariable
- LookupGroup
- Name
- NumericExpression
- ParameterTypeValues
- Value
-
-It is used as an included schema only.
-
+NOTE: this is an incomplete schema, as it doesn't define the "Name"
+element.  It is used as an included schema only.
 -->
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
            xml:lang="en">
 
-  <!-- The epx attribute indicates an element which is a translation of an
-       Extended Plexil construct (i.e. macro).  Its value is the type
-       of this construct, a descriptive name identifying its role in
-       the expansion of an Extended Plexil construct, or 'aux'
-       indicating it is an auxiliary generated element.
-  -->
-  <xs:attribute name="epx">
-    <xs:simpleType>
-      <xs:restriction base="xs:NCName"/>
-    </xs:simpleType>
-  </xs:attribute>
-
-  <!-- Attributes identifying the origin of an element in a source
-       file or Extended PLEXIL macro. -->
+  <!-- Source locator attributes for many elements -->
+  <xs:attribute name="FileName" type="xs:string"/>
+  <xs:attribute name="LineNo" type="xs:integer"/>
+  <xs:attribute name="ColNo" type="xs:integer"/>
   <xs:attributeGroup name="SourceLocators">
-    <xs:attribute ref="epx"/>
-    <xs:attribute name="FileName" type="xs:string"/>
-    <xs:attribute name="LineNo" type="xs:integer"/>
-    <xs:attribute name="ColNo" type="xs:integer"/>
+    <xs:attribute ref="FileName"/>
+    <xs:attribute ref="LineNo"/>
+    <xs:attribute ref="ColNo"/>
   </xs:attributeGroup>
 
   <!-- This is the sole root element allowed! -->
@@ -89,8 +64,14 @@ It is used as an included schema only.
     </xs:complexType>
   </xs:element>
 
-  <!-- Node references -->
-  <xs:complexType name="NodeReferenceType">
+  <!-- This is overridden in Extended Plexil -->
+  <xs:group name="Action">
+    <xs:choice>
+      <xs:group ref="BasicNodes"/>
+    </xs:choice>
+  </xs:group>
+
+  <xs:complexType name="node-reference">
     <xs:choice>
       <xs:element ref="NodeId" />
       <xs:element ref="NodeRef" />
@@ -167,7 +148,6 @@ It is used as an included schema only.
   <xs:group name="ParameterSpec">
     <xs:sequence>
       <xs:element ref="Parameter" minOccurs="0" maxOccurs="unbounded" />
-      <!-- FIXME: Source locators? -->
       <xs:element name="AnyParameters" minOccurs="0" />
     </xs:sequence>
   </xs:group>
@@ -176,7 +156,7 @@ It is used as an included schema only.
     <xs:complexType>
       <xs:attribute name="Name" type="xs:NCName" use="optional" />
       <xs:attribute name="Type" type="ParameterTypeValues" use="required"/>
-	  <!-- MaxSize indicates an array value, Type is the element type -->
+	  <!-- MaxSize only valid if an array type -->
       <xs:attribute name="MaxSize" type="xs:nonNegativeInteger" use="optional" />
     </xs:complexType>
   </xs:element>
@@ -200,10 +180,6 @@ It is used as an included schema only.
     </xs:union>
   </xs:simpleType>
 
-  <!-- The basis for Node, and various Extended Plexil elements. -->
-
-  <!-- NodeBaseType is defined in the schemata which include this file. -->
-
   <xs:group name="BasicNodes">
     <xs:choice>
       <xs:element ref="EmptyNode" />
@@ -215,7 +191,7 @@ It is used as an included schema only.
     </xs:choice>
   </xs:group>
 
-  <xs:complexType name="NodeBaseType">
+  <xs:complexType name="node-base">
     <xs:sequence>
       <xs:element name="Comment" type="xs:string" minOccurs="0"/>
       <xs:group ref="Conditions" minOccurs="0" maxOccurs="8" />
@@ -225,17 +201,22 @@ It is used as an included schema only.
       <xs:group ref="VariableDeclaration" minOccurs="0" maxOccurs="unbounded" />
       <xs:element ref="UsingMutex" minOccurs="0"/>
     </xs:sequence>
-    <xs:attribute name="NodeId" type="xs:NMTOKEN" use="required" />
     <xs:attribute name="Priority" type="xs:nonNegativeInteger" use="optional"/>
+    <xs:attribute name="NodeId" type="xs:NMTOKEN" use="required" />
+    <!-- The epx attribute indicates a node that is a translation of an
+         Extended Plexil construct (i.e. macro).  Its value is the type of
+         this construct, or 'aux' indicating it is an auxilliary generated
+         node. -->
+    <xs:attribute name="epx" type="xs:NMTOKEN" use="optional" />
     <xs:attributeGroup ref="SourceLocators"/>
   </xs:complexType>
 
-  <xs:element name="EmptyNode" type="NodeBaseType" />
+  <xs:element name="EmptyNode" type="node-base" />
 
   <xs:element name="Assignment">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="NodeBaseType">
+        <xs:extension base="node-base">
           <xs:sequence>
             <xs:group ref="DeclaredVariable"/>
             <xs:group ref="Expression" />
@@ -248,7 +229,7 @@ It is used as an included schema only.
   <xs:element name="CommandNode">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="NodeBaseType">
+        <xs:extension base="node-base">
           <xs:sequence>
             <xs:element ref="Command" />
           </xs:sequence>
@@ -260,7 +241,7 @@ It is used as an included schema only.
   <xs:element name="UpdateNode">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="NodeBaseType">
+        <xs:extension base="node-base">
           <xs:sequence>
             <xs:element ref="Update" />
           </xs:sequence>
@@ -270,69 +251,60 @@ It is used as an included schema only.
   </xs:element>
 
   <!-- Used several places in Extended Plexil schema -->
-  <xs:complexType name="SequenceType">
+  <xs:complexType name="sequence-type">
     <xs:complexContent>
-      <xs:extension base="NodeBaseType">
+      <xs:extension base="node-base">
         <xs:sequence>
-          <xs:group ref="ActionGroup" minOccurs="0" maxOccurs="unbounded" />
+          <xs:group ref="Action" minOccurs="0" maxOccurs="unbounded" />
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
 
-  <xs:element name="ListNode" type="SequenceType" />
-
-  <!-- Annotations for static analysis -->
-  <xs:group name="Annotations">
-    <xs:all>
-      <xs:element ref="Assume" minOccurs="0"/>
-      <xs:element ref="Desire" minOccurs="0"/>
-      <xs:element ref="Expect" minOccurs="0"/>
-    </xs:all>
-  </xs:group>
+  <xs:element name="ListNode" type="sequence-type" />
 
   <xs:group name="Conditions">
-    <xs:all>
+    <xs:choice>
       <!-- Note that these are always evaluated in WAITING state,
            before the node's variables are bound -->
-      <xs:element ref="SkipCondition" minOccurs="0"/>
-      <xs:element ref="StartCondition" minOccurs="0"/>
-      <xs:element ref="PreCondition" minOccurs="0"/>
+      <xs:element ref="SkipCondition" />
+      <xs:element ref="StartCondition" />
+      <xs:element ref="PreCondition" />
 
       <!-- EndCondition is only evaluated in EXECUTING state -->
-      <xs:element ref="EndCondition" minOccurs="0"/>
+      <xs:element ref="EndCondition" />
 
       <!-- At present ExitCondition can be evaluated in
            WAITING, EXECUTING, FINISHING states
            This should be fixed!! -->
-      <xs:element ref="ExitCondition" minOccurs="0"/>
+      <xs:element ref="ExitCondition" />
 
       <!-- InvariantCondition can be evaluated in
            EXECUTING and FINISHING states -->
-      <xs:element ref="InvariantCondition" minOccurs="0"/>
+      <xs:element ref="InvariantCondition" />
 
       <!-- PostCondition is evaluated in EXECUTING or FINISHING states -->
-      <xs:element ref="PostCondition" minOccurs="0"/>
+      <xs:element ref="PostCondition" />
 
       <!-- RepeatCondition is evaluated only in ITERATION_ENDED state,
            after node variables are deactivated -->
-      <xs:element ref="RepeatCondition" minOccurs="0"/>
-    </xs:all>
+      <xs:element ref="RepeatCondition" />
+    </xs:choice>
   </xs:group>
 
-  <xs:complexType name="ConditionType">
+  <xs:complexType name="condition">
     <xs:group ref="GeneralizedBooleanExpression"/>
     <xs:attributeGroup ref="SourceLocators"/>
   </xs:complexType>
 
-  <xs:element name="EndCondition" type="ConditionType"/>
-  <xs:element name="ExitCondition" type="ConditionType"/>
-  <xs:element name="InvariantCondition" type="ConditionType"/>
-  <xs:element name="PostCondition" type="ConditionType"/>
-  <xs:element name="PreCondition" type="ConditionType"/>
-  <xs:element name="RepeatCondition" type="ConditionType"/>
-  <xs:element name="SkipCondition" type="ConditionType"/>
-  <xs:element name="StartCondition" type="ConditionType"/>
+  <xs:element name="EndCondition" type="condition" />
+  <xs:element name="ExitCondition" type="condition" />
+  <xs:element name="InvariantCondition" type="condition" />
+  <xs:element name="PostCondition" type="condition" />
+  <xs:element name="PreCondition" type="condition" />
+  <xs:element name="RepeatCondition" type="condition" />
+  <xs:element name="SkipCondition" type="condition" />
+  <xs:element name="StartCondition" type="condition" />
 
   <xs:group name="Interface">
     <xs:choice>
@@ -341,7 +313,7 @@ It is used as an included schema only.
     </xs:choice>
   </xs:group>
 
-  <xs:complexType name="InterfaceType">
+  <xs:complexType name="interface-spec">
     <xs:choice maxOccurs="unbounded">
       <xs:element ref="DeclareVariable"/>
       <xs:element ref="DeclareArray"/>
@@ -349,14 +321,14 @@ It is used as an included schema only.
     <xs:attributeGroup ref="SourceLocators"/>
   </xs:complexType>
 
-  <xs:element name="In" type="InterfaceType"/>
+  <xs:element name="In" type="interface-spec" />
 
-  <xs:element name="InOut" type="InterfaceType"/>
+  <xs:element name="InOut" type="interface-spec" />
 
   <xs:element name="UsingMutex">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="Mutex" type="VariableReferenceType" maxOccurs="unbounded"/>
+        <xs:element name="Mutex" type="variable-reference" maxOccurs="unbounded"/>
       </xs:sequence>
       <xs:attributeGroup ref="SourceLocators"/>
     </xs:complexType>
@@ -406,16 +378,16 @@ It is used as an included schema only.
     </xs:choice>
   </xs:group>
 
-  <xs:complexType name="VariableReferenceType">
-    <xs:attribute name="Name" type="xs:NCName" use="required"/>
-    <xs:attributeGroup ref="SourceLocators"/>
+  <xs:complexType name="variable-reference">
+    <xs:attribute name="Name" type="xs:NCName" use="required" />
+    <xs:attributeGroup ref="SourceLocators" />
   </xs:complexType>
 
-  <xs:element name="IntegerVariable" type="VariableReferenceType"/>
-  <xs:element name="RealVariable" type="VariableReferenceType"/>
-  <xs:element name="BooleanVariable" type="VariableReferenceType"/>
-  <xs:element name="StringVariable" type="VariableReferenceType"/>
-  <xs:element name="ArrayVariable" type="VariableReferenceType"/>
+  <xs:element name="IntegerVariable" type="variable-reference"/>
+  <xs:element name="RealVariable" type="variable-reference"/>
+  <xs:element name="BooleanVariable" type="variable-reference"/>
+  <xs:element name="StringVariable" type="variable-reference"/>
+  <xs:element name="ArrayVariable" type="variable-reference"/>
 
   <xs:element name="DeclareVariable">
     <xs:complexType>
@@ -505,7 +477,7 @@ It is used as an included schema only.
   <xs:element name="LibraryCall">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="NodeBaseType">
+        <xs:extension base="node-base">
           <xs:sequence>
             <xs:element name="Library" type="xs:NCName" />
             <xs:element ref="Alias" minOccurs="0" maxOccurs="unbounded"/>
@@ -527,25 +499,25 @@ It is used as an included schema only.
 
   <xs:element name="Integer">
     <xs:complexType>
-      <xs:attribute name="value" type="xs:integer"/>
+      <xs:attribute name="value" type="xs:integer" />
     </xs:complexType>
   </xs:element>
 
   <xs:element name="Real">
     <xs:complexType>
-      <xs:attribute name="value" type="xs:double"/>
+      <xs:attribute name="value" type="xs:double" />
     </xs:complexType>
   </xs:element>
 
   <xs:element name="Boolean">
     <xs:complexType>
-      <xs:attribute name="value" type="xs:boolean"/>
+      <xs:attribute name="value" type="xs:boolean" />
     </xs:complexType>
   </xs:element>
 
   <xs:element name="String">
     <xs:simpleType>
-      <xs:restriction base="xs:string"/>
+      <xs:restriction base="xs:string" />
     </xs:simpleType>
   </xs:element>
 
@@ -565,7 +537,7 @@ It is used as an included schema only.
   <xs:group name="GeneralizedArrayExpression">
     <xs:choice>
       <xs:group ref="ArrayExpression"/>
-      <xs:group ref="Lookup"/>
+      <xs:element ref="Lookup"/>
     </xs:choice>
   </xs:group>
 
@@ -575,6 +547,14 @@ It is used as an included schema only.
       <xs:element ref="ArrayVariable"/>
     </xs:choice>
   </xs:group>
+
+  <xs:complexType name="assignment">
+    <xs:sequence>
+      <xs:group ref="DeclaredVariable"/>
+      <xs:group ref="Expression" />
+    </xs:sequence>
+    <xs:attributeGroup ref="SourceLocators"/>
+  </xs:complexType>
 
   <xs:group name="GeneralizedBooleanExpression">
     <xs:choice>
@@ -733,7 +713,7 @@ It is used as an included schema only.
 
   <!-- Node references -->
 
-  <xs:element name="NodeCommandHandleVariable" type="NodeReferenceType" />
+  <xs:element name="NodeCommandHandleVariable" type="node-reference" />
 
   <xs:simpleType name="NodeCommandHandleValues">
     <xs:restriction base="xs:NMTOKEN">
@@ -766,7 +746,7 @@ It is used as an included schema only.
     </xs:choice>
   </xs:group>
 
-  <xs:element name="NodeStateVariable" type="NodeReferenceType" />
+  <xs:element name="NodeStateVariable" type="node-reference" />
 
   <xs:simpleType name="NodeStateValues">
     <xs:restriction base="xs:NMTOKEN">
@@ -799,12 +779,12 @@ It is used as an included schema only.
     </xs:choice>
   </xs:group>
 
-  <xs:element name="Executing" type="NodeReferenceType"/>
-  <xs:element name="Finished" type="NodeReferenceType"/>
-  <xs:element name="Inactive" type="NodeReferenceType"/>
-  <xs:element name="IterationEnded" type="NodeReferenceType"/>
-  <xs:element name="Waiting" type="NodeReferenceType"/>
-  <xs:element name="NoChildFailed" type="NodeReferenceType"/>
+  <xs:element name="Executing" type="node-reference"/>
+  <xs:element name="Finished" type="node-reference"/>
+  <xs:element name="Inactive" type="node-reference"/>
+  <xs:element name="IterationEnded" type="node-reference"/>
+  <xs:element name="Waiting" type="node-reference"/>
+  <xs:element name="NoChildFailed" type="node-reference"/>
 
   <xs:group name="NodeOutcome">
     <xs:choice>
@@ -813,7 +793,7 @@ It is used as an included schema only.
     </xs:choice>
   </xs:group>
 
-  <xs:element name="NodeOutcomeVariable" type="NodeReferenceType" />
+  <xs:element name="NodeOutcomeVariable" type="node-reference" />
 
   <xs:simpleType name="NodeOutcomeValues">
     <xs:restriction base="xs:NMTOKEN">
@@ -841,9 +821,9 @@ It is used as an included schema only.
     </xs:choice>
   </xs:group>
 
-  <xs:element name="Failed" type="NodeReferenceType"/>
-  <xs:element name="Skipped" type="NodeReferenceType"/>
-  <xs:element name="Succeeded" type="NodeReferenceType"/>
+  <xs:element name="Failed" type="node-reference"/>
+  <xs:element name="Skipped" type="node-reference"/>
+  <xs:element name="Succeeded" type="node-reference"/>
 
   <xs:group name="NodeFailure">
     <xs:choice>
@@ -852,7 +832,7 @@ It is used as an included schema only.
     </xs:choice>
   </xs:group>
 
-  <xs:element name="NodeFailureVariable" type="NodeReferenceType" />
+  <xs:element name="NodeFailureVariable" type="node-reference" />
 
   <xs:simpleType name="NodeFailureValues">
     <xs:restriction base="xs:NMTOKEN">
@@ -880,12 +860,12 @@ It is used as an included schema only.
     </xs:choice>
   </xs:group>
 
-  <xs:element name="PostconditionFailed" type="NodeReferenceType"/>
+  <xs:element name="PostconditionFailed" type="node-reference"/>
 
   <xs:element name="NodeTimepoint">
     <xs:complexType>
       <xs:complexContent>
-        <xs:extension base="NodeReferenceType">
+        <xs:extension base="node-reference">
           <xs:attribute name="NodeState" use="required" type="NodeStateValues" />
           <xs:attribute name="Timepoint" use="required">
             <xs:simpleType>

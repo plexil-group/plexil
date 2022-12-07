@@ -1,9 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<!DOCTYPE schema PUBLIC "-//W3C//DTD XMLSCHEMA 200102//EN" "http://www.w3.org/2001/XMLSchema.dtd" >
-
-<!--
-* Copyright (c) 2006-2016, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,43 +22,45 @@
 * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
--->
+*/
 
-<!-- Schema for Core PLEXIL as implemented by the Plexil Executive. -->
+#include "Subscriber.hh"
 
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xml:lang="en">
-  <xs:include schemaLocation='plexil-base-v2.xsd' />
+// The checkpoint adapter to publish to
+static CheckpointAdapter *instance = 0;
 
-  <!-- Names of commands and lookups -->
-  <xs:element name="Name">
-    <xs:complexType>
-      <xs:group ref="GeneralizedStringExpression"/>
-      <xs:attributeGroup ref="SourceLocators"/>
-    </xs:complexType>
-  </xs:element>
+void setSubscriber(CheckpointAdapter *i) {
+  instance = i;
+}
 
-  <xs:simpleType name="AtomicTypeValues">
-    <xs:restriction base="xs:NMTOKEN">
-      <xs:enumeration value="Integer"/>
-      <xs:enumeration value="Real"/>
-      <xs:enumeration value="Boolean"/>
-      <xs:enumeration value="String"/>
-    </xs:restriction>
-  </xs:simpleType>
+// The overloaded publish function, one for each number of Values found in this application
 
-  <xs:simpleType name="ParameterTypeValues">
-    <xs:restriction base="xs:NMTOKEN">
-      <xs:enumeration value="Integer"/>
-      <xs:enumeration value="Real"/>
-      <xs:enumeration value="Boolean"/>
-      <xs:enumeration value="String"/>
-      <xs:enumeration value="Array"/>
-      <xs:enumeration value="IntegerArray"/>
-      <xs:enumeration value="RealArray"/>
-      <xs:enumeration value="BooleanArray"/>
-      <xs:enumeration value="StringArray"/>
-      <xs:enumeration value="Any"/>
-    </xs:restriction>
-  </xs:simpleType>
+void publish (const std::string& state_name,
+	      const PLEXIL::Value& val){
+  
+  instance->receiveValue(state_name,val);
+}
 
-</xs:schema>
+
+void publish (const std::string& state_name,
+	      const PLEXIL::Value& val,
+	      const PLEXIL::Value& arg){
+  
+  instance->receiveValue(state_name,val,arg);
+}
+
+void publish (const std::string& state_name,
+	      const PLEXIL::Value& val,
+	      const PLEXIL::Value& arg1,
+	      const PLEXIL::Value& arg2){
+  
+  instance->receiveValue(state_name,val,arg1,arg2);
+}
+
+void publishCommandReceived (PLEXIL::Command* cmd){
+  instance->receiveCommandReceived(cmd);
+}
+
+void publishCommandSuccess (PLEXIL::Command* cmd){
+  instance->receiveCommandSuccess(cmd);
+}
