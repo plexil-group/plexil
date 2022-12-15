@@ -138,8 +138,10 @@ make src/configure
 
 2. Change into the 'src' directory and configure the build:
 
-    cd src
-    ./configure --prefix="/where/to/install" ... options ...
+```
+cd src
+./configure --prefix="/where/to/install" ... options ...
+```
 
 The example below includes all the optional PLEXIL components as
 built in the previous section, with binaries and libraries installed
