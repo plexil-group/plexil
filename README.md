@@ -1,8 +1,8 @@
 This is the top level directory of the PLEXIL distribution.
 
-See http://plexil.sourceforge.net/ for information about this
-software, including its user manuals.  There is more information in
-the README files found in the subdirectories.
+See https://plexil-group.github.io/plexil_docs/ for information about
+this software, including its user manuals.  There is more information
+in the README files found in the subdirectories.
 
 The Versions file describes previous releases of Plexil, as well as
 the latest features not yet released in a binary distribution.
@@ -18,7 +18,7 @@ and macOS.  It should build and run on other Unix-like environments
 (e.g. Microsoft Windows Subsystem for Linux, BSD family) without much
 effort.
 
--- This version of PLEXIL requires a C++11 compliant compiler --
+**This version of PLEXIL requires a C++11 compliant compiler**
 
 This release depends on the feature set introduced in the C++11
 language standard.
@@ -26,13 +26,13 @@ language standard.
 Building the PLEXIL tool suite from source requires the following
 software:
 
- * POSIX-compliant shell (e.g. GNU bash, dash, zsh, etc.)
- * GNU Make and autotools (autoconf, automake, libtool, m4) or
- * CMake
- * GNU gperf
- * gcc/g++, clang/clang++, or other C99 and C++11 compliant compilers
- * Java 8 or newer JDK (e.g. openjdk-11-jdk)
- * Apache ant, including the antlr module
+* POSIX-compliant shell (e.g. GNU bash, dash, zsh, etc.)
+* GNU Make and autotools (autoconf, automake, libtool, m4) or
+* CMake
+* GNU gperf
+* gcc/g++, clang/clang++, or other C99 and C++11 compliant compilers
+* Java 8 or newer JDK (e.g. openjdk-11-jdk)
+* Apache ant, including the antlr module
 
 If you downloaded a tarball, the GNU autotools and gperf are not
 needed.
@@ -49,11 +49,11 @@ To build the PLEXIL distribution:
 1. To build everything, including the robosim and sample-app examples,
    change to this top level directory and type:
 
-  make everything
+    `make everything`
 
 2. If you do not wish to build the examples:
 
-  make tools
+    `make tools`
 
 
 How to run PLEXIL - Simple version
@@ -62,33 +62,35 @@ How to run PLEXIL - Simple version
 1. Add the following lines to your shell init file (e.g. ~/.bashrc).
    Set PLEXIL_HOME to the directory containing this README file.
 
-  export PLEXIL_HOME='/where/i/cloned/plexil'
-  . "$PLEXIL_HOME/scripts/plexil-setup.sh"
+    ```export PLEXIL_HOME='/where/i/cloned/plexil'
+      . "$PLEXIL_HOME/scripts/plexil-setup.sh"```
 
 2. Source the init file you just edited:
 
-  . ~/.bashrc
+    `. ~/.bashrc`
 
 3. The 'plexilc' script compiles a PLEXIL plan or a Plexilscript
    simulation script to its XML representation:
 
-  plexilc my-plan.ple
+    `plexilc my-plan.ple`
+
    produces the Core Plexil file my-plan.plx
 
-  plexilc my-script.pst
+    `plexilc my-script.pst`
+
    produces the Plexilscript file my-script.psx
 
-4. The 'plexiltest' script runs the Test Executive on a plan and a
+4. The `plexiltest` script runs the Test Executive on a plan and a
    Plexilscript.  This is the easiest way to get started learning the
    PLEXIL language.
 
-  plexiltest -p my-plan.plx -s my-script.psx
+    `plexiltest -p my-plan.plx -s my-script.psx`
 
-5. The 'plexilexec' script runs the Universal Executive on a plan and
+5. The `plexilexec` script runs the Universal Executive on a plan and
    requires an interface configuration file. See the Sourceforge
    documentation for more information.
 
-  plexilexec -c interface-config.xml -p my-plan.plx
+    `plexilexec -c interface-config.xml -p my-plan.plx`
 
 6. The 'examples' directory contains a number of examples, and is a
    good place to start exploring.
@@ -97,14 +99,17 @@ How to run PLEXIL - Simple version
 Problem solving
 ---------------
 
-If you have just updated your git clone from a previous build, you may
-need to precede the 'make all' with either of:
+* If you have just updated your git clone from a previous build, you may
+  need to precede the 'make all' with either:
 
- make clean
- make distclean
+    `make clean`
 
-The latter is sometimes needed when make or autotools files have
-changed.
+  or:
+
+    `make distclean`
+
+  The latter is sometimes needed when make or autotools files have
+  changed.
 
 
 How to build PLEXIL Executive - Custom configuration with autotools
@@ -112,35 +117,35 @@ How to build PLEXIL Executive - Custom configuration with autotools
 
 1. Create the script 'src/configure':
 
-  cd "$PLEXIL_HOME"
-  make src/configure
+    ```cd "$PLEXIL_HOME"
+      make src/configure```
 
   (This will have been done already if you downloaded a release tarball.)
 
 2. Change into the 'src' directory and configure the build:
 
-  cd src
-  ./configure --prefix="/where/to/install" ... options ...
+    ```cd src
+      ./configure --prefix="/where/to/install" ... options ...```
 
   The example below includes all the optional PLEXIL components as
   built in the previous section, with binaries and libraries installed
   in the PLEXIL installation directory.  You can omit or change
   options as desired.
 
-  ./configure --prefix="$PLEXIL_HOME" --disable-static --enable-ipc \
-   --enable-sas --enable-test-exec --enable-udp
+    ```./configure --prefix="$PLEXIL_HOME" --disable-static --enable-ipc \
+       --enable-sas --enable-test-exec --enable-udp```
 
   For a complete list of options, type:
 
-  ./configure --help
+    `./configure --help`
 
   Please see the CAVEATS file in this directory for advice on options
-  to 'configure'.
+  to `configure`.
 
 3. Change back to the top level directory and build the system:
 
-  cd ..
-  make
+   ```cd ..
+     make```
 
 
 Using CMake
@@ -154,26 +159,26 @@ not recommended.
 
 1. Create a build directory and change into it.
 
-  mkdir plexil-build
-  cd plexil-build
+    ```mkdir plexil-build
+       cd plexil-build```
 
 2. Configure the build using CMake.
 
-  cmake "path/to/plexil/src" -DCMAKE_INSTALL_PREFIX="/install/here" ... options ...
+  `cmake "path/to/plexil/src" -DCMAKE_INSTALL_PREFIX="/install/here" ... options ...`
 
   The example below includes all the optional PLEXIL components as built
   in the previous section, with binaries and libraries installed in the
   PLEXIL installation directory.  You can omit or change options as
   desired.
 
-  cmake path/to/plexil/src -DCMAKE_INSTALL_PREFIX="$PLEXIL_HOME" \
-    -DSTANDALONE_SIMULATOR=ON -DTEST_EXEC=ON -DUDP_ADAPTER=ON
+   ```cmake path/to/plexil/src -DCMAKE_INSTALL_PREFIX="$PLEXIL_HOME" \
+      -DSTANDALONE_SIMULATOR=ON -DTEST_EXEC=ON -DUDP_ADAPTER=ON```
 
   Please see the CAVEATS file in this directory for advice on CMake options.
 
 4. Build and install the system:
 
-  make install
+    `make install`
 
 
 Cross-compiling the PLEXIL Executive
@@ -182,11 +187,11 @@ Cross-compiling the PLEXIL Executive
 Cross-compilation of the PLEXIL Executive as a component of other
 projects is straightforward, using either the GNU autotools or CMake.
 
-The file $PLEXIL_HOME/src/build-for-buildroot.sh is an example of
-cross-compiling the PLEXIL Executive for use with the 'buildroot'
+The file `$PLEXIL_HOME/src/build-for-buildroot.sh` is an example of
+cross-compiling the PLEXIL Executive for use with the `buildroot`
 embedded Linux tool suite on an ARM processor.  This example uses the
 GNU autotools.
 
 Similarly, by supplying an appropriate toolchain file with the
-'-DCMAKE_TOOLCHAIN_FILE' option, CMake can build the PLEXIL Executive
+`-DCMAKE_TOOLCHAIN_FILE` option, CMake can build the PLEXIL Executive
 for targets other than the host system.
