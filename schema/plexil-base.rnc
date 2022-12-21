@@ -233,9 +233,6 @@ Resource =
     (element ResourceName {
        GeneralizedStringExpression, SourceLocators
      }
-     & element ResourcePriority {
-         GeneralizedNumericExpression, SourceLocators
-       }?
      & element ResourceUpperBound {
          GeneralizedNumericExpression, SourceLocators
        }?
