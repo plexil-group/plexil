@@ -1,9 +1,10 @@
 Integer Command c1;
 
+// missing Priority
 Root: {
   Integer returnValue = -1;
   EndCondition returnValue == 10;
-  Resource Name = "arm"; // missing Priority
-  Resource Name = "leg", Priority = 20, Priority = 30; // duplicate Priority
+  Resource Name = "arm";
+  Resource Name = "leg", UpperBound = 20, UpperBound = 30; // duplicate UpperBound
   returnValue = c1();
 }
