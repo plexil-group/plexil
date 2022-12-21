@@ -23,6 +23,7 @@
                    LineNo="104"
                    ColNo="1">
                <NodeId>A</NodeId>
+               <Priority>3</Priority>
                <VariableDeclarations>
                   <DeclareArray>
                      <Name>ep2cp_SynchronousCommand_temp</Name>
@@ -34,6 +35,7 @@
                   <NodeList>
                      <Node NodeType="Command" epx="SynchronousCommandCommand">
                         <NodeId>ep2cp_SynchronousCommand_cmd</NodeId>
+                        <Priority>3</Priority>
                         <EndCondition>
                            <EQInternal>
                               <NodeCommandHandleVariable>
@@ -49,9 +51,6 @@
                                     <ResourceName>
                                        <StringValue>arm</StringValue>
                                     </ResourceName>
-                                    <ResourcePriority>
-                                       <IntegerValue>3</IntegerValue>
-                                    </ResourcePriority>
                                  </Resource>
                               </ResourceList>
                               <ArrayVariable>ep2cp_SynchronousCommand_temp</ArrayVariable>
