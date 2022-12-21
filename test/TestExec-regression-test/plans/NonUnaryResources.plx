@@ -25,6 +25,7 @@
     <NodeBody>
       <NodeList>
         <Node NodeType="Command">
+          <Priority>20</Priority>
           <VariableDeclarations>
             <DeclareVariable>
               <Name>returnValue</Name>
@@ -59,17 +60,11 @@
                   <ResourceUpperBound>
                     <RealValue>0.5</RealValue>
                   </ResourceUpperBound>
-                  <ResourcePriority>
-                    <IntegerValue>20</IntegerValue>
-                  </ResourcePriority>
                 </Resource>
                 <Resource>
                   <ResourceName>
                     <StringValue>&quot;arm&quot;</StringValue>
                   </ResourceName>
-                  <ResourcePriority>
-                    <IntegerValue>20</IntegerValue>
-                  </ResourcePriority>
                 </Resource>
               </ResourceList>
               <IntegerVariable>returnValue</IntegerVariable>
@@ -78,14 +73,8 @@
           </NodeBody>
         </Node>
         <Node NodeType="Command">
+          <Priority>30</Priority>
           <VariableDeclarations>
-            <DeclareVariable>
-              <Name>mem_priority</Name>
-              <Type>Integer</Type>
-              <InitialValue>
-                <IntegerValue>30</IntegerValue>
-              </InitialValue>
-            </DeclareVariable>
             <DeclareVariable>
               <Name>returnValue</Name>
               <Type>Integer</Type>
@@ -127,9 +116,6 @@
                   <ResourceUpperBound>
                     <RealValue>0.3</RealValue>
                   </ResourceUpperBound>
-                  <ResourcePriority>
-                    <IntegerVariable>mem_priority</IntegerVariable>
-                  </ResourcePriority>
                 </Resource>
               </ResourceList>
               <IntegerVariable>returnValue</IntegerVariable>
@@ -138,14 +124,8 @@
           </NodeBody>
         </Node>
         <Node NodeType="Command">
+          <Priority>10</Priority>
           <VariableDeclarations>
-            <DeclareVariable>
-              <Name>vision_priority</Name>
-              <Type>Integer</Type>
-              <InitialValue>
-                <IntegerValue>10</IntegerValue>
-              </InitialValue>
-            </DeclareVariable>
             <DeclareVariable>
               <Name>returnValue</Name>
               <Type>Integer</Type>
@@ -176,9 +156,6 @@
                   <ResourceName>
                     <StringValue>&quot;vision_system&quot;</StringValue>
                   </ResourceName>
-                  <ResourcePriority>
-                    <IntegerVariable>vision_priority</IntegerVariable>
-                  </ResourcePriority>
                 </Resource>
               </ResourceList>
               <IntegerVariable>returnValue</IntegerVariable>

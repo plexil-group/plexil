@@ -23,6 +23,7 @@
       <NodeList>
         <Node NodeType="Command">
           <NodeId>PickupObject</NodeId>
+          <Priority>20</Priority>
           <EndCondition>
             <EQNumeric>
               <IntegerValue>10</IntegerValue>
@@ -45,13 +46,6 @@
                 <IntegerValue>-1</IntegerValue>
               </InitialValue>
             </DeclareVariable>
-            <DeclareVariable>
-              <Name>priority20</Name>
-              <Type>Integer</Type>
-              <InitialValue>
-                <IntegerValue>20</IntegerValue>
-              </InitialValue>
-            </DeclareVariable>
           </VariableDeclarations>
           <NodeBody>
             <Command>
@@ -60,17 +54,11 @@
                   <ResourceName>
                     <StringValue>right_arm</StringValue>
                   </ResourceName>
-                  <ResourcePriority>
-                    <IntegerVariable>priority20</IntegerVariable>
-                  </ResourcePriority>
                 </Resource>
                 <Resource>
                   <ResourceName>
                     <StringValue>sys_memory</StringValue>
                   </ResourceName>
-                  <ResourcePriority>
-                    <IntegerVariable>priority20</IntegerVariable>
-                  </ResourcePriority>
                   <ResourceUpperBound>
                     <RealValue>1.0</RealValue>
                   </ResourceUpperBound>
@@ -86,15 +74,7 @@
         </Node>
         <Node NodeType="Command">
           <NodeId>ProcessImage</NodeId>
-          <VariableDeclarations>
-            <DeclareVariable>
-              <Name>mem_priority2</Name>
-              <Type>Integer</Type>
-              <InitialValue>
-                <IntegerValue>20</IntegerValue>
-              </InitialValue>
-            </DeclareVariable>
-          </VariableDeclarations>
+          <Priority>20</Priority>
           <PostCondition>
             <EQInternal>
               <NodeCommandHandleVariable>
@@ -110,9 +90,6 @@
                   <ResourceName>
                     <StringValue>sys_memory</StringValue>
                   </ResourceName>
-                  <ResourcePriority>
-                    <IntegerVariable>mem_priority2</IntegerVariable>
-                  </ResourcePriority>
                   <ResourceUpperBound>
                     <RealValue>1.0</RealValue>
                   </ResourceUpperBound>

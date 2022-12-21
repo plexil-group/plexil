@@ -30,6 +30,7 @@
       <NodeList>
         <Node NodeType="Command">
           <NodeId>C1</NodeId>
+          <Priority>20</Priority>
           <EndCondition>
             <EQNumeric>
               <IntegerValue>10</IntegerValue>
@@ -52,13 +53,6 @@
                 <IntegerValue>-1</IntegerValue>
               </InitialValue>
             </DeclareVariable>
-            <DeclareVariable>
-              <Name>mem_priority</Name>
-              <Type>Integer</Type>
-              <InitialValue>
-                <IntegerValue>20</IntegerValue>
-              </InitialValue>
-            </DeclareVariable>
           </VariableDeclarations>
           <NodeBody>
             <Command>
@@ -67,9 +61,6 @@
                   <ResourceName>
                     <StringValue>sys_memory</StringValue>
                   </ResourceName>
-                  <ResourcePriority>
-                    <IntegerVariable>mem_priority</IntegerVariable>
-                  </ResourcePriority>
                   <ResourceUpperBound>
                     <RealValue>1.0</RealValue>
                   </ResourceUpperBound>
@@ -85,15 +76,7 @@
         </Node>
         <Node NodeType="Command">
           <NodeId>C2</NodeId>
-          <VariableDeclarations>
-            <DeclareVariable>
-              <Name>v_priority2</Name>
-              <Type>Integer</Type>
-              <InitialValue>
-                <IntegerValue>15</IntegerValue>
-              </InitialValue>
-            </DeclareVariable>
-          </VariableDeclarations>
+          <Priority>15</Priority>
           <RepeatCondition>
             <EQInternal>
               <NodeCommandHandleVariable>
@@ -117,9 +100,6 @@
                   <ResourceName>
                     <StringValue>vision_system</StringValue>
                   </ResourceName>
-                  <ResourcePriority>
-                    <IntegerVariable>v_priority2</IntegerVariable>
-                  </ResourcePriority>
                 </Resource>
               </ResourceList>
               <Name><StringValue>c2</StringValue></Name>
@@ -128,6 +108,7 @@
         </Node>
         <Node NodeType="Command">
           <NodeId>C3</NodeId>
+          <Priority>10</Priority>
           <PostCondition>
             <EQInternal>
               <NodeCommandHandleVariable>
@@ -136,15 +117,6 @@
               <NodeCommandHandleValue>COMMAND_SENT_TO_SYSTEM</NodeCommandHandleValue>
             </EQInternal>
           </PostCondition>
-          <VariableDeclarations>
-            <DeclareVariable>
-              <Name>v_priority</Name>
-              <Type>Integer</Type>
-              <InitialValue>
-                <IntegerValue>10</IntegerValue>
-              </InitialValue>
-            </DeclareVariable>
-          </VariableDeclarations>
           <NodeBody>
             <Command>
               <ResourceList>
@@ -152,17 +124,11 @@
                   <ResourceName>
                     <StringValue>vision_system</StringValue>
                   </ResourceName>
-                  <ResourcePriority>
-                    <IntegerVariable>v_priority</IntegerVariable>
-                  </ResourcePriority>
                 </Resource>
                 <Resource>
                   <ResourceName>
                     <StringValue>right_arm</StringValue>
                   </ResourceName>
-                  <ResourcePriority>
-                    <IntegerVariable>v_priority</IntegerVariable>
-                  </ResourcePriority>
                 </Resource>
               </ResourceList>
               <Name><StringValue>c3</StringValue></Name>

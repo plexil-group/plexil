@@ -36,6 +36,7 @@
       <NodeList>
         <Node NodeType="Command">
           <NodeId>C1</NodeId>
+          <Priority>20</Priority>
           <EndCondition>
             <EQNumeric>
               <IntegerValue>10</IntegerValue>
@@ -58,13 +59,6 @@
                 <IntegerValue>-1</IntegerValue>
               </InitialValue>
             </DeclareVariable>
-            <DeclareVariable>
-              <Name>head_priority</Name>
-              <Type>Integer</Type>
-              <InitialValue>
-                <IntegerValue>20</IntegerValue>
-              </InitialValue>
-            </DeclareVariable>
           </VariableDeclarations>
           <NodeBody>
             <Command>
@@ -73,9 +67,6 @@
                   <ResourceName>
                     <StringValue>head</StringValue>
                   </ResourceName>
-                  <ResourcePriority>
-                    <IntegerVariable>head_priority</IntegerVariable>
-                  </ResourcePriority>
                   <ResourceReleaseAtTermination>
                     <BooleanValue>false</BooleanValue>
                   </ResourceReleaseAtTermination>
@@ -91,15 +82,7 @@
         </Node>
         <Node NodeType="Command">
           <NodeId>C2</NodeId>
-          <VariableDeclarations>
-            <DeclareVariable>
-              <Name>v_priority2</Name>
-              <Type>Integer</Type>
-              <InitialValue>
-                <IntegerValue>25</IntegerValue>
-              </InitialValue>
-            </DeclareVariable>
-          </VariableDeclarations>
+          <Priority>25</Priority>
           <StartCondition>
             <EQInternal>
               <NodeOutcomeVariable>
@@ -123,9 +106,6 @@
                   <ResourceName>
                     <StringValue>memory</StringValue>
                   </ResourceName>
-                  <ResourcePriority>
-                    <IntegerVariable>v_priority2</IntegerVariable>
-                  </ResourcePriority>
                   <ResourceUpperBound>
                     <RealValue>0.7</RealValue>
                   </ResourceUpperBound>
@@ -137,6 +117,7 @@
         </Node>
         <Node NodeType="Command">
           <NodeId>C3</NodeId>
+          <Priority>30</Priority>
           <StartCondition>
             <EQInternal>
               <NodeOutcomeVariable>
@@ -153,15 +134,6 @@
               <NodeCommandHandleValue>COMMAND_SENT_TO_SYSTEM</NodeCommandHandleValue>
             </EQInternal>
           </PostCondition>
-          <VariableDeclarations>
-            <DeclareVariable>
-              <Name>mem_priority2</Name>
-              <Type>Integer</Type>
-              <InitialValue>
-                <IntegerValue>30</IntegerValue>
-              </InitialValue>
-            </DeclareVariable>
-          </VariableDeclarations>
           <NodeBody>
             <Command>
               <ResourceList>
@@ -169,9 +141,6 @@
                   <ResourceName>
                     <StringValue>memory</StringValue>
                   </ResourceName>
-                  <ResourcePriority>
-                    <IntegerVariable>mem_priority2</IntegerVariable>
-                  </ResourcePriority>
                   <ResourceUpperBound>
                     <RealValue>-0.1</RealValue>
                   </ResourceUpperBound>
@@ -186,6 +155,7 @@
         </Node>
         <Node NodeType="Command">
           <NodeId>C4</NodeId>
+          <Priority>30</Priority>
           <PostCondition>
             <EQInternal>
               <NodeCommandHandleVariable>
@@ -194,15 +164,6 @@
               <NodeCommandHandleValue>COMMAND_SENT_TO_SYSTEM</NodeCommandHandleValue>
             </EQInternal>
           </PostCondition>
-          <VariableDeclarations>
-            <DeclareVariable>
-              <Name>mem_priority2</Name>
-              <Type>Integer</Type>
-              <InitialValue>
-                <IntegerValue>30</IntegerValue>
-              </InitialValue>
-            </DeclareVariable>
-          </VariableDeclarations>
           <NodeBody>
             <Command>
               <ResourceList>
@@ -210,9 +171,6 @@
                   <ResourceName>
                     <StringValue>memory</StringValue>
                   </ResourceName>
-                  <ResourcePriority>
-                    <IntegerVariable>mem_priority2</IntegerVariable>
-                  </ResourcePriority>
                   <ResourceUpperBound>
                     <RealValue>-0.1</RealValue>
                   </ResourceUpperBound>
