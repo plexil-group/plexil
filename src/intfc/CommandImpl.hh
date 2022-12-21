@@ -52,7 +52,7 @@ namespace PLEXIL
     double upperBound;
 
     //! \brief The priority of the resource.
-    //! \deprecated Resource priority will be removed in a future PLEXIL release.
+    //! \deprecated Resource priority will be replaced by Node priority in a future PLEXIL release.
     int32_t priority;
 
     //! \brief Whether the resource is returned when the command has
@@ -102,13 +102,6 @@ namespace PLEXIL
     //!        the ResourceSpec.
     void setNameExpression(Expression *e, bool isGarbage);
 
-    //! \brief Set the priority expression.
-    //! \param e Pointer to the Expression.
-    //! \param isGarbage If true, the expression will be deleted with
-    //!        the ResourceSpec.
-    //! \deprecated Resource priority will be removed in a future PLEXIL release.
-    void setPriorityExpression(Expression *e, bool isGarbage);
-
     //! \brief Set the resource upper bound expression.
     //! \param e Pointer to the Expression.
     //! \param isGarbage If true, the expression will be deleted with
@@ -123,10 +116,6 @@ namespace PLEXIL
 
     //! \brief The expression giving the resource name.
     Expression *nameExp;
-
-    //! \brief The expression giving the resource priority.
-    //! \deprecated Resource priority will be removed in a future PLEXIL release.
-    Expression *priorityExp;
 
     //! \brief The expression giving the resource upper bound.
     Expression *upperBoundExp;
@@ -146,7 +135,6 @@ namespace PLEXIL
     //!        expression; if false, the expression is owned by another
     //!        object.
     bool nameIsGarbage;
-    bool priorityIsGarbage;
     bool upperBoundIsGarbage;
     bool releaseIsGarbage;
     ///@}
@@ -166,7 +154,8 @@ namespace PLEXIL
     //! \brief Constructor.
     //! \param nodeName The name of the CommandNode which owns this
     //!        command.
-    CommandImpl(std::string const &nodeName);
+    //! \param nodePriority The CommandNode's Priority value.
+    CommandImpl(std::string const &nodeName, int32_t nodePriority);
 
     //! \brief Virtual destructor.
     virtual ~CommandImpl();
@@ -349,7 +338,7 @@ namespace PLEXIL
     //! \brief Evaluate the command parameter values and set them.
     void fixCommandArgs();
 
-    //! \brief Evaluate the command's resource values.
+    //! \brief Evaluate the command's resource values and set them.
     void fixResourceValues();
 
     //
@@ -392,6 +381,9 @@ namespace PLEXIL
     //! \brief Pointer to the vector of ResourceSpec instances.  May
     //!        be null.
     std::unique_ptr<ResourceSpecList> m_resourceList;
+
+    //! \brief The Priority of the CommandNode.  Used in resource arbitration.
+    int32_t m_priority;
 
     //! \brief The current command handle value.  Referenced by m_ack.
     CommandHandleValue m_commandHandle;

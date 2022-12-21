@@ -103,7 +103,7 @@ namespace PLEXIL
                            NodeState state,
                            NodeImpl *parent)
     : NodeImpl(type, name, state, parent),
-      m_command(new CommandImpl(name))
+      m_command(new CommandImpl(name, WORST_PRIORITY))
   {
     initDummyCommand();
 

@@ -46,12 +46,6 @@ namespace PLEXIL
     nameIsGarbage = isGarbage;
   }
 
-  void ResourceSpec::setPriorityExpression(Expression *exp, bool isGarbage)
-  {
-    priorityExp = exp;
-    priorityIsGarbage = isGarbage;
-  }
-
   void ResourceSpec::setUpperBoundExpression(Expression *exp, bool isGarbage)
   {
     upperBoundExp = exp;
@@ -71,11 +65,6 @@ namespace PLEXIL
     nameIsGarbage = false;
     nameExp = nullptr;
 
-    if (priorityIsGarbage)
-      delete priorityExp;
-    priorityIsGarbage = false;
-    priorityExp = nullptr;
-
     if (upperBoundIsGarbage)
       delete upperBoundExp;
     upperBoundIsGarbage = false;
@@ -92,8 +81,6 @@ namespace PLEXIL
     assertTrue_1(nameExp);
     if (!nameExp->isConstant())
       return false;
-    if (priorityExp && !priorityExp->isConstant())
-      return false;
     if (upperBoundExp && !upperBoundExp->isConstant())
       return false;
     if (releaseAtTermExp && !releaseAtTermExp->isConstant())
@@ -104,7 +91,6 @@ namespace PLEXIL
   void ResourceSpec::activate()
   {
     nameExp->activate();
-    priorityExp->activate();
     if (upperBoundExp)
       upperBoundExp->activate();
     if (releaseAtTermExp)
@@ -114,7 +100,6 @@ namespace PLEXIL
   void ResourceSpec::deactivate()
   {
     nameExp->deactivate();
-    priorityExp->deactivate();
     if (upperBoundExp)
       upperBoundExp->deactivate();
     if (releaseAtTermExp)
@@ -201,7 +186,8 @@ namespace PLEXIL
     CommandHandleKnown &operator=(CommandHandleKnown &&) = delete;
   };
 
-  CommandImpl::CommandImpl(std::string const &nodeName)
+  CommandImpl::CommandImpl(std::string const &nodeName,
+                           int32_t nodePriority)
     : m_handleKnownFn(CommandHandleKnown::instance(), *this),
       m_ack(*this, nodeName),
       m_abortComplete("abortComplete"),
@@ -212,6 +198,7 @@ namespace PLEXIL
       m_dest(nullptr),
       m_argVec(),
       m_resourceList(),
+      m_priority(nodePriority),
       m_commandHandle(NO_COMMAND_HANDLE),
       m_active(false),
       m_checkedConstant(false),
@@ -392,10 +379,9 @@ namespace PLEXIL
       for (size_t i = 0; i < m_resourceList->size(); ++i) {
         ResourceSpec const &spec = (*m_resourceList)[i];
         ResourceValue &resValue = m_resourceValueList[i];
+        resValue.priority = m_priority;
         checkPlanError(spec.nameExp->getValue(resValue.name),
                        "Command resource name expression has unknown or invalid value");
-        checkPlanError(spec.priorityExp->getValue(resValue.priority),
-                       "Command resource priority expression has unknown or invalid value");
 
         if (spec.upperBoundExp) {
           checkPlanError(spec.upperBoundExp->getValue(resValue.upperBound),

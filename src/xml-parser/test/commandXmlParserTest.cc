@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2022, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -39,6 +39,9 @@ using pugi::xml_document;
 using pugi::xml_node;
 using pugi::node_pcdata;
 
+// Dummy node priority value
+static constexpr const int32_t WORST_PRIORITY = 100000;
+
 static bool testCommandParserBasics()
 {
   FactoryTestNodeConnector conn;
@@ -59,7 +62,7 @@ static bool testCommandParserBasics()
       assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception: " << exc.what());
     }
 
-    CommandImpl *simple = new CommandImpl("simple");
+    CommandImpl *simple = new CommandImpl("simple", WORST_PRIORITY);
     finalizeCommand(simple, &conn, simpleXml);
     assertTrue_1(!simple->getDest());
     simple->activate();
@@ -84,7 +87,7 @@ static bool testCommandParserBasics()
       assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception: " << exc.what());
     }
     
-    CommandImpl *empty = new CommandImpl("empty");
+    CommandImpl *empty = new CommandImpl("empty", WORST_PRIORITY);
     finalizeCommand(empty, &conn, emptyXml);
     assertTrue_1(!empty->getDest());
     empty->activate();
@@ -109,7 +112,7 @@ static bool testCommandParserBasics()
       assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception: " << exc.what());
     }
 
-    CommandImpl *argh = new CommandImpl("argh");
+    CommandImpl *argh = new CommandImpl("argh", WORST_PRIORITY);
     finalizeCommand(argh, &conn, arghXml);
     assertTrue_1(!argh->getDest());
     argh->activate();
@@ -136,7 +139,7 @@ static bool testCommandParserBasics()
       assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception: " << exc.what());
     }
 
-    CommandImpl *resultant = new CommandImpl("resultant");
+    CommandImpl *resultant = new CommandImpl("resultant", WORST_PRIORITY);
     finalizeCommand(resultant, &conn, resultantXml);
     assertTrue_1(resultant->getDest() == flagVar);
     resultant->activate();
@@ -161,7 +164,7 @@ static bool testCommandParserBasics()
       assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception: " << exc.what());
     }
 
-    CommandImpl *resourceless = new CommandImpl("resourceless");
+    CommandImpl *resourceless = new CommandImpl("resourceless", WORST_PRIORITY);
     finalizeCommand(resourceless, &conn, resourcelessXml);
     assertTrue_1(!resourceless->getDest());
     resourceless->activate();
@@ -189,7 +192,7 @@ static bool testCommandParserBasics()
       assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception: " << exc.what());
     }
 
-    CommandImpl *resourceful = new CommandImpl("resourceful");
+    CommandImpl *resourceful = new CommandImpl("resourceful", WORST_PRIORITY);
     finalizeCommand(resourceful, &conn, resourcefulXml);
     assertTrue_1(!resourceful->getDest());
     resourceful->activate();
@@ -222,7 +225,7 @@ static bool testCommandParserBasics()
       assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception: " << exc.what());
     }
 
-    CommandImpl *remorseful = new CommandImpl("remorseful");
+    CommandImpl *remorseful = new CommandImpl("remorseful", WORST_PRIORITY);
     finalizeCommand(remorseful, &conn, remorsefulXml);
     assertTrue_1(remorseful->getDest() == flagVar);
     remorseful->activate();
@@ -256,7 +259,7 @@ static bool testCommandParserBasics()
       assertTrueMsg(ALWAYS_FAIL, "Unexpected parser exception: " << exc.what());
     }
 
-    CommandImpl *regretful = new CommandImpl("regretful");
+    CommandImpl *regretful = new CommandImpl("regretful", WORST_PRIORITY);
     finalizeCommand(regretful, &conn, regretfulXml);
     assertTrue_1(regretful->getDest() == flagVar);
     regretful->activate();
@@ -311,7 +314,7 @@ static bool testCommandParserErrorHandling()
     CommandImpl *wrongTypeNameCmd = nullptr;
     try {
       checkCommandBody("wrongTypeName", wrongTypeName);
-      wrongTypeNameCmd = new CommandImpl("wrongTypeName");
+      wrongTypeNameCmd = new CommandImpl("wrongTypeName", WORST_PRIORITY);
       finalizeCommand(wrongTypeNameCmd, &conn, wrongTypeName);
       assertTrue_2(ALWAYS_FAIL, "Failed to detect non-string Name value");
     }
@@ -330,7 +333,7 @@ static bool testCommandParserErrorHandling()
     CommandImpl *invalidReturnCmd = nullptr;
     try {
       checkCommandBody("invalidReturn", invalidReturn);
-      invalidReturnCmd = new CommandImpl("invalidReturn");
+      invalidReturnCmd = new CommandImpl("invalidReturn", WORST_PRIORITY);
       finalizeCommand(invalidReturnCmd, &conn, invalidReturn);
       assertTrue_2(ALWAYS_FAIL, "Failed to detect invalid return expression");
     }

@@ -590,9 +590,6 @@ namespace PLEXIL
         case 8: // Priority
           if (!strcmp(PRIORITY_TAG, tag)) {
             validElt = true;
-            checkParserExceptionWithLocation(nodeType == NodeType_Assignment,
-                                             temp,
-                                             "Only Assignment nodes may have a Priority element");
             checkParserExceptionWithLocation(!prioXml,
                                              temp, 
                                              "Duplicate " << tag << " element in Node");
@@ -938,7 +935,8 @@ namespace PLEXIL
         break;
 
       case NodeType_Command:
-        dynamic_cast<CommandNode *>(node)->setCommand(new CommandImpl(node->getNodeId()));
+        dynamic_cast<CommandNode *>(node)->setCommand(new CommandImpl(node->getNodeId(),
+                                                                      node->getPriority()));
         break;
 
       case NodeType_LibraryNodeCall:
