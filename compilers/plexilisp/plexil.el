@@ -1386,15 +1386,14 @@
   "List of Resource specifications."
   (xml "ResourceList" resources))
 
-(pdefine pl (Resource resource) (name priority &rest clauses) 0 nil
+(pdefine pl (Resource resource) (name &rest clauses) 0 nil
   ;; (xml + string) * (xml + int) * list(xml) -> xml
   ("A Resource specification.  Name and priority are required. "
    "The remaining clauses can be <tt>ResourceUpperBound</tt> or <tt>ResourceLowerBound</tt>")
   (let ((resource-name (plexil-normalize-string-expression name)))
   (xml "Resource"
        (cons (xml "ResourceName" resource-name)
-             (cons (xml "ResourcePriority" (plexil-infer-type priority))
-                   clauses)))))
+             clauses))))
 
 (pdefine pl (ResourceUpperBound resource-upper-bound) (x) 0 nil
   ;; (xml + real) -> xml
