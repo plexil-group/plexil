@@ -272,6 +272,13 @@ public class BlockNode
             }
             child.check(m_context, state);
         }
+        // Command node with resources must have a node Priority
+        if (isCommandNode() && !m_resources.isEmpty() && !prioritySeen) {
+            state.addDiagnostic(this,
+                                "In node " + m_context.getNodeName()
+                                + ": Command with resources missing required Priority statement",
+                                Severity.ERROR);
+        }
     }
 
     @Override
