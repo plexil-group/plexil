@@ -345,9 +345,6 @@ in assignment node <xsl:value-of select="@NodeId" />
       <ResourceName>
         <xsl:apply-templates select="Name/*" />
       </ResourceName>
-      <ResourcePriority>
-        <xsl:apply-templates select="Priority/*" />
-      </ResourcePriority>
       <xsl:if test="UpperBound">
         <ResourceUpperBound>
           <xsl:apply-templates select="UpperBound/*" />
