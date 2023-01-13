@@ -10,7 +10,6 @@ Concurrence
     EndCondition returnValue == 10;
     PostCondition C1.command_handle == COMMAND_SUCCESS;
     Resource Name = "sys_memory",
-      LowerBound = 0.5,
       UpperBound = 0.5,
       Priority = 20;
     Resource Name = "arm",
@@ -24,7 +23,6 @@ Concurrence
     PostCondition C2.command_handle == COMMAND_SUCCESS;
     EndCondition returnValue == 10;
     Resource Name = "sys_memory",
-      LowerBound = 0.3,
       UpperBound = 0.3,
       Priority = mem_priority;
     returnValue = c2();
