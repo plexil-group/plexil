@@ -3,11 +3,11 @@ resources.
 
 To run any plan (.ple file) in this directory, first compile it, e.g.
 
-  plexilc resource1.ple
+    plexilc resource1.ple
 
 This creates resource1.plx, the compiled (Core Plexil XML) version of
 the file.
 
 Run it in the shell by typing:
 
-   plexiltest -p resource1.plx
+    plexiltest -p resource1.plx -r resource1.data -s scripts/resource1.psx
