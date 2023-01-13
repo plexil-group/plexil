@@ -130,6 +130,7 @@ summarize()
         echo "  No plan"
     fi
     echo "  Configuration:  $config_nm"
+    echo "  Resource:       $resource_file"
     if [ -n "$library_dirs" ]
     then
         echo "  Library path:   $library_dirs"
@@ -180,7 +181,8 @@ library_dirs='' #library files
 debug_cmd='' #debug cmd
 check='' #run static checker
 auto_run_cmd='' # Viewer autorun option
-resource_cmd='' # resource data file
+resource_name='resource.data' # resource data file
+resource_cmd=''
 
 if [ -z "$1" ]
 then
@@ -281,6 +283,7 @@ do
 
         -r | -resource )
             validate_file "$1" "$2"
+            resource_name="$2"
             resource_cmd="-r $2"
             shift
             ;;

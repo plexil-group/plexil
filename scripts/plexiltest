@@ -112,6 +112,7 @@ summarize()
 {
     echo "Running executive from $PLEXIL_HOME"
     echo "  Plan:           $plan_nm"
+    echo "  Resource:       $resource_name"
     echo "  Script:         $script_name"
     if [ -n "$library_dirs" ]
     then
@@ -161,6 +162,7 @@ library_dirs=''
 debug_cmd=''
 check=''
 auto_run_cmd=''
+resource_name='resource.data'
 resource_cmd=''
 
 if [ ! "$1" ]
@@ -256,6 +258,7 @@ do
 
         -r | -resource )
             validate_file "$1" "$2"
+            resource_name="$2"
             resource_cmd="-r $2"
             shift
             ;;
