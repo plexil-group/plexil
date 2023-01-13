@@ -208,6 +208,9 @@ namespace PLEXIL
     assertTrueMsg(it != m_commandAcks.end(), 
                   "No command waiting for acknowledgement " << getText(command));
 
+    // For examples
+    debugMsg("ExternalInterface:commandHandleReturn",
+             " command " << command.name() << " returns handle " << value);
     this->commandHandleReturn(it->second, handle);
   }
 
