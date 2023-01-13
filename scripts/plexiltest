@@ -1,6 +1,6 @@
 #! /bin/sh -e
 
-# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2023, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -31,7 +31,7 @@
 
 guess_plexil_home()
 {
-    # This script file is expected to be in $PLEXIL_HOME/script
+    # This script file is expected to be in $PLEXIL_HOME/scripts
     cd "$(dirname "$(dirname "$(command -v "$0")")")" && pwd -P
 }
 
@@ -57,7 +57,7 @@ usage()
 {
     cat <<EOF
 Usage:
-        plexiltest -p <plan> [-s <script file>] [-d <debug file>] [-L <library dir>]* [-l <library>]* [-v [-h <hostname>] [-n <portnumber>] [-b]] [-ch]
+        plexiltest -p <plan> [-s <script file>] [-d <debug file>] [-r <resource file>] [-L <library dir>]* [-l <library>]* [-v [-h <hostname>] [-n <portnumber>] [-b]] [-ch]
 For more options enter 'plexiltest -help'
 EOF
 }
@@ -66,11 +66,11 @@ help()
 {
     cat <<EOF
 Usage:
-        plexiltest -p <plan> [-s <script file>] [-d <debug file>] [-L <library dir>]* [-l <library>]* [-v [-h <hostname>] [-n <portnumber>] [-b]] [-ch]
+        plexiltest -p <plan> [-s <script file>] [-d <debug file>] [-r <resource file>] [-L <library dir>]* [-l <library>]* [-v [-h <hostname>] [-n <portnumber>] [-b]] [-ch]
 
 Options:
 
- -help 
+ -help | --help
 	displays this message
  -p | -plan <plan> 
 	specify PLEXIL plan (required) 
@@ -78,6 +78,8 @@ Options:
 	specifies a script file
  -d | -debug <file name> 
 	debug file (default is Debug.cfg)
+ -r | -resource <file name>
+	resource data file (default is resource.data)
  -L | -libraryPath <directory name>
 	specifies a directory for finding plan library files
  -q | -quiet 
@@ -94,8 +96,6 @@ Options:
 	runs the PLEXIL static checker prior to executing plan
  -l | -library <file name>
 	specifies a plan library (.plx file)
- -? | -help 
-	shows this message of options
  -a | -autorun 
 	Runs the specified plan immediately at Viewer startup 
  --for-viewer 
@@ -151,16 +151,17 @@ fi
 
 plexil_check_prog "$prog"
 
-quiet=""
-plan_nm="" 
-plan_cmd="" 
-script_name="" 
-script_cmd="" 
-libraries="" 
-library_dirs=""
-debug_cmd=""
-check=""
-auto_run_cmd=""
+quiet=''
+plan_nm='' 
+plan_cmd='' 
+script_name='' 
+script_cmd='' 
+libraries='' 
+library_dirs=''
+debug_cmd=''
+check=''
+auto_run_cmd=''
+resource_cmd=''
 
 if [ ! "$1" ]
 then
@@ -252,6 +253,12 @@ do
 
         -q | -quiet )
             quiet="$1";;
+
+        -r | -resource )
+            validate_file "$1" "$2"
+            resource_cmd="-r $2"
+            shift
+            ;;
         
         -s | -script )
             validate_file "$1" "$2"
@@ -262,7 +269,7 @@ do
         -v | -viewer )
             viewer="$1";;       #viewer listener enabled
 
-        -? )
+        * )
             echo "$(basename "$0"): unrecognized option $1" >&2
             usage
             exit 2;;
@@ -303,7 +310,7 @@ then
 
     # shellcheck disable=SC2086
     # The unquoted expansions are deliberate
-    exec "$prog" $plan_cmd $script_cmd $lib_cmd $lib_dirs_cmd $debug_cmd $viewer $port_cmd $block $quiet
+    exec "$prog" $plan_cmd $script_cmd $lib_cmd $lib_dirs_cmd $debug_cmd $resource_cmd $viewer $port_cmd $block $quiet
 fi
 
 # Check Viewer options
@@ -424,10 +431,10 @@ then
     # Launch the viewer, which will in turn invoke this script again with the automate flag
     # The unquoted expansions are deliberate
     # shellcheck disable=SC2086
-    exec plexil -plexiltest $plan_cmd $script_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $host_cmd $port_cmd $check $block $auto_run_cmd
+    exec plexil -plexiltest $plan_cmd $script_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $resource_cmd $host_cmd $port_cmd $check $block $auto_run_cmd
 else
     # User doesn't want viewer
     # shellcheck disable=SC2086
     # The unquoted expansions are deliberate
-    exec "$prog" $plan_cmd $script_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $block
+    exec "$prog" $plan_cmd $script_cmd $lib_dirs_cmd $lib_cmd $debug_cmd $resource_cmd
 fi

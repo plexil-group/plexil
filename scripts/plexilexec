@@ -1,6 +1,6 @@
 #! /bin/sh -e
 
-# Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2023, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -68,7 +68,7 @@ usage()
 {
     cat <<EOF
 Usage:
-    plexilexec [-p <plan>] [-c <interface config>] [-d <debug file>] [-L <library dir>]* [-l <library>]* [-v [-h <hostname>] [-n <portnumber>] [-b]] [-a] [-ch] [-q]
+    plexilexec [-p <plan>] [-c <interface config>] [-d <debug file>] [-r <resource file>] [-L <library dir>]* [-l <library>]* [-v [-h <hostname>] [-n <portnumber>] [-b]] [-a] [-ch] [-q]
 
 For more options enter '$(basename "$0") -help'
 
@@ -79,10 +79,10 @@ help()
 {
     cat <<EOF
 Usage:
-    plexilexec [-p <plan>] [-c <interface config>] [-d <debug file>] [-L <library dir>]* [-l <library>]* [-v [-h <hostname>] [-n <portnumber>] [-b]] [-a] [-ch] [-q]
+    plexilexec [-p <plan>] [-c <interface config>] [-d <debug file>] [-r <resource file>] [-L <library dir>]* [-l <library>]* [-v [-h <hostname>] [-n <portnumber>] [-b]] [-a] [-ch] [-q]
 
  Options:
- -help 
+ -help | --help
     displays this message
  -p | -plan <plan>
     The plan to run
@@ -90,6 +90,8 @@ Usage:
     Interface configuration file (default interface-config.xml) 
  -d | -debug <file name> 
     Debug configuration file (default is Debug.cfg) 
+ -r | -resource <file name>
+	Resource data file (default is resource.data)
  -L | -libraryPath <directory name> 
     A directory to search for plan library files (option may be repeated) 
  -l | -library <file name> 
@@ -178,6 +180,7 @@ library_dirs='' #library files
 debug_cmd='' #debug cmd
 check='' #run static checker
 auto_run_cmd='' # Viewer autorun option
+resource_cmd='' # resource data file
 
 if [ -z "$1" ]
 then
@@ -275,6 +278,12 @@ do
 
         -q | -quiet )
             quiet="$1";;
+
+        -r | -resource )
+            validate_file "$1" "$2"
+            resource_cmd="-r $2"
+            shift
+            ;;
 
         -v | -viewer )
             viewer="$1";;   #viewer listener enabled    
