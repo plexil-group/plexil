@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2017, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2023, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -144,12 +144,13 @@ namespace PLEXIL
         }
         while (Command *cmd = rejectCmds.front()) {
           rejectCmds.pop();
+          // Used by TestExec regression suite
           debugMsg("Test:testOutput", 
                    "Permission to execute " << cmd->getName()
                    << " has been denied by the resource arbiter.");
+          // Used in examples
           debugMsg("ResourceArbiterInterface:arbitrate", 
-                   "Permission to execute " << cmd->getName()
-                   << " has been denied by the resource arbiter.");
+                   " Resource arbiter denies " << cmd->getName());
           reportCommandArbitrationFailure(cmd);
         }
       }
@@ -174,6 +175,7 @@ namespace PLEXIL
 
   void ExternalInterface::commandReturn(Command *cmd, Value const &value)
   {
+    debugMsg("ExternalInterface:commandReturn", ' ' << cmd->getName() << " returns " << value);
     cmd->returnValue(value);
   }
 

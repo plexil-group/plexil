@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2023, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -201,6 +201,7 @@ namespace PLEXIL
     std::string const *str = NULL;
     if (value.getValuePointer(str))
       handle = parseCommandHandleValue(*str);
+    // For TestExec regression suite
     debugMsg("Test:testOutput",
              "Sending command ACK " << getText(command, value));
     StateCommandMap::iterator it = m_commandAcks.find(command);
@@ -539,10 +540,13 @@ namespace PLEXIL
     State const& command = cmd->getCommand();
     Expression *dest = cmd->getDest();
     Expression *ack = cmd->getAck();
+    // For TestExec regression suite
     debugMsg("Test:testOutput", "Executing " << command <<
              " into " <<
              (dest ? dest->toString() : std::string("noId")) <<
              " with ack " << ack->toString());
+    // For examples
+    debugMsg("ExternalInterface:executeCommand", " Executing " << command);
     if (dest)
       m_executingCommands[command] = cmd;
 
@@ -575,6 +579,9 @@ namespace PLEXIL
    */
   void TestExternalInterface::reportCommandArbitrationFailure(Command *cmd)
   {
+    // For examples
+    debugMsg("ExternalInterface:reportCommandArbitrationFailure",
+             " command " << cmd->getName() << " handle set to " << commandHandleValueName(COMMAND_DENIED));
     this->commandHandleReturn(cmd, COMMAND_DENIED);
   }
 
