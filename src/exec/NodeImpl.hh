@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2023, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -305,27 +305,25 @@ namespace PLEXIL
     //
 
     //! Does this node need to acquire resources before it can execute?
-    //! @return true if resources must be acquired, false otherwise.
-    virtual bool acquiresResources() const override;
+    //! \return true if resources must be acquired, false otherwise.
+    virtual bool requiresResources() const override;
 
-    //! \brief Get an Assignment node's assigned variable.
-    //! \return Pointer to an Assignable.  If node is not an
-    //!         AssignmentNode, will be null.
-    //! \note This default method always returns null.
-    virtual Assignable *getAssignmentVariable() const override 
-    {
-      return nullptr;
-    }
+    //! Can the node acquire all necessary resources?
+    //! \return true if all are available, false otherwise.
+    virtual bool canAcquireResources() const override;
 
-    //! \brief Attempt to reserve the resources needed by the node.
-    //!        If the attempt fails, add the node to the resources'
-    //!        wait lists.
-    //! \return true if reservation was successful, false if not.
-    virtual bool tryResourceAcquisition() override;
+    //! Acquire the resources needed by the node.
+    virtual void acquireResources() override;
 
-    //! \brief Remove the node from the pending queues of any
-    //!        resources it was trying to acquire.
-    virtual void releaseResourceReservations() override;
+    //! Release all resources previously acquired by the node.
+    virtual void releaseResources() override;
+
+    //! Add the node to the wait lists of all required resources.
+    virtual void reserveResources() override;
+
+    //! Remove the node from the wait lists of any resources it was
+    //! trying to acquire.
+    virtual void cancelResourceReservations() override;
 
     //
     // Printed representation
@@ -686,6 +684,38 @@ namespace PLEXIL
     //! \brief Perform any specialized activation actions required by the node type.
     virtual void specializedActivate();
 
+    //
+    // NodeImpl resource API
+    //
+
+    //! \brief Does this node require any resources specific to the node type?
+    //! \return true if resources need to be acquired, false if not.
+    //! \note The default method returns false.
+    virtual bool specializedRequiresResources() const;
+
+    //! \brief Can the node acquire specialized required resources?
+    //! \return true if all are available, false if not.
+    //! \note The default method returns true.
+    virtual bool specializedCanAcquireResources() const;
+
+    //! \brief Acquire all resources specific to the node type.
+    //! \note The default method does nothing.
+    virtual void specializedAcquireResources();
+
+    //! \brief Release all resources specific to the node type.
+    //! \note The default method does nothing.
+    virtual void specializedReleaseResources();
+
+    //! \brief Put this node on the wait lists of resources specific to
+    //! its node type.
+    //! \note The default method does nothing.
+    virtual void specializedReserveResources();
+
+    //! \brief Remove this node from the wait lists of resources
+    //! specific to its node type.
+    //! \note The default method does nothing.
+    virtual void specializedCancelResourceReservations();
+
     //! \brief Perform execution as required by the node type.
     //! \param exec Pointer to the PlexilExec.
     virtual void specializedHandleExecution(PlexilExec *exec);
@@ -785,13 +815,13 @@ namespace PLEXIL
     virtual void transitionToFinishing();
 
     //! \brief Transition into the FINISHED state.
-    virtual void transitionToFinished();
+    void transitionToFinished();
 
     //! \brief Transition into the FAILING state.
     virtual void transitionToFailing(PlexilExec *exec);
 
     //! \brief Transition into the ITERATION_ENDED state.
-    virtual void transitionToIterationEnded(); 
+    void transitionToIterationEnded(); 
 
     //
     // Destructor helper member functions
@@ -872,6 +902,21 @@ namespace PLEXIL
     //! \brief Create any required "wrapper" expressions around user specified conditions.
     //! \see NodeImpl::specializedCreateConditionWrappers
     void createConditionWrappers();
+
+    //
+    // Internal resource API
+    //
+
+    //! \brief Can the node acquire all mutexes it uses?
+    //! \return true if all are available, false if not.
+    bool canAcquireMutexes() const;
+
+    //! \brief Acquire all the mutexes used by the node.
+    //! \note Should only be attempted if canAcquireMutexes() returns true.
+    void acquireMutexes();
+
+    //! \brief Reserve all the mutexes used by the node.
+    void reserveMutexes();
 
     //! \brief Set the node's outcome.
     //! \param o The new NodeOutcome value.
