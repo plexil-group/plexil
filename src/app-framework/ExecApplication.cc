@@ -454,12 +454,15 @@ namespace PLEXIL
 #endif
         debugMsg("ExecApplication:step", " Processing queue");
         m_manager->processQueue();
-        debugMsg("ExecApplication:step", " Stepping exec");
-        m_exec->step(StateCache::queryTime());
-        // Take care of any plans which have finished
-        m_exec->deleteFinishedPlans();
-        allFinished = m_exec->allPlansFinished();
-        needsStep = m_exec->needsStep();
+        double now = StateCache::queryTime(); // side effect: notifies anything waiting on time
+        if (m_exec->needsStep()) {
+          debugMsg("ExecApplication:step", " Stepping exec");
+          m_exec->step(now);
+          // Take care of any plans which have finished
+          m_exec->deleteFinishedPlans();
+          allFinished = m_exec->allPlansFinished();
+          needsStep = m_exec->needsStep();
+        }
       }
 #ifdef PLEXIL_WITH_THREADS
       if (m_planLoaded && allFinished) {
@@ -492,10 +495,12 @@ namespace PLEXIL
         debugMsg("ExecApplication:runExec", " Processing queue");
         m_manager->processQueue();
         do {
-          do {
+          double now = StateCache::queryTime(); // side effect: notifies anything waiting on time
+          while (m_exec->needsStep()) {
             debugMsg("ExecApplication:runExec", " Stepping exec");
-            m_exec->step(StateCache::queryTime());
-          } while (m_exec->needsStep());
+            m_exec->step(now);
+            now = StateCache::queryTime();
+          };
           debugMsg("ExecApplication:runExec", " Processing queue");
         } while (m_manager->processQueue());
 
