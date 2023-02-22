@@ -783,6 +783,10 @@ namespace PLEXIL
     if (m_nextState == m_state)
       return;
 
+    debugMsg("PlanDebug:transition",
+             ' '  << getNodeId() << " (" << static_cast<Node *>(this)
+             << ") from " << nodeStateName(m_state)
+             << " to " << nodeStateName(m_nextState));
     debugMsg("Node:transition", " Transitioning " << m_nodeId << ' ' << this
              << " from " << nodeStateName(m_state)
              << " to " << nodeStateName(m_nextState)
@@ -1531,6 +1535,9 @@ namespace PLEXIL
 
   void NodeImpl::setNodeOutcome(NodeOutcome o)
   {
+    condDebugMsg(o != NO_OUTCOME && o != m_outcome,
+                 "PlanDebug:outcome",
+                 "    " << getNodeId() << " (" << static_cast<Node *>(this) << ") outcome " << outcomeName(o));
     m_outcome = o;
   }
 
@@ -1541,6 +1548,10 @@ namespace PLEXIL
 
   void NodeImpl::setNodeFailureType(FailureType f)
   {
+    condDebugMsg(f != NO_FAILURE && f != m_failureType,
+                 "PlanDebug:failure",
+                 "    " << getNodeId() << " (" << static_cast<Node *>(this) << ") failure type "
+                 << failureTypeName(f));
     m_failureType = f;
   }
 

@@ -41,6 +41,7 @@
 #include "Variable.hh"
 
 #include <algorithm> // std::remove_if()
+#include <iomanip>   // std::setprecision()
 
 namespace PLEXIL 
 {
@@ -257,10 +258,16 @@ namespace PLEXIL
 
 #ifndef NO_DEBUG_MESSAGE_SUPPORT 
       // Only used in debugMsg calls
-      unsigned int stepCount = 0;
       unsigned int cycleNum = StateCache::instance().getCycleCount();
+      unsigned int stepCount = 0;
+      unsigned int microStepCount = 0;
 #endif
 
+      debugMsg("PlanDebug:macroStep",
+               "  == Start macro step " << cycleNum << " @ "
+               << std::setprecision(15) << startTime << ", "
+               << m_candidateQueue.size() << " candidates, "
+               << m_pendingQueue.size() << " pending ==");
       debugMsg("PlexilExec:step", " ==>Start cycle " << cycleNum);
 
       // A Node is initially inserted on the pending queue when it is eligible to
@@ -269,10 +276,15 @@ namespace PLEXIL
       //  - its conditions have changed and it is no longer eligible to execute;
       //  - it has acquired the resources and is transitioning to EXECUTING.
       //
-      // At each step, each node in the pending queue is checked.
+      // At each micro step, each node in the pending queue is checked.
 
       // BEGIN QUIESCENCE LOOP
       do {
+        debugMsg("PlanDebug:microStep",
+                 "  = Start micro step " << cycleNum << ':' << stepCount
+                 << ", " << m_candidateQueue.size() << " candidates, "
+                 << m_pendingQueue.size() << " pending =");
+
         debugStmt("PlexilExec:step",
                   {
                     getDebugOutputStream() << "[PlexilExec:step]["
@@ -294,15 +306,20 @@ namespace PLEXIL
           if (canTransition) {
             debugMsg("PlexilExec:step",
                      " Node " << candidate->getNodeId() << ' ' << candidate
-                     << " can transition from "
-                     << nodeStateName(candidate->getState())
+                     << " can transition from " << nodeStateName(candidate->getState())
                      << " to " << nodeStateName(candidate->getNextState()));
             if (!resourceCheckRequired(candidate)) {
               // The node is eligible to transition now
+              debugMsg("PlanDebug:check",
+                       "      " << candidate->getNodeId() << " (" << candidate
+                       << ") may transition now");
               addStateChangeNode(candidate);
             }
             else {
               // Possibility of conflict - set it aside to evaluate as a batch
+              debugMsg("PlanDebug:check",
+                       "      " << candidate->getNodeId() << " (" << candidate
+                       << ") needs resource check");
               addPendingNode(candidate);
             }
           }
@@ -319,19 +336,22 @@ namespace PLEXIL
           resolveResourceConflicts();
         }
 
-        if (m_stateChangeQueue.empty())
+        if (m_stateChangeQueue.empty()) {
+          debugMsg("PlanDebug:microStep",
+                   "  = End micro step " << cycleNum << ':' << stepCount << " =");
           break; // nothing to do, exit quiescence loop
+        }
 
+#ifndef NO_DEBUG_MESSAGE_SUPPORT 
         debugStmt("PlexilExec:step",
                   {
                     getDebugOutputStream() << "[PlexilExec:step]["
                                            << cycleNum << ":" << stepCount << "]";
                     printStateChangeQueue();
                   });
-
-#ifndef NO_DEBUG_MESSAGE_SUPPORT 
-        // Only used in debug messages
-        unsigned int microStepCount = 0;
+        debugMsg("PlanDebug:microStep",
+                 "  " << m_stateChangeQueue.size() << " nodes transitioning");
+        microStepCount = 0;
 #endif
 
         // Reserve space for the transitions to be published
@@ -347,7 +367,7 @@ namespace PLEXIL
                    "[" << cycleNum << ":" << stepCount << ":" << microStepCount <<
                    "] Transitioning " << nodeTypeString(node->getType())
                    << " node " << node->getNodeId() << ' ' << node
-                   << " from " << nodeStateName(node->getState())
+                   << " from " << nodeStateName(oldState)
                    << " to " << nodeStateName(node->getNextState()));
           node->transition(this, startTime);
           if (m_listener)
@@ -369,27 +389,40 @@ namespace PLEXIL
         m_transitionsToPublish.clear();
 
         // Perform any assignments that resulted from these transitions
-        if (!m_assignmentsToExecute.empty()
-            || !m_assignmentsToRetract.empty())
+        if (!m_assignmentsToExecute.empty() || !m_assignmentsToRetract.empty()) {
+          debugMsg("PlanDebug:microStep",
+                   "  Performing " << m_assignmentsToExecute.size() << " and retracting "
+                                   << m_assignmentsToRetract.size() << " assignments");
           performAssignments();
+        }
 
         // done with this batch
 #ifndef NO_DEBUG_MESSAGE_SUPPORT 
+        debugMsg("PlanDebug:microStep", "  = End micro step " << cycleNum << ':' << stepCount << " =");
         ++stepCount;
 #endif
       }
       while (m_commandsToExecute.empty()
              && m_commandsToAbort.empty()
+             && m_updatesToExecute.empty()
              && !m_candidateQueue.empty());
       // END QUIESCENCE LOOP
 
       // Perform side effects
       StateCache::instance().incrementCycleCount();
+      condDebugMsg(!m_commandsToExecute.empty() || !m_commandsToAbort.empty(),
+                   "PlanDebug:macroStep",
+                   "  Executing " << m_commandsToExecute.size()
+                   << " and aborting " << m_commandsToAbort.size() << " commands");
+      condDebugMsg(!m_updatesToExecute.empty(),
+                   "PlanDebug:macroStep",
+                   " Sending " << m_updatesToExecute.size() << " updates");
       executeOutboundQueue();
       if (m_listener)
         m_listener->stepComplete(cycleNum);
 
       debugMsg("PlexilExec:step", " ==>End cycle " << cycleNum);
+      debugMsg("PlanDebug:macroStep", "  == End macro step " << cycleNum << " ==");
       for (NodePtr const &node: m_plan)
         debugMsg("PlexilExec:printPlan",
                  std::endl << *const_cast<Node const *>(node.get()));
@@ -404,6 +437,8 @@ namespace PLEXIL
     //! \note Node's queue status must be QUEUE_NONE.
     virtual void addCandidateNode(Node *node) override
     {
+      debugMsg("PlanDebug:candidates",
+               ' ' << node->getNodeId() << " (" << node << ") enqueued");
       m_candidateQueue.push(node);
     }
 
@@ -494,11 +529,15 @@ namespace PLEXIL
         // and node may not be eligible to execute any more
         if (!node->getDestState()) {
           // No longer transitioning at all - remove from pending queue
+          debugMsg("PlanDebug:check",
+                   "      " << node->getNodeId() << "(" << node << ") not transitioning");
           removePendingNode(node);
         }
         else if (node->getNextState() != EXECUTING_STATE) {
           // Now transitioning to some other state
           // Remove from pending queue and add to state change queue
+          debugMsg("PlanDebug:check",
+                   "      " << node->getNodeId() << "(" << node << ") no longer transitioning to EXECUTING");
           removePendingNode(node);
           addStateChangeNode(node);
         }
@@ -512,12 +551,16 @@ namespace PLEXIL
         // but node may not be eligible to execute any more
         if (!node->getDestState()) {
           // No longer transitioning at all - remove from pending queue
+          debugMsg("PlanDebug:check",
+                   "      " << node->getNodeId() << "(" << node << ") not transitioning")
           removePendingNode(node);
           return false;
         }
         else if (node->getNextState() != EXECUTING_STATE) {
           // Transitioning to some other state
           // Remove from pending queue and add to state change queue
+          debugMsg("PlanDebug:check",
+                   "      " << node->getNodeId() << "(" << node << ") no longer transitioning to EXECUTING")
           removePendingNode(node);
           addStateChangeNode(node);
           return false;
@@ -528,6 +571,8 @@ namespace PLEXIL
 
       case QUEUE_PENDING_TRY:
         // Resource(s) were released, give it a look
+        debugMsg("PlanDebug:check",
+                 "      " << node->getNodeId() << "(" << node << ") may be unblocked")
         return true;
 
       case QUEUE_PENDING:
@@ -548,6 +593,7 @@ namespace PLEXIL
     void resolveResourceConflicts()
     {
       Node *priorityHead = m_pendingQueue.front();
+      debugMsg("PlanDebug:check", ' ' << m_pendingQueue.size() << " nodes pending resource check");
       std::vector<Node *> priorityNodes;
       while (priorityHead) {
         // Gather nodes at same priority 
@@ -570,6 +616,7 @@ namespace PLEXIL
 
         debugMsg("PlexilExec:step",
                  ' ' << priorityNodes.size() << " nodes eligible to acquire resources");
+        debugMsg("PlanDebug:check", ' ' << priorityNodes.size() << " nodes @ priority " << thisPriority);
 
         // Let each node try to acquire its resources.
         // Transition the ones that succeed.
@@ -578,11 +625,15 @@ namespace PLEXIL
             // Node can transition now
             debugMsg("PlexilExec:resolveResourceConflicts",
                      ' ' << n->getNodeId() << " succeeded");
+            debugMsg("PlanDebug:check",
+                     ' ' << n->getNodeId() << "(" << n << ") can transition");
             removePendingNode(n);
             addStateChangeNode(n);
           }
           else {
             // Can't get resources, so mark that node has been checked
+            debugMsg("PlanDebug:check",
+                     ' ' << n->getNodeId() << "(" << n << ") is blocked");
             n->setQueueStatus(QUEUE_PENDING);
           }
         }
