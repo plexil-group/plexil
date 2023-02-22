@@ -455,8 +455,10 @@ namespace PLEXIL
   bool InterfaceManager::processQueue()
   {
     assertTrue_1(m_inputQueue);
-    if (m_inputQueue->isEmpty())
+    if (m_inputQueue->isEmpty()) {
+      debugMsg("InterfaceManager:processQueue", " Empty queue, returning false");
       return false;
+    }
 
     bool needsStep = false;
     QueueEntry *entry;
@@ -584,7 +586,7 @@ namespace PLEXIL
     }
 
     debugMsg("InterfaceManager:processQueue",
-             " Queue empty, returning " << (needsStep ? "true" : "false"));
+             " finished, returning " << (needsStep ? "true" : "false"));
     return needsStep;
   }
 
