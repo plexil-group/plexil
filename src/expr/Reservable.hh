@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2023, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -45,45 +45,46 @@ namespace PLEXIL
   {
   public:
 
+    using WaitQueue = std::vector<NodeConnector *>;
+
+    //! Default constructor.
+    Reservable() = default;
+
     //! Virtual destructor.
     virtual ~Reservable() = default;
-
-    //! Report which node currently holds this object.
-    //! @return Pointer to the node; may be null.
-    NodeConnector const *getHolder() const;
 
     //! Attempt to acquire the object. On failure, add the node to the
     //! object's waiting list.
     //! @param The node wishing to acquire this object.
     //! @return true if the object was successfully acquired;
     //!         false if not.
-    //! @note On successful acquisition, if the node is on the waiting
-    //!       list, it will be removed from the list.
     bool acquire(NodeConnector *node);
       
     //! If held by this node, release the object and notify other
     //! waiting nodes that the object is available.
     //! @param node The node which (we hope) previously acquired the object.
-    void release(NodeConnector *node);
+    //! @return true if the node was the holder, false if not.
+    bool release(NodeConnector *node);
 
     //! Add a node to the list of nodes waiting on the variable.
     //! @param node Pointer to the node.
-    void addWaitingNode(NodeConnector *node);
+    //! @return true if the node was added, false if it was already waiting.
+    bool reserve(NodeConnector *node);
 
     //! Remove a node from the list of nodes waiting on the variable.
     //! @param node Pointer to the node.
-    void removeWaitingNode(NodeConnector *node);
+    //! @return true if the node was removed, false if not found.
+    bool cancelReservation(NodeConnector *node);
 
-  protected:
+    //! Report which node currently holds this object.
+    //! @return Pointer to the node; may be null.
+    NodeConnector const *getHolder() const;
 
-    //! Default constructor, accessible only to derived classes.
-    Reservable();
+    //! Get the wait queue.
+    //! @return Const reference to the wait queue.
+    WaitQueue const &getWaiters() const;
 
-    //
-    // State shared with derived classes
-    //
-
-    using WaitQueue = std::vector<NodeConnector *>;
+  private:
 
     //! Nodes waiting to reserve this object.
     WaitQueue m_waiters;
