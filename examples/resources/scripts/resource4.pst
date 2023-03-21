@@ -1,12 +1,24 @@
 //
-// resource1 script
+// resource4 script
 //
 
 initial-state {
 }
 
 script {
-  command c1 () = 10 : int;
-  command-success c1 ();
+  delay;
+  delay;
+  simultaneous {
+    command c3 () = 10 : int;
+    command-success c3 ();
+  }
+  simultaneous {
+    command c2 () = 10 : int;
+    command-success c2 ();
+  }
+  simultaneous {
+    command c1 () = 10 : int;
+    command-success c1 ();
+  }
 }
 
