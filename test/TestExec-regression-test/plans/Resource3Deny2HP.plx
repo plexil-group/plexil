@@ -30,6 +30,7 @@
       <NodeList>
         <Node NodeType="Command">
           <NodeId>C1</NodeId>
+          <Priority>5</Priority>
           <EndCondition>
             <EQNumeric>
               <IntegerValue>10</IntegerValue>
@@ -52,13 +53,6 @@
                 <IntegerValue>-1</IntegerValue>
               </InitialValue>
             </DeclareVariable>
-            <DeclareVariable>
-              <Name>mem_priority</Name>
-              <Type>Integer</Type>
-              <InitialValue>
-                <IntegerValue>5</IntegerValue>
-              </InitialValue>
-            </DeclareVariable>
           </VariableDeclarations>
           <NodeBody>
             <Command>
@@ -67,9 +61,6 @@
                   <ResourceName>
                     <StringValue>sys_memory</StringValue>
                   </ResourceName>
-                  <ResourcePriority>
-                    <IntegerVariable>mem_priority</IntegerVariable>
-                  </ResourcePriority>
                   <ResourceUpperBound>
                     <RealValue>1.1</RealValue>
                   </ResourceUpperBound>
@@ -85,15 +76,7 @@
         </Node>
         <Node NodeType="Command">
           <NodeId>C2</NodeId>
-          <VariableDeclarations>
-            <DeclareVariable>
-              <Name>mem_priority2</Name>
-              <Type>Integer</Type>
-              <InitialValue>
-                <IntegerValue>10</IntegerValue>
-              </InitialValue>
-            </DeclareVariable>
-          </VariableDeclarations>
+          <Priority>10</Priority>
           <PostCondition>
             <EQInternal>
               <NodeCommandHandleVariable>
@@ -109,9 +92,6 @@
                   <ResourceName>
                     <StringValue>right_arm</StringValue>
                   </ResourceName>
-                  <ResourcePriority>
-                    <IntegerValue>10</IntegerValue>
-                  </ResourcePriority>
                   <ResourceUpperBound>
                     <RealValue>1.2</RealValue>
                   </ResourceUpperBound>
@@ -120,9 +100,6 @@
                   <ResourceName>
                     <StringValue>sys_memory</StringValue>
                   </ResourceName>
-                  <ResourcePriority>
-                    <IntegerVariable>mem_priority2</IntegerVariable>
-                  </ResourcePriority>
                   <ResourceUpperBound>
                     <RealValue>0.8</RealValue>
                   </ResourceUpperBound>
@@ -134,6 +111,7 @@
         </Node>
         <Node NodeType="Command">
           <NodeId>C3</NodeId>
+          <Priority>15</Priority>
           <PostCondition>
             <EQInternal>
               <NodeCommandHandleVariable>
@@ -149,9 +127,6 @@
                   <ResourceName>
                     <StringValue>right_arm</StringValue>
                   </ResourceName>
-                  <ResourcePriority>
-                    <IntegerValue>15</IntegerValue>
-                  </ResourcePriority>
                 </Resource>
               </ResourceList>
               <Name><StringValue>c3</StringValue></Name>

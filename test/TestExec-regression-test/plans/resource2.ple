@@ -2,7 +2,8 @@ Command foot_in_mouth;
 
 resource2:
 {
-  Resource Name = "Foot", Priority = 1;
-  Resource Name = "Mouth", Priority = 1;
+  Priority 1;
+  Resource Name = "Foot";
+  Resource Name = "Mouth";
   foot_in_mouth();
 }

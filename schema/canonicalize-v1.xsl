@@ -176,7 +176,6 @@ canonicalized plan to determine if they are equivalent. -->
         <xsl:apply-templates select="@* "/>
       </xsl:perform-sort>
       <xsl:apply-templates select="ResourceName" />
-      <xsl:apply-templates select="ResourcePriority" />
       <xsl:apply-templates select="ResourceUpperBound" />
       <xsl:apply-templates select="ResourceReleaseAtTermination" />
     </Resource>

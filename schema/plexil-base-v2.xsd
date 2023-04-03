@@ -342,16 +342,6 @@ element.  It is used as an included schema only.
             <xs:group ref="GeneralizedStringExpression"/>
           </xs:complexType>
         </xs:element>
-        <xs:element name="Priority">
-          <xs:complexType>
-            <xs:group ref="GeneralizedNumericExpression"/>
-          </xs:complexType>
-        </xs:element>
-        <xs:element name="LowerBound" minOccurs="0">
-          <xs:complexType>
-            <xs:group ref="GeneralizedNumericExpression"/>
-          </xs:complexType>
-        </xs:element>
         <xs:element name="UpperBound" minOccurs="0">
           <xs:complexType>
             <xs:group ref="GeneralizedNumericExpression"/>

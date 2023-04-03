@@ -262,6 +262,7 @@
         <NodeList>
           <Node NodeType="Command" epx="SynchronousCommandCommand">
             <NodeId><xsl:value-of select="$commandNodeId" /></NodeId>
+            <xsl:apply-templates select="Priority"/> <!-- required if ResourceList supplied -->
             <xsl:call-template name="sync-cmd-cmd-invariant" />
             <EndCondition>
               <EQInternal>

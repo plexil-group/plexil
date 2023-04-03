@@ -15,6 +15,7 @@
                    LineNo="104"
                    ColNo="1">
                <NodeId>A</NodeId>
+               <Priority>3</Priority>
                <EndCondition>
                   <EQInternal>
                      <NodeCommandHandleVariable>
@@ -30,9 +31,6 @@
                            <ResourceName>
                               <StringValue>arm</StringValue>
                            </ResourceName>
-                           <ResourcePriority>
-                              <IntegerValue>3</IntegerValue>
-                           </ResourcePriority>
                         </Resource>
                      </ResourceList>
                      <Name>

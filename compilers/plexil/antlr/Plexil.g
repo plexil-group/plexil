@@ -662,7 +662,6 @@ resource
         ( COMMA!
           ( UPPER_BOUND_KYWD EQUALS! expression
   		  | RELEASE_AT_TERM_KYWD EQUALS! expression
- 		  | PRIORITY_KYWD EQUALS! expression
           )
         )*
  ;

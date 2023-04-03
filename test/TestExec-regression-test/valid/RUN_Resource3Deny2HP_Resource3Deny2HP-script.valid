@@ -12,53 +12,53 @@ Resource3Deny2HP{
   }
 }
 
-[Node:notifyChanged] adding Resource3Deny2HP 0x7ffc23407ba0 to check queue
+[Node:notifyChanged] adding Resource3Deny2HP 0x7ff17d704a50 to check queue
 [PlexilExec:step] ==>Start cycle 1
 [PlexilExec:step][1:0] Check queue: Resource3Deny2HP 
-[PlexilExec:step] Node Resource3Deny2HP 0x7ffc23407ba0 can transition from INACTIVE to WAITING
-[PlexilExec:step] adding Resource3Deny2HP 0x7ffc23407ba0 to state change queue
+[PlexilExec:step] Node Resource3Deny2HP 0x7ff17d704a50 can transition from INACTIVE to WAITING
+[PlexilExec:step] adding Resource3Deny2HP 0x7ff17d704a50 to state change queue
 [PlexilExec:step][1:0] State change queue: Resource3Deny2HP 
-[PlexilExec:step][1:0:0] Transitioning NodeList node Resource3Deny2HP 0x7ffc23407ba0 from INACTIVE to WAITING
-[Node:notifyChanged] adding Resource3Deny2HP 0x7ffc23407ba0 to check queue
+[PlexilExec:step][1:0:0] Transitioning NodeList node Resource3Deny2HP 0x7ff17d704a50 from INACTIVE to WAITING
+[Node:notifyChanged] adding Resource3Deny2HP 0x7ff17d704a50 to check queue
 [PlexilExec:step][1:1] Check queue: Resource3Deny2HP 
-[PlexilExec:step] Node Resource3Deny2HP 0x7ffc23407ba0 can transition from WAITING to EXECUTING
-[PlexilExec:step] adding Resource3Deny2HP 0x7ffc23407ba0 to state change queue
+[PlexilExec:step] Node Resource3Deny2HP 0x7ff17d704a50 can transition from WAITING to EXECUTING
+[PlexilExec:step] adding Resource3Deny2HP 0x7ff17d704a50 to state change queue
 [PlexilExec:step][1:1] State change queue: Resource3Deny2HP 
-[PlexilExec:step][1:1:0] Transitioning NodeList node Resource3Deny2HP 0x7ffc23407ba0 from WAITING to EXECUTING
-[Node:notifyChanged] adding Resource3Deny2HP 0x7ffc23407ba0 to check queue
-[Node:notifyChanged] adding C1 0x7ffc23407e70 to check queue
-[Node:notifyChanged] adding C2 0x7ffc234082d0 to check queue
-[Node:notifyChanged] adding C3 0x7ffc23408680 to check queue
+[PlexilExec:step][1:1:0] Transitioning NodeList node Resource3Deny2HP 0x7ff17d704a50 from WAITING to EXECUTING
+[Node:notifyChanged] adding Resource3Deny2HP 0x7ff17d704a50 to check queue
+[Node:notifyChanged] adding C1 0x7ff17d704c40 to check queue
+[Node:notifyChanged] adding C2 0x7ff17d704ee0 to check queue
+[Node:notifyChanged] adding C3 0x7ff17d705180 to check queue
 [PlexilExec:step][1:2] Check queue: Resource3Deny2HP C1 C2 C3 
-[PlexilExec:step] Node C1 0x7ffc23407e70 can transition from INACTIVE to WAITING
-[PlexilExec:step] adding C1 0x7ffc23407e70 to state change queue
-[PlexilExec:step] Node C2 0x7ffc234082d0 can transition from INACTIVE to WAITING
-[PlexilExec:step] adding C2 0x7ffc234082d0 to state change queue
-[PlexilExec:step] Node C3 0x7ffc23408680 can transition from INACTIVE to WAITING
-[PlexilExec:step] adding C3 0x7ffc23408680 to state change queue
+[PlexilExec:step] Node C1 0x7ff17d704c40 can transition from INACTIVE to WAITING
+[PlexilExec:step] adding C1 0x7ff17d704c40 to state change queue
+[PlexilExec:step] Node C2 0x7ff17d704ee0 can transition from INACTIVE to WAITING
+[PlexilExec:step] adding C2 0x7ff17d704ee0 to state change queue
+[PlexilExec:step] Node C3 0x7ff17d705180 can transition from INACTIVE to WAITING
+[PlexilExec:step] adding C3 0x7ff17d705180 to state change queue
 [PlexilExec:step][1:2] State change queue: C1 C2 C3 
-[PlexilExec:step][1:2:0] Transitioning Command node C1 0x7ffc23407e70 from INACTIVE to WAITING
-[Node:notifyChanged] adding C1 0x7ffc23407e70 to check queue
-[Node:notifyChanged] adding Resource3Deny2HP 0x7ffc23407ba0 to check queue
-[PlexilExec:step][1:2:1] Transitioning Command node C2 0x7ffc234082d0 from INACTIVE to WAITING
-[Node:notifyChanged] adding C2 0x7ffc234082d0 to check queue
-[PlexilExec:step][1:2:2] Transitioning Command node C3 0x7ffc23408680 from INACTIVE to WAITING
-[Node:notifyChanged] adding C3 0x7ffc23408680 to check queue
+[PlexilExec:step][1:2:0] Transitioning Command node C1 0x7ff17d704c40 from INACTIVE to WAITING
+[Node:notifyChanged] adding C1 0x7ff17d704c40 to check queue
+[Node:notifyChanged] adding Resource3Deny2HP 0x7ff17d704a50 to check queue
+[PlexilExec:step][1:2:1] Transitioning Command node C2 0x7ff17d704ee0 from INACTIVE to WAITING
+[Node:notifyChanged] adding C2 0x7ff17d704ee0 to check queue
+[PlexilExec:step][1:2:2] Transitioning Command node C3 0x7ff17d705180 from INACTIVE to WAITING
+[Node:notifyChanged] adding C3 0x7ff17d705180 to check queue
 [PlexilExec:step][1:3] Check queue: C1 Resource3Deny2HP C2 C3 
-[PlexilExec:step] Node C1 0x7ffc23407e70 can transition from WAITING to EXECUTING
-[PlexilExec:step] adding C1 0x7ffc23407e70 to state change queue
-[PlexilExec:step] Node C2 0x7ffc234082d0 can transition from WAITING to EXECUTING
-[PlexilExec:step] adding C2 0x7ffc234082d0 to state change queue
-[PlexilExec:step] Node C3 0x7ffc23408680 can transition from WAITING to EXECUTING
-[PlexilExec:step] adding C3 0x7ffc23408680 to state change queue
+[PlexilExec:step] Node C1 0x7ff17d704c40 can transition from WAITING to EXECUTING
+[PlexilExec:step] adding C1 0x7ff17d704c40 to state change queue
+[PlexilExec:step] Node C2 0x7ff17d704ee0 can transition from WAITING to EXECUTING
+[PlexilExec:step] adding C2 0x7ff17d704ee0 to state change queue
+[PlexilExec:step] Node C3 0x7ff17d705180 can transition from WAITING to EXECUTING
+[PlexilExec:step] adding C3 0x7ff17d705180 to state change queue
 [PlexilExec:step][1:3] State change queue: C1 C2 C3 
-[PlexilExec:step][1:3:0] Transitioning Command node C1 0x7ffc23407e70 from WAITING to EXECUTING
-[Node:notifyChanged] adding C1 0x7ffc23407e70 to check queue
-[Node:notifyChanged] adding Resource3Deny2HP 0x7ffc23407ba0 to check queue
-[PlexilExec:step][1:3:1] Transitioning Command node C2 0x7ffc234082d0 from WAITING to EXECUTING
-[Node:notifyChanged] adding C2 0x7ffc234082d0 to check queue
-[PlexilExec:step][1:3:2] Transitioning Command node C3 0x7ffc23408680 from WAITING to EXECUTING
-[Node:notifyChanged] adding C3 0x7ffc23408680 to check queue
+[PlexilExec:step][1:3:0] Transitioning Command node C1 0x7ff17d704c40 from WAITING to EXECUTING
+[Node:notifyChanged] adding C1 0x7ff17d704c40 to check queue
+[Node:notifyChanged] adding Resource3Deny2HP 0x7ff17d704a50 to check queue
+[PlexilExec:step][1:3:1] Transitioning Command node C2 0x7ff17d704ee0 from WAITING to EXECUTING
+[Node:notifyChanged] adding C2 0x7ff17d704ee0 to check queue
+[PlexilExec:step][1:3:2] Transitioning Command node C3 0x7ff17d705180 from WAITING to EXECUTING
+[Node:notifyChanged] adding C3 0x7ff17d705180 to check queue
 [Test:testOutput]Executing c3()
 [Test:testOutput]Permission to execute c1 has been denied by the resource arbiter.
 [Test:testOutput]Permission to execute c2 has been denied by the resource arbiter.
@@ -66,100 +66,98 @@ Resource3Deny2HP{
 [PlexilExec:printPlan]
 Resource3Deny2HP{
  State: EXECUTING (0)
- EndCondition: (AllChildrenFinished Boolean Resource3Deny2HP 0x7ffc23407d30 [a](false))
- ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean Resource3Deny2HP 0x7ffc23407ce8 [i](false))
+ EndCondition: (AllChildrenFinished Boolean Resource3Deny2HP 0x7ff17d704be0 [a](false))
+ ActionCompleteCondition: (AllChildrenWaitingOrFinished Boolean Resource3Deny2HP 0x7ff17d704b98 [i](false))
   C1{
    State: EXECUTING (0)
-   EndCondition: (OR Boolean 0x7ffc23408aa0 [a](true) (Interruptible Boolean C1 0x7ffc23408a50 [a](true)) (EQ Boolean 0x7ffc23408980 [a](false) (Constant Integer 0x7ffc234089e0 [a](10)) (Variable Integer returnValue 0x7ffc23408040 [a](-1))))
-   PostCondition: (EQ Boolean 0x7ffc234089f0 [i](false) (CommandHandleVariable NodeCommandHandle 0x7ffc234081d8 [a](COMMAND_DENIED)) (CommandHandleValue NodeCommandHandle 0x10a66ccf8 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7ffc23408190 [i](true))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7ffc23408218 [a](false))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7ffc234081d8 [a](COMMAND_DENIED))
-   mem_priority: (Variable Integer mem_priority 0x7ffc234080e0 [a](5))
-   returnValue: (Variable Integer returnValue 0x7ffc23408040 [a](-1))
+   EndCondition: (OR Boolean 0x600002fbc960 [a](true) (Interruptible Boolean C1 0x6000028bc280 [a](true)) (EQ Boolean 0x600002fbc8a0 [a](false) (Constant Integer 0x6000009b81a0 [a](10)) (Variable Integer returnValue 0x6000025bc080 [a](-1))))
+   PostCondition: (EQ Boolean 0x600002fbc900 [i](false) (CommandHandleVariable NodeCommandHandle 0x7ff17d704de0 [a](COMMAND_DENIED)) (CommandHandleValue NodeCommandHandle 0x10dda8850 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7ff17d704d98 [i](true))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7ff17d704e20 [a](false))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7ff17d704de0 [a](COMMAND_DENIED))
+   returnValue: (Variable Integer returnValue 0x6000025bc080 [a](-1))
   }
   C2{
    State: EXECUTING (0)
-   PostCondition: (EQ Boolean 0x7ffc23408c80 [i](false) (CommandHandleVariable NodeCommandHandle 0x7ffc23408588 [a](COMMAND_DENIED)) (CommandHandleValue NodeCommandHandle 0x10a66ccf8 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7ffc23408540 [i](true))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7ffc234085c8 [a](false))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7ffc23408588 [a](COMMAND_DENIED))
-   mem_priority2: (Variable Integer mem_priority2 0x7ffc23408490 [a](10))
+   PostCondition: (EQ Boolean 0x600002fbc9c0 [i](false) (CommandHandleVariable NodeCommandHandle 0x7ff17d705080 [a](COMMAND_DENIED)) (CommandHandleValue NodeCommandHandle 0x10dda8850 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7ff17d705038 [i](true))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7ff17d7050c0 [a](false))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7ff17d705080 [a](COMMAND_DENIED))
   }
   C3{
    State: EXECUTING (0)
-   PostCondition: (EQ Boolean 0x7ffc23408eb0 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7ffc23408828 [a]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x10a66ccf8 [a](COMMAND_SENT_TO_SYSTEM)))
-   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7ffc234087e0 [i](false))
-   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7ffc23408868 [a](false))
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7ffc23408828 [a]([unknown_value]))
+   PostCondition: (EQ Boolean 0x600002fbca20 [i]([unknown_value]) (CommandHandleVariable NodeCommandHandle 0x7ff17d705320 [a]([unknown_value])) (CommandHandleValue NodeCommandHandle 0x10dda8850 [a](COMMAND_SENT_TO_SYSTEM)))
+   ActionCompleteCondition: (CommandHandleKnown Boolean 0x7ff17d7052d8 [i](false))
+   AbortCompleteCondition: (InternalVariable Boolean abortComplete 0x7ff17d705360 [a](false))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7ff17d705320 [a]([unknown_value]))
   }
 }
 
 [Test:testOutput]Sending command ACK c3() = (string)COMMAND_SENT_TO_SYSTEM
 [PlexilExec:step] ==>Start cycle 2
 [PlexilExec:step][2:0] Check queue: C1 Resource3Deny2HP C2 C3 
-[PlexilExec:step] Node C1 0x7ffc23407e70 can transition from EXECUTING to FINISHING
-[PlexilExec:step] adding C1 0x7ffc23407e70 to state change queue
-[PlexilExec:step] Node C2 0x7ffc234082d0 can transition from EXECUTING to FINISHING
-[PlexilExec:step] adding C2 0x7ffc234082d0 to state change queue
-[PlexilExec:step] Node C3 0x7ffc23408680 can transition from EXECUTING to FINISHING
-[PlexilExec:step] adding C3 0x7ffc23408680 to state change queue
+[PlexilExec:step] Node C1 0x7ff17d704c40 can transition from EXECUTING to FINISHING
+[PlexilExec:step] adding C1 0x7ff17d704c40 to state change queue
+[PlexilExec:step] Node C2 0x7ff17d704ee0 can transition from EXECUTING to FINISHING
+[PlexilExec:step] adding C2 0x7ff17d704ee0 to state change queue
+[PlexilExec:step] Node C3 0x7ff17d705180 can transition from EXECUTING to FINISHING
+[PlexilExec:step] adding C3 0x7ff17d705180 to state change queue
 [PlexilExec:step][2:0] State change queue: C1 C2 C3 
-[PlexilExec:step][2:0:0] Transitioning Command node C1 0x7ffc23407e70 from EXECUTING to FINISHING
-[Node:notifyChanged] adding C1 0x7ffc23407e70 to check queue
-[Node:notifyChanged] adding Resource3Deny2HP 0x7ffc23407ba0 to check queue
-[PlexilExec:step][2:0:1] Transitioning Command node C2 0x7ffc234082d0 from EXECUTING to FINISHING
-[Node:notifyChanged] adding C2 0x7ffc234082d0 to check queue
-[PlexilExec:step][2:0:2] Transitioning Command node C3 0x7ffc23408680 from EXECUTING to FINISHING
-[Node:notifyChanged] adding C3 0x7ffc23408680 to check queue
+[PlexilExec:step][2:0:0] Transitioning Command node C1 0x7ff17d704c40 from EXECUTING to FINISHING
+[Node:notifyChanged] adding C1 0x7ff17d704c40 to check queue
+[Node:notifyChanged] adding Resource3Deny2HP 0x7ff17d704a50 to check queue
+[PlexilExec:step][2:0:1] Transitioning Command node C2 0x7ff17d704ee0 from EXECUTING to FINISHING
+[Node:notifyChanged] adding C2 0x7ff17d704ee0 to check queue
+[PlexilExec:step][2:0:2] Transitioning Command node C3 0x7ff17d705180 from EXECUTING to FINISHING
+[Node:notifyChanged] adding C3 0x7ff17d705180 to check queue
 [PlexilExec:step][2:1] Check queue: C1 Resource3Deny2HP C2 C3 
-[PlexilExec:step] Node C1 0x7ffc23407e70 can transition from FINISHING to ITERATION_ENDED
-[PlexilExec:step] adding C1 0x7ffc23407e70 to state change queue
-[PlexilExec:step] Node C2 0x7ffc234082d0 can transition from FINISHING to ITERATION_ENDED
-[PlexilExec:step] adding C2 0x7ffc234082d0 to state change queue
-[PlexilExec:step] Node C3 0x7ffc23408680 can transition from FINISHING to ITERATION_ENDED
-[PlexilExec:step] adding C3 0x7ffc23408680 to state change queue
+[PlexilExec:step] Node C1 0x7ff17d704c40 can transition from FINISHING to ITERATION_ENDED
+[PlexilExec:step] adding C1 0x7ff17d704c40 to state change queue
+[PlexilExec:step] Node C2 0x7ff17d704ee0 can transition from FINISHING to ITERATION_ENDED
+[PlexilExec:step] adding C2 0x7ff17d704ee0 to state change queue
+[PlexilExec:step] Node C3 0x7ff17d705180 can transition from FINISHING to ITERATION_ENDED
+[PlexilExec:step] adding C3 0x7ff17d705180 to state change queue
 [PlexilExec:step][2:1] State change queue: C1 C2 C3 
-[PlexilExec:step][2:1:0] Transitioning Command node C1 0x7ffc23407e70 from FINISHING to ITERATION_ENDED
-[Node:notifyChanged] adding C1 0x7ffc23407e70 to check queue
-[Node:notifyChanged] adding Resource3Deny2HP 0x7ffc23407ba0 to check queue
-[PlexilExec:step][2:1:1] Transitioning Command node C2 0x7ffc234082d0 from FINISHING to ITERATION_ENDED
-[Node:notifyChanged] adding C2 0x7ffc234082d0 to check queue
-[PlexilExec:step][2:1:2] Transitioning Command node C3 0x7ffc23408680 from FINISHING to ITERATION_ENDED
-[Node:notifyChanged] adding C3 0x7ffc23408680 to check queue
+[PlexilExec:step][2:1:0] Transitioning Command node C1 0x7ff17d704c40 from FINISHING to ITERATION_ENDED
+[Node:notifyChanged] adding C1 0x7ff17d704c40 to check queue
+[Node:notifyChanged] adding Resource3Deny2HP 0x7ff17d704a50 to check queue
+[PlexilExec:step][2:1:1] Transitioning Command node C2 0x7ff17d704ee0 from FINISHING to ITERATION_ENDED
+[Node:notifyChanged] adding C2 0x7ff17d704ee0 to check queue
+[PlexilExec:step][2:1:2] Transitioning Command node C3 0x7ff17d705180 from FINISHING to ITERATION_ENDED
+[Node:notifyChanged] adding C3 0x7ff17d705180 to check queue
 [PlexilExec:step][2:2] Check queue: C1 Resource3Deny2HP C2 C3 
-[PlexilExec:step] Node C1 0x7ffc23407e70 can transition from ITERATION_ENDED to FINISHED
-[PlexilExec:step] adding C1 0x7ffc23407e70 to state change queue
-[PlexilExec:step] Node C2 0x7ffc234082d0 can transition from ITERATION_ENDED to FINISHED
-[PlexilExec:step] adding C2 0x7ffc234082d0 to state change queue
-[PlexilExec:step] Node C3 0x7ffc23408680 can transition from ITERATION_ENDED to FINISHED
-[PlexilExec:step] adding C3 0x7ffc23408680 to state change queue
+[PlexilExec:step] Node C1 0x7ff17d704c40 can transition from ITERATION_ENDED to FINISHED
+[PlexilExec:step] adding C1 0x7ff17d704c40 to state change queue
+[PlexilExec:step] Node C2 0x7ff17d704ee0 can transition from ITERATION_ENDED to FINISHED
+[PlexilExec:step] adding C2 0x7ff17d704ee0 to state change queue
+[PlexilExec:step] Node C3 0x7ff17d705180 can transition from ITERATION_ENDED to FINISHED
+[PlexilExec:step] adding C3 0x7ff17d705180 to state change queue
 [PlexilExec:step][2:2] State change queue: C1 C2 C3 
-[PlexilExec:step][2:2:0] Transitioning Command node C1 0x7ffc23407e70 from ITERATION_ENDED to FINISHED
-[Node:notifyChanged] adding C1 0x7ffc23407e70 to check queue
-[Node:notifyChanged] adding Resource3Deny2HP 0x7ffc23407ba0 to check queue
-[PlexilExec:step][2:2:1] Transitioning Command node C2 0x7ffc234082d0 from ITERATION_ENDED to FINISHED
-[Node:notifyChanged] adding C2 0x7ffc234082d0 to check queue
-[PlexilExec:step][2:2:2] Transitioning Command node C3 0x7ffc23408680 from ITERATION_ENDED to FINISHED
-[Node:notifyChanged] adding C3 0x7ffc23408680 to check queue
+[PlexilExec:step][2:2:0] Transitioning Command node C1 0x7ff17d704c40 from ITERATION_ENDED to FINISHED
+[Node:notifyChanged] adding C1 0x7ff17d704c40 to check queue
+[Node:notifyChanged] adding Resource3Deny2HP 0x7ff17d704a50 to check queue
+[PlexilExec:step][2:2:1] Transitioning Command node C2 0x7ff17d704ee0 from ITERATION_ENDED to FINISHED
+[Node:notifyChanged] adding C2 0x7ff17d704ee0 to check queue
+[PlexilExec:step][2:2:2] Transitioning Command node C3 0x7ff17d705180 from ITERATION_ENDED to FINISHED
+[Node:notifyChanged] adding C3 0x7ff17d705180 to check queue
 [PlexilExec:step][2:3] Check queue: C1 Resource3Deny2HP C2 C3 
-[PlexilExec:step] Node Resource3Deny2HP 0x7ffc23407ba0 can transition from EXECUTING to FINISHING
-[PlexilExec:step] adding Resource3Deny2HP 0x7ffc23407ba0 to state change queue
+[PlexilExec:step] Node Resource3Deny2HP 0x7ff17d704a50 can transition from EXECUTING to FINISHING
+[PlexilExec:step] adding Resource3Deny2HP 0x7ff17d704a50 to state change queue
 [PlexilExec:step][2:3] State change queue: Resource3Deny2HP 
-[PlexilExec:step][2:3:0] Transitioning NodeList node Resource3Deny2HP 0x7ffc23407ba0 from EXECUTING to FINISHING
-[Node:notifyChanged] adding Resource3Deny2HP 0x7ffc23407ba0 to check queue
+[PlexilExec:step][2:3:0] Transitioning NodeList node Resource3Deny2HP 0x7ff17d704a50 from EXECUTING to FINISHING
+[Node:notifyChanged] adding Resource3Deny2HP 0x7ff17d704a50 to check queue
 [PlexilExec:step][2:4] Check queue: Resource3Deny2HP 
-[PlexilExec:step] Node Resource3Deny2HP 0x7ffc23407ba0 can transition from FINISHING to ITERATION_ENDED
-[PlexilExec:step] adding Resource3Deny2HP 0x7ffc23407ba0 to state change queue
+[PlexilExec:step] Node Resource3Deny2HP 0x7ff17d704a50 can transition from FINISHING to ITERATION_ENDED
+[PlexilExec:step] adding Resource3Deny2HP 0x7ff17d704a50 to state change queue
 [PlexilExec:step][2:4] State change queue: Resource3Deny2HP 
-[PlexilExec:step][2:4:0] Transitioning NodeList node Resource3Deny2HP 0x7ffc23407ba0 from FINISHING to ITERATION_ENDED
-[Node:notifyChanged] adding Resource3Deny2HP 0x7ffc23407ba0 to check queue
+[PlexilExec:step][2:4:0] Transitioning NodeList node Resource3Deny2HP 0x7ff17d704a50 from FINISHING to ITERATION_ENDED
+[Node:notifyChanged] adding Resource3Deny2HP 0x7ff17d704a50 to check queue
 [PlexilExec:step][2:5] Check queue: Resource3Deny2HP 
-[PlexilExec:step] Node Resource3Deny2HP 0x7ffc23407ba0 can transition from ITERATION_ENDED to FINISHED
-[PlexilExec:step] adding Resource3Deny2HP 0x7ffc23407ba0 to state change queue
+[PlexilExec:step] Node Resource3Deny2HP 0x7ff17d704a50 can transition from ITERATION_ENDED to FINISHED
+[PlexilExec:step] adding Resource3Deny2HP 0x7ff17d704a50 to state change queue
 [PlexilExec:step][2:5] State change queue: Resource3Deny2HP 
-[PlexilExec:step][2:5:0] Transitioning NodeList node Resource3Deny2HP 0x7ffc23407ba0 from ITERATION_ENDED to FINISHED
-[PlexilExec:step] Marking Resource3Deny2HP 0x7ffc23407ba0 as a finished root node
+[PlexilExec:step][2:5:0] Transitioning NodeList node Resource3Deny2HP 0x7ff17d704a50 from ITERATION_ENDED to FINISHED
+[PlexilExec:step] Marking Resource3Deny2HP 0x7ff17d704a50 as a finished root node
 [PlexilExec:step] ==>End cycle 2
 [PlexilExec:printPlan]
 Resource3Deny2HP{
@@ -169,21 +167,19 @@ Resource3Deny2HP{
    State: FINISHED (0)
    Outcome: FAILURE
    Failure type: POST_CONDITION_FAILED
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7ffc234081d8 [i]([unknown_value]))
-   mem_priority: (Variable Integer mem_priority 0x7ffc234080e0 [i]([unknown_value]))
-   returnValue: (Variable Integer returnValue 0x7ffc23408040 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7ff17d704de0 [i]([unknown_value]))
+   returnValue: (Variable Integer returnValue 0x6000025bc080 [i]([unknown_value]))
   }
   C2{
    State: FINISHED (0)
    Outcome: FAILURE
    Failure type: POST_CONDITION_FAILED
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7ffc23408588 [i]([unknown_value]))
-   mem_priority2: (Variable Integer mem_priority2 0x7ffc23408490 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7ff17d705080 [i]([unknown_value]))
   }
   C3{
    State: FINISHED (0)
    Outcome: SUCCESS
-   Command handle: (CommandHandleVariable NodeCommandHandle 0x7ffc23408828 [i]([unknown_value]))
+   Command handle: (CommandHandleVariable NodeCommandHandle 0x7ff17d705320 [i]([unknown_value]))
   }
 }
 

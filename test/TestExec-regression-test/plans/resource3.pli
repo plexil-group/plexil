@@ -1,7 +1,7 @@
 (plexil-plan
   (command-node "Root"
-    (variables (real "p" 23.0))
+    (priority 23)
     (command "store"
       (resources
-        (resource "Memory" (realvar "p")
+        (resource "Memory"
                   (resource-upper-bound 20.0))))))

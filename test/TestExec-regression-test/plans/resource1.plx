@@ -29,6 +29,7 @@
       <NodeList>
         <Node NodeType="Command">
           <NodeId>PickupObject</NodeId>
+          <Priority>10</Priority>
           <EndCondition>
             <EQNumeric>
               <IntegerValue>10</IntegerValue>
@@ -51,13 +52,6 @@
                 <IntegerValue>-1</IntegerValue>
               </InitialValue>
             </DeclareVariable>
-            <DeclareVariable>
-              <Name>priority10</Name>
-              <Type>Integer</Type>
-              <InitialValue>
-                <IntegerValue>10</IntegerValue>
-              </InitialValue>
-            </DeclareVariable>
           </VariableDeclarations>
           <NodeBody>
             <Command>
@@ -66,17 +60,11 @@
                   <ResourceName>
                     <StringValue>right_arm</StringValue>
                   </ResourceName>
-                  <ResourcePriority>
-                    <IntegerVariable>priority10</IntegerVariable>
-                  </ResourcePriority>
                 </Resource>
                 <Resource>
                   <ResourceName>
                     <StringValue>sys_memory</StringValue>
                   </ResourceName>
-                  <ResourcePriority>
-                    <IntegerVariable>priority10</IntegerVariable>
-                  </ResourcePriority>
                   <ResourceUpperBound>
                     <RealValue>1.0</RealValue>
                   </ResourceUpperBound>
@@ -92,15 +80,7 @@
         </Node>
         <Node NodeType="Command">
           <NodeId>ProcessImage</NodeId>
-          <VariableDeclarations>
-            <DeclareVariable>
-              <Name>priority30</Name>
-              <Type>Integer</Type>
-              <InitialValue>
-                <IntegerValue>30</IntegerValue>
-              </InitialValue>
-            </DeclareVariable>
-          </VariableDeclarations>
+          <Priority>30</Priority>
           <PostCondition>
             <EQInternal>
               <NodeCommandHandleVariable>
@@ -116,9 +96,6 @@
                   <ResourceName>
                     <StringValue>sys_memory</StringValue>
                   </ResourceName>
-                  <ResourcePriority>
-                    <IntegerVariable>priority30</IntegerVariable>
-                  </ResourcePriority>
                   <ResourceUpperBound>
                     <RealValue>1.0</RealValue>
                   </ResourceUpperBound>
@@ -130,6 +107,7 @@
         </Node>
         <Node NodeType="Command">
           <NodeId>TakePicture</NodeId>
+          <Priority>10</Priority>
           <PostCondition>
             <EQInternal>
               <NodeCommandHandleVariable>
@@ -138,15 +116,6 @@
               <NodeCommandHandleValue>COMMAND_SENT_TO_SYSTEM</NodeCommandHandleValue>
             </EQInternal>
           </PostCondition>
-          <VariableDeclarations>
-            <DeclareVariable>
-              <Name>v_priority</Name>
-              <Type>Integer</Type>
-              <InitialValue>
-                <IntegerValue>10</IntegerValue>
-              </InitialValue>
-            </DeclareVariable>
-          </VariableDeclarations>
           <NodeBody>
             <Command>
               <ResourceList>
@@ -154,9 +123,6 @@
                   <ResourceName>
                     <StringValue>vision_system</StringValue>
                   </ResourceName>
-                  <ResourcePriority>
-                    <IntegerVariable>v_priority</IntegerVariable>
-                  </ResourcePriority>
                 </Resource>
               </ResourceList>
               <Name><StringValue>take_picture</StringValue></Name>

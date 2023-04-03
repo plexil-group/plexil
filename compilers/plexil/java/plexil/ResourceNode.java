@@ -120,16 +120,6 @@ public class ResourceNode extends PlexilTreeNode
 				m_releaseAtTermination = valueExpr;
 				break;
 
-			case PlexilLexer.PRIORITY_KYWD:
-				if (m_priority != null) {
-					state.addDiagnostic(kywd,
-										"The " + kywd.getText()
-										+ " keyword may only appear once per Resource statement",
-										Severity.ERROR);
-				}
-				m_priority = valueExpr;
-				break;
-
 			default:
 				// TODO: complain of bogus keyword
 				state.addDiagnostic(kywd,

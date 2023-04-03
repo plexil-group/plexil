@@ -110,7 +110,6 @@ namespace PLEXIL
   constexpr char const RESOURCE_TAG[] = "Resource";
   constexpr char const RESOURCE_LIST_TAG[] = "ResourceList";
   constexpr char const RESOURCE_NAME_TAG[] = "ResourceName";
-  constexpr char const RESOURCE_PRIORITY_TAG[] = "ResourcePriority";
   constexpr char const RESOURCE_UPPER_BOUND_TAG[] = "ResourceUpperBound";
   constexpr char const RESOURCE_RELEASE_AT_TERMINATION_TAG[] = "ResourceReleaseAtTermination";
 

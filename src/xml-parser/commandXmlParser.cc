@@ -44,10 +44,27 @@ namespace PLEXIL
 {
 
   // First pass
+  // Ensure containing Node has a Priority element
+  // Priority element itself is checked in parseNode.cc
+  static void checkNodePriorityForResource(char const *nodeId, xml_node const cmdXml)
+  {
+    // Node/NodeBody/Command
+    xml_node const nodeXml = cmdXml.parent().parent();
+    checkParserExceptionWithLocation(!strcmp(NODE_TAG, nodeXml.name()),
+                                     nodeXml,
+                                     "Internal parser error: expected " << NODE_TAG
+                                     << " element, got \"" << nodeXml.name() << '"');
+    checkParserExceptionWithLocation(nodeXml.child(PRIORITY_TAG),
+                                     nodeXml,
+                                     "Node \"" << nodeId << "\": Command has a " << RESOURCE_LIST_TAG
+                                     << " element, but Node lacks required " << PRIORITY_TAG << " element");
+  }
+
+  // First pass
   static void checkResource(char const *nodeId, xml_node const resourceElt)
   {
     checkTag(RESOURCE_TAG, resourceElt);
-    xml_node nameXml, prioXml;
+    xml_node nameXml;
 
     // check the fields
     for (xml_node rtemp = resourceElt.first_child();
@@ -78,28 +95,6 @@ namespace PLEXIL
                                          << "\": " << rtemp.name()
                                          << " expression is not a String expression");
         nameXml = rtemp;
-        break;
-
-      case 16: // ResourcePriority
-        checkParserExceptionWithLocation(!strcmp(RESOURCE_PRIORITY_TAG, tag),
-                                         rtemp,
-                                         "Invalid " << tag << " element in Command Resource");
-        checkParserExceptionWithLocation(!prioXml,
-                                         rtemp,
-                                         "Duplicate " << rtemp.name()
-                                         << " element in " << RESOURCE_TAG);
-        checkParserExceptionWithLocation(rtemp.first_child(),
-                                         resourceElt,
-                                         "Command Node \"" << nodeId
-                                         << "\": " << rtemp.name()
-                                         << " element is invalid");
-        tempType = checkExpression(nodeId, rtemp.first_child());
-        checkParserExceptionWithLocation(isNumericType(tempType) || tempType == UNKNOWN_TYPE,
-                                         rtemp,
-                                         "Command Node \"" << nodeId
-                                         << "\": " << rtemp.name()
-                                         << " expression is not a numeric expression");
-        prioXml = rtemp;
         break;
 
       case 18: // ResourceUpperBound
@@ -148,15 +143,11 @@ namespace PLEXIL
       }
     }
         
-    // Check that name and priority were supplied
+    // Check that resource name was supplied
     checkParserExceptionWithLocation(nameXml,
                                      resourceElt,
-                                     "Node \"" << nodeId
+                                     "Command Node \"" << nodeId
                                      << "\": No " << RESOURCE_NAME_TAG << " element for resource");
-    checkParserExceptionWithLocation(prioXml,
-                                     resourceElt,
-                                     "Node \"" << nodeId
-                                     << "\": No " << RESOURCE_PRIORITY_TAG << " element for resource");
   }
   
   // First pass
@@ -199,6 +190,8 @@ namespace PLEXIL
 
     // Optional ResourceList
     if (testTag(RESOURCE_LIST_TAG, temp)) {
+      // Confirm Node has a Priority element
+      checkNodePriorityForResource(nodeId, cmdXml);
       checkResourceList(nodeId, temp);
       temp = temp.next_sibling();
     }
@@ -282,18 +275,8 @@ namespace PLEXIL
             exp = createExpression(rtemp.first_child(), node, isGarbage);
             checkParserExceptionWithLocation(exp->valueType() == STRING_TYPE || exp->valueType() == UNKNOWN_TYPE,
                                              rtemp.first_child(),
-                                             RESOURCE_NAME_TAG << " expression is not String valued in Command Resource");
+                                             RESOURCE_NAME_TAG << " expression is not String valued");
             rspec.setNameExpression(exp, isGarbage);
-            break;
-
-          case 16: // ResourcePriority
-            assertTrueMsg(!strcmp(RESOURCE_PRIORITY_TAG, tag),
-                          "finalizeResourceList: unexpected tag \"" << tag << '"');
-            exp = createExpression(rtemp.first_child(), node, isGarbage);
-            checkParserExceptionWithLocation(exp->valueType() == INTEGER_TYPE || exp->valueType() == UNKNOWN_TYPE,
-                                             rtemp.first_child(),
-                                             RESOURCE_PRIORITY_TAG << " expression is not Integer valued in Command Resource");
-            rspec.setPriorityExpression(exp, isGarbage);
             break;
 
           case 18: // ResourceUpperBound
@@ -302,7 +285,7 @@ namespace PLEXIL
             exp = createExpression(rtemp.first_child(), node, isGarbage);
             checkParserExceptionWithLocation(isNumericType(exp->valueType()) || exp->valueType() == UNKNOWN_TYPE,
                                              rtemp.first_child(),
-                                             RESOURCE_UPPER_BOUND_TAG << " expression is not a numeric expression in Command Resource");
+                                             RESOURCE_UPPER_BOUND_TAG << " expression is not a numeric expression");
             rspec.setUpperBoundExpression(exp, isGarbage);
             break;
 

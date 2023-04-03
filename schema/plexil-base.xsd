@@ -459,12 +459,6 @@ It is used as an included schema only.
             <xs:attributeGroup ref="SourceLocators"/>
           </xs:complexType>
         </xs:element>
-        <xs:element name="ResourcePriority" minOccurs="0">
-          <xs:complexType>
-            <xs:group ref="GeneralizedNumericExpression"/>
-            <xs:attributeGroup ref="SourceLocators"/>
-          </xs:complexType>
-        </xs:element>
         <xs:element name="ResourceUpperBound" minOccurs="0">
           <xs:complexType>
             <xs:group ref="GeneralizedNumericExpression"/>

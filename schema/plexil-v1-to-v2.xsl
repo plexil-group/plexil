@@ -268,9 +268,6 @@
         <Name>
           <xsl:apply-templates select="ResourceName/*" />
         </Name>
-        <Priority>
-          <xsl:apply-templates select="ResourcePriority/*" />
-        </Priority>
         <xsl:if test="ResourceUpperBound">
           <UpperBound>
             <xsl:apply-templates select="ResourceUpperBound/*" />
