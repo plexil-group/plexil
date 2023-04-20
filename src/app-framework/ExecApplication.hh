@@ -61,6 +61,7 @@ namespace PLEXIL
 {
   // forward references
   class InterfaceManager;
+  class ErrorHandlerInterface;
 
   /**
    * @brief Provides a "pre-packaged" application skeleton for Universal Exec users.
@@ -272,6 +273,12 @@ namespace PLEXIL
      */
     bool allPlansFinished();
 
+    /**
+     * @brief Register an error handler and activate exception throwing.
+     * @param errorHandler that will get the exceptions thrown.
+     */
+    void registerErrorHandler(ErrorHandlerInterface * const errorHandler);
+
   protected:
 
     //
@@ -414,6 +421,7 @@ namespace PLEXIL
     // Flag for suspend/resume
     bool m_suspended;
 
+    ErrorHandlerInterface * m_errorHandler;
   };
 
 }

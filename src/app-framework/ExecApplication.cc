@@ -34,6 +34,8 @@
 #include "ParserException.hh"
 #include "PlexilExec.hh"
 #include "pugixml.hpp"
+#include "ErrorHandlerInterface.hh"
+#include "InterfaceError.hh"
 
 #if defined(HAVE_CSTRING)
 #include <cstring>
@@ -59,7 +61,8 @@ namespace PLEXIL
       m_threadLaunched(false),
       m_runExecInBkgndOnly(true),
       m_stop(false),
-      m_suspended(false)
+      m_suspended(false),
+      m_errorHandler(NULL)
   {
     for (size_t i = 0; i <= EXEC_APPLICATION_MAX_N_SIGNALS; i++)
       m_blockedSignals[i] = 0;
@@ -506,17 +509,75 @@ namespace PLEXIL
       return;
     }
 
-    // must step exec once to initialize time
-    runExec(true);
-    debugMsg("ExecApplication:runInternal", " Initial step complete");
+    try
+    {
+      // must step exec once to initialize time
+      runExec(true);
+      debugMsg("ExecApplication:runInternal", " Initial step complete");
 
-    while (waitForExternalEvent()) {
-      if (m_stop) {
-        debugMsg("ExecApplication:runInternal", " Received stop request");
-        m_stop = false; // acknowledge stop request
-        break;
+      while (waitForExternalEvent()) {
+        if (m_stop) {
+          debugMsg("ExecApplication:runInternal", " Received stop request");
+          m_stop = false; // acknowledge stop request
+          break;
+        }
+        runExec(false);
       }
-      runExec(false);
+    }
+    catch(PlanError const & planError)
+    {
+      if(m_errorHandler)
+      {
+        m_errorHandler->handlePlanError(planError);
+      }
+      else
+      {
+        throw;
+      }
+    }
+    catch(InterfaceError const & interfaceError)
+    {
+      if(m_errorHandler)
+      {
+        m_errorHandler->handleInterfaceError(interfaceError);
+      }
+      else
+      {
+        throw;
+      }
+    }
+    catch(Error const & error)
+    {
+      if(m_errorHandler)
+      {
+        m_errorHandler->handleError(error);
+      }
+      else
+      {
+        throw;
+      }
+    }
+    catch(std::exception const & stdException)
+    {
+      if(m_errorHandler)
+      {
+        m_errorHandler->handleStdException(stdException);
+      }
+      else
+      {
+        throw;
+      }
+    }
+    catch(...)
+    {
+      if(m_errorHandler)
+      {
+        m_errorHandler->handleUnknownError();
+      }
+      else
+      {
+        throw;
+      }
     }
 
     // restore old signal handlers for this thread
@@ -1038,6 +1099,21 @@ namespace PLEXIL
 #ifdef PLEXIL_WITH_THREADS
     m_markSem.post();
 #endif
+  }
+
+  /**
+   * @brief Register an error handler and activate exception throwing.
+   */
+  void
+  ExecApplication::registerErrorHandler(ErrorHandlerInterface * const errorHandler)
+  {
+    m_errorHandler = errorHandler;
+    if(errorHandler)
+    {
+      PLEXIL::PlanError::doThrowExceptions();
+      PLEXIL::InterfaceError::doThrowExceptions();
+      PLEXIL::Error::doThrowExceptions();
+    }
   }
 
 }
