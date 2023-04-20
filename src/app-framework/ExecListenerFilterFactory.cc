@@ -146,11 +146,7 @@ namespace PLEXIL
     assertTrue_1(factory != NULL);
     if (factoryMap().find(name) != factoryMap().end())
       {
-        warn("Attempted to register an exec listener filter factory for name \""
-             << name.c_str()
-             << "\" twice, ignoring.");
-        delete factory;
-        return;
+        delete factoryMap()[name];
       }
     factoryMap()[name] = factory;
     debugMsg("ExecListenerFilterFactory:registerFactory",

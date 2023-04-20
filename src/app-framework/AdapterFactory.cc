@@ -168,11 +168,7 @@ namespace PLEXIL
   {
     assertTrue_1(factory != NULL);
     if (factoryMap().find(name) != factoryMap().end()) {
-      warn("Attempted to register an adapter factory for name \""
-           << name.c_str()
-           << "\" twice, ignoring.");
-      delete factory;
-      return;
+      delete factoryMap()[name];
     }
     factoryMap()[name] = factory;
     debugMsg("AdapterFactory:registerFactory",

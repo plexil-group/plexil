@@ -137,13 +137,8 @@ namespace PLEXIL
   void ExecListenerFactory::registerFactory(std::string const &name, ExecListenerFactory* factory)
   {
     assertTrue_1(factory != NULL);
-    // FIXME: Assert, or replace old factory?
     if (factoryMap().find(name) != factoryMap().end()) {
-      warn("Attempted to register an exec listener factory for name \""
-           << name.c_str()
-           << "\" twice, ignoring.");
-      delete factory;
-      return;
+      delete factoryMap()[name];
     }
     factoryMap()[name] = factory;
     debugMsg("ExecListenerFactory:registerFactory",
