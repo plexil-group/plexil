@@ -69,7 +69,7 @@ namespace PLEXIL
      * @param execInterface Reference to the parent AdapterExecInterface object.
      */
     PosixTimeAdapter(AdapterExecInterface& execInterface)
-      : TimeAdapterImpl(execInterface)
+      : TimeAdapterImpl(execInterface), m_timerCreated(false)
     {
     }
 
@@ -81,7 +81,7 @@ namespace PLEXIL
      */
     PosixTimeAdapter(AdapterExecInterface& execInterface, 
                      pugi::xml_node const xml)
-      : TimeAdapterImpl(execInterface, xml)
+      : TimeAdapterImpl(execInterface, xml), m_timerCreated(false)
     {
     }
 
@@ -146,6 +146,7 @@ namespace PLEXIL
         warn("TimeAdapter: timer_create failed, errno = " << errno);
         return false;
       }
+      m_timerCreated = true;
       return true;
     }
 
@@ -212,7 +213,13 @@ namespace PLEXIL
      */
     virtual bool deleteTimer()
     {
+      if(!m_timerCreated)
+      {
+        return false;
+      }
+
       int status = timer_delete(m_timer);
+      m_timerCreated = false;
       if (status) {
         warn("TimeAdapter: timer_delete failed, errno = " << errno);
       }
@@ -274,6 +281,8 @@ namespace PLEXIL
 
     sigevent m_sigevent;
     timer_t m_timer;
+
+    bool m_timerCreated;
   };
 
   void registerTimeAdapter()
