@@ -1670,8 +1670,7 @@ static void getMsgInfoHnd(DISPATCH_PTR dispatch, char *name)
   if (msg != NULL) {
     msgInfo.msgFormat = (char *)msg->msgFormatStr;
     msgInfo.resFormat = (char *)msg->resFormatStr;
-    msgInfo.msg_class = 
-      msgInfo.msg_class = msg->msgData->msg_class;
+    msgInfo.msg_class = msg->msgData->msg_class;
     msgInfo.numberOfHandlers = x_ipc_listLength(msg->hndList);
     if (msgInfo.numberOfHandlers > 0) {
       msgInfo.resourceName = 

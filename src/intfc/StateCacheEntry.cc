@@ -60,7 +60,7 @@ namespace PLEXIL
     delete m_highThreshold;
   }
 
-  ValueType const StateCacheEntry::valueType() const
+  ValueType StateCacheEntry::valueType() const
   {
     if (m_value)
       return m_value->valueType();
