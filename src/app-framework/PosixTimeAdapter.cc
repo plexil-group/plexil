@@ -123,14 +123,21 @@ namespace PLEXIL
      * @brief Construct and initialize the timer as required.
      * @return True if successful, false otherwise.
      */
-    virtual bool initializeTimer()
+    virtual bool initializeTimer(pid_t timerThread)
     {
       // Initialize sigevent
+#ifdef PLEXIL_WITH_THREADS
+      m_sigevent.sigev_notify = SIGEV_THREAD_ID;
+#else
       m_sigevent.sigev_notify = SIGEV_SIGNAL;
+#endif
       m_sigevent.sigev_signo = SIGUSR1; // was SIGALRM
       m_sigevent.sigev_value.sival_int = 0;
       m_sigevent.sigev_notify_function = NULL;
       m_sigevent.sigev_notify_attributes = NULL;
+#ifdef PLEXIL_WITH_THREADS
+      m_sigevent._sigev_un._tid = timerThread;
+#endif
 
       // Create a timer
       if (timer_create(PLEXIL_CLOCK_GETTIME,
