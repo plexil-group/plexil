@@ -215,7 +215,7 @@ bootstrap_virtual_environment()
     local install_pip=
     if virtualenv="$(command -v virtualenv)" # status == 0 if found
     then
-        verbose_msg "Using virtualenv at $virtualenv"
+        msg "Using virtualenv at $virtualenv"
         virtual_env='virtualenv'
         if [ -n "$user_python" ]
         then
@@ -224,6 +224,7 @@ bootstrap_virtual_environment()
         virtual_env_options="${virtual_env_options:+$virtual_env_options }${verbosity}"
     elif "$python_exe" -c 'import venv' > /dev/null 2>&1
     then
+        msg "Using venv from library"
         virtual_env="$python_exe -m venv"
         test -z "$verbose" || printf "Using ${python_exe} -m venv with"
         if ! "$python_exe" -c 'import ensurepip' > /dev/null 2>&1
@@ -247,15 +248,20 @@ bootstrap_virtual_environment()
         return 1
     fi
 
-    # *** Not sure this actually works ***
     if [ -n "$install_pip" ]
     then
-        msg 'Bootstrapping pip from PyPA'
-        if ! curl https://bootstrap.pypa.io/get-pip.py -s -S -o "${venv_dir}/bin/get-pip.py" && \
-                ( . "$activate_script" && "${venv_dir}/bin/python" "${venv_dir}/bin/get-pip.py" )
+        if ( . "$activate_script" && "$venv_python" -m ensurepip --upgrade )
         then
-            error_msg "Created virtual environment, but failed to install 'pip' in it."
-            return 1
+            msg "Installed pip"
+        else
+            # *** Not sure this actually works ***
+            msg 'Bootstrapping pip from PyPA'
+            if ! curl https://bootstrap.pypa.io/get-pip.py -s -S -o "${venv_dir}/bin/get-pip.py" && \
+                    ( . "$activate_script" && "$venv_python" "${venv_dir}/bin/get-pip.py" )
+            then
+                error_msg "Created virtual environment, but failed to install 'pip' in it."
+                return 1
+            fi
         fi
     fi
 
