@@ -1,7 +1,7 @@
 #! /bin/sh
 # Install the Python virtual environment for the validator
 
-# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2023, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,10 +34,11 @@ here="$( cd "$(dirname "$0")" && pwd -P )"
 py_ver_major=3
 py_ver_minor=5
 
-venv_dir="$here/.venv"
-venv_pip="$venv_dir/bin/pip"
-venv_python="$venv_dir/bin/python"
-activate_script="$venv_dir/bin/activate"
+venv_dir="${here}/.venv"
+venv_pip="${venv_dir}/bin/pip"
+venv_python="${venv_dir}/bin/python"
+activate_script="${venv_dir}/bin/activate"
+get_pip_py="${venv_dir}/bin/get-pip.py"
 
 usage()
 {
@@ -226,14 +227,12 @@ bootstrap_virtual_environment()
     then
         msg "Using venv from library"
         virtual_env="$python_exe -m venv"
-        test -z "$verbose" || printf "Using ${python_exe} -m venv with"
         if ! "$python_exe" -c 'import ensurepip' > /dev/null 2>&1
         then
-            test -z "$verbose" || printf 'out'
             virtual_env_options='--without-pip'
             install_pip='yes'
         fi
-        test -z "$verbose" || printf ' pip\n'
+        msg 'Using venv from library' "${install_pip:+without pip}"
     else
         error_msg "'virtualenv' not available, and $python_exe has no 'venv' module."
         echo 'Please install virtualenv, or use the --with-python option to select a different Python executable.' >&2
@@ -252,14 +251,17 @@ bootstrap_virtual_environment()
     then
         if ( . "$activate_script" && "$venv_python" -m ensurepip --upgrade )
         then
-            msg "Installed pip"
+            msg "Installed pip via ensurepip"
         else
-            # *** Not sure this actually works ***
             msg 'Bootstrapping pip from PyPA'
-            if ! curl https://bootstrap.pypa.io/get-pip.py -s -S -o "${venv_dir}/bin/get-pip.py" && \
-                    ( . "$activate_script" && "$venv_python" "${venv_dir}/bin/get-pip.py" )
+            if ! curl https://bootstrap.pypa.io/get-pip.py -s -S -o "$get_pip_py"
             then
-                error_msg "Created virtual environment, but failed to install 'pip' in it."
+                error_msg 'curl failed to download get-pip.py'
+                return 1
+            fi
+            if ! ( . "$activate_script" && "$venv_python" "$get_pip_py" )
+            then
+                error_msg 'get_pip.py failed to install pip'
                 return 1
             fi
         fi
