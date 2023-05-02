@@ -239,6 +239,14 @@ bootstrap_virtual_environment()
         return 1
     fi
 
+    # Create the virtual environment
+    verbose_msg "${virtual_env} ${virtual_env_options} $venv_dir"
+    if ! ${virtual_env} ${virtual_env_options} "$venv_dir"
+    then
+        error_msg "virtual environment creation failed." >&2
+        return 1
+    fi
+
     # *** Not sure this actually works ***
     if [ -n "$install_pip" ]
     then
@@ -249,14 +257,6 @@ bootstrap_virtual_environment()
             error_msg "Created virtual environment, but failed to install 'pip' in it."
             return 1
         fi
-    fi
-
-    # Create the virtual environment
-    verbose_msg "${virtual_env} ${virtual_env_options} $venv_dir"
-    if ! ${virtual_env} ${virtual_env_options} "$venv_dir"
-    then
-        error_msg "virtual environment creation failed." >&2
-        return 1
     fi
 
     # Install required software
