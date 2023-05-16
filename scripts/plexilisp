@@ -38,7 +38,7 @@ then
 fi
 
 EMACS="${EMACS-"$(command -v emacs)"}"
-if [ -z "$EMACS" ]
+if [ ! -x "$EMACS" ]
 then
     echo 'Error: emacs not found. Cannot compile Plexilisp.' >&2
     exit 1
