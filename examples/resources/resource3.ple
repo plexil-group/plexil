@@ -17,7 +17,6 @@ Concurrence {
     PostCondition C2.command_handle == COMMAND_SUCCESS;
     EndCondition returnValue == 10;
     Resource Name = "memory",
-      LowerBound = 0.3, 
       UpperBound = 0.3,
       Priority = 25;
     returnValue = c2();

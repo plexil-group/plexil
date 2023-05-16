@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2023, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -337,7 +337,7 @@ namespace PLEXIL
         }
 
         debugMsg("ResourceArbiterInterface:readResourceHierarchy",
-                 " got resource name " << pName << ", value " << maxCons);
+                 " Resource " << pName << ", maximum " << maxCons);
 
         // Skip whitespace
         endptr += strspn(endptr, WHITESPACE);
@@ -429,7 +429,7 @@ namespace PLEXIL
       }
     
       debugMsg("ResourceArbiterInterface:releaseResourcesForCommand", 
-               "remaining locked resources after releasing for command " << cmd->getName());
+               " command " << cmd->getName() << " released, remaining locked resources:");
       printAllocatedResources();
     }
 
@@ -515,14 +515,18 @@ namespace PLEXIL
             invalid = true;
             debugMsg("ResourceArbiterInterface:optimalResourceArbitration",
                      " rejecting " << cmd->getName()
-                     << " because renewable usage of " << rit->name << " exceeds limits");
+                     << "; renewable usage of " << rit->name
+                     << ", " << est.renewable << ", would exceed limits [0, "
+                     << resMax << ']');
             break; // from inner loop
           }
           else if (est.consumable < 0 || est.consumable > resMax) {
             invalid = true;
             debugMsg("ResourceArbiterInterface:optimalResourceArbitration",
                      " rejecting " << cmd->getName()
-                     << " because consumable usage of " << rit->name << " exceeds limits");
+                     << "; consumable usage of " << rit->name
+                     << ", " << est.consumable << ", would exceed limits [0, "
+                     << resMax << ']');
             break; // from inner loop
           }
         }
@@ -567,7 +571,7 @@ namespace PLEXIL
            iter != sortedCommands.end();
            ++iter)
         debugMsg("ResourceArbiterInterface:printSortedCommands", 
-                 "CommandName: " << iter->command->getName()
+                 " CommandName: " << iter->command->getName()
                  << " Priority: " << iter->priority);
     }
 
@@ -584,7 +588,7 @@ namespace PLEXIL
       Command *cmd = acceptCmds.front();
       while (cmd) {
         debugMsg("ResourceArbiterInterface:printAcceptedCommands", 
-                 " Accepted command: " << cmd->getName()
+                 " Accepted command " << cmd->getName()
                  << " uses resources:");
         ResourceSet const &res = m_cmdResMap[cmd];
         for (ResourceSet::const_iterator resIter = res.begin();
