@@ -56,10 +56,7 @@ fi
 min_port=49100
 max_port=49150
 
-# List open Internet sockets to temp file
-active_ports="/tmp/find_open_port.$PPID"
-port_found=0
-
+# List open Internet sockets
 ports_in_use="$(list_ports_in_use)"
 
 n=$min_port
