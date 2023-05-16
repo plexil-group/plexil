@@ -5,8 +5,8 @@ Integer Command c3;
 SimpleTask:
 Concurrence {
   C1: {
-    Priority 20;
     Integer returnValue = -1;
+    Priority 20;
     EndCondition returnValue == 10;
     PostCondition C1.command_handle == COMMAND_SUCCESS;
     Resource Name = "sys_memory",
@@ -14,8 +14,8 @@ Concurrence {
     returnValue = c1();
   }
   C2: {
-    Priority 40;
     Integer returnValue = -1;
+    Priority 40;
     StartCondition Sibling(C1).state == EXECUTING;
     EndCondition returnValue == 10;
     PostCondition C2.command_handle == COMMAND_SUCCESS;
@@ -24,8 +24,8 @@ Concurrence {
     returnValue = c2();
   }
   C3: {
-    Priority 30;
     Integer returnValue = -1;
+    Priority 30;
     StartCondition Sibling(C2).state == EXECUTING;
     EndCondition returnValue == 10;
     PostCondition C3.command_handle == COMMAND_SUCCESS;

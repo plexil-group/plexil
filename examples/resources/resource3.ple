@@ -5,16 +5,16 @@ Integer Command c3;
 SimpleTask: 
 Concurrence {
   C1: {
-    Priority 20;
     Integer returnValue = -1;
+    Priority 20;
     EndCondition returnValue == 10;
     PostCondition C1.command_handle == COMMAND_SUCCESS;
     Resource Name = "head";
     returnValue = c1();
   }
   C2: {
-    Priority 25;
     Integer returnValue = -1;
+    Priority 25;
     RepeatCondition C2.command_handle == COMMAND_DENIED;
     PostCondition C2.command_handle == COMMAND_SUCCESS;
     EndCondition returnValue == 10;
@@ -23,8 +23,8 @@ Concurrence {
     returnValue = c2();
   }
   C3: {
-    Priority 30;
     Integer returnValue = -1;
+    Priority 30;
     PostCondition C3.command_handle == COMMAND_SUCCESS;
     EndCondition returnValue == 10;
     Resource Name = "vision";
