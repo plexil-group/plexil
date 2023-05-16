@@ -5,34 +5,32 @@ Integer Command c3;
 SimpleTask:
 Concurrence {
   C1: {
+    Priority 20;
     Integer returnValue = -1;
     EndCondition returnValue == 10;
     PostCondition C1.command_handle == COMMAND_SUCCESS;
     Resource Name = "sys_memory",
-      LowerBound = 0.8,
-      UpperBound = 0.8,
-      Priority = 20;
+      UpperBound = 0.75;
     returnValue = c1();
   }
   C2: {
-    Integer mem_priority = 30;
+    Priority 40;
     Integer returnValue = -1;
-    PostCondition C2.command_handle == COMMAND_SUCCESS;
+    StartCondition Sibling(C1).state == EXECUTING;
     EndCondition returnValue == 10;
+    PostCondition C2.command_handle == COMMAND_SUCCESS;
     Resource Name = "sys_memory",
-      LowerBound = 0.3,
-      UpperBound = 0.3,
-      Priority = mem_priority;
+      UpperBound = -0.125;
     returnValue = c2();
   }
   C3: {
+    Priority 30;
     Integer returnValue = -1;
-    PostCondition C3.command_handle == COMMAND_SUCCESS;
+    StartCondition Sibling(C2).state == EXECUTING;
     EndCondition returnValue == 10;
+    PostCondition C3.command_handle == COMMAND_SUCCESS;
     Resource Name = "sys_memory",
-      LowerBound = -0.1,
-      UpperBound = -0.1,
-      Priority = 40;
+      UpperBound = 0.375;
     returnValue = c3();
   }
 }
