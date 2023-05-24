@@ -1,7 +1,7 @@
 # Top level Makefile for Plexil
 # Presumes GNU make
 
-# Copyright (c) 2006-2022, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2023, Universities Space Research Association (USRA).
 #  All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -254,7 +254,7 @@ uninstall:
 	@(cd compilers/plexilscript && ant $@) > /dev/null 2>&1
 
 # Restore the source tree to a just-checked-out state
-distclean squeaky-clean: clean
+distclean squeaky-clean: uninstall clean
 	@(cd schema/validator && $(RM) -r .venv)
 	@(cd compilers/plexil && ant uninstall) > /dev/null 2>&1
 	@(cd compilers/plexilscript && ant uninstall) > /dev/null 2>&1
