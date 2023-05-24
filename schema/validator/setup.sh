@@ -225,6 +225,7 @@ bootstrap_virtual_environment()
         virtual_env_options="${virtual_env_options:+$virtual_env_options }${verbosity}"
     elif "$python_exe" -c 'import venv' > /dev/null 2>&1
     then
+        msg "Using venv from library"
         virtual_env="$python_exe -m venv"
         if ! "$python_exe" -c 'import ensurepip' > /dev/null 2>&1
         then

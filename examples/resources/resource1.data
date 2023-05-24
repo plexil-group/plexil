@@ -1,0 +1,5 @@
+%Contains the resource hierarchy
+% name initial-resource [child-weight child-name]*
+arm 1.0
+sys_memory 1.0
+vision_system 1.0

@@ -1,6 +1,6 @@
-#! /bin/sh
+#! /bin/sh -e
 
-# Copyright (c) 2006-2020, Universities Space Research Association (USRA).
+# Copyright (c) 2006-2023, Universities Space Research Association (USRA).
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -25,11 +25,24 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 # USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+guess_plexil_home()
+{
+    # This script file is expected to be in $PLEXIL_HOME/script
+    cd "$(dirname "$(dirname "$(command -v "$0")")")" && pwd -P
+}
+
 if [ -z "$PLEXIL_HOME" ]
 then
-    echo 'Error: Please set environment variable PLEXIL_HOME'
-    echo "to the full pathname of your root 'plexil' directory."
-    exit 2
+    PLEXIL_HOME="$(guess_plexil_home)"
+    export PLEXIL_HOME
+    echo "Defaulting PLEXIL_HOME to $PLEXIL_HOME"
+fi
+
+if [ ! -r "$PLEXIL_HOME/scripts/plexil-setup.sh" ]
+then
+    echo "$(basename "$0"): Environment variable PLEXIL_HOME is set incorrectly." >&2
+    echo 'Please set it to the full pathname of the PLEXIL source directory' >&2
+    exit 1
 fi
 
 if ( echo "$PATH" | grep -q -v "\<$PLEXIL_HOME/scripts\>" )
@@ -43,10 +56,7 @@ fi
 min_port=49100
 max_port=49150
 
-# List open Internet sockets to temp file
-active_ports="/tmp/find_open_port.$PPID"
-port_found=0
-
+# List open Internet sockets
 ports_in_use="$(list_ports_in_use)"
 
 n=$min_port

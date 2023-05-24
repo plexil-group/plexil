@@ -1,6 +1,7 @@
 *.a
 *.d
-*.o
 *.dylib
+*.o
 *.plx
+*.psx
 *.so
