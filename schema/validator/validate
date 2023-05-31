@@ -36,10 +36,6 @@ here="$( cd "$(dirname "$0")" && pwd -P )"
 
 venv_dir="$here/.venv"
 
-# TEMP DEBUG
-# echo "here=$here"
-# echo "venv_dir=$venv_dir"
-
 if [ ! -d "$venv_dir" ] || [ ! -r "$here/environment" ]
 then
     echo 'Setting up validator environment; this will take a moment...'
