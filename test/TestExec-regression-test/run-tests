@@ -36,8 +36,8 @@ PARSER_ERROR_TESTS="$(cd "$TEST_DIR"/plans/parser-tests; find . -maxdepth 1 -nam
 
 # Tests requiring no external interaction, for which root node success is sufficient
 EMPTY_SCRIPT_TESTS='AncestorReferenceTest array2 array5 array6 array9
- ArrayEquality ArrayInLoop ArrayAssignmentWithFailure AssignmentFailureTest
- AssignFailureWithConflict
+ ArrayEquality ArrayInLoop ArrayAssignmentWithFailure AryVarType
+ AssignmentFailureTest AssignFailureWithConflict
  concat1 contention1 contention3
  DoubleInvariantAssignment
  empty1 empty2 empty3 empty4 EmptyString1
