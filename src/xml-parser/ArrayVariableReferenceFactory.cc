@@ -29,8 +29,10 @@
 #include "Error.hh"
 #include "Expression.hh"
 #include "ExpressionFactory.hh"
+#include "findDeclarations.hh"
 #include "NodeConnector.hh"
 #include "parser-utils.hh"
+#include "PlexilSchema.hh"
 
 #include "pugixml.hpp"
 
@@ -56,8 +58,27 @@ namespace PLEXIL
                                        "Node \"" << nodeId
                                        << "\": Empty or malformed " << expr.name() << " element");
 
-      // TODO: determine type from context
-      return UNKNOWN_TYPE;
+      // Get array type from context
+      pugi::xml_node const decl = findArrayDeclaration(expr, varName);
+      checkParserExceptionWithLocation(decl,
+                                       expr,
+                                       "No array variable named \"" << varName << "\" found");
+      char const *eltTypeName = decl.child_value(TYPE_TAG);
+      checkParserExceptionWithLocation(eltTypeName && *eltTypeName,
+                                       decl,
+                                       "Internal error: Empty " << TYPE_TAG
+                                       << " in declaration of array variable \"" << varName << '"');
+      ValueType aryEltType = parseValueType(eltTypeName);
+      checkParserExceptionWithLocation(aryEltType != UNKNOWN_TYPE,
+                                       decl,
+                                       "Internal error: Invalid " << TYPE_TAG
+                                       << " value in declaration of \"" << varName << '"');
+      ValueType aryType = arrayType(aryEltType);
+      checkParserExceptionWithLocation(aryType != UNKNOWN_TYPE,
+                                       decl,
+                                       "Internal error: Invalid array element type " << eltTypeName
+                                       << " in declaration of \"" << varName << '"');
+      return aryType;
     }
 
     Expression *allocate(pugi::xml_node const expr,
