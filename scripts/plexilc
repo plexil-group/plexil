@@ -79,23 +79,12 @@ Recognized extensions are:
 EOF
 }
 
+scripts_dir="$( cd "$(dirname "$(command -v "$0")")" && pwd -P )"
 if [ -z "$PLEXIL_HOME" ]
 then
-    # Attempt to guess location of this script (but don't try too hard)
-    PLEXILC_SCRIPT_DIR="$( cd "$(dirname "$(command -v "$0")")" && pwd -P )"
-    if [ "scripts" = "$(basename "$PLEXILC_SCRIPT_DIR")" ]
-    then
-        PLEXIL_HOME="$(dirname "$PLEXILC_SCRIPT_DIR")"
-        export PLEXIL_HOME
-    fi
-    unset PLEXILC_SCRIPT_DIR
-fi
-
-if [ -z "$PLEXIL_HOME" ]
-then
-    echo 'Error: Please set environment variable PLEXIL_HOME' >&2
-    echo "to the full pathname of your 'plexil' or 'trunk' directory." >&2
-    exit 1
+    # Attempt to guess PLEXIL_HOME from $scripts_dir (but don't try too hard)
+    PLEXIL_HOME="$(dirname "$scripts_dir")"
+    export PLEXIL_HOME
 fi
 
 # Prefer JAVA_HOME if spec'd
@@ -125,15 +114,15 @@ fi
 # Jar file locations
 #
 
-JARS_DIR="$PLEXIL_HOME"/jars
+jars_dir="$PLEXIL_HOME"/jars
 # Plexilscript
-PLEXILSCRIPT_JAR="$JARS_DIR"/plexilscript.jar
-ANTLR2_JAR="$JARS_DIR"/antlr.jar
+plexilscript_jar="$jars_dir"/plexilscript.jar
+antlr2_jar="$jars_dir"/antlr.jar
 # Standard PLEXIL
-PLEXIL_COMPILER_JAR="${JARS_DIR}/PlexilCompiler.jar"
+plexil_compiler_jar="$jars_dir"/PlexilCompiler.jar
 
 # Commands to execute
-plexil_checker="$PLEXIL_HOME"/scripts/checkPlexil
+plexil_checker="$scripts_dir"/checkPlexil
 
 # If a file name has a leading hyphen, put a ./ in front of it
 # so it doesn't get interpreted as an option.
@@ -162,7 +151,7 @@ display_name()
 # $2: Where to put the result
 std_plexil_compiler()
 {
-    "$JAVA" -jar "${PLEXIL_COMPILER_JAR}" \
+    "$JAVA" -jar "${plexil_compiler_jar}" \
             ${debug:+-d} ${keep_epx:+-w} ${pretty_print:+-p} -o "$2" "$1"
 }
 
@@ -172,7 +161,7 @@ std_plexil_compiler()
 compile_std_plexil()
 {
     # Plexil plan
-    if [ ! -r "$PLEXIL_COMPILER_JAR" ]
+    if [ ! -r "$plexil_compiler_jar" ]
     then
         cat >&2 <<EOF
 Fatal error: the Standard PLEXIL compiler has not been built.
@@ -190,16 +179,16 @@ EOF
     else 
         std_plexil_compiler "$1" "$2"
     fi
-    local status=$?
-    if [ $status -ne 0 ]
+    std_plexil_status=$?
+    if [ $std_plexil_status -ne 0 ]
     then
         echo "Error: Standard PLEXIL compilation of $(display_name "$1") failed." >&2
         if [ -n "$exit_on_fail" ]
         then
-            exit $status
+            exit $std_plexil_status
         fi
     fi
-    return $status
+    return $std_plexil_status
 }
 
 # Perform the compilation of a Plexilisp source file.
@@ -256,8 +245,8 @@ compile_plexilisp()
 
     # Translator can fail silently without producing a .plx file.
     # If translator generates a plan, move it to the desired location.
-    local actual_output="$(generate_output_fname "$1")"
-    if [ ! -r "$actual_output" ]
+    plexilisp_output_file="$(generate_output_fname "$1")"
+    if [ ! -r "$plexilisp_output_file" ]
     then
         echo "Error: Plexilisp translation of $(display_name "$1") failed." >&2
         if [ -n "$exit_on_fail" ]
@@ -268,14 +257,14 @@ compile_plexilisp()
         fi
     fi
 
-    if [ "$2" != "$actual_output" ]
+    if [ "$2" != "$plexilisp_output_file" ]
     then
-        /bin/mv "$actual_output" "$2"
+        /bin/mv "$plexilisp_output_file" "$2"
     fi
 
     # Delete turds left behind by Plexilisp translator
-    local turd_base="$(echo "$1" | sed -e 's|.pli$|.epx|')"
-    /bin/rm -f "$turd_base" "$turd_base".last
+    plexilisp_turd_base="$(echo "$1" | sed -e 's|.pli$|.epx|')"
+    /bin/rm -f "$plexilisp_turd_base" "$plexilisp_turd_base".last
     return 0
 }
 
@@ -285,17 +274,17 @@ compile_plexilisp()
 compile_ext_plexil()
 {
     # Extended Plexil XML plan
-    "$PLEXIL_HOME"/scripts/eplexil "$1" "$2"
-    local status=$?
-    if [ $status -ne 0 ]
+    "$scripts_dir"/eplexil "$1" "$2"
+    eplexil_status=$?
+    if [ $eplexil_status -ne 0 ]
     then
         echo "Error: Extended Plexil translation of $(display_name "$1") failed." >&2
         if [ -n "$exit_on_fail" ]
         then
-            exit $status
+            exit $eplexil_status
         fi
     fi
-    return $status
+    return $eplexil_status
 }
 
 # Compile a .pst file
@@ -303,7 +292,7 @@ compile_ext_plexil()
 # $2: Where to put the result
 compile_plexilscript()
 {
-    if [ ! -r "$PLEXILSCRIPT_JAR" ]
+    if [ ! -r "$plexilscript_jar" ]
     then
         cat >&2 <<EOF
 Fatal error: the Plexilscript compiler has not been built.
@@ -316,17 +305,17 @@ EOF
     fi
 
     # Plexilscript
-    "$JAVA" -classpath "$PLEXILSCRIPT_JAR:$ANTLR2_JAR" plexilscript.PlexilScriptParse < "$1" > "$2"
-    local status=$?
-    if [ $status -ne 0 ]
+    "$JAVA" -classpath "$plexilscript_jar:$antlr2_jar" plexilscript.PlexilScriptParse < "$1" > "$2"
+    plexilscript_status=$?
+    if [ $plexilscript_status -ne 0 ]
     then
         echo "Error: compilation of $(display_name "$1") failed." >&2
         if [ -n "$exit_on_fail" ]
         then
-            exit $status
+            exit $plexilscript_status
         fi
     fi
-    return $status
+    return $plexilscript_status
 }
 
 # Compile a .plp file
@@ -337,34 +326,34 @@ compile_plp()
     # Standard Plexil w/ preprocessing
 
     # Where to put the intermediate file
-    local ple_fname="$(echo "$1" | sed -e 's|.plp$|.ple|')"
+    ple_fname="$(echo "$1" | sed -e 's|.plp$|.ple|')"
 
     # shellcheck disable=SC2086
-    "$PLEXIL_HOME"/scripts/plexilpp $pp_args -o "$ple_fname" "$1"
-    local status=$?
-    if [ $status -ne 0 ]
+    "$scripts_dir"/plexilpp $pp_args -o "$ple_fname" "$1"
+    plexilpp_status=$?
+    if [ $plexilpp_status -ne 0 ]
     then
         echo "Error: Preprocessing of $(display_name "$1") failed." >&2
         if [ -n "$exit_on_fail" ]
         then
-            exit $status
+            exit $plexilpp_status
         else
-            return $status
+            return $plexilpp_status
         fi
     fi
     
     compile_std_plexil "$ple_fname" "$2"
-    local status=$?
+    compile_status=$?
     
     # Delete preprocessor output file if successful
     # TEMP Comment this out until the compiler is capable of reporting
     # line numbers correctly.
-    # if [ $status -eq 0 ]
+    # if [ $plexilpp_status -eq 0 ]
     # then
     #     /bin/rm -f "$ple_fname"
     # fi
 
-    return $status
+    return $compile_status
 }
 
 # Determine the type of input file, where to write the output,
@@ -374,22 +363,21 @@ compile_plp()
 compile_one_file()
 {
     # Get the extension from the set of recognized extensions
-    local in_ext="$(expr "$1" : '.*\.\([ep][lps][eipt]\)$')"
+    in_ext="$(expr "$1" : '.*\.\([ep][lps][eipt]\)$')"
 
-    local dest=
     if [ -n "$specified_output" ]
     then
         dest="$(safe_name "$specified_output")"
     else
         # TODO: destination directory
         dest_dir="${dest_dir:-$(dirname "$1")}"
-        local base="$(basename "$1")"
+        in_base="$(basename "$1")"
         case "$in_ext" in
             epx | pl[eip] )
-                dest="${dest_dir}/$(printf '%s\n' "$base" | sed -e "s/$in_ext$/plx/")"
+                dest="${dest_dir}/$(printf '%s\n' "$in_base" | sed -e "s/$in_ext$/plx/")"
                 ;;
             pst )
-                dest="${dest_dir}/$(printf '%s\n' "$base" | sed -e "s/$in_ext$/psx/")"
+                dest="${dest_dir}/$(printf '%s\n' "$in_base" | sed -e "s/$in_ext$/psx/")"
                 ;;
             # don't worry about default case, see below
         esac
@@ -547,7 +535,7 @@ then
 fi
 
 # If the -o option was used we only expect one file to compile
-if [ ! -z "$specified_output" ] && [ $# -gt 1 ]
+if [ -n "$specified_output" ] && [ $# -gt 1 ]
 then
     echo "Error: attempting to use -output flag with more than one input file." >&2
     usage >&2
