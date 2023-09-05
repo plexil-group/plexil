@@ -52,7 +52,7 @@
       <xsl:call-template name="ensure-unique-node-id" />
       <xsl:call-template name="handle-common-clauses" />
       <xsl:apply-templates select="VariableDeclarations|UsingMutex" />
-      <xsl:sequence select="$conds/(* except EndCondition|PostCondition)" />
+      <xsl:sequence select="$conds/(* except (EndCondition|PostCondition))" />
 
       <xsl:call-template name="try-end-condition">
         <xsl:with-param name="original-condition" select="$conds/EndCondition"/>

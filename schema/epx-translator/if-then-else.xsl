@@ -92,7 +92,7 @@
         <xsl:call-template name="if-then-skip-condition">
           <xsl:with-param name="condition" select="$condition" />
         </xsl:call-template>
-        <xsl:sequence select="* except StartCondition|SkipCondition" />
+        <xsl:sequence select="* except (StartCondition|SkipCondition)" />
       </Node>
     </xsl:for-each>
   </xsl:template>
@@ -169,7 +169,7 @@
         <xsl:call-template name="if-else-skip-condition">
           <xsl:with-param name="condition" select="$condition" />
         </xsl:call-template>
-        <xsl:sequence select="* except StartCondition|SkipCondition" />
+        <xsl:sequence select="* except (StartCondition|SkipCondition)" />
       </Node>
     </xsl:for-each>
   </xsl:template>
