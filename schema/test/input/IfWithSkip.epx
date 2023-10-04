@@ -1,0 +1,36 @@
+<PlexilPlan>
+  <If>
+    <NodeId>IfWithSkip</NodeId>
+    <VariableDeclarations>
+      <DeclareVariable>
+        <Name>foo</Name>
+        <Type>Boolean</Type>
+        <InitialValue>
+            <BooleanValue>true</BooleanValue>
+        </InitialValue>
+      </DeclareVariable>
+      <DeclareVariable>
+        <Name>bar</Name>
+        <Type>Boolean</Type>
+        <InitialValue>
+            <BooleanValue>false</BooleanValue>
+        </InitialValue>
+      </DeclareVariable>
+    </VariableDeclarations>
+    <Condition>
+      <BooleanVariable>foo</BooleanVariable>
+    </Condition>
+    <Then>
+      <Node NodeType="Empty">
+        <NodeId>One</NodeId>
+        <SkipCondition><BooleanVariable>bar</BooleanVariable></SkipCondition>
+      </Node>
+    </Then>
+    <Else>
+      <Node NodeType="Empty">
+        <NodeId>Two</NodeId>
+        <SkipCondition><NOT><BooleanVariable>bar</BooleanVariable></NOT></SkipCondition>
+      </Node>
+    </Else>
+  </If>
+</PlexilPlan>
