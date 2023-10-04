@@ -96,6 +96,21 @@
            dir="${dir.plexil_home}"
            includes="schema/epx-translator/*.xsl"/>
 
+  <patternset id="plexil.script-file-names">
+    <include name="plexilc"/>
+    <include name="plexilpp"/>
+  </patternset>
+
+  <fileset id="plexil.source.script-files"
+           dir="${dir.source.scripts}">
+    <patternset refid="plexil.script-file-names"/>
+  </fileset>
+
+  <fileset id="plexil.install.script-files"
+           dir="${dir.install.scripts}">
+    <patternset refid="plexil.script-file-names"/>
+  </fileset>
+
   <!-- Explicit dependency checking, because ANTLR 3 doesn't provide an 'ant' task' -->
   <uptodate property="plexil.grammar.up-to-date"
             srcfile="${dir.source.grammars}/Plexil.g">
@@ -195,11 +210,11 @@
   <!-- Begin targets -->
   <target name="check-properties" if="${plexil.debug}">
     <echoproperties>
-      <!-- <propertyset> -->
-      <!--   <propertyref prefix="dir."/> -->
-      <!--   <propertyref prefix="jar."/> -->
-      <!--   <propertyref prefix="plexil."/> -->
-      <!-- </propertyset> -->
+      <propertyset>
+        <!--   <propertyref prefix="dir."/> -->
+        <!--   <propertyref prefix="jar."/> -->
+        <propertyref prefix="plexil"/>
+      </propertyset>
     </echoproperties>
   </target>
 
@@ -253,8 +268,6 @@
     </javac>
   </target>
 
-  <!-- TODO: integrate XSLT files into result jar
-       See viewers/pv/build.xml -->
   <target name="compiler-jar" depends="plexil-compile">
     <mkdir dir="${dir.build.jars}"/>
     <jar destfile="${dir.build.jars}/PlexilCompiler.jar"
@@ -287,17 +300,37 @@
     </jar>
   </target>
 
-  <target name="install.out-of-tree" unless="plexil.install.in-tree">
-    <copy file="${dir.source.scripts}/plexilc"
-          todir="${dir.install.scripts}"
-          preservelastmodified="true"/>
+  <!-- Installation targets -->
+
+  <target name="install.out-of-tree.makedirs" unless="plexil.install.in-tree">
+    <mkdir dir="${dir.install.scripts}"/>
+    <mkdir dir="${dir.install.jars}"/>
   </target>
 
-  <target name="install" depends="compiler-jar,plexil-keywords,install.out-of-tree">
+  <target name="install.out-of-tree.scripts"
+          depends="install.out-of-tree.makedirs"
+          unless="plexil.install.in-tree">
+    <copy todir="${dir.install.scripts}"
+          overwrite="true"
+          preservelastmodified="true">
+      <fileset refid="plexil.source.script-files"/>
+    </copy>
+    <!-- copy task can't set permissions, so we do it this way -->
+    <!-- this form only works on POSIX compatible systems -->
+    <apply executable="/bin/chmod">
+      <arg value="+x"/>
+      <fileset refid="plexil.install.script-files"/>
+    </apply>
+  </target>
+
+  <target name="install.jar" depends="compiler-jar,install.out-of-tree.makedirs">
     <copy file="${dir.build.jars}/PlexilCompiler.jar"
 	      todir="${dir.install.jars}"
+          overwrite="true"
 	      preservelastmodified="true"/>
   </target>
+
+  <target name="install" depends="install.jar,plexil-keywords,install.out-of-tree.scripts"/>
 
   <target name="clean">
     <delete dir="${dir.build.classes}" failonerror="false"/>
