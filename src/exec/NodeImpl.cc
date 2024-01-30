@@ -997,7 +997,7 @@ namespace PLEXIL
         return true;
       }
     }
-
+    /*
     if ((cond = getExitCondition())) {
       checkError(cond->isActive(),
                  "NodeImpl::getDestStateFromWaiting: Exit condition for "
@@ -1011,7 +1011,7 @@ namespace PLEXIL
         return true;
       }
     }
-
+    */
     if ((cond = getAncestorInvariantCondition())) {
       checkError(cond->isActive(),
                  "NodeImpl::getDestStateFromWaiting: Ancestor invariant for "
