@@ -5,3 +5,6 @@ plexil-build
 *~
 \#*#
 .#*
+# macOS turds
+.DS_Store
+
