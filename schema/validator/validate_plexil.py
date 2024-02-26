@@ -34,7 +34,7 @@ from urllib.parse import urlsplit
 from xml.etree import ElementTree
 import click
 import xmlschema
-from xmlschema.resources import is_local_url, normalize_url, url_path_is_file
+from xmlschema.resources import is_local_url, normalize_url
 
 default_schema_file = path.join(path.dirname(path.dirname(path.realpath(__file__))),
                               'core-plexil.xsd')
@@ -271,7 +271,7 @@ def schema_is_cacheable(schema_url):
 
     """Determine whether schema can be cached locally based on its URL."""
 
-    return url_path_is_file(schema_url) and schema_name_from_url(schema_url)
+    return is_local_url(schema_url) and schema_name_from_url(schema_url)
 
 
 # Only called if schema_is_cacheable returns true and schema_file exists
