@@ -233,42 +233,46 @@ static bool waitingDestTest()
 
   for (int ancestorExit = 0; ancestorExit < 3; ++ancestorExit) {
     node->getAncestorExitCondition()->asAssignable()->setValue(values[ancestorExit]);
-    for (int ancestorInvariant = 0; ancestorInvariant < 3; ++ancestorInvariant) {
-      node->getAncestorInvariantCondition()->asAssignable()->setValue(values[ancestorInvariant]);
-      for (int ancestorEnd = 0; ancestorEnd < 3; ++ancestorEnd) {
-        node->getAncestorEndCondition()->asAssignable()->setValue(values[ancestorEnd]);
-        for (int skip = 0; skip < 3; ++skip) {
-          node->getSkipCondition()->asAssignable()->setValue(values[skip]);
-          for (int start = 0; start < 3; ++start) {
-            node->getStartCondition()->asAssignable()->setValue(values[start]);
-            for (int pre = 0; pre < 3; ++pre) {
-              node->getPreCondition()->asAssignable()->setValue(values[pre]);
-              node->getDestState();
-              NodeState destState = node->getNextState();
-              debugMsg("UnitTest:waitingDestTest",
-                       " ancestor exit = " << values[ancestorExit]
-                       << " ancestor invariant = " << values[ancestorInvariant]
-                       << " ancestor end = " << values[ancestorEnd]
-                       << " skip = " << values[skip]
-                       << " start = " << values[start] 
-                       << " pre = " << values[pre]
-                       << "\n destination state is " << nodeStateName(destState));
-              if (ancestorExit == IDX_TRUE
-                  || ancestorInvariant == IDX_FALSE
-                  || ancestorEnd == IDX_TRUE
-                  || skip == IDX_TRUE) {
-                assertTrue_1(destState == FINISHED_STATE);
-              }
-              else if (start == IDX_TRUE) {
-                if (pre == IDX_TRUE) {
-                  assertTrue_1(destState == EXECUTING_STATE);
+    for (int exit = 0; exit < 3; ++exit) {
+      node->getExitCondition()->asAssignable()->setValue(values[exit]);
+      for (int ancestorInvariant = 0; ancestorInvariant < 3; ++ancestorInvariant) {
+        node->getAncestorInvariantCondition()->asAssignable()->setValue(values[ancestorInvariant]);
+        for (int ancestorEnd = 0; ancestorEnd < 3; ++ancestorEnd) {
+          node->getAncestorEndCondition()->asAssignable()->setValue(values[ancestorEnd]);
+          for (int skip = 0; skip < 3; ++skip) {
+            node->getSkipCondition()->asAssignable()->setValue(values[skip]);
+            for (int start = 0; start < 3; ++start) {
+              node->getStartCondition()->asAssignable()->setValue(values[start]);
+              for (int pre = 0; pre < 3; ++pre) {
+                node->getPreCondition()->asAssignable()->setValue(values[pre]);
+                node->getDestState();
+                NodeState destState = node->getNextState();
+                debugMsg("UnitTest:waitingDestTest",
+                         " ancestor exit = " << values[ancestorExit]
+                         << " exit = " << values[exit]
+                         << " ancestor invariant = " << values[ancestorInvariant]
+                         << " ancestor end = " << values[ancestorEnd]
+                         << " skip = " << values[skip]
+                         << " start = " << values[start] 
+                         << " pre = " << values[pre]
+                         << "\n destination state is " << nodeStateName(destState));
+                if (ancestorExit == IDX_TRUE
+                    || ancestorInvariant == IDX_FALSE
+                    || ancestorEnd == IDX_TRUE
+                    || skip == IDX_TRUE) {
+                  assertTrue_1(destState == FINISHED_STATE);
+                }
+                else if (start == IDX_TRUE) {
+                  if (pre == IDX_TRUE) {
+                    assertTrue_1(destState == EXECUTING_STATE);
+                  }
+                  else {
+                    assertTrue_1(destState == ITERATION_ENDED_STATE);
+                  }
                 }
                 else {
-                  assertTrue_1(destState == ITERATION_ENDED_STATE);
+                  assertTrue_1(destState == NO_NODE_STATE);
                 }
-              }
-              else {
-                assertTrue_1(destState == NO_NODE_STATE);
               }
             }
           }
@@ -292,67 +296,72 @@ static bool waitingTransTest()
   std::string types[4] = {ASSIGNMENT, COMMAND, LIST, UPDATE};
 
   for (int ancestorExit = 0; ancestorExit < 3; ++ancestorExit) {
-    for (int ancestorInvariant = 0; ancestorInvariant < 3; ++ancestorInvariant) {
-      for (int ancestorEnd = 0; ancestorEnd < 3; ++ancestorEnd) {
-        for (int skip = 0; skip < 3; ++skip) {
-          for (int start = 0; start < 3; ++start) {
-            for (int pre = 0; pre < 3; ++pre) {
-              for (int i = 0; i < 4; i++) {
-                NodeImpl *node = NodeFactory::createNode(types[i], std::string("waitingTransTest"), WAITING_STATE, parent);
+    for (int exit = 0; exit < 3; ++exit) {
+      for (int ancestorInvariant = 0; ancestorInvariant < 3; ++ancestorInvariant) {
+        for (int ancestorEnd = 0; ancestorEnd < 3; ++ancestorEnd) {
+          for (int skip = 0; skip < 3; ++skip) {
+            for (int start = 0; start < 3; ++start) {
+              for (int pre = 0; pre < 3; ++pre) {
+                for (int i = 0; i < 4; i++) {
+                  NodeImpl *node = NodeFactory::createNode(types[i], std::string("waitingTransTest"), WAITING_STATE, parent);
 
-                // Parent's condition
-                node->getAncestorExitCondition()->asAssignable()->setValue(values[ancestorExit]);
-                node->getSkipCondition()->asAssignable()->setValue(values[skip]);
-                node->getAncestorInvariantCondition()->asAssignable()->setValue(values[ancestorInvariant]);
-                node->getAncestorEndCondition()->asAssignable()->setValue(values[ancestorEnd]);
-                node->getStartCondition()->asAssignable()->setValue(values[start]);
-                node->getPreCondition()->asAssignable()->setValue(values[pre]);
+                  // Parent's condition
+                  node->getAncestorExitCondition()->asAssignable()->setValue(values[ancestorExit]);
+                  node->getExitCondition()->asAssignable()->setValue(values[exit]);
+                  node->getSkipCondition()->asAssignable()->setValue(values[skip]);
+                  node->getAncestorInvariantCondition()->asAssignable()->setValue(values[ancestorInvariant]);
+                  node->getAncestorEndCondition()->asAssignable()->setValue(values[ancestorEnd]);
+                  node->getStartCondition()->asAssignable()->setValue(values[start]);
+                  node->getPreCondition()->asAssignable()->setValue(values[pre]);
 
-                debugMsg("UnitTest:waitingTransition",
-                         "Testing node type " << types[i] << " with "
-                         << " ancestor exit = " << values[ancestorExit]
-                         << " ancestor invariant = " << values[ancestorInvariant]
-                         << " ancestor end = " << values[ancestorEnd]
-                         << " skip = " << values[skip]
-                         << " start = " << values[start]
-                         << " pre = " << values[pre]
-                         );
+                  debugMsg("UnitTest:waitingTransition",
+                           "Testing node type " << types[i] << " with "
+                           << " ancestor exit = " << values[ancestorExit]
+                           << " exit = " << values[exit]
+                           << " ancestor invariant = " << values[ancestorInvariant]
+                           << " ancestor end = " << values[ancestorEnd]
+                           << " skip = " << values[skip]
+                           << " start = " << values[start]
+                           << " pre = " << values[pre]
+                           );
 
-                if (node->getDestState()) {
-                  node->transition(&con);
-                  NodeState state = node->getState();
+                  if (node->getDestState()) {
+                    node->transition(&con);
+                    NodeState state = node->getState();
 
-                  if (ancestorExit == IDX_TRUE
-                      || ancestorInvariant == IDX_FALSE
-                      || ancestorEnd == IDX_TRUE
-                      || skip == IDX_TRUE) {
-                    assertTrue_1(state == FINISHED_STATE);
-                    assertTrue_1(node->getOutcome() == SKIPPED_OUTCOME);
-                  }
-                  else if (start == IDX_TRUE) {
-                    assertTrue_1(node->getAncestorExitCondition()->isActive());
-                    assertTrue_1(node->getAncestorInvariantCondition()->isActive());
-                    if (pre == IDX_TRUE) {
-                      assertTrue_1(state == EXECUTING_STATE);
-                      assertTrue_1(node->getEndCondition()->isActive());
-                      assertTrue_1(node->getInvariantCondition()->isActive());
-                      if (types[i] == ASSIGNMENT) {
-                        assertTrue_1(node->getActionCompleteCondition()->isActive());
+                    if (ancestorExit == IDX_TRUE
+                        || ancestorInvariant == IDX_FALSE
+                        || ancestorEnd == IDX_TRUE
+                        || skip == IDX_TRUE) {
+                      assertTrue_1(state == FINISHED_STATE);
+                      assertTrue_1(node->getOutcome() == SKIPPED_OUTCOME);
+                    }
+                    else if (start == IDX_TRUE) {
+                      assertTrue_1(node->getAncestorExitCondition()->isActive());
+                      assertTrue_1(node->getAncestorInvariantCondition()->isActive());
+                      if (pre == IDX_TRUE) {
+                        assertTrue_1(state == EXECUTING_STATE);
+                        assertTrue_1(node->getEndCondition()->isActive());
+                        assertTrue_1(node->getExitCondition()->isActive());
+                        assertTrue_1(node->getInvariantCondition()->isActive());
+                        if (types[i] == ASSIGNMENT) {
+                          assertTrue_1(node->getActionCompleteCondition()->isActive());
+                        }
+                      }
+                      else {
+                        assertTrue_1(state == ITERATION_ENDED_STATE);
+                        assertTrue_1(node->getOutcome() == FAILURE_OUTCOME);
+                        assertTrue_1(node->getFailureType() == PRE_CONDITION_FAILED);
+                        assertTrue_1(node->getRepeatCondition()->isActive());
+                        assertTrue_1(node->getAncestorEndCondition()->isActive());
                       }
                     }
                     else {
-                      assertTrue_1(state == ITERATION_ENDED_STATE);
-                      assertTrue_1(node->getOutcome() == FAILURE_OUTCOME);
-                      assertTrue_1(node->getFailureType() == PRE_CONDITION_FAILED);
-                      assertTrue_1(node->getRepeatCondition()->isActive());
-                      assertTrue_1(node->getAncestorEndCondition()->isActive());
+                      assertTrue_1(false);
                     }
                   }
-                  else {
-                    assertTrue_1(false);
-                  }
+                  delete (Node*) node;
                 }
-                delete (Node*) node;
               }
             }
           }
