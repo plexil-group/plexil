@@ -997,21 +997,6 @@ namespace PLEXIL
         return true;
       }
     }
-
-    if ((cond = getExitCondition())) {
-      checkError(cond->isActive(),
-                 "NodeImpl::getDestStateFromWaiting: Exit condition for "
-                 << m_nodeId << ' ' << this << " is inactive.");
-      if (cond->getValue(temp) && temp) {
-        debugMsg("Node:getDestState",
-                 ' ' << m_nodeId << ' ' << this << ' ' << nodeStateName(m_state)
-                 << " -> FINISHED. EXIT_CONDITION true.");
-        m_nextState = FINISHED_STATE;
-        m_nextOutcome = SKIPPED_OUTCOME;
-        return true;
-      }
-    }
-
     if ((cond = getAncestorInvariantCondition())) {
       checkError(cond->isActive(),
                  "NodeImpl::getDestStateFromWaiting: Ancestor invariant for "

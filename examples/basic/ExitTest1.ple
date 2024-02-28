@@ -1,0 +1,9 @@
+// In Plexil 6 onwards, this node should remain in the WAITING state
+// indefinitely.  Prior to Plexil 6 it transitioned to FINISHED
+// immediately.
+
+ExitTest1:
+{
+  Start false;
+  Exit true;
+}

@@ -257,7 +257,6 @@ static bool waitingDestTest()
                          << " pre = " << values[pre]
                          << "\n destination state is " << nodeStateName(destState));
                 if (ancestorExit == IDX_TRUE
-                    || exit == IDX_TRUE
                     || ancestorInvariant == IDX_FALSE
                     || ancestorEnd == IDX_TRUE
                     || skip == IDX_TRUE) {
@@ -331,7 +330,6 @@ static bool waitingTransTest()
                     NodeState state = node->getState();
 
                     if (ancestorExit == IDX_TRUE
-                        || exit == IDX_TRUE
                         || ancestorInvariant == IDX_FALSE
                         || ancestorEnd == IDX_TRUE
                         || skip == IDX_TRUE) {
