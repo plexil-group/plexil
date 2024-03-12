@@ -57,7 +57,8 @@ include_HEADERS = commandHandlerDefs.hh lookupHandlerDefs.hh \
  AdapterFactory.hh ExecApplication.hh ExecListener.hh ExecListenerFactory.hh \
  ExecListenerFilter.hh ExecListenerFilterFactory.hh ExecListenerHub.hh \
  InterfaceAdapter.hh ListenerFilters.hh \
- PlexilListener.hh SerializedInputQueue.hh SimpleInputQueue.hh
+ PlexilListener.hh SerializedInputQueue.hh SimpleInputQueue.hh \
+ ErrorHandlerInterface.hh
 
 # Headers of internal interest only
 noinst_HEADERS = InterfaceManager.hh Launcher.hh UtilityAdapter.hh

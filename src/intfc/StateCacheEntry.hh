@@ -53,7 +53,7 @@ namespace PLEXIL
     virtual ~StateCacheEntry();
 
     // Utility
-    ValueType const valueType() const;
+    ValueType valueType() const;
     bool isKnown() const;
 
     // API to Lookup

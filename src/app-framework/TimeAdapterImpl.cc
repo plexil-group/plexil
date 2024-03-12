@@ -62,6 +62,9 @@
 
 #endif
 
+#include <unistd.h>
+#include <sys/types.h>
+
 namespace PLEXIL
 {
 
@@ -162,14 +165,18 @@ namespace PLEXIL
 
   bool TimeAdapterImpl::start()
   {
-    if (!this->initializeTimer()) {
+    m_waitThreadId = 0;
+#ifdef PLEXIL_WITH_THREADS
+    threadSpawn(timerWaitThread, (void*) this, m_waitThread);
+    while(m_waitThreadId == 0)
+    {
+      usleep(1);
+    }
+#endif
+    if (!this->initializeTimer(m_waitThreadId)) {
       debugMsg("TimeAdapter:start", " timer initialization failed");
       return false;
     }
-
-#ifdef PLEXIL_WITH_THREADS
-    threadSpawn(timerWaitThread, (void*) this, m_waitThread);
-#endif
 
     return true;
   }
@@ -274,6 +281,7 @@ namespace PLEXIL
     TimeAdapterImpl* myInstance = reinterpret_cast<TimeAdapterImpl*>(this_as_void_ptr);
     assertTrue_2(myInstance,
                  "TimeAdapterImpl::timerWaitThread: argument is not a pointer to a TimeAdapterImpl instance");
+    myInstance->m_waitThreadId = gettid();
     return myInstance->timerWaitThreadImpl();
   }
 

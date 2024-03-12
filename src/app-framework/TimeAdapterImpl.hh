@@ -145,7 +145,7 @@ namespace PLEXIL
      * @brief Construct and initialize the timer as required.
      * @return True if successful, false otherwise.
      */
-    virtual bool initializeTimer() = 0;
+    virtual bool initializeTimer(pid_t timerThread) = 0;
 
     /**
      * @brief Set the timer in an implementation-dependent way.
@@ -218,6 +218,8 @@ namespace PLEXIL
     // Flag to wait thread
     bool m_stopping;
 
+    // Process ID of wait thread
+    pid_t m_waitThreadId;
   }; // class TimeAdapterImpl
 
 } // namespace PLEXIL

@@ -69,7 +69,7 @@ namespace PLEXIL
      * @param execInterface Reference to the parent AdapterExecInterface object.
      */
     PosixTimeAdapter(AdapterExecInterface& execInterface)
-      : TimeAdapterImpl(execInterface)
+      : TimeAdapterImpl(execInterface), m_timerCreated(false)
     {
     }
 
@@ -81,7 +81,7 @@ namespace PLEXIL
      */
     PosixTimeAdapter(AdapterExecInterface& execInterface, 
                      pugi::xml_node const xml)
-      : TimeAdapterImpl(execInterface, xml)
+      : TimeAdapterImpl(execInterface, xml), m_timerCreated(false)
     {
     }
 
@@ -123,14 +123,21 @@ namespace PLEXIL
      * @brief Construct and initialize the timer as required.
      * @return True if successful, false otherwise.
      */
-    virtual bool initializeTimer()
+    virtual bool initializeTimer(pid_t timerThread)
     {
       // Initialize sigevent
+#ifdef PLEXIL_WITH_THREADS
+      m_sigevent.sigev_notify = SIGEV_THREAD_ID;
+#else
       m_sigevent.sigev_notify = SIGEV_SIGNAL;
+#endif
       m_sigevent.sigev_signo = SIGUSR1; // was SIGALRM
       m_sigevent.sigev_value.sival_int = 0;
       m_sigevent.sigev_notify_function = NULL;
       m_sigevent.sigev_notify_attributes = NULL;
+#ifdef PLEXIL_WITH_THREADS
+      m_sigevent._sigev_un._tid = timerThread;
+#endif
 
       // Create a timer
       if (timer_create(PLEXIL_CLOCK_GETTIME,
@@ -139,6 +146,7 @@ namespace PLEXIL
         warn("TimeAdapter: timer_create failed, errno = " << errno);
         return false;
       }
+      m_timerCreated = true;
       return true;
     }
 
@@ -205,7 +213,13 @@ namespace PLEXIL
      */
     virtual bool deleteTimer()
     {
+      if(!m_timerCreated)
+      {
+        return false;
+      }
+
       int status = timer_delete(m_timer);
+      m_timerCreated = false;
       if (status) {
         warn("TimeAdapter: timer_delete failed, errno = " << errno);
       }
@@ -267,6 +281,8 @@ namespace PLEXIL
 
     sigevent m_sigevent;
     timer_t m_timer;
+
+    bool m_timerCreated;
   };
 
   void registerTimeAdapter()
