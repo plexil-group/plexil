@@ -1,7 +1,7 @@
 This file, plexil/CAVEATS, lists known bugs and issues in this version
 of PLEXIL.
 
-Build: 
+Build:
 
  * If the GNU autotools installed on your system are a different
    version from the ones used to build this release, you may encounter
@@ -71,13 +71,19 @@ Standard Plexil language:
 
  * Node timepoints cannot be assigned to variables.
 
-Plexil Viewer: 
- 
+PLEXIL Semantics
+
+ * When a command is aborted (e.g. via Invariant condition failure), a
+   new macro step (external interface event processing cycle) is not
+   initiated.  This bug has been fixed in PLEXIL v6 but will not be
+   fixed in v4.
+
+PLEXIL Viewer:
+
  * Support for the PLEXIL Viewer has been lacking in recent years.  As
    a result a number of bugs and glitches have not been fixed.  We
-   hope to have resources to spend on it soon, and welcome fixes and
-   enhancements from the PLEXIL community.  Note that PLEXIL is still
-   in strong use in its command line form.
+   welcome fixes and enhancements from the PLEXIL community.  Note
+   that PLEXIL is still in strong use in its command line form.
 
  * The viewer may not quit from the Plexil Viewer Console window,
    using the Viewer/Exit selection or the red Apple window button.
@@ -85,7 +91,7 @@ Plexil Viewer:
    process, e.g. enter 'ps -eaf | grep java' and then 'kill -9 <pid>'
    where <pid> is the process number.
 
-Plexil compiler ('plexilc'): 
+PLEXIL compiler ('plexilc'):
 
  * File extensions included in the '-o' option are ignored: Extended
    and Core Plexil files are always written with the ".epx" and ".plx"
