@@ -143,7 +143,6 @@ namespace PLEXIL
       warn("Attempted to register an exec listener factory for name \""
            << name.c_str()
            << "\" twice, ignoring.");
-      delete factory;
       return;
     }
     factoryMap()[name] = ExecListenerFactoryPtr(factory);
