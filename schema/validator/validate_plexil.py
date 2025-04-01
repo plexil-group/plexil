@@ -34,7 +34,7 @@ from urllib.parse import urlsplit
 from xml.etree import ElementTree
 import click
 import xmlschema
-from xmlschema.resources import is_local_url, normalize_url, url_path_is_file
+from xmlschema.locations import is_local_url, normalize_url, url_path_is_file
 
 default_schema_file = path.join(path.dirname(path.dirname(path.realpath(__file__))),
                               'core-plexil.xsd')
