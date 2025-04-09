@@ -71,7 +71,7 @@ namespace PLEXIL
 
     //! Notify that one or more nodes have changed state.
     //! @param Vector of node state transition info.
-    void notifyOfTransitions(std::vector<NodeTransition> const &transitions) const;
+    void notifyOfTransitions(std::vector<NodeTransition> const &transitions);
 
     //! Notify that a variable assignment has been performed.
     //! @param dest The Expression being assigned to.
@@ -133,7 +133,7 @@ namespace PLEXIL
     //!      implementNotifyNodeTransition() (below). Derived classes
     //!      may implement their own methods as an optimization.
     virtual void
-    implementNotifyNodeTransitions(std::vector<NodeTransition> const & /* transitions */) const;
+    implementNotifyNodeTransitions(std::vector<NodeTransition> const & /* transitions */);
 
     //
     // API to be implemented by derived classes
@@ -146,7 +146,7 @@ namespace PLEXIL
     //!       implementNotifyNodeTransition() (above), as appropriate
     //!       to the application.
     virtual void
-    implementNotifyNodeTransition(NodeTransition const & /* transition */) const;
+    implementNotifyNodeTransition(NodeTransition const & /* transition */);
 
     //! Notify that a plan has been received by the Exec.
     //! @param plan The XML representation of the plan.

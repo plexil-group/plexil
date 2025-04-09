@@ -75,7 +75,7 @@ namespace PLEXIL
 
     //! Wrapper method to ensure we don't notify the Exec too often.
     virtual void
-    implementNotifyNodeTransitions(std::vector<NodeTransition> const &transitions) const override
+    implementNotifyNodeTransitions(std::vector<NodeTransition> const &transitions) override
     {
       bool notify = false;
       for (NodeTransition const &t : transitions) {

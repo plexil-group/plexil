@@ -47,7 +47,7 @@ namespace PLEXIL
    * @brief Notify that nodes have changed state.
    * @param Vector of node state transition info.
    */
-  void ExecListener::notifyOfTransitions(const std::vector<NodeTransition>& transitions) const
+  void ExecListener::notifyOfTransitions(const std::vector<NodeTransition>& transitions)
   {
     this->implementNotifyNodeTransitions(transitions);
   }
@@ -197,7 +197,7 @@ namespace PLEXIL
    * @note Current states are accessible via the node.
    * @note This default method is a convenience for backward compatibility.
    */
-  void ExecListener::implementNotifyNodeTransitions(const std::vector<NodeTransition>& transitions) const
+  void ExecListener::implementNotifyNodeTransitions(const std::vector<NodeTransition>& transitions)
   {
     if (!m_filter) {
       for (NodeTransition const &transition : transitions)
@@ -216,7 +216,7 @@ namespace PLEXIL
    * @note This default method does nothing.
    */
   void
-  ExecListener::implementNotifyNodeTransition(NodeTransition const & /* transition */) const
+  ExecListener::implementNotifyNodeTransition(NodeTransition const & /* transition */)
   {
   }
 
