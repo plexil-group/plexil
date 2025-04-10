@@ -124,7 +124,7 @@ namespace PLEXIL
      * @param transition Const reference to the transition record.
      */
     virtual void
-    implementNotifyNodeTransition(NodeTransition const &trans) const override
+    implementNotifyNodeTransition(NodeTransition const &trans) override
     {
       debugMsg("LuvListener:implementNotifyNodeTransition",
                " for " << trans.node->getNodeId());
