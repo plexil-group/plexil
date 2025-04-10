@@ -82,14 +82,16 @@ libPlexilAppFramework_la_LIBADD = @top_builddir@/xml-parser/libPlexilXmlParser.l
  @top_builddir@/value/libPlexilValue.la \
  @top_builddir@/utils/libPlexilUtils.la
 
-if MODULE_TESTS_OPT
-  bin_PROGRAMS = test/timebase-test
-  test_timebase_test_SOURCES = test/timebase-test.cc Timebase.cc TimebaseFactory.cc
-  test_timebase_test_CPPFLAGS = $(AM_CPPFLAGS) \
-   -I@top_srcdir@/third-party/pugixml/src \
-   -I@top_srcdir@/intfc \
-   -I@top_srcdir@/utils
-  test_timebase_test_LDADD = @top_builddir@/third-party/pugixml/src/libpugixml.la \
-   @top_builddir@/intfc/libPlexilIntfc.la \
-   @top_builddir@/utils/libPlexilUtils.la
+if THREADS_OPT
+	if MODULE_TESTS_OPT
+		bin_PROGRAMS = test/timebase-test
+		test_timebase_test_SOURCES = test/timebase-test.cc Timebase.cc TimebaseFactory.cc
+		test_timebase_test_CPPFLAGS = $(AM_CPPFLAGS) \
+		 -I@top_srcdir@/third-party/pugixml/src \
+		 -I@top_srcdir@/intfc \
+		 -I@top_srcdir@/utils
+		test_timebase_test_LDADD = @top_builddir@/third-party/pugixml/src/libpugixml.la \
+		 @top_builddir@/intfc/libPlexilIntfc.la \
+		 @top_builddir@/utils/libPlexilUtils.la
+	endif
 endif
