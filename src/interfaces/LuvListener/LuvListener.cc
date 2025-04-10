@@ -140,7 +140,7 @@ namespace PLEXIL
      * @param plan The XML representation of the plan.
      */
     virtual void
-    implementNotifyAddPlan(pugi::xml_node const plan) const override
+    implementNotifyAddPlan(pugi::xml_node const plan) override
     {
       debugMsg("LuvListener:implementNotifyAddPlan", " entered");
       if (m_socket) {
@@ -156,7 +156,7 @@ namespace PLEXIL
      * @param libNode The XML representation of the library node.
      */
     virtual void
-    implementNotifyAddLibrary(pugi::xml_node const libNode) const override
+    implementNotifyAddLibrary(pugi::xml_node const libNode) override
     {
       if (m_socket) {
         sendPlanInfo();
@@ -175,7 +175,7 @@ namespace PLEXIL
     virtual void 
     implementNotifyAssignment(Expression const *dest,
                               std::string const &destName,
-                              Value const &value) const override
+                              Value const &value) override
     {
       if (m_socket) {
         std::ostringstream s;

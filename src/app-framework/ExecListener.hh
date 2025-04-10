@@ -79,7 +79,7 @@ namespace PLEXIL
     //! @param value The value (in internal Exec representation) being assigned.
     void notifyOfAssignment(Expression const *dest,
                             std::string const &destName,
-                            Value const &value) const;
+                            Value const &value);
 
     //
     // API to application
@@ -87,11 +87,11 @@ namespace PLEXIL
 
     //! Notify that a new plan has been received by the Exec.
     //! @param plan The XML representation of the plan.
-    void notifyOfAddPlan(pugi::xml_node const plan) const;
+    void notifyOfAddPlan(pugi::xml_node const plan);
 
     //! Notify that a new library node has been received by the Exec.
     // @param libNode The XML representation of the plan.
-    void notifyOfAddLibrary(pugi::xml_node const libNode) const;
+    void notifyOfAddLibrary(pugi::xml_node const libNode);
 
     //
     // Lifecycle API which can be overridden by derived classes
@@ -151,12 +151,12 @@ namespace PLEXIL
     //! Notify that a plan has been received by the Exec.
     //! @param plan The XML representation of the plan.
     //! @note The default method does nothing.
-    virtual void implementNotifyAddPlan(pugi::xml_node const /* plan */) const;
+    virtual void implementNotifyAddPlan(pugi::xml_node const /* plan */);
 
     //! Notify that a library node has been received by the Exec.
     //! @param libNode The XML representation of the plan.
     //! @note The default method does nothing.
-    virtual void implementNotifyAddLibrary(pugi::xml_node const /* libNode */) const;
+    virtual void implementNotifyAddLibrary(pugi::xml_node const /* libNode */);
 
     //! Notify that a variable assignment has been performed.
     //! @param dest The Expression being assigned to.
@@ -165,7 +165,7 @@ namespace PLEXIL
     //! @note The default method does nothing.
     virtual void implementNotifyAssignment(Expression const * /* dest */,
                                            std::string const & /* destName */,
-                                           Value const & /* value */) const;
+                                           Value const & /* value */);
 
 
     //
