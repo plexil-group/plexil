@@ -59,7 +59,7 @@ namespace PLEXIL
     // interface may be in order.
 
     virtual void 
-    implementNotifyNodeTransition(NodeTransition const &trans) const override
+    implementNotifyNodeTransition(NodeTransition const &trans) override
     {
       NodeImpl *node = dynamic_cast<NodeImpl *>(trans.node);
       assertTrueMsg(node,

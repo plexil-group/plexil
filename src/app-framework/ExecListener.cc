@@ -47,7 +47,7 @@ namespace PLEXIL
    * @brief Notify that nodes have changed state.
    * @param Vector of node state transition info.
    */
-  void ExecListener::notifyOfTransitions(const std::vector<NodeTransition>& transitions) const
+  void ExecListener::notifyOfTransitions(const std::vector<NodeTransition>& transitions)
   {
     this->implementNotifyNodeTransitions(transitions);
   }
@@ -58,7 +58,7 @@ namespace PLEXIL
    * @param parent The name of the parent node under which this plan will be inserted.
    */
   void
-  ExecListener::notifyOfAddPlan(pugi::xml_node const plan) const
+  ExecListener::notifyOfAddPlan(pugi::xml_node const plan)
   {
     if (!m_filter
         || m_filter->reportAddPlan(plan))
@@ -70,7 +70,7 @@ namespace PLEXIL
    * @param libNode The intermediate representation of the plan.
    */
   void 
-  ExecListener::notifyOfAddLibrary(pugi::xml_node const libNode) const
+  ExecListener::notifyOfAddLibrary(pugi::xml_node const libNode)
   {
     if (!m_filter
         || m_filter->reportAddLibrary(libNode))
@@ -86,7 +86,7 @@ namespace PLEXIL
   void
   ExecListener::notifyOfAssignment(Expression const *dest,
                                    const std::string& destName,
-                                   const Value& value) const
+                                   const Value& value)
   {
     if (!m_filter
         || m_filter->reportAssignment(dest, destName, value))
@@ -197,7 +197,7 @@ namespace PLEXIL
    * @note Current states are accessible via the node.
    * @note This default method is a convenience for backward compatibility.
    */
-  void ExecListener::implementNotifyNodeTransitions(const std::vector<NodeTransition>& transitions) const
+  void ExecListener::implementNotifyNodeTransitions(const std::vector<NodeTransition>& transitions)
   {
     if (!m_filter) {
       for (NodeTransition const &transition : transitions)
@@ -216,7 +216,7 @@ namespace PLEXIL
    * @note This default method does nothing.
    */
   void
-  ExecListener::implementNotifyNodeTransition(NodeTransition const & /* transition */) const
+  ExecListener::implementNotifyNodeTransition(NodeTransition const & /* transition */)
   {
   }
 
@@ -226,7 +226,7 @@ namespace PLEXIL
    * @param parent The name of the parent node under which this plan will be inserted.
    * @note The default method does nothing.
    */
-  void ExecListener::implementNotifyAddPlan(pugi::xml_node const /* plan */) const
+  void ExecListener::implementNotifyAddPlan(pugi::xml_node const /* plan */)
   {
   }
 
@@ -235,7 +235,7 @@ namespace PLEXIL
    * @param libNode The intermediate representation of the plan.
    * @note The default method does nothing.
    */
-  void ExecListener::implementNotifyAddLibrary(pugi::xml_node const /* libNode */) const
+  void ExecListener::implementNotifyAddLibrary(pugi::xml_node const /* libNode */)
   {
   }
 
@@ -247,7 +247,7 @@ namespace PLEXIL
    */
   void ExecListener::implementNotifyAssignment(Expression const * /* dest */,
                                                const std::string& /* destName */,
-                                               const Value& /* value */) const
+                                               const Value& /* value */)
   {
   }
 
