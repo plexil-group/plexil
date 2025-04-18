@@ -1,14 +1,9 @@
 Example plans and scripts for the PLEXIL simulator.  See
 
-https://sourceforge.net/apps/mediawiki/plexil/index.php?title=Executing_Plans
+https://plexil-group.github.io/plexil_docs/PLEXILExecution/PLEXILSimulators.html
 
-for documentation of this simulator.
+for documentation of this simulator.  (Somewhat out of date as of 4/17/25).
 
 Each directory contains a plan with a complementary simulation script and
 interface configuration file.  See the README files in each directory for more
 information.
-
-
-
-
-

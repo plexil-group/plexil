@@ -1,7 +1,7 @@
 This file, plexil/CAVEATS, lists known bugs and issues in this version
 of PLEXIL.
 
-Build: 
+Build:
 
  * If the GNU autotools installed on your system are a different
    version from the ones used to build this release, you may encounter
@@ -71,7 +71,7 @@ Standard Plexil language:
 
  * Node timepoints cannot be assigned to variables.
 
-Plexil Viewer: 
+Plexil Viewer:
 
  * Support for the PLEXIL Viewer has been lacking in recent years.  As
    a result a number of bugs and glitches have not been fixed.  We
@@ -85,8 +85,18 @@ Plexil Viewer:
    process, e.g. enter 'ps -eaf | grep java' and then 'kill -9 <pid>'
    where <pid> is the process number.
 
-Plexil compiler ('plexilc'): 
+Plexil compiler ('plexilc'):
 
  * File extensions included in the '-o' option are ignored: Extended
    and Core Plexil files are always written with the ".epx" and ".plx"
    extensions, respectively.
+
+Plexil Simulator:
+
+  * Both the documentation (at
+    https://plexil-group.github.io/plexil_docs/PLEXILExecution/PLEXILSimulators.html)
+    and implementation are in need of update.  In particular the
+    simulator will not work in MacOS because it attempts to start
+    'xterm'.  Aside from this, the simulator has had long-standing
+    issues.  Fixes and enhancements from the PLEXIL community are
+    welcome!
