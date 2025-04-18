@@ -608,9 +608,11 @@ typedef enum
 #define IPC_ALIGN ALIGN_LONGEST
 #elif defined(THINK_C) || defined(sun3) || defined(SUN3)
 #define IPC_ALIGN ALIGN_WORD
-#elif defined(macintosh) && defined(__POWERPC__)
+#elif defined(macintosh) && defined(__POWERPC__)  /* MacOS classic */
 #define IPC_ALIGN ALIGN_MAC_PPC
 #elif defined(__APPLE__) && defined(_ARCH_PPC)
+#define IPC_ALIGN ALIGN_MAC_PPC
+#elif defined(__APPLE__) && defined(__arm64__)  /* macOS on Apple silicon */
 #define IPC_ALIGN ALIGN_MAC_PPC
 #elif defined(sun4) || defined(SUN4) || defined(sparc) || defined(__sparc)
 #define IPC_ALIGN ALIGN_LONGEST
@@ -625,10 +627,11 @@ typedef enum
 /* Note, the next line is only valid for gcc, but will only be evaluated 
  * if the machine type is unknown.
  */
-#elif #machine (sparc)
-#define IPC_ALIGN ALIGN_LONGEST
-#elif #machine (arm)
-#define IPC_ALIGN ALIGN_ARM
+/* Breaks compilation on macOS Apple silicon. */
+/* #elif #machine (sparc) */
+/* #define IPC_ALIGN ALIGN_LONGEST */
+/* #elif #machine (arm) */
+/* #define IPC_ALIGN ALIGN_ARM */
 #else 
 #undef IPC_ALIGN
 #endif

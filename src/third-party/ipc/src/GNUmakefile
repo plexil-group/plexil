@@ -322,7 +322,7 @@ all:: srcs libs bins privs
 #	$(LD) -r -o $@ $(ODIR)/part1.o $(ODIR)/part2.o; chmod a-x $@
 
 ifneq ($(THIS_OS),vxworks)
-$(BDIR)/central:: $(SERVEROBJS) $(LIBDEP)
+$(BDIR)/central:: $(SERVEROBJS) $(LIBDEP) $(LOCAL_LIBS)
 	@[ -d $(BDIR) ] || $(MKDIR) $(BDIR)
 	$(LINK.c) -o $@ $(SERVEROBJS) $(LIBRARIES) $(DYN_LIBRARIES)
 else
