@@ -73,11 +73,10 @@ Standard Plexil language:
 
 Plexil Viewer:
 
- * Support for the PLEXIL Viewer has been lacking in recent years.  As
-   a result a number of bugs and glitches have not been fixed.  We
-   hope to have resources to spend on it soon, and welcome fixes and
-   enhancements from the PLEXIL community.  Note that PLEXIL is still
-   in strong use in its command line form.
+ * The PLEXIL Viewer (started with the 'plexil' script) is not in a
+   usable state, and has lacked support for a number of years.  We
+   welcome fixes and enhancements from the PLEXIL community.  Note
+   that PLEXIL is still in strong use in its command line form.
 
  * The viewer may not quit from the Plexil Viewer Console window,
    using the Viewer/Exit selection or the red Apple window button.
