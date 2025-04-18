@@ -1,6 +1,6 @@
 # PLEXIL Release Notes
 
-## 6.0 (in development)
+## 6.0 
 
 This is a major release, with significant additions and many
 incompatible changes from the 4.x series releases.  Some existing
