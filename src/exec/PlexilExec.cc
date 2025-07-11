@@ -368,21 +368,23 @@ namespace PLEXIL
           m_listener->notifyOfTransitions(m_transitionsToPublish);
         m_transitionsToPublish.clear();
 
+        // Perform any assignments that resulted from these transitions
+        if (!m_assignmentsToExecute.empty()
+            || !m_assignmentsToRetract.empty())
+          performAssignments();
+
         // done with this batch
 #ifndef NO_DEBUG_MESSAGE_SUPPORT 
         ++stepCount;
 #endif
       }
-      while (m_assignmentsToExecute.empty()
-             && m_assignmentsToRetract.empty()
-             && m_commandsToExecute.empty()
+      while (m_commandsToExecute.empty()
              && m_commandsToAbort.empty()
              && !m_candidateQueue.empty());
       // END QUIESCENCE LOOP
 
       // Perform side effects
       StateCache::instance().incrementCycleCount();
-      performAssignments();
       executeOutboundQueue();
       if (m_listener)
         m_listener->stepComplete(cycleNum);
