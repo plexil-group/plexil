@@ -32,7 +32,7 @@ here="$( cd "$(dirname "$0")" && pwd -P )"
 
 # Minimum Python version required
 py_ver_major=3
-py_ver_minor=5
+py_ver_minor=9
 
 venv_dir="${here}/.venv"
 venv_pip="${venv_dir}/bin/pip"

@@ -1,5 +1,4 @@
 click
 elementpath
-# File xmlschema/validators/schema.py was renamed to schemas.py at this release
-# validate-plexil.py explicitly references a class in that file
-xmlschema >= 1.8.2
+# xmlschema internals seem to get refactored often
+xmlschema >= 4.0.0
