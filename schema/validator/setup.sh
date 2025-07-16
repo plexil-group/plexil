@@ -48,7 +48,7 @@ Set up or update a Python virtual environment in $venv_dir
 Options:
  -h, -help, --help      Prints this message and exits.
  -q, --quiet            Print only essential output.
- -r, --reinstall        Delete the existing environment and reinstall.
+ -R, --reinstall        Delete the existing environment and reinstall.
  -U, --upgrade          Upgrade an existing environment.
  -v, --verbose          Describe what the script is doing in detail.
  --with-python <path>   Use <path> as the Python executable for initial setup.
