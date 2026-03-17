@@ -20,19 +20,20 @@ it has potential conflicts which need to be evaluated, or that it is
 actively blocked on such a conflict.
 
 PlanDebug:conflicts - reports on the conflict resolution logic, for
-both assignment variables and mutexes. (NOTE: the PLEXIL Mutex is
-presently an undocumented new feature).
+both assignment variables and mutexes.
 
 PlanDebug:failure - reports failed nodes and their failure type.
 
 PlanDebug:macroStep - prints the start and end of each MACRO step in
 the plan's execution, giving its count, time, and number of candidates
-and pending, and number of commands that are executed (and aborted),
-if any.
+(see PlanDebug:candidates) and number of nodes pending (waiting for an
+assignment variable or mutex to be free), and number of commands that
+are executed (and aborted), if any.
 
 PlanDebug:microStep - prints the start and end of each MICRO step in
 the plan's execution, giving its count, macro step reference, and
-number of candidates (see PlanDebug:candidates) and pending.
+number of candidates (see PlanDebug:candidates) and pending nodes (see
+PlanDebug:macroStep).
 
 PlanDebug:outcome - reports the outcome of each node when it
 finishes.  Same as Node:outcome but with a slightly different output
@@ -41,9 +42,15 @@ format.
 PlanDebug:transition - reports every node transition.  Very similar to
 Node:transition, which also includes the time.
 
+Test:testOutput - reports behavior as a simulation script is processed
+with the Test Executive.
+
 
 Notes
 -----
+
+Several flags above refer to the PLEXIL Mutex, which is presently an
+undocumented new feature.
 
 Redundancies between PlanDebug:* and Node* flags are intentional.  The
 latter is an early Executive developer debugging tool, and is
