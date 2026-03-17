@@ -1,0 +1,21 @@
+This file is meant to document the PLEXIL debugging flags listed in
+AllDebugFlags.cfg.  It is under construction!
+
+Debug flag descriptions
+-----------------------
+
+PlanDebug:candidates - reports every node which the Exec algorithm
+identifies as a candidate to be evaluated for potential transition.
+
+PlanDebug:check - reports either that a node can transition now, that
+it has potential conflicts which need to be evaluated, or that it is
+actively blocked on such a conflict.
+
+PlanDebug:conflicts - reports on the conflict resolution logic, for
+both assignment variables and mutexes.
+
+Notes
+-----
+
+PlanDebug:transition is meant to be redundant with Node:transition,
+because the latter was intended as an Exec developer debugging tool.
