@@ -1,8 +1,16 @@
-This file is meant to document the PLEXIL debugging flags listed in
-AllDebugFlags.cfg.  It is under construction!
+This file describes the PLEXIL debugging flags listed in
+AllDebugFlags.cfg.
+
+NOTE: This file is, and perhaps always will be, under construction!
+The most useful and commonly used debugging flags are prioritized.
+
 
 Debug flag descriptions
 -----------------------
+
+Node:outcome - reports outcome of each node when it finishes.
+
+Node:transition - reports every node state transition.
 
 PlanDebug:candidates - reports every node which the Exec algorithm
 identifies as a candidate to be evaluated for potential transition.
@@ -12,10 +20,32 @@ it has potential conflicts which need to be evaluated, or that it is
 actively blocked on such a conflict.
 
 PlanDebug:conflicts - reports on the conflict resolution logic, for
-both assignment variables and mutexes.
+both assignment variables and mutexes. (NOTE: the PLEXIL Mutex is
+presently an undocumented new feature).
+
+PlanDebug:failure - reports failed nodes and their failure type.
+
+PlanDebug:macroStep - prints the start and end of each MACRO step in
+the plan's execution, giving its count, time, and number of candidates
+and pending, and number of commands that are executed (and aborted),
+if any.
+
+PlanDebug:microStep - prints the start and end of each MICRO step in
+the plan's execution, giving its count, macro step reference, and
+number of candidates (see PlanDebug:candidates) and pending.
+
+PlanDebug:outcome - reports the outcome of each node when it
+finishes.  Same as Node:outcome but with a slightly different output
+format.
+
+PlanDebug:transition - reports every node transition.  Very similar to
+Node:transition, which also includes the time.
+
 
 Notes
 -----
 
-PlanDebug:transition is meant to be redundant with Node:transition,
-because the latter was intended as an Exec developer debugging tool.
+Redundancies between PlanDebug:* and Node* flags are intentional.  The
+latter is an early Executive developer debugging tool, and is
+preserved for legacy.  The newer PlanDebug:* flags are tailored more
+for plan developers.
