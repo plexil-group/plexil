@@ -142,6 +142,7 @@ namespace PLEXIL
   void Assignment::execute(ExecListenerBase *listener)
   {
     debugMsg("Test:testOutput", " Assigning " << m_value << " to " << m_dest->toString());
+    debugMsg("PlanDebug:assign", "     Assigning " << m_value << " to " << m_dest->getName());
     m_dest->setValue(m_value);
     m_ack.setValue(true);
     if (listener)
@@ -151,6 +152,7 @@ namespace PLEXIL
   void Assignment::retract(ExecListenerBase *listener)
   {
     debugMsg("Test:testOutput", " Restoring previous value of " << m_dest->toString());
+    debugMsg("PlanDebug:assign", "      Restoring previous value of " << m_dest->getName());
     m_dest->restoreSavedValue();
     m_abortComplete.setValue(true);
     if (listener)
