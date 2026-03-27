@@ -311,15 +311,13 @@ namespace PLEXIL
             if (!resourceCheckRequired(candidate)) {
               // The node is eligible to transition now
               debugMsg("PlanDebug:check",
-                       "      " << candidate->getNodeId() << " (" << candidate
-                       << ") may transition now");
+                       "      " << candidate->getNodeId() << " may transition now");
               addStateChangeNode(candidate);
             }
             else {
               // Possibility of conflict - set it aside to evaluate as a batch
               debugMsg("PlanDebug:check",
-                       "      " << candidate->getNodeId() << " (" << candidate
-                       << ") needs conflict check");
+                       "      " << candidate->getNodeId() << " needs conflict check");
               addPendingNode(candidate);
             }
           }
@@ -437,8 +435,7 @@ namespace PLEXIL
     //! \note Called only by NodeImpl::notify().
     virtual void addCandidateNode(Node *node) override
     {
-      debugMsg("PlanDebug:candidates",
-               ' ' << node->getNodeId() << " (" << node << ") enqueued");
+      debugMsg("PlanDebug:candidates", ' ' << node->getNodeId() << " enqueued");
       m_candidateQueue.push(node);
     }
 
@@ -528,14 +525,14 @@ namespace PLEXIL
         if (!node->getDestState()) {
           // No longer transitioning at all - remove from pending queue
           debugMsg("PlanDebug:conflicts",
-                   "      " << node->getNodeId() << " (" << node << ") not transitioning");
+                   "      " << node->getNodeId() << " not transitioning");
           removePendingNode(node);
         }
         else if (node->getNextState() != EXECUTING_STATE) {
           // Now transitioning to some other state
           // Remove from pending queue and add to state change queue
           debugMsg("PlanDebug:conflicts",
-                   "  " << node->getNodeId() << " (" << node << ") no longer transitioning to EXECUTING");
+                   "  " << node->getNodeId() << " no longer transitioning to EXECUTING");
           removePendingNode(node);
           addStateChangeNode(node);
         }
@@ -550,7 +547,7 @@ namespace PLEXIL
         if (!node->getDestState()) {
           // No longer transitioning at all - remove from pending queue
           debugMsg("PlanDebug:conflicts",
-                   "  " << node->getNodeId() << " (" << node << ") not transitioning")
+                   "  " << node->getNodeId() << " not transitioning")
           removePendingNode(node);
           return false;
         }
@@ -558,7 +555,7 @@ namespace PLEXIL
           // Transitioning to some other state
           // Remove from pending queue and add to state change queue
           debugMsg("PlanDebug:conflicts",
-                   "  " << node->getNodeId() << " (" << node << ") no longer transitioning to EXECUTING")
+                   "  " << node->getNodeId() << " no longer transitioning to EXECUTING")
           removePendingNode(node);
           addStateChangeNode(node);
           return false;
@@ -570,7 +567,7 @@ namespace PLEXIL
       case QUEUE_PENDING_TRY:
         // Resource(s) were released, give it a look
         debugMsg("PlanDebug:conflicts",
-                 "  " << node->getNodeId() << " (" << node << ") eligible for resource check")
+                 "  " << node->getNodeId() << " eligible for resource check")
         return true;
 
       case QUEUE_PENDING:
@@ -630,7 +627,7 @@ namespace PLEXIL
               debugMsg("PlexilExec:resolveResourceConflicts",
                        ' ' << n->getNodeId() << " succeeded");
               debugMsg("PlanDebug:check",
-                       "      " << n->getNodeId() << " (" << n << ") may transition now");
+                       "      " << n->getNodeId() << " may transition now");
               removePendingNode(n);
               n->acquireResources();
               addStateChangeNode(n);
@@ -638,8 +635,7 @@ namespace PLEXIL
             else {
               // Can't get resources, so mark that node has been checked
               debugMsg("PlanDebug:check",
-                       "      " << n->getNodeId() << " (" << n
-                       << ") is blocked on a resource conflict");
+                       "      " << n->getNodeId() << " is blocked on a resource conflict");
               n->setQueueStatus(QUEUE_PENDING);
             }
           }

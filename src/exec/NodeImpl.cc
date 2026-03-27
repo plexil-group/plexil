@@ -650,8 +650,7 @@ namespace PLEXIL
             ancestor = ancestor->getParent();
           }
           debugMsg("PlanDebug:conflicts",
-                   "  " << m_nodeId << " (" << static_cast<Node const *>(this)
-                   << ") is blocked on mutex " << m->getName())
+                   "  " << m_nodeId << " is blocked on mutex " << m->getName())
           return false;
         }
       }
@@ -673,8 +672,7 @@ namespace PLEXIL
         assertTrueMsg(m->acquire(this),
                       __FUNCTION__ << ": unexpected failure to acquire " << m->getName());
         debugMsg("PlanDebug:conflicts",
-                 "  " << m_nodeId << " (" << static_cast<Node *>(this)
-                 << ") acquires mutex " << m->getName());
+                 "  " << m_nodeId << " acquires mutex " << m->getName());
       }
     }
     this->specializedAcquireResources();
@@ -693,8 +691,7 @@ namespace PLEXIL
       for (Mutex *m : *m_usingMutexes) {
         m->release(this);
         debugMsg("PlanDebug:conflicts",
-                 "  " << m_nodeId << " (" << static_cast<Node *>(this)
-                 << ") releases mutex " << m->getName());
+                 "  " << m_nodeId << " releases mutex " << m->getName());
       }
     }
   }
@@ -711,8 +708,7 @@ namespace PLEXIL
       for (Mutex *m : *m_usingMutexes) {
         m->reserve(this);
         debugMsg("PlanDebug:conflicts",
-                 "  " << m_nodeId << " (" << static_cast<Node *>(this)
-                 << ") is waiting on mutex " << m->getName());
+                 "  " << m_nodeId << " is waiting on mutex " << m->getName());
       }
     }
     this->specializedReserveResources();
@@ -731,8 +727,7 @@ namespace PLEXIL
       for (Mutex *m : *m_usingMutexes) {
         m->cancelReservation(this);
         debugMsg("PlanDebug:conflicts",
-                 "  " << m_nodeId << " (" << static_cast<Node *>(this)
-                 << ") is no longer waiting on mutex " << m->getName());
+                 "  " << m_nodeId << " is no longer waiting on mutex " << m->getName());
       }
     }
   }
@@ -756,8 +751,7 @@ namespace PLEXIL
       debugMsg("Node:notifyResourceAvailable",
                ' ' << m_nodeId << ' ' << this << " will retry resource acquisition");
       debugMsg("PlanDebug:conflicts",
-               "  " << m_nodeId << " (" << static_cast<Node *>(this)
-               << ") enqueued for resource recheck")
+               "  " << m_nodeId << " enqueued for resource recheck")
       return;
 
     case QUEUE_PENDING_CHECK:
@@ -766,8 +760,7 @@ namespace PLEXIL
                ' ' << m_nodeId << ' ' << this
                << " will retry resource acquisition after checking conditions");
       debugMsg("PlanDebug:conflicts",
-               "  " << m_nodeId << " (" << static_cast<Node *>(this)
-               << ") enqueued for condition and resource recheck")
+               "  " << m_nodeId << " enqueued for condition and resource recheck")
       return;
 
     default:
@@ -832,8 +825,8 @@ namespace PLEXIL
       return;
 
     debugMsg("PlanDebug:transition",
-             ' '  << m_nodeId << " (" << static_cast<Node *>(this)
-             << ") from " << nodeStateName(m_state)
+             ' '  << m_nodeId
+             << " from " << nodeStateName(m_state)
              << " to " << nodeStateName(m_nextState));
     debugMsg("Node:transition", " Transitioning " << m_nodeId << ' ' << this
              << " from " << nodeStateName(m_state)
@@ -1589,7 +1582,7 @@ namespace PLEXIL
   {
     condDebugMsg(o != NO_OUTCOME && o != m_outcome,
                  "PlanDebug:outcome",
-                 "    " << m_nodeId << " (" << static_cast<Node *>(this) << ") outcome " << outcomeName(o));
+                 "    " << m_nodeId << " outcome " << outcomeName(o));
     m_outcome = o;
   }
 
@@ -1602,8 +1595,7 @@ namespace PLEXIL
   {
     condDebugMsg(f != NO_FAILURE && f != m_failureType,
                  "PlanDebug:failure",
-                 "    " << m_nodeId << " (" << static_cast<Node *>(this) << ") failure type "
-                 << failureTypeName(f));
+                 "    " << m_nodeId << " failure type " << failureTypeName(f));
     m_failureType = f;
   }
 

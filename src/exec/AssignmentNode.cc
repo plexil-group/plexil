@@ -121,8 +121,7 @@ namespace PLEXIL
     Variable *var = m_assignment->getDest()->getBaseVariable();
     if (var->getHolder()) {
       debugMsg("PlanDebug:conflicts",
-               "  " << m_nodeId << " (" << static_cast<Node const *>(this)
-               << ") is blocked on variable " << var->getName());
+               "  " << m_nodeId << " is blocked on variable " << var->getName());
       return false;
     }
     return true;
@@ -134,8 +133,7 @@ namespace PLEXIL
     assertTrueMsg(var->acquire(this),
                   __FUNCTION__ << ": unexpected failure to acquire variable " << var->getName());
     debugMsg("PlanDebug:conflicts",
-             "  " << m_nodeId << " (" << static_cast<Node *>(this)
-             << ") acquires variable " << var->getName());
+             "  " << m_nodeId << " acquires variable " << var->getName());
   }
 
   void AssignmentNode::specializedReleaseResources()
@@ -143,8 +141,7 @@ namespace PLEXIL
     Variable *var = m_assignment->getDest()->getBaseVariable();
     var->release(this);
     debugMsg("PlanDebug:conflicts",
-             "  " << m_nodeId << " (" << static_cast<Node *>(this)
-             << ") releases variable " << var->getName());
+             "  " << m_nodeId << " releases variable " << var->getName());
   }
 
   void AssignmentNode::specializedReserveResources()
@@ -152,8 +149,7 @@ namespace PLEXIL
     Variable *var = m_assignment->getDest()->getBaseVariable();
     var->reserve(this);
     debugMsg("PlanDebug:conflicts",
-             "  " << m_nodeId << " (" << static_cast<Node *>(this)
-             << ") is waiting on variable " << var->getName());
+             "  " << m_nodeId << " is waiting on variable " << var->getName());
   }
 
   void AssignmentNode::specializedCancelResourceReservations()
@@ -161,8 +157,7 @@ namespace PLEXIL
     Variable *baseVar = m_assignment->getDest()->getBaseVariable();
     baseVar->cancelReservation(this);
     debugMsg("PlanDebug:conflicts",
-             "  " << m_nodeId << " (" << static_cast<Node *>(this)
-             << " is no longer waiting on variable " << baseVar->getName());
+             "  " << m_nodeId << " is no longer waiting on variable " << baseVar->getName());
   }
 
   //
