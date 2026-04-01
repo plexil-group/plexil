@@ -1,5 +1,39 @@
 # PLEXIL Release Notes
 
+## 6.1.2
+
+- Removed obsolete `UPDATES.TODO.md` file and `workshop` directory.
+
+- Revised 6.0 release notes (below) for clarity and completeness.
+
+## 6.1.1
+
+- New PlanDebug flags were added to the debug tracing facility.  See
+  `doc/DebugFlags.txt`.  `doc/AllDebugFlags.cfg` was updated as well.
+  Obsolete documentation scripts were removed.
+
+- Tags 6.0.0, 6.1.0, 6.1.1 were added to the GitHub repository.
+  Future releases will be tagged in keeping with the
+  'major.minor.patch' semantic versioning convention.
+
+- Internal APIs for resource conflict resolution were revised.  There
+  should be no user visible consequences of this change.
+
+- `ExecApplication` methods were revised to reduce unnecessary calls
+  to `PlexilExec::step()`.  There should be no user visible
+  consequences of this change.
+
+## 6.1.0
+
+- Assignments and assignment retractions no longer force a macro step;
+  they are performed at the end of a micro step.  This restores the
+  original behavior of Assignment nodes.  Plans dependent upon
+  Assignment node forcing a macro step may need to be adjusted to
+  accommodate this change.
+
+- The old SourceForge Git repository is no longer maintained.  The
+  GitHub repository is now the sole authoritative public repository.
+
 ## 6.0 
 
 This is a major release, with significant additions and many
@@ -19,15 +53,28 @@ Highlights of this release:
 
 - CMake build system support for the Executive is much improved.
 
-- A Mutex facility has been added to the PLEXIL language
+- A Mutex facility has been added to the PLEXIL language.
 
 - Resource contention resolution has been reimplemented and unified.
 
-- The Application Framework API has been heavily revised.
+- The Application Framework and external interfacing APIs have been
+  heavily revised.
 
 ### Known bugs
 
 Many of these are carryovers from the PLEXIL 4.6 release.
+
+- Use of `LookupNow` or `LookupOnChange` in a `RepeatCondition`
+  expression can prevent termination of the Exec quiescence loop.
+  Because Lookup values are only updated at the beginning of a macro
+  step, and re-execution of a node when `RepeatCondition` is true does
+  not trigger a macro step, the value of the Lookup *cannot* change
+  until some other node state transition forces a macro step
+  (e.g. execution of a Command node).  In the absence of such a
+  transition, the node with the `RepeatCondition` will execute
+  repeatedly and continuously, and quiescence will never terminate.
+  **This bug has always been inherent in the PLEXIL language
+  semantics.**
 
 - The Standard PLEXIL compiler does not correctly report the
   locations of errors detected in source files compiled with
@@ -36,7 +83,7 @@ Many of these are carryovers from the PLEXIL 4.6 release.
   preprocessor.
 
 - The PLEXIL Viewer GUI debugging environment remains alpha quality
-  at best.
+  at best, and is no longer supported.
 
 - The Executive's XML parser module test suite was broken when the
   parser was modified from a 2-pass to a 3-pass algorithm.  This
@@ -63,48 +110,71 @@ Many of these are carryovers from the PLEXIL 4.6 release.
 
 #### Incompatible changes
 
-- Resource acquisition and resource contention resolution have been
-  extended and unified.
+- Resource contention resolution has been unified and extended.
 
- * A new Mutex facility implements a simple Boolean mutex.  This
-   allows for explicit serialization of shared resources.
+ * A new Mutex facility implements named simple Boolean mutex
+   variables.  This allows for explicit serialization of shared
+   resources.
 
-   The `DeclareMutex` element may appear within `GlobalDeclarations`
-   and `VariableDeclarations` elements.  The global declaration variant
-   declares a globally visible Mutex, which can be referenced by
-   multiple plans.  The Node variant declares a Mutex visible only to
-   that node and its descendants.
+   A Mutex has two states: available and held.  Mutexes are
+   initialized to available at creation.  Mutexes can be global to all
+   plans, or local to a Node and its descendants.
 
-   The `UsingMutex` element can appear inside a `Node` element.  The
-   Node cannot transition from `WAITING` to `EXECUTING` unless the
-   Mutex is available.  Once a Mutex is acquired, the acquiring Node
-   will hold the Mutex until it transitions to `ITERATION_ENDED`.  No
-   other Node can acquire the Mutex until it has been released.
+   A Node using a Mutex acquires the Mutex when it transitions to
+   `EXECUTING`, and holds the Mutex until the Node transitions to
+   `ITERATION_ENDED` or `FINISHED`, whichever occurs first, at which
+   time the Mutex is released.  A Node may use multiple Mutexes.
 
-   It is an error to recursively acquire a mutex which is already held
-   by a containing node.
+   No Node can acquire a held Mutex until the Node holding the Mutex
+   releases it.  Recursive acquisition of Mutexes is not permitted.
+   It is an error for a Node to attempt to acquire a Mutex which is
+   already held by a containing Node.
 
- * Resource contention resolution for Variables, Mutexes, and command
-   Resources has been unified.
+   The `DeclareMutex` element creates a named Mutex variable.  It may
+   appear within `GlobalDeclarations` and `VariableDeclarations`
+   elements.  Within a `GlobalDeclarations` element, `DeclareMutex`
+   declares a globally visible Mutex variable, which can be shared
+   among other plans which declare a global Mutex with the same name.
+   In a Node's `VariableDeclarations` element, `DeclareMutex` creates
+   a Mutex variable visible only to that node and its descendants.
 
-   In prior PLEXIL releases, Assignment variables and Command
-   resources were handled independently of one another.  If multiple
+   A `Node` element may contain one or more `UsingMutex` elements.  A
+   Node with a `UsingMutex` which is eligible to execute remains in
+   `WAITING` state until the Mutex, and all other resources the Node
+   requires, can be acquired.  Upon acquiring all resources, the Node
+   immediately transitions to `EXECUTING`. The Node will hold the
+   Mutex and all other resources until it transitions to
+   `ITERATION_ENDED` or `FINISHED`, whichever occurs first, at which
+   time the Mutex and other resources are released.
+
+ * Resource contention resolution for Assignment variables, Mutexes,
+   and Command node Resources has been unified.
+
+   In prior PLEXIL releases, Assignment variables and Command node
+   Resources were handled independently of one another.  If multiple
    Assignment nodes assigning to the same variable at the same
    priority were eligible to transition at the same time, the
-   Executive would assert and crash.  Command nodes could fail to
-   acquire resources without the Command node failing.  And there was
-   no contention resolution between Assignment and Command nodes
-   assigning to the same variable.
-   
-   Now, all 3 resource types are handled in the same fashion.
-   Multiple nodes waiting on the same resource at the same priority
-   will be executed in sequence, in an arbitrary order.  No Node can
-   transition to `EXECUTING` until all of its resources can be
-   acquired.
+   Executive would report an assertion failure and crash.  Command
+   nodes could fail to acquire Resources without the Command node
+   failing.  And Assignment and Command nodes executing concurrently
+   and assigning to the same variable could both change the value of
+   the variable in an arbitrary order.
 
- * The `Priority` element, formerly relevant only for variable
-   assignments, now also applies to any node with a `UsingMutex`, and
-   to `Command` nodes.
+   Now, all resource types - Assignment variables, Mutex variables,
+   and Command node Resources - are handled uniformly.  No Node can
+   transition to `EXECUTING` until all of its resources can be
+   acquired.  Multiple Nodes waiting on the same resource at the same
+   priority will be executed serially, in an arbitrary order.
+
+   Resource acquisition and release are atomic; all resources required
+   by a Node are acquired at once, and released at once.
+
+   **NOTE:** There is currently no provision for deadlock detection or
+   resolution.
+
+ * The `Priority` element, formerly applicable only to Assignment
+   nodes, now may be used on any Node with a `UsingMutex`, and on
+   Command nodes.
 
  * The `ResourcePriority` element for command resources has been
    removed.  Use the Node `Priority` element in its place.
@@ -116,21 +186,22 @@ Many of these are carryovers from the PLEXIL 4.6 release.
   corresponding functionality, so this is unlikely to break any PLEXIL
   applications.
 
-- All PLEXIL schemas are now represented as XML Schema 1.1.  This
-  allows for a more compact representation.
+- All PLEXIL schemas are now defined in XML Schema Definition language
+  version 1.1.  This allows for a more compact schema representation.
 
-- A new schema validator supporting XML Schema 1.1 has been
-  incorporated in the distribution.  See the release 4.6 release
-  notes for details.
+- A schema validator supporting XML Schema Definition language version
+  1.1 has been incorporated in the distribution.  See the release 4.6
+  release notes for details.
 
-- Saxon Home Edition (HE) has been updated to release 11.4.
+- The Saxon Home Edition (HE) XML processor package used by various
+  translators and compilers has been updated to release 11.4.
 
-- A more compact XML representation is in development, as are
-  translators between the old and new representations.
+- A more compact Core PLEXIL XML representation is in development, as
+  are translators between the old and new representations.
 
 ### Extended PLEXIL (XML) language, schema, and translator
 
-- The SynchronousCommand macro now implements a `Checked` option.  See
+- The `SynchronousCommand` macro now implements a `Checked` option.  See
   the release 4.6 release notes below for details.
 
 - Extended PLEXIL has been updated to properly handle the new Mutex
@@ -140,16 +211,16 @@ Many of these are carryovers from the PLEXIL 4.6 release.
 
 - Mutexes have been added to the Standard PLEXIL language:
 
- * The `Mutex` statement declares one or more mutexes.  It can appear
-   at the top level of a Standard PLEXIL file (adjacent to other
-   global declarations), or within a Node.
+ * The `Mutex` statement translates into a `DeclareMutex` element, and
+   declares one or more Mutex variables.  It can appear at the top
+   level of a Standard PLEXIL file (adjacent to other global
+   declarations), or within a Node.
 
- * The `Using` statement represents mutex acquisition, and references
-   one or more pre-declared mutexes.  It can only appear within a
-   Node.
+ * The `Using` statement translates into a `UsingMutex` element.  It
+   can only appear within a Node.
 
-- SynchronousCommand now implements a `Checked` option.  See the
-  release 4.6 release notes below for details.
+- The `SynchronousCommand` statement now implements a `Checked`
+  option.  See the release 4.6 release notes below for details.
 
 - The Standard PLEXIL compiler does a better job of recognizing
   superfluous braces, and generates more compact Core PLEXIL XML as a
@@ -157,27 +228,45 @@ Many of these are carryovers from the PLEXIL 4.6 release.
 
 ### Executive core and Universal Executive
 
+### Application Framework
+
+- The Application Framework API has been extensively refactored.  The
+  `ExecApplication` class now owns all of the other objects required
+  for a PLEXIL application, specifically the `AdapterConfiguration`,
+  `InterfaceManager`, `ExecListenerHub`, and `PlexilExec` objects.
+  This refactoring should simplify constructing custom applications
+  around the PLEXIL Executive.
+
 ### External interfaces
 
-- External interfacing has been refactored.  The former
-  adapter-centered implementation has been replaced with a
-  hander-centered implementation.
+- External interfacing also has been extensively refactored.  The
+  former adapter-centered API has been replaced with a
+  handler-centered API.  The new API allows registering either class
+  instances or simple functions as handlers for implementing Commands,
+  Lookups, and Updates.
+
+  Provisions for backward compatibility with PLEXIL 4.6 APIs are
+  included to ease the transition.  But applications requiring custom
+  external interfaces should be reimplemented to use the new
+  interfacing API.
 
 ### Standard interface library
 
-- The TimeAdapter has been refactored.  The TimeAdapter class itself
-  should now be largely platform-independent.  Timer functions are
-  delegated to a Timebase abstraction.  Concrete Timebase
-  implementations are included for the POSIX Advanced Timer API (most
-  Linux distros), Grand Central Dispatch (macOS), and the older POSIX
-  Itimer API (most other Unix-like platforms).
+- The standard TimeAdapter has been refactored.  The `TimeAdapter` C++
+  class should now be largely platform-independent.  Platform-specific
+  timer functions are delegated to instances of the `Timebase`
+  abstract base class.  Concrete `Timebase` implementations are
+  included for the POSIX Advanced Timer API (most Linux distros),
+  Grand Central Dispatch (macOS), and the older POSIX Itimer API (most
+  other Unix-like platforms).
 
 - The UdpAdapter has been reimplemented.  Instead of a listener thread
   per message, it now uses a single worker thread to handle incoming
   packets.
 
-- The IpcAdapter is deprecated, due to lack of maintenance of the CMU
-  IPC package.
+- The IpcAdapter is deprecated, due to build issues on 64-bit
+  platforms, and lack of maintenance of the CMU IPC package on which
+  it is based.
 
 - The Gantt chart facility has been removed from the PLEXIL
   distribution.
@@ -186,12 +275,15 @@ Many of these are carryovers from the PLEXIL 4.6 release.
 
 ### Plexil Viewer
 
+The PLEXIL Viewer GUI is no longer supported, due to lack of staffing
+and resources.
+
 ### Other tools
 
 ### Examples
 
 
-## 4.6d0 (in progress)
+## 4.6d0
 
 This is a major point release, with significant revisions.  Old plans
 should continue to work without recompilation; however, recompilation
