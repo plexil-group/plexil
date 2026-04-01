@@ -1,0 +1,105 @@
+This file describes the PLEXIL debugging flags listed in
+AllDebugFlags.cfg.
+
+The majority of these flags were intended for use by PLEXIL Exec
+developers in debugging the Exec implementation.
+
+PlanDebug flags are specifically intended for use by PLEXIL plan
+authors.
+
+The TestExec regression suite scripts depend on the particular
+formatting of specific debug flag reports.  These flags are called out
+below.
+
+NOTE: This file is, and perhaps always will be, under construction!
+The most useful and commonly used debugging flags are prioritized.
+
+
+Debug flag descriptions
+-----------------------
+
+PlanDebug:assign - reports every assignment or retraction performed by
+the Exec.
+
+PlanDebug:candidates - reports every node which the Exec algorithm
+identifies as a candidate to be evaluated for potential transition.
+
+PlanDebug:check - reports either that a node can transition now, that
+it has potential conflicts which need to be evaluated, or that it is
+actively blocked on such a conflict.
+
+PlanDebug:conflicts - reports on the conflict resolution logic for
+assignment variables and mutexes.
+
+PlanDebug:failure - reports failed nodes and their failure type.
+
+PlanDebug:macroStep - prints the start and end of each MACRO step in
+the plan's execution, giving its count, time, and number of candidates
+(see PlanDebug:candidates) and number of nodes pending (waiting for an
+assignment variable or mutex to be free), and number of commands that
+are executed (and aborted), if any.
+
+PlanDebug:microStep - prints the start and end of each MICRO step in
+the plan's execution, giving its count, macro step reference, and
+number of candidates (see PlanDebug:candidates) and pending nodes (see
+PlanDebug:macroStep), and number of variables assigned or restored.
+
+PlanDebug:outcome - reports the outcome of each node when it
+finishes.
+
+PlanDebug:transition - reports every node transition, including the
+states it is transitioning from and to.
+
+Node:failure - reports failure type of each node, if applicable.
+
+Node:notifyChanged - reports when a node is placed on one of the
+Exec's internal queues.  Used by TestExec regression suite scripts.
+
+Node:notifyResourceAvailable - reports when a node is eligible to
+recheck availability of assignment variables and mutexes.  Used by
+TestExec regression suite scripts.
+
+Node:outcome - reports outcome of each node when it finishes.  Same as
+PlanDebug:outcome but with a different output format.
+
+Node:transition - reports every node state transition, including the
+from and to states, and the time of transition.
+
+PlexilExec:addPlan - reports when a new plan has been received by the
+Exec.  Used by TestExec regression suite scripts.
+
+PlexilExec:allPlansFinished - traces calls to the function
+PlexilExec::allPlansFinished().  Used by TestExec regression suite
+scripts.
+
+PlexilExec:deleteFinishedPlans - traces cleanup of completed plans.
+Used by TestExec regression suite scripts.
+
+PlexilExec:performAssignments - summarizes assignments performed and
+retracted.  Used by TestExec regression suite scripts.
+
+PlexilExec:printPlan - prints the complete state of the PLEXIL plan at
+every macro step.  Used by TestExec regression suite scripts.
+
+PlexilExec:resolveResourceConflicts - reports when a node has
+successfully acquired assignment variables and/or mutexes.  Used by
+TestExec regression suite scripts.
+
+PlexilExec:step - reports progress of Exec quiescence loop.  Used by
+TestExec regression suite scripts.
+
+Test:testOutput - reports TestExec script events, Assignment node
+assignments and retractions, and Resource Arbiter command rejections.
+Used by TestExec regression suite scripts.
+
+
+Notes
+-----
+
+Several flags above refer to the PLEXIL Mutex, which is presently an
+undocumented new feature.
+
+Redundancies between PlanDebug:* and Node* flags are intentional.  The
+latter is an early Executive developer debugging tool, and is
+preserved for legacy.  The newer PlanDebug:* flags are tailored more
+for plan developers.

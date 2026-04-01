@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2023, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -420,7 +420,7 @@ namespace PLEXIL
 
     // Delete timepoints, if any
     delete m_timepoints.release();
-    
+
     // Delete mutex vectors
     delete m_usingMutexes.release();
     delete m_localMutexes.release();
@@ -603,11 +603,7 @@ namespace PLEXIL
       return;
 
     case QUEUE_CHECK:             // already a candidate, silently ignore
-      return;
-
     case QUEUE_PENDING_CHECK:     // already a candidate, silently ignore
-      return;
-
     case QUEUE_TRANSITION_CHECK:  // already a candidate, silently ignore
       return;
 
@@ -624,27 +620,25 @@ namespace PLEXIL
     }
   }
 
-  
-  //! Does this node need to acquire resources before it can execute?
-  //! @return true if resources must be acquired, false otherwise.
-  //! @note AssignmentNode overrides this method.
-  bool NodeImpl::acquiresResources() const
+  // Public member function.
+  bool NodeImpl::requiresResources() const
   {
-    return (m_usingMutexes && !m_usingMutexes->empty());
+    return (m_usingMutexes && !m_usingMutexes->empty())
+      || this->specializedRequiresResources();
   }
 
-  //! Reserve the resource(s)
-  //! If resource(s) busy, place node on resource(s)'s pending queues.
-
-  // FIXME: Refactor to delegate assignment variable acquisition to
-  // AssignmentNode class.
-  bool NodeImpl::tryResourceAcquisition()
+  // Default method.
+  bool NodeImpl::specializedRequiresResources() const
   {
-    bool success = true;
+    return false;
+  }
+
+  // Public member function.
+  bool NodeImpl::canAcquireResources() const
+  {
     if (m_usingMutexes) {
       for (Mutex *m : *m_usingMutexes) {
-        success = m->acquire(this);
-        if (!success) {
+        if (m->getHolder()) {
           // Check for recursive acquisition on failure
           Node const *holder = dynamic_cast<Node const *>(m->getHolder());
           Node const *ancestor = this->getParent();
@@ -655,52 +649,95 @@ namespace PLEXIL
                            << " already held by ancestor " << ancestor->getNodeId());
             ancestor = ancestor->getParent();
           }
-          break; // on failure
+          debugMsg("PlanDebug:conflicts",
+                   "  " << m_nodeId << " is blocked on mutex " << m->getName())
+          return false;
         }
       }
     }
-
-    // Assignment variable next
-    if (this->getType() == NodeType_Assignment) {
-      Variable *var = this->getAssignmentVariable()->getBaseVariable();
-      if (success) {
-        // Try to acquire the variable
-        success = var->acquire(this);
-      }
-      else {
-        // Acquiring other resources failed, so just queue up
-        var->addWaitingNode(this);
-      }
-    }
-      
-    debugMsg("Node:tryResourceAcquisition",
-             ' ' << m_nodeId << ' ' << this
-             << (success ? " succeeded" : " failed"));
-
-    if (!success) {
-      // If we couldn't get all the resources, release the resources we got
-      if (m_usingMutexes) {
-        for (Mutex *m : *m_usingMutexes) {
-          if (this == dynamic_cast<Node const *>(m->getHolder()))
-            m->release(this);
-          m->addWaitingNode(this); // no harm if already there
-        }
-      }
-    }
-    return success;
+    return this->specializedCanAcquireResources();
   }
 
-  //! Remove the node from the pending queues of any resources
-  //! it was trying to acquire.
-  //! @note AssignmentNode wraps this method.
-  void NodeImpl::releaseResourceReservations()
+  // Default method
+  bool NodeImpl::specializedCanAcquireResources() const
+  {
+    return true;
+  }
+
+  // Public member function.
+  void NodeImpl::acquireResources()
   {
     if (m_usingMutexes) {
-      for (Mutex *m : *m_usingMutexes)
-        m->removeWaitingNode(this);
+      for (Mutex *m : *m_usingMutexes) {
+        assertTrueMsg(m->acquire(this),
+                      __FUNCTION__ << ": unexpected failure to acquire " << m->getName());
+        debugMsg("PlanDebug:conflicts",
+                 "  " << m_nodeId << " acquires mutex " << m->getName());
+      }
+    }
+    this->specializedAcquireResources();
+  }
+
+  // Default method
+  void NodeImpl::specializedAcquireResources()
+  {
+  }
+
+  // Public member function.
+  void NodeImpl::releaseResources()
+  {
+    this->specializedReleaseResources();
+    if (m_usingMutexes) {
+      for (Mutex *m : *m_usingMutexes) {
+        m->release(this);
+        debugMsg("PlanDebug:conflicts",
+                 "  " << m_nodeId << " releases mutex " << m->getName());
+      }
     }
   }
 
+  // Default method
+  void NodeImpl::specializedReleaseResources()
+  {
+  }
+
+  // Public member function.
+  void NodeImpl::reserveResources()
+  {
+    if (m_usingMutexes) {
+      for (Mutex *m : *m_usingMutexes) {
+        m->reserve(this);
+        debugMsg("PlanDebug:conflicts",
+                 "  " << m_nodeId << " is waiting on mutex " << m->getName());
+      }
+    }
+    this->specializedReserveResources();
+  }
+
+  // Default method
+  void NodeImpl::specializedReserveResources()
+  {
+  }
+
+  // Public member function.
+  void NodeImpl::cancelResourceReservations()
+  {
+    this->specializedCancelResourceReservations();
+    if (m_usingMutexes) {
+      for (Mutex *m : *m_usingMutexes) {
+        m->cancelReservation(this);
+        debugMsg("PlanDebug:conflicts",
+                 "  " << m_nodeId << " is no longer waiting on mutex " << m->getName());
+      }
+    }
+  }
+
+  // Default method.
+  void NodeImpl::specializedCancelResourceReservations()
+  {
+  }
+
+  // Public member function.
   void NodeImpl::notifyResourceAvailable()
   {
     switch (m_queueStatus) {
@@ -713,6 +750,8 @@ namespace PLEXIL
       m_queueStatus = QUEUE_PENDING_TRY;
       debugMsg("Node:notifyResourceAvailable",
                ' ' << m_nodeId << ' ' << this << " will retry resource acquisition");
+      debugMsg("PlanDebug:conflicts",
+               "  " << m_nodeId << " enqueued for resource recheck")
       return;
 
     case QUEUE_PENDING_CHECK:
@@ -720,6 +759,8 @@ namespace PLEXIL
       debugMsg("Node:notifyResourceAvailable",
                ' ' << m_nodeId << ' ' << this
                << " will retry resource acquisition after checking conditions");
+      debugMsg("PlanDebug:conflicts",
+               "  " << m_nodeId << " enqueued for condition and resource recheck")
       return;
 
     default:
@@ -783,6 +824,10 @@ namespace PLEXIL
     if (m_nextState == m_state)
       return;
 
+    debugMsg("PlanDebug:transition",
+             ' '  << m_nodeId
+             << " from " << nodeStateName(m_state)
+             << " to " << nodeStateName(m_nextState));
     debugMsg("Node:transition", " Transitioning " << m_nodeId << ' ' << this
              << " from " << nodeStateName(m_state)
              << " to " << nodeStateName(m_nextState)
@@ -1242,10 +1287,9 @@ namespace PLEXIL
   // Common method
   void NodeImpl::transitionToIterationEnded() 
   {
-    // Release any mutexes held by this node
-    if (m_usingMutexes && m_state != WAITING_STATE) {
-      for (Mutex *m : *m_usingMutexes)
-        m->release(this);
+    // Release any resources held by this node
+    if (m_state != WAITING_STATE) {
+      releaseResources();
     }
     activateRepeatCondition();
   }
@@ -1357,15 +1401,20 @@ namespace PLEXIL
   // Conditions active:
   // Legal successor states: INACTIVE
 
-  // Default method
-  // Wrapped by AssignmentNode
+  // Common method
   void NodeImpl::transitionToFinished()
   {
-    // If transitioning from FAILING,, Release any mutexes held by this node
-    if (m_usingMutexes && m_state == WAITING_STATE) {
-      for (Mutex *m : *m_usingMutexes)
-        m->release(this);
-    }
+    switch (m_state)
+      {
+      case EXECUTING_STATE:
+      case FAILING_STATE:
+      case FINISHING_STATE:
+        releaseResources();
+        break;
+        
+      default:
+        break;
+      }
   }
 
   // Common method
@@ -1392,9 +1441,9 @@ namespace PLEXIL
   }
 
   //
-  // FINISHING (legal for ListNode and LibraryCallNode only)
+  // FINISHING (legal for Command, ListNode, and LibraryCallNode only)
   //
-  // Description and methods here apply to all other node types.
+  // Description and methods here apply to Empty, Assignment, and Update nodes.
   //
   // Legal predecessor states: n/a
   // Conditions active: n/a
@@ -1421,15 +1470,15 @@ namespace PLEXIL
   }
 
   //
-  // FAILING (legal for Command, Update, ListNode, and LibraryCallNode only)
+  // FAILING (legal for Assignment, Command, Update, ListNode, and LibraryCallNode)
   //
-  // Description and methods here apply to Empty and Assignment nodes.
+  // Description and methods here apply only to Empty nodes.
   //
   // Legal predecessor states: n/a
   // Conditions active: n/a
   // Legal successor states: n/a
 
-  // Default method
+  // Empty node method
   void NodeImpl::transitionToFailing(PlexilExec * /* exec */)
   {
     errorMsg("No transition to FAILING state defined for this node");
@@ -1531,6 +1580,9 @@ namespace PLEXIL
 
   void NodeImpl::setNodeOutcome(NodeOutcome o)
   {
+    condDebugMsg(o != NO_OUTCOME && o != m_outcome,
+                 "PlanDebug:outcome",
+                 "    " << m_nodeId << " outcome " << outcomeName(o));
     m_outcome = o;
   }
 
@@ -1541,6 +1593,9 @@ namespace PLEXIL
 
   void NodeImpl::setNodeFailureType(FailureType f)
   {
+    condDebugMsg(f != NO_FAILURE && f != m_failureType,
+                 "PlanDebug:failure",
+                 "    " << m_nodeId << " failure type " << failureTypeName(f));
     m_failureType = f;
   }
 

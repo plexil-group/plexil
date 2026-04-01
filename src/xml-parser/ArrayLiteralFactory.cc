@@ -128,11 +128,9 @@ namespace PLEXIL
     values.reserve(std::distance(expr.begin(), expr.end()));
 
     pugi::xml_node thisElement = expr.first_child();
-    size_t i = 0;
     while (thisElement) {
       values.push_back(std::string(thisElement.child_value()));
       thisElement = thisElement.next_sibling();
-      ++i;
     }
     return new Constant<ArrayImpl<String> >(ArrayImpl<String>(values));
   }

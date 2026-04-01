@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2023, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,37 +34,26 @@
 namespace PLEXIL
 {
 
-  //! Default constructor
-  Reservable::Reservable()
-    : m_waiters(),
-      m_holder(nullptr)
-  {
-  }
-
-  //! Report which node owns this mutex.
-  //! @return Pointer to the node; may be null.
   NodeConnector const *Reservable::getHolder() const
   {
     return m_holder;
   }
 
-  //! Attempt to acquire the object. On failure, add the node to the
-  //! object's waiting list.
-  //! @param node The node wishing to acquire this object.
-  //! @return true if the object was successfully acquired;
-  //!         false if not.
+  Reservable::WaitQueue const &Reservable::getWaiters() const
+  {
+    return m_waiters;
+  }
+
   bool Reservable::acquire(NodeConnector *node)
   {
     if (m_holder) {
       debugMsg("Reservable:acquire",
                ' ' << this << " by node "
                << node->getNodeId() << ' ' << node << " failed");
-      addWaitingNode(node);
+      reserve(node);
       return false;
     }
     m_holder = node;
-    // If it's on the waiting list, remove it now.
-    removeWaitingNode(node);
     debugMsg("Reservable:acquire",
              ' ' << this << " by node "
              << m_holder->getNodeId() << ' ' << m_holder
@@ -72,52 +61,50 @@ namespace PLEXIL
     return true;
   }
 
-  //! If held by this node, release the object and notify other
-  //! waiting nodes that the object is available.
-  //! @param node The node which (we hope) previously acquired the object.
-  void Reservable::release(NodeConnector *node)
+  bool Reservable::release(NodeConnector *node)
   {
     if (!m_holder) {
       debugMsg("Reservable:release", 
                ' ' << this << " releasing object which was not held");
+      return false;
     }
-    else if (m_holder != node) {
-      debugMsg("Reservable:release", 
+    if (m_holder != node) {
+      debugMsg("Reservable:release",
                ' ' << this << " invalid attempt by node "
                << node->getNodeId() << ' ' << node
                << ", which was not the holder");
+      return false;
     }
-    else {
-      debugMsg("Reservable:release",
-               ' ' << this << " by node " << node->getNodeId() << ' ' << node);
-      m_holder = nullptr;
-      for (NodeConnector *n : m_waiters)
-        n->notifyResourceAvailable();
-    }
+    debugMsg("Reservable:release",
+             ' ' << this << " by node " << node->getNodeId() << ' ' << node);
+    m_holder = nullptr;
+    for (NodeConnector *n : m_waiters)
+      n->notifyResourceAvailable();
+    return true;
   }
 
-  //! Add a node to the list of nodes waiting on the variable.
-  //! @param node Pointer to the node.
-  void Reservable::addWaitingNode(NodeConnector *node)
+  bool Reservable::reserve(NodeConnector *node)
   {
     if (std::find(m_waiters.begin(), m_waiters.end(), node) == m_waiters.end()) {
-      debugMsg("Reservable:addWaitingNode",
+      debugMsg("Reservable:reserve",
                ' ' << this << " node " << node->getNodeId() << ' ' << node);
       m_waiters.push_back(node);
+      return true;
     }
+    return false;
   }
 
-  //! Remove a node from the list of nodes waiting on the variable.
-  //! @param node Pointer to the node.
-  void Reservable::removeWaitingNode(NodeConnector *node)
+  bool Reservable::cancelReservation(NodeConnector *node)
   {
     WaitQueue::iterator it = std::find(m_waiters.begin(), m_waiters.end(), node);
     if (it != m_waiters.end()) {
-      debugMsg("Reservable:removeWaitingNode",
-               ' ' << this << " removing node "
+      debugMsg("Reservable:cancelReservation",
+               ' ' << this << " node "
                << node->getNodeId() << ' ' << node);
       m_waiters.erase(it);
+      return true;
     }
+    return false;
   }
 
 } // namespace PLEXIL

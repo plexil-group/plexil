@@ -1,12 +1,8 @@
 This directory contains shell scripts useful in building and/or
-running the PLEXIL/UE software system:
+running the PLEXIL software system:
 
  - checkDecls runs the type declaration checker on a Plexil XML plan, e.g.:
   checkDecls plan.plx
-
- - checkreqs tests whether your system has the prerequisites needed to run Plexil.
-
- - debugFlagCollector.py lists all the debug flags defined in the Plexil C++ code.
 
  - eplexil translates a plan file in the Extended Plexil (.epx) format
    to Core Plexil (.plx) format.

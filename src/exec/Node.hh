@@ -1,4 +1,4 @@
-// Copyright (c) 2006-2022, Universities Space Research Association (USRA).
+// Copyright (c) 2006-2023, Universities Space Research Association (USRA).
 //  All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -181,26 +181,28 @@ namespace PLEXIL {
     // Resource conflict resolution logic
     //
 
-    //! \brief Does this node need to acquire resources before it can execute?
+    //! Does this node need to acquire resources before it can execute?
     //! \return true if resources must be acquired, false otherwise.
-    virtual bool acquiresResources() const = 0;
+    virtual bool requiresResources() const = 0;
 
-    //! \brief Get an Assignment node's assigned variable.
-    //! \return Pointer to an Assignable.  If node is not an
-    //!         AssignmentNode, will be null.
-    virtual Assignable *getAssignmentVariable() const = 0;
+    //! Can the node acquire all necessary resources?
+    //! \return true if all are available, false otherwise.
+    virtual bool canAcquireResources() const = 0;
 
-    //! \brief Attempt to reserve the resources needed by the node.
-    //!        If the attempt fails, add the node to the resources'
-    //!        wait lists.
-    //! \return true if reservation was successful, false if not.
-    //! \see Reservable
-    virtual bool tryResourceAcquisition() = 0;
+    //! Acquire the resources needed by the node.
+    //! \note Should not be called if canAcquireResources() has
+    //!       returned false.
+    virtual void acquireResources() = 0;
 
-    //! \brief Remove the node from the pending queues of any
-    //!        resources it was trying to acquire.
-    //! \see Reservable
-    virtual void releaseResourceReservations() = 0;
+    //! Release all resources previously acquired by the node.
+    virtual void releaseResources() = 0;
+
+    //! Add the node to the wait lists of all required resources.
+    virtual void reserveResources() = 0;
+
+    //! Remove the node from the wait lists of any resources it was
+    //! trying to acquire.
+    virtual void cancelResourceReservations() = 0;
 
     //
     // Printed representation

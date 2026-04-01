@@ -1,4 +1,4 @@
-/* Copyright (c) 2006-2021, Universities Space Research Association (USRA).
+/* Copyright (c) 2006-2023, Universities Space Research Association (USRA).
 *  All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -111,16 +111,53 @@ namespace PLEXIL
     m_assignment->setExpression(TRUE_EXP(), false);
   }
 
-  Assignable *AssignmentNode::getAssignmentVariable() const
+  bool AssignmentNode::specializedRequiresResources() const
   {
-    return m_assignment->getDest();
+    return true;
   }
 
-  // Wrapper around NodeImpl method
-  void AssignmentNode::releaseResourceReservations()
+  bool AssignmentNode::specializedCanAcquireResources() const
   {
-    getAssignmentVariable()->getBaseVariable()->removeWaitingNode(this);
-    NodeImpl::releaseResourceReservations();
+    Variable *var = m_assignment->getDest()->getBaseVariable();
+    if (var->getHolder()) {
+      debugMsg("PlanDebug:conflicts",
+               "  " << m_nodeId << " is blocked on variable " << var->getName());
+      return false;
+    }
+    return true;
+  }
+
+  void AssignmentNode::specializedAcquireResources()
+  {
+    Variable *var = m_assignment->getDest()->getBaseVariable();
+    assertTrueMsg(var->acquire(this),
+                  __FUNCTION__ << ": unexpected failure to acquire variable " << var->getName());
+    debugMsg("PlanDebug:conflicts",
+             "  " << m_nodeId << " acquires variable " << var->getName());
+  }
+
+  void AssignmentNode::specializedReleaseResources()
+  {
+    Variable *var = m_assignment->getDest()->getBaseVariable();
+    var->release(this);
+    debugMsg("PlanDebug:conflicts",
+             "  " << m_nodeId << " releases variable " << var->getName());
+  }
+
+  void AssignmentNode::specializedReserveResources()
+  {
+    Variable *var = m_assignment->getDest()->getBaseVariable();
+    var->reserve(this);
+    debugMsg("PlanDebug:conflicts",
+             "  " << m_nodeId << " is waiting on variable " << var->getName());
+  }
+
+  void AssignmentNode::specializedCancelResourceReservations()
+  {
+    Variable *baseVar = m_assignment->getDest()->getBaseVariable();
+    baseVar->cancelReservation(this);
+    debugMsg("PlanDebug:conflicts",
+             "  " << m_nodeId << " is no longer waiting on variable " << baseVar->getName());
   }
 
   //
@@ -309,7 +346,7 @@ namespace PLEXIL
     Expression *cond = getAbortCompleteCondition();
 #ifdef PARANOID_ABOUT_CONDITION_ACTIVATION
     checkError(cond->isActive(),
-               "Abort complete for " << getNodeId() << ' ' << this << " is inactive.");
+               "Abort complete for " << m_nodeId << ' ' << this << " is inactive.");
 #endif
     bool temp;
     if (!cond->getValue(temp) || !temp) {
@@ -372,16 +409,7 @@ namespace PLEXIL
   // Conditions active: AncestorEnd, AncestorExit, AncestorInvariant, Repeat
   // Legal successor states: FINISHED, WAITING
 
-  // This is a wrapper around the common method
-
-  void AssignmentNode::transitionToIterationEnded() 
-  {
-    if (m_state != WAITING_STATE) { 
-      // Release the assignment variable for other users.
-      getAssignmentVariable()->getBaseVariable()->release(this);
-    }
-    NodeImpl::transitionToIterationEnded();
-  }
+  // Common method suffices
 
   //
   // FINISHED
@@ -392,16 +420,7 @@ namespace PLEXIL
   // Conditions active:
   // Legal successor states: INACTIVE
 
-  // This is a wrapper method.
-
-  void AssignmentNode::transitionToFinished()
-  {
-    if (m_state == FAILING_STATE) {
-      // Release the assignment variable for other users.
-      getAssignmentVariable()->getBaseVariable()->release(this);
-    }
-    NodeImpl::transitionToFinished();
-  }
+  // Common method suffices
 
   void AssignmentNode::specializedDeactivateExecutable(PlexilExec * /* exec */) 
   {

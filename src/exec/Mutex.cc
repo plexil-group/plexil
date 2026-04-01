@@ -52,14 +52,15 @@ namespace PLEXIL
   {
     std::string indentStr(indent, ' ');
     stream << indentStr << "Mutex " << m_name;
-    if (m_holder) {
-      stream << ", held by " << m_holder->getNodeId() << ' ' << m_holder;
+    NodeConnector const *holder = getHolder();
+    if (holder) {
+      stream << ", held by " << holder->getNodeId() << ' ' << holder;
     }
     else {
       stream << " (available)";
     }
-    if (!m_waiters.empty()) {
-      stream << ", " << m_waiters.size() << " node(s) waiting";
+    if (!getWaiters().empty()) {
+      stream << ", " << getWaiters().size() << " node(s) waiting";
     }
     stream << '\n';
   }

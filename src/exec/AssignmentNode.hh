@@ -67,21 +67,6 @@ namespace PLEXIL
       return NodeType_Assignment;
     }
 
-    //! \brief Get the node's assignment variable.
-    //! \return Pointer to the variable, as an Assignable.
-    virtual Assignable *getAssignmentVariable() const override;
-
-    //! \brief Does this node need to acquire resources before it can execute?
-    //! \return true if resources must be acquired, false otherwise.
-    virtual bool acquiresResources() const override
-    {
-      return true; // a variable is a resource which must be acquired
-    }
-
-    //! \brief Remove the node from the pending queues of any resources
-    //!        it was trying to acquire.
-    virtual void releaseResourceReservations() override;
-
     //! \brief Get a pointer to the Assignment object.
     //! \return Pointer to the Assignment.
     //! \note Only used by the plan parser and its unit tests.
@@ -100,6 +85,32 @@ namespace PLEXIL
     //
     // Specific behaviors for AssignmentNode
     //
+
+    //
+    // NodeImpl resource API
+    //
+
+    //! \brief Does this node require any resources specific to the node type?
+    //! \return true if resources need to be acquired, false if not.
+    virtual bool specializedRequiresResources() const override;
+
+    //! \brief Can this node acquire all resources specific to the node type?
+    //! \return true if all can be acquired, false if not.
+    virtual bool specializedCanAcquireResources() const override;
+
+    //! \brief Acquire all resources specific to the node type.
+    virtual void specializedAcquireResources() override;
+
+    //! \brief Release all resources specific to the node type.
+    virtual void specializedReleaseResources() override;
+
+    //! \brief Put this node on the wait list of resources specific to
+    //! its node type.
+    virtual void specializedReserveResources() override;
+
+    //! \brief Remove this node from the wait lists of resources
+    //! specific to its node type.
+    virtual void specializedCancelResourceReservations() override;
 
     //! \brief Perform the execution operations appropriate to the node type.
     virtual void specializedHandleExecution(PlexilExec *exec) override;
@@ -126,12 +137,6 @@ namespace PLEXIL
 
     //! \brief Transition into FAILING state.
     virtual void transitionToFailing(PlexilExec *exec) override;
-
-    //! \brief Transition to ITERATION_ENDED state.
-    virtual void transitionToIterationEnded() override;
-
-    //! \brief Transition to FINISHED state.
-    virtual void transitionToFinished() override;
 
   private:
 

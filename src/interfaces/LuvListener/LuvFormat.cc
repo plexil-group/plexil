@@ -50,7 +50,6 @@ namespace PLEXIL {
 
   // XML tags
   static constexpr const char PLAN_INFO_TAG[] = "PlanInfo";
-  static constexpr const char PLEXIL_PLAN_TAG[] = "PlexilPlan";
   static constexpr const char PLEXIL_LIBRARY_TAG[] = "PlexilLibrary";
   static constexpr const char VIEWER_BLOCKS_TAG[] = "ViewerBlocks";
 
