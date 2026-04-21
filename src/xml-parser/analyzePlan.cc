@@ -24,7 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "DebugMessage.hh"
+#include "Debug.hh"
 #include "Error.hh"
 #include "NodeImpl.hh"
 #include "lifecycle-utils.h"
@@ -394,7 +394,7 @@ int main(int argc, char *argv[])
     usage();
     return 1;
   }
-  
+
   std::ifstream config(debugConfig.c_str());
   if (config.good()) {
     PLEXIL::readDebugConfigStream(config);
