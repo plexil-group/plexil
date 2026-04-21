@@ -33,7 +33,7 @@
 #  - Languages other than C
 #  - Operating systems other than macOS (Darwin) or Linux
 
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.10)
 
 project(ipc C)
 

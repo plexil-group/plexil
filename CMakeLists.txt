@@ -23,10 +23,7 @@
 ## TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
 ## USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-cmake_minimum_required(VERSION 3.6 FATAL_ERROR)
-
-# explicitly set certain policies
-cmake_policy(VERSION 3.6)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 project(Plexil
   DESCRIPTION "The PLEXIL Executive package"

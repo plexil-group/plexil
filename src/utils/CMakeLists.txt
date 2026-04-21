@@ -64,7 +64,7 @@ if(${WITH_THREADS})
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 endif()
 
-if(NOT NO_DEBUG_MESSAGE_SUPPORT)
+if(DEBUG_MESSAGES)
   target_sources(PlexilUtils PRIVATE DebugMessage.cc)
   install(FILES DebugMessage.hh
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})

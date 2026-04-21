@@ -108,7 +108,6 @@ int main(int argc, char ** /* argv */)
 
 # POSIX headers
 CHECK_INCLUDE_FILE(dlfcn.h HAVE_DLFCN_H)
-CHECK_INCLUDE_FILE(fcntl.h HAVE_FCNTL_H)
 CHECK_INCLUDE_FILE(pthread.h HAVE_PTHREAD_H)
 CHECK_INCLUDE_FILE(semaphore.h HAVE_SEMAPHORE_H)
 CHECK_INCLUDE_FILE(unistd.h HAVE_UNISTD_H)
@@ -121,6 +120,10 @@ CHECK_INCLUDE_FILE(arpa/inet.h HAVE_ARPA_INET_H)
 CHECK_INCLUDE_FILE(netinet/in.h HAVE_NETINET_IN_H)
 CHECK_INCLUDE_FILE(sys/socket.h HAVE_SYS_SOCKET_H)
 
+# Used only by Sockets interface library
+CHECK_INCLUDE_FILE(fcntl.h HAVE_FCNTL_H)
+CHECK_INCLUDE_FILE(sockLib.h HAVE_SOCKLIB_H)
+
 # glibc backtrace functionality
 CHECK_INCLUDE_FILE(execinfo.h HAVE_EXECINFO_H)
 
@@ -131,7 +134,6 @@ CHECK_INCLUDE_FILE(dispatch/dispatch.h HAVE_DISPATCH_DISPATCH_H)
 CHECK_INCLUDE_FILE(mach/semaphore.h HAVE_MACH_SEMAPHORE_H)
 
 # Old vxWorks
-CHECK_INCLUDE_FILE(sockLib.h HAVE_SOCKLIB_H)
 CHECK_INCLUDE_FILE(sysLib.h HAVE_SYSLIB_H)
 CHECK_INCLUDE_FILE(vxWorks.h HAVE_VXWORKS_H)
 CHECK_INCLUDE_FILE(sys/times.h HAVE_SYS_TIMES_H)
@@ -281,6 +283,8 @@ if(NOT WITH_THREADS)
   unset(PLEXIL_WITH_THREADS CACHE)
 elseif(NOT HAVE_PTHREAD_H)
   message(FATAL_ERROR "WITH_THREADS option enabled, but pthread.h not found.")
+elseif(NOT HAVE_LIBPTHREAD)
+  message(FATAL_ERROR "WITH_THREADS option enabled, but no pthreads library found.")
 else()
   set(PLEXIL_WITH_THREADS ON)
 endif()
