@@ -173,10 +173,10 @@ Using CMake
 -----------
 
 The PLEXIL Executive also supports building with CMake, for simpler
-integration into CMake-based projects.  CMake version 3.6 or newer is
-required.  The instructions here describe an out-of-tree build, which
-is the preferred approach.  In-tree builds should also work, but are
-not recommended.
+integration into CMake-based projects.  CMake version 3.10 or newer is
+required.  These instructions describe an out-of-tree build, which is
+the preferred approach.  In-tree builds should also work, but are not
+recommended.
 
 1. Create a build directory and change into it.
 
@@ -185,25 +185,29 @@ mkdir plexil-build
 cd plexil-build
 ```
 
-2. Configure the build using CMake.
+2. Configure the build using CMake.  By default CMake installs build
+   products in `/usr/local`.  Use the
+   `-DCMAKE_INSTALL_PREFIX=/another/directory` option on the 'cmake'
+   command line to install to a different location.  A minimal
+   configuration that performs a default build (see
+   `$PLEXIL_HOME/CMakeLists.txt` for the default settings) and
+   installs them in `plexil-build` is the following:
 
 ```
-cmake "path/to/plexil/src" -DCMAKE_INSTALL_PREFIX="/install/here" ... options ...
+cmake $PLEXIL_HOME/plexil/src -DCMAKE_INSTALL_PREFIX=$PLEXIL_HOME
 ```
 
-The example below includes all the optional PLEXIL components as built
-in the previous section, with binaries and libraries installed in the
-PLEXIL installation directory.  You can omit or change options as
-desired.
+Here's a recommended configuration that adds in some useful tools:
 
 ```
-cmake path/to/plexil/src -DCMAKE_INSTALL_PREFIX="$PLEXIL_HOME" \
+cmake $PLEXIL_HOME/src -DCMAKE_INSTALL_PREFIX=$PLEXIL_HOME \
  -DSTANDALONE_SIMULATOR=ON -DTEST_EXEC=ON -DUDP_ADAPTER=ON
  ```
 
-Please see the CAVEATS file in this directory for advice on CMake options.
+CMake defaults to building dynamic libraries. To build static
+libraries, specify the '-DBUILD_SHARED_LIBS=OFF' option.
 
-4. Build and install the system:
+3. Build and install the system:
 
 ```
 make install

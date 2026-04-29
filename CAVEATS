@@ -20,9 +20,6 @@ Build:
    instructions on how to use the 'configure' script to select the
    particular subsystems and applications you need.
 
- * If CMake is used in place of the GNU autotools, CMake 3.6 or newer
-   is required.
-
  * The Plexil example plans and applications (found in
    plexil-4/examples) are NOT compiled by default.  Plans (.ple or
    .plp files) must be compiled manually (with plexilc) to produce
@@ -41,25 +38,17 @@ Custom builds:
    '--bindir=', '--libdir=', and '--includedir=' options to
    'configure'.  We suggest installing these files in the PLEXIL
    installation directory itself. E.g.:
-
- cd $PLEXIL_HOME/src
- ./configure --prefix=$PLEXIL_HOME [... more options ...]
-
- * Likewise, CMake defaults to /usr/local as its installation prefix.
-   Use the '-DCMAKE_INSTALL_PREFIX=/another/directory' option on the
-   'cmake' command line to install to a different location.
-
- * In-tree CMake builds are possible, but are not recommended.
-
+   
+   ```
+   cd $PLEXIL_HOME/src
+   ./configure --prefix=$PLEXIL_HOME [... more options ...]
+   ```
+   
  * By default, the GNU autotools build both dynamic and static
    libraries. This consumes time and disk space. Unless your
    application specifically requires both, we recommend that you build
    only the libraries you need. This is done by supplying the
    '--disable-static' or '--disable-dynamic' option to 'configure'.
-
- * CMake defaults to building dynamic libraries. To build static
-   libraries, specify the '-DBUILD_SHARED_LIBS=OFF' option on the
-   'cmake' command line.
 
 PLEXIL executive and interfaces:
 
