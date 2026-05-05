@@ -194,13 +194,13 @@ cd plexil-build
    installs them in `plexil-build` is the following:
 
 ```
-cmake "${PLEXIL_HOME}/plexil/src" -DCMAKE_INSTALL_PREFIX="${PLEXIL_HOME}"
+cmake "${PLEXIL_HOME}" -DCMAKE_INSTALL_PREFIX="${PLEXIL_HOME}"
 ```
 
 Here's a recommended configuration that adds in some useful tools:
 
 ```
-cmake "${PLEXIL_HOME}/src" -DCMAKE_INSTALL_PREFIX="${PLEXIL_HOME}" \
+cmake "${PLEXIL_HOME}" -DCMAKE_INSTALL_PREFIX="${PLEXIL_HOME}" \
  -DSTANDALONE_SIMULATOR=ON -DTEST_EXEC=ON -DUDP_ADAPTER=ON
  ```
 
