@@ -6,7 +6,7 @@ See https://plexil-group.github.io/plexil_docs/ for information about
 this software, including its user manuals.  There is more information
 in the README files found in the subdirectories.
 
-The Versions file describes previous releases of Plexil, as well as
+The Versions file describes previous releases of PLEXIL, as well as
 the latest features not yet released in a binary distribution.
 
 The CAVEATS file describes known problems and issues in this release.
@@ -37,8 +37,8 @@ software:
 If you downloaded a tarball, the GNU autotools and gperf are not
 needed.
 
-The robosim example program also requires the X11 libraries freeglut,
-libxi, libxmu and their header files.
+The robosim example program also requires the X11 libraries `freeglut`,
+`libxi`, `libxmu` and their header files.
 
 ## How to build PLEXIL - Simple version
 
@@ -64,7 +64,7 @@ Set `PLEXIL_HOME` to the directory containing this README.md file.
 
 ```
 export PLEXIL_HOME='/where/i/cloned/plexil'
-. "$PLEXIL_HOME/scripts/plexil-setup.sh"
+. "${PLEXIL_HOME}/scripts/plexil-setup.sh"
 ```
 
 2. Source the init file you just edited:
@@ -97,8 +97,8 @@ plexiltest -p my-plan.plx -s my-script.psx
 ```
 
 5. The `plexilexec` script runs the Universal Executive on a plan and
-requires an interface configuration file. See the Sourceforge
-documentation for more information.
+requires an interface configuration file. See the online documentation
+for more information.
 
 ```
 plexilexec -c interface-config.xml -p my-plan.plx`
@@ -130,7 +130,7 @@ changed.
 1. Create the script 'src/configure':
 
 ```
-cd "$PLEXIL_HOME"
+cd "${PLEXIL_HOME}"
 make src/configure
 ```
 
@@ -149,7 +149,7 @@ in the PLEXIL installation directory.  You can omit or change
 options as desired.
 
 ```
-./configure --prefix="$PLEXIL_HOME" --disable-static --enable-ipc \
+./configure --prefix="${PLEXIL_HOME}" --disable-static --enable-ipc \
  --enable-sas --enable-test-exec --enable-udp
 ```
 
@@ -194,18 +194,18 @@ cd plexil-build
    installs them in `plexil-build` is the following:
 
 ```
-cmake $PLEXIL_HOME/plexil/src -DCMAKE_INSTALL_PREFIX=$PLEXIL_HOME
+cmake "${PLEXIL_HOME}/plexil/src" -DCMAKE_INSTALL_PREFIX="${PLEXIL_HOME}"
 ```
 
 Here's a recommended configuration that adds in some useful tools:
 
 ```
-cmake $PLEXIL_HOME/src -DCMAKE_INSTALL_PREFIX=$PLEXIL_HOME \
+cmake "${PLEXIL_HOME}/src" -DCMAKE_INSTALL_PREFIX="${PLEXIL_HOME}" \
  -DSTANDALONE_SIMULATOR=ON -DTEST_EXEC=ON -DUDP_ADAPTER=ON
  ```
 
 CMake defaults to building dynamic libraries. To build static
-libraries, specify the '-DBUILD_SHARED_LIBS=OFF' option.
+libraries, specify the `-DBUILD_SHARED_LIBS=OFF` option.
 
 3. Build and install the system:
 
