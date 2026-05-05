@@ -5,10 +5,11 @@ Build:
 
  * If the GNU autotools installed on your system are a different
    version from the ones used to build this release, you may encounter
-   errors running 'make'. The following commands can replace the bad
-   files with compatible ones from your local installation:
+   errors running 'make' from $PLEXIL_HOME.  The following commands
+   can replace the bad files with compatible ones from your local
+   installation:
 
-  cd $PLEXIL_HOME/src
+  cd "${PLEXIL_HOME}/src"
   aclocal --force
   libtoolize --force --copy
   autoreconf --force --install
@@ -21,7 +22,7 @@ Build:
    particular subsystems and applications you need.
 
  * The Plexil example plans and applications (found in
-   plexil-4/examples) are NOT compiled by default.  Plans (.ple or
+   plexil/examples) are NOT compiled by default.  Plans (.ple or
    .plp files) must be compiled manually (with plexilc) to produce
    .plx files.  The application directories (examples/sample-app and
    examples/robosim) must be built by typing 'make'.
@@ -40,8 +41,8 @@ Custom builds:
    installation directory itself. E.g.:
    
    ```
-   cd $PLEXIL_HOME/src
-   ./configure --prefix=$PLEXIL_HOME [... more options ...]
+   cd "${PLEXIL_HOME}/src"
+   ./configure --prefix="${PLEXIL_HOME}" [... more options ...]
    ```
    
  * By default, the GNU autotools build both dynamic and static
@@ -52,22 +53,20 @@ Custom builds:
 
 PLEXIL executive and interfaces:
 
- * The IPC subsystem is not yet working on FreeBSD (as of PLEXIL
-   4.0.1). Unfortunately, this means many of the example applications
-   cannot be used on FreeBSD.
+ * The IPC subsystem is not supported on FreeBSD.  Unfortunately, this
+   means many of the example applications cannot be used on FreeBSD.
 
 Standard Plexil language:
 
- * Node timepoints cannot be assigned to variables.
+ * Node timepoint values cannot be assigned to variables.
 
 Plexil Viewer:
 
  * The PLEXIL Viewer (started with the 'plexil' script) is not in a
    usable state, and has lacked support for a number of years.  We
-   welcome fixes and enhancements from the PLEXIL community.  Note
-   that PLEXIL is still in strong use in its command line form.
+   welcome fixes and enhancements from the PLEXIL community.
 
- * The viewer may not quit from the Plexil Viewer Console window,
+ * The Viewer may not quit from the Plexil Viewer Console window,
    using the Viewer/Exit selection or the red Apple window button.
    These cause the application to hang, and you must kill its
    process, e.g. enter 'ps -eaf | grep java' and then 'kill -9 <pid>'
@@ -81,10 +80,11 @@ Plexil compiler ('plexilc'):
 
 Plexil Simulator:
 
-  * Both the documentation (at
-    https://plexil-group.github.io/plexil_docs/PLEXILExecution/PLEXILSimulators.html)
-    and implementation are in need of update.  In particular the
-    simulator will not work in MacOS because it attempts to start
-    'xterm'.  Aside from this, the simulator has had long-standing
-    issues.  Fixes and enhancements from the PLEXIL community are
-    welcome!
+ * Both the documentation (at
+   https://plexil-group.github.io/plexil_docs/PLEXILExecution/PLEXILSimulators.html)
+   and implementation are in need of update.  In particular the
+   'plexilsim' script will not work in macOS because it attempts to
+   start 'xterm', which is no longer included in the macOS
+   distribution.  Aside from this, the simulator has had
+   long-standing issues.  Fixes and enhancements from the PLEXIL
+   community are welcome!
