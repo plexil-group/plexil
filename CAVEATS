@@ -1,7 +1,34 @@
 This file, plexil/CAVEATS, lists known bugs and issues in this version
 of PLEXIL.
 
-Build:
+
+Build
+=====
+
+All builds
+----------
+
+ * The scripts in 'plexil/scripts' might not work with an out-of-tree
+   installation of PLEXIL, i.e. an installation target directory that
+   is not the root of the distribution checkout.  They rely on
+   $PLEXIL_HOME, which points to the distribution.  One workaround is
+   an in-tree installation, which is the default for the "simple"
+   installation described below.  Another is customization of the
+   installation directory, $PLEXIL_HOME, and the scripts, or some
+   combination thereof.  The PLEXIL team hopes to provide a solution
+   to this issue.
+
+ * Building from a git clone now requires the GNU 'gperf' perfect hash
+   utility.  The tarball download comes with the gperf-generated code
+   already generated.
+
+ * Switching between, or combining, the Autotools and CMake builds is
+   generally not possible.  If you need to switch build types, first
+   clean the distribution of any build products.
+
+
+Autotools builds
+----------------
 
  * If the GNU autotools installed on your system are a different
    version from the ones used to build this release, you may encounter
@@ -9,10 +36,10 @@ Build:
    can replace the bad files with compatible ones from your local
    installation:
 
-  cd "${PLEXIL_HOME}/src"
-  aclocal --force
-  libtoolize --force --copy
-  autoreconf --force --install
+   cd "${PLEXIL_HOME}/src"
+   aclocal --force
+   libtoolize --force --copy
+   autoreconf --force --install
 
    You should be able to re-run 'configure' and 'make' successfully at
    this point.
@@ -27,40 +54,71 @@ Build:
    .plx files.  The application directories (examples/sample-app and
    examples/robosim) must be built by typing 'make'.
 
-Custom builds:
-
- * Building from a git clone now requires the GNU 'gperf' perfect hash
-   utility.  The tarball download comes with the gperf-generated code
-   already generated.
-
  * The default installation location for PLEXIL libraries and
    executables under the GNU autotools is /usr/local.  The
    installation locations can be specified with the '--prefix=',
    '--bindir=', '--libdir=', and '--includedir=' options to
    'configure'.  We suggest installing these files in the PLEXIL
    installation directory itself. E.g.:
-   
+
    ```
    cd "${PLEXIL_HOME}/src"
    ./configure --prefix="${PLEXIL_HOME}" [... more options ...]
    ```
-   
+
  * By default, the GNU autotools build both dynamic and static
    libraries. This consumes time and disk space. Unless your
    application specifically requires both, we recommend that you build
    only the libraries you need. This is done by supplying the
    '--disable-static' or '--disable-dynamic' option to 'configure'.
 
-PLEXIL executive and interfaces:
+CMake builds
+------------
 
- * The IPC subsystem is not supported on FreeBSD.  Unfortunately, this
-   means many of the example applications cannot be used on FreeBSD.
+ * The compilers are not included in this build.  If you started from
+   a pure source code distribution, cd to plexil/compilers/plexil and
+   type 'ant'; then repeat this in the sibling 'plexilscript'
+   directory.
 
-Standard Plexil language:
+ * The top level Makefile is modified by this build.  Its default
+   version is for the Autotools build.  This is mainly a nuiscance
+   that needs a fix.  It can be restored with:
+
+   git checkout -- Makefile
+
+ * The following warnings appear during the build, but should be safe
+   to ignore:
+
+    plexil/src/intfc/InterfaceError.cc:77:3: warning: function
+    declared 'noreturn' should not return [-Winvalid-noreturn]
+
+    plexil/src/utils/PlanError.cc:77:3: warning: function declared
+    'noreturn' should not return [-Winvalid-noreturn]
+
+    plexil/src/utils/Error.cc:119:3: warning: function declared
+    'noreturn' should not return [-Winvalid-noreturn]
+
+
+PLEXIL executive and interfaces
+===============================
+
+ * The IPC subsystem has not been supported or maintained for some
+   time.  It may not build on FreeBSD and some Linux variants
+   including Ubuntu.  Unfortunately, this means many of the example
+   applications cannot be used on these platforms.
+
+
+Standard Plexil language
+========================
 
  * Node timepoint values cannot be assigned to variables.
 
-Plexil Viewer:
+ * Arithmetic expressions of node timepoint values cannot include Date
+   or Duration typed operands -- only Real or Integer may be used.
+
+
+Plexil Viewer
+=============
 
  * The PLEXIL Viewer (started with the 'plexil' script) is not in a
    usable state, and has lacked support for a number of years.  We
@@ -72,13 +130,17 @@ Plexil Viewer:
    process, e.g. enter 'ps -eaf | grep java' and then 'kill -9 <pid>'
    where <pid> is the process number.
 
-Plexil compiler ('plexilc'):
+
+Plexil compiler ('plexilc')
+===========================
 
  * File extensions included in the '-o' option are ignored: Extended
    and Core Plexil files are always written with the ".epx" and ".plx"
    extensions, respectively.
 
-Plexil Simulator:
+
+Plexil Simulator
+================
 
  * Both the documentation (at
    https://plexil-group.github.io/plexil_docs/PLEXILExecution/PLEXILSimulators.html)

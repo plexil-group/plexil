@@ -172,46 +172,53 @@ make
 Using CMake
 -----------
 
-The PLEXIL Executive also supports building with CMake, for simpler
+The PLEXIL Executive supports building with CMake, for simpler
 integration into CMake-based projects.  CMake version 3.10 or newer is
-required.  These instructions describe an out-of-tree build, which is
-the preferred approach.  In-tree builds should also work, but are not
-recommended.
+required.  Though the legacy in-tree build of PLEXIL (i.e. built
+directly in its source code checkout) should work, an out-of-tree
+build is strongly recommended and is best practice for CMake.
 
-1. Create a build directory and change into it.
+However, out-of-tree _installations_ have a problem with respect to
+PLEXIL's runtime scripts.  See the CAVEATS file for more information
+on this, and other CMake build issues.  In this section we'll describe
+an out-of-tree build with an in-tree installation.
+
+1. Create a build directory and change into it.  This can have any
+name and be in any writable location, including the root of the PLEXIL
+distribution.
+
 
 ```
 mkdir plexil-build
 cd plexil-build
 ```
 
-2. Configure the build using CMake.  By default CMake installs build
-   products in `/usr/local`.  Use the
-   `-DCMAKE_INSTALL_PREFIX=/another/directory` option on the 'cmake'
-   command line to install to a different location.  A minimal
-   configuration that performs a default build (see
-   `$PLEXIL_HOME/CMakeLists.txt` for the default settings) and
-   installs them in `plexil-build` is the following:
+2. Configure the build using CMake.  By default CMake installs in
+   `/usr/local`, but we'll use the distribution directory whose
+   location is assumed to be the value of the PLEXIL_HOME environment
+   variable.  The following line configures a minimal build.  See
+   `$PLEXIL_HOME/CMakeLists.txt` for default settings.
 
 ```
-cmake "${PLEXIL_HOME}" -DCMAKE_INSTALL_PREFIX="${PLEXIL_HOME}"
+cmake -DCMAKE_INSTALL_PREFIX=$PLEXIL_HOME $PLEXIL_HOME
 ```
 
 Here's a recommended configuration that adds in some useful tools:
 
 ```
-cmake "${PLEXIL_HOME}" -DCMAKE_INSTALL_PREFIX="${PLEXIL_HOME}" \
- -DSTANDALONE_SIMULATOR=ON -DTEST_EXEC=ON -DUDP_ADAPTER=ON
- ```
+cmake -DCMAKE_INSTALL_PREFIX=$PLEXIL_HOME -DSTANDALONE_SIMULATOR=ON \
+  -DTEST_EXEC=ON -DUDP_ADAPTER=ON $PLEXIL_HOME
+```
 
 CMake defaults to building dynamic libraries. To build static
 libraries, specify the `-DBUILD_SHARED_LIBS=OFF` option.
 
-3. Build and install the system:
+3. Build and install the system.  From the 'plexil-build' directory:
 
 ```
 make install
 ```
+
 
 ## Cross-compiling the PLEXIL Executive
 
