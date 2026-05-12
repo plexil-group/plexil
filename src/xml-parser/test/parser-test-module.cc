@@ -24,7 +24,7 @@
 * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "DebugMessage.hh"
+#include "Debug.hh"
 #include "lifecycle-utils.h"
 #include "PlanError.hh"
 #include "SymbolTable.hh"

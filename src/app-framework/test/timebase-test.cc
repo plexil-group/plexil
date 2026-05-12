@@ -25,7 +25,7 @@
 
 #include "plexil-config.h"
 
-#include "DebugMessage.hh"
+#include "Debug.hh"
 #include "InterfaceError.hh"
 #include "ThreadSemaphore.hh"
 #include "TimebaseFactory.hh"

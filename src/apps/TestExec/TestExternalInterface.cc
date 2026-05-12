@@ -44,10 +44,10 @@
 
 #include <limits>
 #include <sstream>
-
-#ifdef STDC_HEADERS
 #include <cstring>
-#endif
+
+using std::strcmp;
+using std::strlen;
 
 namespace PLEXIL
 {
@@ -77,7 +77,7 @@ namespace PLEXIL
     checkError(g_exec, "Attempted to run a script without an executive.");
 
     handleInitialState(input); // steps exec once
-    
+
     pugi::xml_node script = input.child("Script");
     checkError(!script.empty(), "No Script element in Plexilscript.");
     pugi::xml_node scriptElement = script.first_child();
@@ -101,7 +101,7 @@ namespace PLEXIL
       else if (strcmp(scriptElement.name(), "CommandAck") == 0) {
         handleCommandAck(scriptElement);
       }
-         
+
       // command abort
       else if (strcmp(scriptElement.name(), "CommandAbort") == 0) {
         handleCommandAbort(scriptElement);
@@ -132,7 +132,7 @@ namespace PLEXIL
         reportParserException("Unknown script element '" << scriptElement.name() << "'");
         return;
       }
-         
+
       // step the exec forward
       if (true /* g_exec->processQueue() */ ) // *** FIXME ***
         g_exec->step(StateCache::currentTime());
@@ -183,7 +183,7 @@ namespace PLEXIL
     Value value = parseResult(elt);
     debugMsg("Test:testOutput",
              "Sending command result " << getText(command, value));
-    StateCommandMap::iterator it = 
+    StateCommandMap::iterator it =
       m_executingCommands.find(command);
     checkError(it != m_executingCommands.end(),
                "No currently executing command " << getText(command));
@@ -203,7 +203,7 @@ namespace PLEXIL
     debugMsg("Test:testOutput",
              "Sending command ACK " << getText(command, value));
     StateCommandMap::iterator it = m_commandAcks.find(command);
-    assertTrueMsg(it != m_commandAcks.end(), 
+    assertTrueMsg(it != m_commandAcks.end(),
                   "No command waiting for acknowledgement " << getText(command));
     commandHandleReturn(it->second, handle);
   }
@@ -217,12 +217,12 @@ namespace PLEXIL
     Boolean ack;
     assertTrueMsg(value.getValue(ack),
                   "CommmandAbort value must not be unknown");
-    
+
     debugMsg("Test:testOutput",
              "Sending abort ACK " << getText(command, value));
-    StateCommandMap::iterator it = 
+    StateCommandMap::iterator it =
       m_abortingCommands.find(command);
-    assertTrueMsg(it != m_abortingCommands.end(), 
+    assertTrueMsg(it != m_abortingCommands.end(),
                   "No abort waiting for acknowledgement " << getText(command));
     debugMsg("Test:testOutput",
              "Acknowledging abort into " << it->second);
@@ -249,7 +249,7 @@ namespace PLEXIL
 
     pugi::xml_document* doc = new pugi::xml_document();
     pugi::xml_parse_result parseResult = doc->load_file(filename);
-    assertTrueMsg(parseResult.status == pugi::status_ok, 
+    assertTrueMsg(parseResult.status == pugi::status_ok,
                   "Error parsing plan file " << elt.attribute("file").value()
                   << ": " << parseResult.description());
 
@@ -367,7 +367,7 @@ namespace PLEXIL
     }
   }
 
-  static void parseParams(pugi::xml_node const root, 
+  static void parseParams(pugi::xml_node const root,
                           std::vector<Value>& dest)
   {
     size_t n = std::distance(root.begin(), root.end());
@@ -454,7 +454,7 @@ namespace PLEXIL
   }
 
   // parse in value
-  static Value parseOneValue(const std::string& type, 
+  static Value parseOneValue(const std::string& type,
                              const std::string& valStr)
   {
     // Unknown

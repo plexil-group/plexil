@@ -81,7 +81,6 @@ install(TARGETS analyzePlan
   DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 target_link_libraries(analyzePlan PRIVATE
-  PlexilUtils PlexilValue PlexilExpr PlexilIntfc PlexilExec
   pugixml PlexilXmlParser)
 
 if(PlexilExec_EXE_INSTALL_RPATH)

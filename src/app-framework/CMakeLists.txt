@@ -55,10 +55,6 @@ if(PlexilExec_SHLIB_INSTALL_RPATH)
     PROPERTIES INSTALL_RPATH ${PlexilExec_SHLIB_INSTALL_RPATH})
 endif()
 
-if(WITH_THREADS AND HAVE_LIBPTHREAD)
-  target_link_libraries(PlexilAppFramework PUBLIC pthread)
-endif()
-
 if(HAVE_LIBDISPATCH)
   target_link_libraries(PlexilAppFramework PUBLIC dispatch)
 endif()

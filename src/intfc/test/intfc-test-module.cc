@@ -26,7 +26,7 @@
 
 #include "plexil-config.h"
 
-#include "DebugMessage.hh"
+#include "Debug.hh"
 #include "lifecycle-utils.h"
 #include "TestSupport.hh"
 

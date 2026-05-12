@@ -31,9 +31,8 @@ add_library(UdpUtils ${PlexilExec_SHARED_OR_STATIC}
 target_include_directories(UdpUtils PUBLIC
   ${PlexilExec_SOURCE_DIR}/utils)
 
-# No link dependencies here
-# target_link_libraries(UdpUtils PUBLIC
-#   )
+target_link_libraries(UdpUtils PUBLIC
+  PlexilUtils)
 
 install(FILES 
   UdpEventLoop.hh udp-utils.hh

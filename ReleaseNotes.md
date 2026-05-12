@@ -1,5 +1,20 @@
 # PLEXIL Release Notes
 
+## 6.1.3
+
+- Updated pugixml to release v1.15.
+
+- Fix various build issues when `NO_DEBUG_MESSAGE_SUPPORT` macro is
+  defined.
+
+- Fix several CMake build system issues.
+
+- Move CMake build instructions from `CAVEATS` to `README.md`.  Other
+  minor edits to these files.
+
+- Fix a missing destructor method for `std::unique_ptr<PLEXIL::Array>`
+  when using Apple `clang++` compiler.
+
 ## 6.1.2
 
 - Removed obsolete `UPDATES.TODO.md` file and `workshop` directory.

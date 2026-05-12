@@ -256,9 +256,9 @@ namespace PLEXIL
       // Queue had better be empty when we get here!
       checkError(m_stateChangeQueue.empty(), "State change queue not empty at entry");
 
+      unsigned int cycleNum = StateCache::instance().getCycleCount();
 #ifndef NO_DEBUG_MESSAGE_SUPPORT 
       // Only used in debugMsg calls
-      unsigned int cycleNum = StateCache::instance().getCycleCount();
       unsigned int stepCount = 0;
       unsigned int microStepCount = 0;
 #endif

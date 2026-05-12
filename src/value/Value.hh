@@ -31,11 +31,10 @@
 
 #include <memory> // std::unique_ptr
 
-// Explicit instantiation
 namespace std
 {
-  template class unique_ptr<PLEXIL::Array>;
-  template class unique_ptr<PLEXIL::String>;
+  // clang on macOS 15.x requires this explicit instantiation.
+  template unique_ptr<PLEXIL::Array>::~unique_ptr();
 }
 
 namespace PLEXIL
