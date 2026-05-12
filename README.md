@@ -200,14 +200,14 @@ cd plexil-build
    `$PLEXIL_HOME/CMakeLists.txt` for default settings.
 
 ```
-cmake -DCMAKE_INSTALL_PREFIX=$PLEXIL_HOME $PLEXIL_HOME
+cmake "${PLEXIL_HOME}" -DCMAKE_INSTALL_PREFIX="${PLEXIL_HOME}"
 ```
 
 Here's a recommended configuration that adds in some useful tools:
 
 ```
-cmake -DCMAKE_INSTALL_PREFIX=$PLEXIL_HOME -DSTANDALONE_SIMULATOR=ON \
-  -DTEST_EXEC=ON -DUDP_ADAPTER=ON $PLEXIL_HOME
+cmake "${PLEXIL_HOME}" -DCMAKE_INSTALL_PREFIX="${PLEXIL_HOME}" \
+  -DSTANDALONE_SIMULATOR=ON -DTEST_EXEC=ON -DUDP_ADAPTER=ON
 ```
 
 CMake defaults to building dynamic libraries. To build static
