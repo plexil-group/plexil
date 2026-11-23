@@ -181,11 +181,12 @@ namespace PLEXIL
                                        expr,
                                        "Can't create a writeable array reference on a read-only array expression");
     }
-    catch (ParserException & e) {
+    catch (ParserException &) {
       if (arrayCreated)
         delete arrayExpr;
       if (indexCreated)
         delete indexExpr;
+      throw; // children are freed; do not construct the reference
     }
 
     wasCreated = true;
